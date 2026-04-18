@@ -4,7 +4,7 @@
 
 - `postgres`: canonical persistence service.
 - `app`: Zig runtime server.
-- `verify`: docs + Zig quality gate runner.
+- `verify`: runs `verify.sh` (docs checks, Zig gates, `/healthz` probe, and `scripts/verify_api_integration.sh`).
 
 ## Runtime Commands
 
@@ -22,4 +22,3 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml up -d postgres
 docker compose -f docker-compose.yml -f docker-compose.verify.yml run --rm verify
 docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 ```
-

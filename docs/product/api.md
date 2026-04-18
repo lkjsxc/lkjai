@@ -51,3 +51,16 @@
   }
   ```
 
+## Health
+
+- `GET /healthz`
+- Semantics: readiness check for app + runtime storage.
+- Healthy response:
+  ```json
+  { "status": "ok", "app": "ready", "storage": "ready" }
+  ```
+- Storage unavailable response:
+  ```json
+  { "status": "error", "code": "storage_unavailable", "app": "ready", "storage": "not_ready" }
+  ```
+- Status codes: `200` when ready, `503` when storage is unavailable.

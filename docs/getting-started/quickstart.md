@@ -29,6 +29,6 @@ Run `lkjai` locally with PostgreSQL and open the private operator console.
 
 ## Notes
 
-- Current bootstrap implementation includes a mock storage adapter while preserving PostgreSQL contracts and compose service topology.
+- Compose runtime uses `DATABASE_URL=postgres://...@postgres:5432/lkjai`, so storage is backed by PostgreSQL in the canonical path.
+- `/healthz` is a readiness endpoint: it returns `200` only when app and storage are ready, otherwise `503` with `storage_unavailable`.
 - Operator API calls must include the admin token.
-

@@ -7,7 +7,7 @@ Persist librarian records and runtime metadata with PostgreSQL.
 ## Canonical Backend
 
 - PostgreSQL is the source of truth backend.
-- Connection string comes from `DATABASE_URL`.
+- Connection string comes from `DATABASE_URL` (compose path: `postgres://lkjai:lkjai@postgres:5432/lkjai`).
 
 ## Record Shape
 
@@ -19,6 +19,6 @@ Persist librarian records and runtime metadata with PostgreSQL.
 ## Adapter Rules
 
 - Runtime uses a storage interface to keep domain logic decoupled from DB driver details.
-- Bootstrap implementation may use in-memory fallback for local development, but PostgreSQL contract remains canonical.
+- Runtime selects PostgreSQL storage when `DATABASE_URL` starts with `postgres://` or `postgresql://`.
+- In-memory fallback only applies when a non-PostgreSQL URL is configured.
 - Write and delete operations must return explicit status values.
-

@@ -18,10 +18,11 @@ docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
 
 - Docs topology and line-limit checks pass.
 - Zig build and tests pass.
-- App starts and `/healthz` returns success.
+- App starts and `/healthz` returns `200` readiness (`{"status":"ok","app":"ready","storage":"ready"}`).
+- Verify runner executes `verify.sh`, which runs `scripts/verify_api_integration.sh`.
+- API integration verification passes auth, upsert/list/chat, and delete flows.
 - Artifact-size gate evaluates configured deploy model metadata and enforces `<= 512 MiB`.
 
 ## Stop Rule
 
 - Any non-zero command exit blocks acceptance.
-
