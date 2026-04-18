@@ -1,0 +1,19 @@
+.{
+    .name = "lkjai",
+    .version = "0.1.0",
+    .minimum_zig_version = "0.12.0",
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "docs",
+        "scripts",
+        "web",
+        "artifacts",
+        "README.md",
+        "LICENSE",
+        ".env.example",
+        "verify.sh",
+    },
+    .dependencies = .{},
+}
