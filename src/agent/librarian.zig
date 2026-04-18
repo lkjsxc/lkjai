@@ -1,11 +1,11 @@
 const std = @import("std");
-const memory = @import("../storage/memory.zig");
 const tokenizer = @import("../model/tokenizer.zig");
+const runtime_store = @import("../storage/runtime.zig");
 
 pub const Librarian = struct {
-    store: *memory.MemoryStore,
+    store: runtime_store.RuntimeStore,
 
-    pub fn init(store: *memory.MemoryStore) Librarian {
+    pub fn init(store: runtime_store.RuntimeStore) Librarian {
         return .{ .store = store };
     }
 
@@ -13,12 +13,12 @@ pub const Librarian = struct {
         try self.store.upsert(id, title, body);
     }
 
-    pub fn delete(self: *Librarian, id: []const u8) bool {
-        return self.store.delete(id);
+    pub fn delete(self: *Librarian, id: []const u8) !bool {
+        return try self.store.delete(id);
     }
 
-    pub fn countMatches(self: *Librarian, query: []const u8) usize {
-        return self.store.countMatches(query);
+    pub fn countMatches(self: *Librarian, query: []const u8) !usize {
+        return try self.store.countMatches(query);
     }
 
     pub fn listJson(self: *Librarian, allocator: std.mem.Allocator, query: []const u8) ![]u8 {
@@ -33,14 +33,17 @@ pub const Librarian = struct {
         }
 
         var out = std.ArrayList(u8).init(allocator);
-        try out.appendSlice("{\"status\":\"ok\",\"records\":[");
+        const writer = out.writer();
+        try writer.writeAll("{\"status\":\"ok\",\"records\":[");
         for (items, 0..) |item, i| {
-            if (i != 0) try out.appendSlice(",");
-            const part = try std.fmt.allocPrint(allocator, "{{\"id\":\"{s}\",\"title\":\"{s}\"}}", .{ item.id, item.title });
-            defer allocator.free(part);
-            try out.appendSlice(part);
+            if (i != 0) try writer.writeByte(',');
+            try writer.writeAll("{\"id\":");
+            try std.json.stringify(item.id, .{}, writer);
+            try writer.writeAll(",\"title\":");
+            try std.json.stringify(item.title, .{}, writer);
+            try writer.writeByte('}');
         }
-        try out.appendSlice("]}");
+        try writer.writeAll("]}");
         return out.toOwnedSlice();
     }
 

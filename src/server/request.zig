@@ -7,6 +7,11 @@ pub const Request = struct {
     body: []const u8,
 };
 
+pub const JsonFieldError = error{
+    InvalidJson,
+    OutOfMemory,
+};
+
 pub fn parse(raw: []const u8) !Request {
     const split_at = std.mem.indexOf(u8, raw, "\r\n\r\n") orelse return error.InvalidRequest;
     const head = raw[0..split_at];
@@ -46,15 +51,17 @@ pub fn queryValue(target: []const u8, key: []const u8) ?[]const u8 {
     return null;
 }
 
-pub fn jsonField(body: []const u8, key: []const u8) ?[]const u8 {
-    var needle_buf: [128]u8 = undefined;
-    const needle = std.fmt.bufPrint(&needle_buf, "\"{s}\"", .{key}) catch return null;
-    const key_pos = std.mem.indexOf(u8, body, needle) orelse return null;
-    const after_key = body[key_pos + needle.len ..];
-    const colon = std.mem.indexOfScalar(u8, after_key, ':') orelse return null;
-    const after_colon = std.mem.trimLeft(u8, after_key[colon + 1 ..], " \t\r\n");
-    if (after_colon.len == 0 or after_colon[0] != '"') return null;
-    const content = after_colon[1..];
-    const end_quote = std.mem.indexOfScalar(u8, content, '"') orelse return null;
-    return content[0..end_quote];
+pub fn jsonField(allocator: std.mem.Allocator, body: []const u8, key: []const u8) JsonFieldError!?[]const u8 {
+    var parsed = std.json.parseFromSlice(std.json.Value, allocator, body, .{}) catch |err| switch (err) {
+        error.OutOfMemory => return error.OutOfMemory,
+        else => return error.InvalidJson,
+    };
+    defer parsed.deinit();
+
+    if (parsed.value != .object) return error.InvalidJson;
+    const value = parsed.value.object.get(key) orelse return null;
+    if (value != .string) return error.InvalidJson;
+
+    const duped = try allocator.dupe(u8, value.string);
+    return duped;
 }

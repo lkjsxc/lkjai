@@ -40,6 +40,7 @@ pub const Orchestrator = struct {
         librarian: *librarian_mod.Librarian,
         message: []const u8,
         out: usize = 0,
+        err: ?anyerror = null,
     };
 
     const TokenCtx = struct {
@@ -48,7 +49,10 @@ pub const Orchestrator = struct {
     };
 
     fn runMatch(ctx: *MatchCtx) void {
-        ctx.out = ctx.librarian.countMatches(ctx.message);
+        ctx.out = ctx.librarian.countMatches(ctx.message) catch |err| {
+            ctx.err = err;
+            return;
+        };
     }
 
     fn runTokens(ctx: *TokenCtx) void {
@@ -69,6 +73,7 @@ pub const Orchestrator = struct {
         var t2 = try std.Thread.spawn(.{}, runTokens, .{&token_ctx});
         t1.join();
         t2.join();
+        if (match_ctx.err) |err| return err;
 
         const reply = try librarian.buildChatReply(allocator, message, match_ctx.out, token_ctx.out);
         return .{

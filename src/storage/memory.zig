@@ -1,10 +1,7 @@
 const std = @import("std");
+const record_mod = @import("record.zig");
 
-pub const Record = struct {
-    id: []u8,
-    title: []u8,
-    body: []u8,
-};
+pub const Record = record_mod.Record;
 
 pub const MemoryStore = struct {
     allocator: std.mem.Allocator,

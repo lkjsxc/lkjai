@@ -8,7 +8,7 @@ pub fn main() !void {
     const allocator = gpa.allocator();
 
     const cfg = try config_mod.Config.load(allocator);
-    var app = server.init(allocator, cfg);
+    var app = try server.init(allocator, cfg);
     defer server.deinit(&app);
 
     std.log.info("lkjai listening on :{d}", .{cfg.port});
@@ -17,4 +17,5 @@ pub fn main() !void {
 
 test {
     _ = @import("tests/basic_test.zig");
+    _ = @import("tests/json_safety_test.zig");
 }
