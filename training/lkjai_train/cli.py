@@ -30,6 +30,7 @@ def main() -> None:
     export = sub.add_parser("export-model")
     export.add_argument("--max-artifact-mib", type=int, default=512)
     sub.add_parser("smoke")
+    sub.add_parser("train")
     args = parser.parse_args()
     paths = Paths(args.data_dir)
     result = dispatch(args, paths)
@@ -57,7 +58,35 @@ def dispatch(args, paths):
         pack_tokens(paths)
         train_model(paths, True, 2)
         return export_model(paths, 512)
+    if args.command == "train":
+        return train_pipeline(paths)
     raise ValueError(args.command)
+
+
+def train_pipeline(paths):
+    tiny = env_bool("TRAIN_TINY", False)
+    token_budget = env_int("TRAIN_TOKEN_BUDGET", 3_000_000_000)
+    dataset = os.environ.get("TRAIN_DATASET", "HuggingFaceFW/fineweb-edu")
+    vocab_size = env_int("TRAIN_VOCAB_SIZE", 32_000)
+    steps = env_int("TRAIN_STEPS", 8)
+    context = env_int("TRAIN_CONTEXT", 0)
+    config = os.environ.get("TRAIN_CONFIG", "/workspace/configs/lkj-150m.toml")
+    prepare_corpus(paths, token_budget, dataset, tiny)
+    train_tokenizer(paths, vocab_size)
+    pack_tokens(paths)
+    train_model(paths, tiny, steps, config, context)
+    return export_model(paths, env_int("TRAIN_MAX_ARTIFACT_MIB", 512))
+
+
+def env_int(key: str, default: int) -> int:
+    return int(os.environ.get(key, str(default)))
+
+
+def env_bool(key: str, default: bool) -> bool:
+    value = os.environ.get(key)
+    if value is None:
+        return default
+    return value.lower() in {"1", "true", "yes", "on"}
 
 
 if __name__ == "__main__":

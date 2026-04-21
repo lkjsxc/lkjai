@@ -24,7 +24,14 @@ docker compose --profile verify run --rm verify
 ## Train Smoke Model
 
 ```bash
-docker compose --profile train run --rm train smoke
+TRAIN_TINY=1 TRAIN_TOKEN_BUDGET=200 TRAIN_STEPS=2 \
+  docker compose --profile train up --build --abort-on-container-exit
+```
+
+## Train Default Model
+
+```bash
+docker compose --profile train up --build
 ```
 
 ## Run Web App

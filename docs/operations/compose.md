@@ -22,7 +22,14 @@
 ## Commands
 
 ```bash
-docker compose --profile train run --rm train smoke
+docker compose --profile train up --build
 docker compose --profile web up --build web
 docker compose --profile verify run --rm verify
 ```
+
+## Training Defaults
+
+- The `train` service starts the full corpus, tokenizer, model, and export
+  pipeline by default.
+- Training can be scaled down for checks with `TRAIN_TINY=1`,
+  `TRAIN_TOKEN_BUDGET`, and `TRAIN_STEPS`.

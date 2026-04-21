@@ -11,3 +11,4 @@ ENV PYTHONPATH=/workspace/training
 ENV DATA_DIR=/app/data
 
 ENTRYPOINT ["python", "-m", "lkjai_train.cli"]
+CMD ["train"]
