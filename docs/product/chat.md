@@ -3,7 +3,8 @@
 ## Surface
 
 - `GET /` serves the first-screen chat application.
-- The UI exposes a prompt box, run transcript, and tool results.
+- The UI exposes a chat transcript, prompt box, run id, model state, and tool
+  results.
 - The app is local-only by default.
 - There is no login in v1.
 
@@ -12,6 +13,8 @@
 - User prompts are sent to `POST /api/chat`.
 - The model response may request deterministic tool calls.
 - Tool calls and outputs are displayed in the transcript.
+- Natural-language tool requests are accepted for shell commands, URL fetches,
+  file reads, file writes, and directory listings.
 - Every run is persisted as JSONL under `data/agent/runs/`.
 
 ## Default Safety Boundary

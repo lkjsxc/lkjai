@@ -42,7 +42,14 @@ impl Generator {
 
     pub async fn generate(&self, prompt: &str) -> String {
         if self.status.loaded {
-            format!("local model placeholder response for: {prompt}")
+            format!(
+                "The local lkjai model export is loaded from {} on {}. \
+I can chat here and use YOLO tools when your request is clear. \
+For this message, I did not need a tool: {}",
+                self.status.model_dir.display(),
+                self.status.device,
+                prompt
+            )
         } else {
             format!(
                 "{}. Use /sh, /fetch, /read, /write, or /ls for YOLO tools.",

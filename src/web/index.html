@@ -5,40 +5,98 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>lkjai</title>
   <style>
-    body { margin: 0; font-family: system-ui, sans-serif; background: #f7f5ef; color: #1f2933; }
-    main { max-width: 980px; margin: 0 auto; padding: 28px; }
-    h1 { font-size: 28px; margin: 0 0 18px; letter-spacing: 0; }
-    form { display: grid; gap: 10px; }
-    textarea { min-height: 120px; padding: 12px; font: inherit; border: 1px solid #9aa5b1; }
-    button { width: fit-content; padding: 10px 16px; border: 0; background: #0f766e; color: white; }
-    pre { white-space: pre-wrap; background: #111827; color: #e5e7eb; padding: 14px; overflow: auto; }
-    .hint { color: #52606d; }
+    :root { color-scheme: light; --ink: #17212b; --muted: #5d6b78; --line: #c9d2dc; --panel: #fff; --bg: #f4f0e7; --accent: #0f766e; --tool: #243b53; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; background: var(--bg); color: var(--ink); }
+    main { min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto; max-width: 1040px; margin: 0 auto; padding: 20px; gap: 14px; }
+    header { display: flex; align-items: end; justify-content: space-between; gap: 14px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+    h1 { font-size: 28px; margin: 0; letter-spacing: 0; }
+    #status { color: var(--muted); font-size: 13px; text-align: right; overflow-wrap: anywhere; }
+    #log { display: flex; flex-direction: column; gap: 10px; overflow: auto; padding: 4px 0; }
+    .msg { max-width: 82%; padding: 12px; border: 1px solid var(--line); background: var(--panel); border-radius: 6px; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .user { align-self: flex-end; background: #e6fffb; border-color: #7dd3c7; }
+    .assistant { align-self: flex-start; }
+    .tool_call, .tool_result { align-self: stretch; max-width: 100%; background: var(--tool); color: #e6edf5; border-color: var(--tool); font-family: ui-monospace, monospace; font-size: 13px; }
+    .error { align-self: stretch; max-width: 100%; background: #fff1f2; border-color: #fb7185; }
+    form { display: grid; grid-template-columns: 1fr auto; gap: 10px; border-top: 1px solid var(--line); padding-top: 12px; }
+    textarea { resize: vertical; min-height: 70px; max-height: 220px; padding: 12px; font: inherit; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); }
+    button { align-self: end; min-width: 84px; height: 44px; border: 0; border-radius: 6px; background: var(--accent); color: white; font-weight: 700; cursor: pointer; }
+    button:disabled { opacity: .55; cursor: wait; }
+    @media (max-width: 700px) {
+      main { padding: 12px; }
+      header { align-items: start; flex-direction: column; }
+      #status { text-align: left; }
+      form { grid-template-columns: 1fr; }
+      .msg { max-width: 100%; }
+    }
   </style>
 </head>
 <body>
   <main>
-    <h1>lkjai</h1>
-    <p class="hint">Local YOLO tools: /sh, /fetch, /read, /write, /ls</p>
+    <header>
+      <h1>lkjai</h1>
+      <div id="status">starting</div>
+    </header>
+    <section id="log" aria-live="polite"></section>
     <form id="chat">
-      <textarea id="message" autofocus>/sh pwd</textarea>
-      <button>Run</button>
+      <textarea id="message" autofocus placeholder="Message lkjai"></textarea>
+      <button id="send">Send</button>
     </form>
-    <pre id="out"></pre>
   </main>
   <script>
+    const log = document.getElementById("log");
+    const form = document.getElementById("chat");
+    const input = document.getElementById("message");
+    const send = document.getElementById("send");
+    const status = document.getElementById("status");
     let runId = null;
-    document.getElementById("chat").addEventListener("submit", async (event) => {
+
+    function add(kind, content, tool) {
+      const node = document.createElement("article");
+      node.className = `msg ${kind}`;
+      node.textContent = tool ? `${tool}\n${content}` : content;
+      log.appendChild(node);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    async function refreshStatus() {
+      const response = await fetch("/api/model");
+      const model = await response.json();
+      status.textContent = `${model.loaded ? "model loaded" : "fallback"} · ${model.device} · ${model.model_dir}`;
+    }
+
+    form.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const message = document.getElementById("message").value;
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {"content-type": "application/json"},
-        body: JSON.stringify({message, run_id: runId})
-      });
-      const data = await response.json();
-      runId = data.run_id;
-      document.getElementById("out").textContent = JSON.stringify(data, null, 2);
+      const message = input.value.trim();
+      if (!message) return;
+      input.value = "";
+      send.disabled = true;
+      add("user", message);
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: {"content-type": "application/json"},
+          body: JSON.stringify({message, run_id: runId})
+        });
+        const data = await response.json();
+        runId = data.run_id;
+        for (const event of data.events) {
+          if (event.kind === "user" && event.content === message) continue;
+          add(event.kind, event.content, event.tool);
+        }
+      } catch (error) {
+        add("error", String(error));
+      } finally {
+        send.disabled = false;
+        input.focus();
+      }
     });
+
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) form.requestSubmit();
+    });
+
+    refreshStatus().catch((error) => { status.textContent = String(error); });
   </script>
 </body>
 </html>

@@ -8,6 +8,12 @@
 - `file.write`: write a host file.
 - `file.list`: list a host directory.
 
+## Browser Input
+
+- Slash commands are accepted for exact tool selection.
+- Natural-language requests are mapped to tools when intent is clear.
+- Ambiguous requests are answered as chat instead of guessed as tools.
+
 ## YOLO Policy
 
 - Tools run without confirmation.

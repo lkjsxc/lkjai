@@ -44,7 +44,7 @@ pub fn parse_tool(input: &str) -> Option<ToolCall> {
         "/read" => Some(ToolCall::Read(rest.into())),
         "/ls" | "/list" => Some(ToolCall::List(rest.into())),
         "/write" => parse_write(rest),
-        _ => None,
+        _ => parse_natural(trimmed),
     }
 }
 
@@ -72,6 +72,50 @@ fn parse_write(rest: &str) -> Option<ToolCall> {
         path: path.trim().into(),
         content: content.into(),
     })
+}
+
+fn parse_natural(input: &str) -> Option<ToolCall> {
+    let lower = input.to_ascii_lowercase();
+    if let Some(command) = prefixed(input, &lower, &["run:", "run command:", "execute:"]) {
+        return Some(ToolCall::Shell(command.into()));
+    }
+    if let Some(url) = first_url(input) {
+        if lower.starts_with("fetch ") || lower.starts_with("open ") || lower.contains(" website") {
+            return Some(ToolCall::Fetch(url.into()));
+        }
+    }
+    if let Some(path) = after_prefix(input, &lower, &["read file ", "read "]) {
+        return Some(ToolCall::Read(path.into()));
+    }
+    if let Some(path) = after_prefix(input, &lower, &["list directory ", "list files ", "list "]) {
+        return Some(ToolCall::List(path.into()));
+    }
+    if let Some(rest) = after_prefix(input, &lower, &["write file ", "write "]) {
+        return parse_write(rest);
+    }
+    None
+}
+
+fn prefixed<'a>(input: &'a str, lower: &str, prefixes: &[&str]) -> Option<&'a str> {
+    for prefix in prefixes {
+        if lower.starts_with(prefix) {
+            let value = input[prefix.len()..].trim();
+            if !value.is_empty() {
+                return Some(value);
+            }
+        }
+    }
+    None
+}
+
+fn after_prefix<'a>(input: &'a str, lower: &str, prefixes: &[&str]) -> Option<&'a str> {
+    prefixed(input, lower, prefixes).filter(|value| !value.is_empty())
+}
+
+fn first_url(input: &str) -> Option<&str> {
+    input
+        .split_whitespace()
+        .find(|word| word.starts_with("http://") || word.starts_with("https://"))
 }
 
 async fn run_shell(command: String) -> Result<String, String> {
