@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>lkjai</title>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #f7f5ef; color: #1f2933; }
+    main { max-width: 980px; margin: 0 auto; padding: 28px; }
+    h1 { font-size: 28px; margin: 0 0 18px; letter-spacing: 0; }
+    form { display: grid; gap: 10px; }
+    textarea { min-height: 120px; padding: 12px; font: inherit; border: 1px solid #9aa5b1; }
+    button { width: fit-content; padding: 10px 16px; border: 0; background: #0f766e; color: white; }
+    pre { white-space: pre-wrap; background: #111827; color: #e5e7eb; padding: 14px; overflow: auto; }
+    .hint { color: #52606d; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>lkjai</h1>
+    <p class="hint">Local YOLO tools: /sh, /fetch, /read, /write, /ls</p>
+    <form id="chat">
+      <textarea id="message" autofocus>/sh pwd</textarea>
+      <button>Run</button>
+    </form>
+    <pre id="out"></pre>
+  </main>
+  <script>
+    let runId = null;
+    document.getElementById("chat").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const message = document.getElementById("message").value;
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {"content-type": "application/json"},
+        body: JSON.stringify({message, run_id: runId})
+      });
+      const data = await response.json();
+      runId = data.run_id;
+      document.getElementById("out").textContent = JSON.stringify(data, null, 2);
+    });
+  </script>
+</body>
+</html>
