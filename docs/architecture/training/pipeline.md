@@ -30,9 +30,12 @@
 - `TRAIN_DATA_DIR` controls the mounted output root and defaults to
   `/app/data/train`.
 - `TRAIN_TOKEN_BUDGET`, `TRAIN_DATASET`, `TRAIN_VOCAB_SIZE`, `TRAIN_STEPS`,
-  `TRAIN_MAX_DURATION_SECS`, `TRAIN_CONTEXT`, and `TRAIN_CONFIG` tune the run.
+  `TRAIN_MAX_DURATION_SECS`, `TRAIN_CONTEXT`, `TRAIN_CONFIG`, and
+  `TRAIN_TOKENIZER_SAMPLE_CHARS` tune the run.
 - `TRAIN_FIXED_EVAL_THRESHOLD` and `TRAIN_ENFORCE_COMPETENCY` control
   competency acceptance.
+- Token packing writes a flat `uint16` shard and trainer batches through memory
+  maps to keep host RAM bounded.
 
 ## Checkpoints
 

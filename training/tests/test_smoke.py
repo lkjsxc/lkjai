@@ -1,5 +1,9 @@
+import json
+
 from lkjai_train.cli import dispatch, train_settings
+from lkjai_train.packer import pack_tokens
 from lkjai_train.paths import Paths
+from lkjai_train.tokenizer import train_tokenizer
 
 
 class Args:
@@ -27,6 +31,25 @@ def test_longrun_settings_defaults(monkeypatch):
     monkeypatch.setenv("TRAIN_PRESET", "longrun")
     monkeypatch.delenv("TRAIN_MAX_DURATION_SECS", raising=False)
     monkeypatch.delenv("TRAIN_ENFORCE_COMPETENCY", raising=False)
+    monkeypatch.delenv("TRAIN_TOKENIZER_SAMPLE_CHARS", raising=False)
     settings = train_settings("longrun")
     assert settings.max_duration_secs == 21_600
     assert settings.enforce_competency is True
+    assert settings.tokenizer_sample_chars == 5_000_000
+
+
+def test_pack_tokens_writes_streaming_metadata(tmp_path):
+    class CorpusArgs:
+        command = "prepare-corpus"
+        token_budget = 200
+        dataset = "fixture"
+        tiny = True
+
+    paths = Paths(str(tmp_path))
+    dispatch(CorpusArgs(), paths)
+    train_tokenizer(paths, 259, 0)
+    out = pack_tokens(paths)
+    metadata = json.loads((paths.tokenized / "metadata.json").read_text(encoding="utf-8"))
+    assert out.name == "tokens.u16"
+    assert metadata["token_file"] == "tokens.u16"
+    assert metadata["tokens"] > 0

@@ -35,6 +35,7 @@ docker compose --profile verify run --rm verify
 - `TRAIN_STEPS` is still required as a minimum step floor before duration stop.
 - `TRAIN_FIXED_EVAL_THRESHOLD` defaults to `0.80`.
 - `TRAIN_ENFORCE_COMPETENCY` defaults to enabled for long-run acceptance.
+- `TRAIN_TOKENIZER_SAMPLE_CHARS` defaults to `5000000` to bound tokenizer RAM.
 - Training writes to `TRAIN_DATA_DIR`, default `/app/data/train`.
 
 ## Presets

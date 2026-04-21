@@ -15,6 +15,7 @@
 - `TRAIN_DATASET`: dataset source, default `HuggingFaceFW/fineweb-edu`.
 - `TRAIN_CONFIG`: model config path.
 - `TRAIN_CONTEXT`: optional context override (`0` keeps config value).
+- `TRAIN_TOKENIZER_SAMPLE_CHARS`: tokenizer training sample cap (`5000000` by default).
 
 ## Stop Rule
 

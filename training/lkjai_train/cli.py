@@ -23,6 +23,7 @@ def main() -> None:
     corpus.add_argument("--tiny", action="store_true")
     tokenizer = sub.add_parser("train-tokenizer")
     tokenizer.add_argument("--vocab-size", type=int, default=32_000)
+    tokenizer.add_argument("--sample-max-chars", type=int, default=5_000_000)
     sub.add_parser("pack-tokens")
     train = sub.add_parser("train-model")
     train.add_argument("--config", default="")
@@ -50,7 +51,7 @@ def dispatch(args, paths):
     if args.command == "prepare-corpus":
         return prepare_corpus(paths, args.token_budget, args.dataset, args.tiny)
     if args.command == "train-tokenizer":
-        return train_tokenizer(paths, args.vocab_size)
+        return train_tokenizer(paths, args.vocab_size, args.sample_max_chars)
     if args.command == "pack-tokens":
         return pack_tokens(paths)
     if args.command == "train-model":
@@ -68,7 +69,7 @@ def dispatch(args, paths):
         return evaluate_fixed_suite(paths, args.threshold)
     if args.command == "smoke":
         prepare_corpus(paths, 200, "fixture", True)
-        train_tokenizer(paths, 259)
+        train_tokenizer(paths, 259, 0)
         pack_tokens(paths)
         train_model(paths, True, 2)
         result = export_model(paths, 512)
@@ -88,7 +89,7 @@ def train_pipeline(paths):
     )
     prepare_corpus(paths, settings.token_budget, settings.dataset, settings.tiny)
     log("corpus prepared")
-    train_tokenizer(paths, settings.vocab_size)
+    train_tokenizer(paths, settings.vocab_size, settings.tokenizer_sample_chars)
     log("tokenizer trained")
     pack_tokens(paths)
     log("tokens packed")
@@ -120,6 +121,7 @@ class TrainSettings:
     token_budget: int
     dataset: str
     vocab_size: int
+    tokenizer_sample_chars: int
     steps: int
     context: int
     config: str
@@ -130,13 +132,14 @@ class TrainSettings:
 
 def train_settings(preset: str) -> TrainSettings:
     if preset == "quick":
-        return TrainSettings(True, 200, "fixture", 259, 2, 32, "", 0, 0.8, False)
+        return TrainSettings(True, 200, "fixture", 259, 0, 2, 32, "", 0, 0.8, False)
     if preset == "longrun":
         return TrainSettings(
             False,
             env_int("TRAIN_TOKEN_BUDGET", 3_000_000_000),
             os.environ.get("TRAIN_DATASET", "HuggingFaceFW/fineweb-edu"),
             env_int("TRAIN_VOCAB_SIZE", 32_000),
+            env_int("TRAIN_TOKENIZER_SAMPLE_CHARS", 5_000_000),
             env_int("TRAIN_STEPS", 512),
             env_int("TRAIN_CONTEXT", 0),
             os.environ.get("TRAIN_CONFIG", "/workspace/configs/lkj-150m.toml"),
@@ -150,6 +153,7 @@ def train_settings(preset: str) -> TrainSettings:
             env_int("TRAIN_TOKEN_BUDGET", 3_000_000_000),
             os.environ.get("TRAIN_DATASET", "HuggingFaceFW/fineweb-edu"),
             env_int("TRAIN_VOCAB_SIZE", 32_000),
+            env_int("TRAIN_TOKENIZER_SAMPLE_CHARS", 5_000_000),
             env_int("TRAIN_STEPS", 512),
             env_int("TRAIN_CONTEXT", 0),
             os.environ.get("TRAIN_CONFIG", "/workspace/configs/lkj-150m.toml"),
@@ -163,6 +167,7 @@ def train_settings(preset: str) -> TrainSettings:
             env_int("TRAIN_TOKEN_BUDGET", 3_000_000_000),
             os.environ.get("TRAIN_DATASET", "HuggingFaceFW/fineweb-edu"),
             env_int("TRAIN_VOCAB_SIZE", 32_000),
+            env_int("TRAIN_TOKENIZER_SAMPLE_CHARS", 5_000_000),
             env_int("TRAIN_STEPS", 8),
             env_int("TRAIN_CONTEXT", 0),
             os.environ.get("TRAIN_CONFIG", "/workspace/configs/lkj-150m.toml"),
@@ -179,7 +184,6 @@ def env_int(key: str, default: int) -> int:
 
 def env_float(key: str, default: float) -> float:
     return float(os.environ.get(key, str(default)))
-
 
 def env_bool(key: str, default: bool) -> bool:
     value = os.environ.get(key)
