@@ -1,0 +1,8 @@
+target
+tmp
+data/*
+!data/.gitkeep
+.git
+.env
+__pycache__
+.pytest_cache

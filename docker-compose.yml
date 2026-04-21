@@ -1,0 +1,63 @@
+name: lkjai
+
+services:
+  web:
+    profiles: ["web"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    network_mode: host
+    environment:
+      APP_HOST: ${APP_HOST:-127.0.0.1}
+      APP_PORT: ${APP_PORT:-8080}
+      DATA_DIR: ${DATA_DIR:-/app/data}
+      MODEL_DIR: ${MODEL_DIR:-/app/data/models/lkj-150m}
+      TOOL_TIMEOUT_SECS: ${TOOL_TIMEOUT_SECS:-20}
+      TOOL_OUTPUT_LIMIT: ${TOOL_OUTPUT_LIMIT:-12000}
+    volumes:
+      - ./data:/app/data
+      - /:/host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  train:
+    profiles: ["train"]
+    build:
+      context: .
+      dockerfile: Dockerfile.train
+    environment:
+      DATA_DIR: ${DATA_DIR:-/app/data}
+    volumes:
+      - ./data:/app/data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  verify:
+    profiles: ["verify"]
+    build:
+      context: .
+      dockerfile: Dockerfile.verify
+    working_dir: /workspace
+    environment:
+      DATA_DIR: /workspace/data
+      PYTHONPATH: /workspace/training
+      CARGO_TARGET_DIR: /target
+    volumes:
+      - .:/workspace:ro
+      - ./data:/workspace/data
+      - verify-cargo:/usr/local/cargo/registry
+      - verify-target:/target
+
+volumes:
+  verify-cargo:
+  verify-target:
