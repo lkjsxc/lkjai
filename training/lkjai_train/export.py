@@ -1,4 +1,5 @@
 import json
+import shutil
 from dataclasses import asdict
 from pathlib import Path
 
@@ -19,6 +20,9 @@ def export_model(paths, max_mib: int = 512) -> Path:
     state = {key: value.half() for key, value in model.state_dict().items()}
     save_file(state, weights)
     (out / "config.json").write_text(json.dumps(asdict(cfg), indent=2), encoding="utf-8")
+    tokenizer = paths.tokenizers / "tokenizer.json"
+    if tokenizer.exists():
+        shutil.copy2(tokenizer, out / "tokenizer.json")
     size = sum(path.stat().st_size for path in out.glob("*") if path.is_file())
     size_mib = size / 1024 / 1024
     if size_mib > max_mib:

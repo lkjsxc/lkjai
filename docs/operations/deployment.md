@@ -16,8 +16,10 @@ docker compose --profile web up --build web
 ## Model Artifact
 
 - Place serving exports under `data/models/lkj-150m`.
-- The app remains bootable without an export and reports missing-model status in
-  chat transcripts.
+- A serving export must include `config.json`, `model.safetensors`, and
+  `tokenizer.json`.
+- The app remains bootable without an export, but chat reports an explicit
+  model load error instead of a dummy assistant response.
 
 ## Risk
 

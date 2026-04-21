@@ -11,6 +11,8 @@
 ## Behavior
 
 - User prompts are sent to `POST /api/chat`.
+- Non-tool prompts are answered by real model generation from the loaded export.
+- Model-status strings are not valid assistant replies.
 - The model response may request deterministic tool calls.
 - Tool calls and outputs are displayed in the transcript.
 - Natural-language tool requests are accepted for shell commands, URL fetches,
