@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import sys
 
 from .corpus import prepare_corpus
 from .export import export_model
@@ -22,6 +23,8 @@ def main() -> None:
     tokenizer.add_argument("--vocab-size", type=int, default=32_000)
     sub.add_parser("pack-tokens")
     train = sub.add_parser("train-model")
+    train.add_argument("--config", default="")
+    train.add_argument("--context", type=int, default=0)
     train.add_argument("--tiny", action="store_true")
     train.add_argument("--steps", type=int, default=8)
     export = sub.add_parser("export-model")
@@ -31,6 +34,10 @@ def main() -> None:
     paths = Paths(args.data_dir)
     result = dispatch(args, paths)
     print(json.dumps({"command": args.command, "status": "pass", "result": str(result)}))
+    if args.command == "prepare-corpus":
+        sys.stdout.flush()
+        sys.stderr.flush()
+        os._exit(0)
 
 
 def dispatch(args, paths):
@@ -41,7 +48,7 @@ def dispatch(args, paths):
     if args.command == "pack-tokens":
         return pack_tokens(paths)
     if args.command == "train-model":
-        return train_model(paths, args.tiny, args.steps)
+        return train_model(paths, args.tiny, args.steps, args.config, args.context)
     if args.command == "export-model":
         return export_model(paths, args.max_artifact_mib)
     if args.command == "smoke":

@@ -1,5 +1,7 @@
 import json
 from dataclasses import asdict
+from pathlib import Path
+import tomllib
 
 import numpy as np
 import torch
@@ -7,10 +9,19 @@ import torch
 from .model import LkjModel, ModelConfig, tiny_config
 
 
-def train_model(paths, tiny: bool = False, steps: int = 8) -> str:
-    cfg = tiny_config() if tiny else ModelConfig()
+def train_model(
+    paths,
+    tiny: bool = False,
+    steps: int = 8,
+    config_path: str = "",
+    context: int = 0,
+) -> str:
+    cfg = tiny_config() if tiny else load_config(config_path)
+    if context:
+        cfg.context = context
     device = "cuda" if torch.cuda.is_available() else "cpu"
     data = torch.tensor(np.load(paths.tokenized / "tokens.npy"), dtype=torch.long)
+    cfg.vocab_size = max(cfg.vocab_size, int(data.max().item()) + 1)
     model = LkjModel(cfg).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4)
     losses = []
@@ -30,6 +41,20 @@ def train_model(paths, tiny: bool = False, steps: int = 8) -> str:
         encoding="utf-8",
     )
     return str(checkpoint)
+
+
+def load_config(config_path: str) -> ModelConfig:
+    if not config_path:
+        return ModelConfig()
+    with Path(config_path).open("rb") as file:
+        raw = tomllib.load(file).get("model", {})
+    return ModelConfig(
+        vocab_size=int(raw.get("vocab_size", 259)),
+        context=int(raw.get("context", 64)),
+        layers=int(raw.get("layers", 2)),
+        hidden=int(raw.get("hidden", 128)),
+        heads=int(raw.get("heads", 4)),
+    )
 
 
 def batch(data: torch.Tensor, context: int):

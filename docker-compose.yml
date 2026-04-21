@@ -49,7 +49,7 @@ services:
       dockerfile: Dockerfile.verify
     working_dir: /workspace
     environment:
-      DATA_DIR: /workspace/data
+      DATA_DIR: /workspace/data/verify
       PYTHONPATH: /workspace/training
       CARGO_TARGET_DIR: /target
     volumes:
