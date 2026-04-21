@@ -1,11 +1,15 @@
 # Architecture
 
-## Goal
+Use this subtree for model, training, and runtime implementation contracts.
 
-Define the model stack, runtime orchestration, and storage contracts that implementation must follow.
+## Read This Section When
+
+- You need the target model design.
+- You need corpus and CUDA training contracts.
+- You need the Rust runtime and data layout.
 
 ## Child Index
 
-- [model/README.md](model/README.md): model and training contracts.
-- [runtime/README.md](runtime/README.md): server, orchestrator, and storage adapters.
-
+- [model/README.md](model/README.md): model config, architecture, and lightweighting
+- [training/README.md](training/README.md): corpus, pipeline, and CUDA behavior
+- [runtime/README.md](runtime/README.md): web, inference, and storage behavior

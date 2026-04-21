@@ -1,36 +1,36 @@
-# lkjai Documentation Canon
+# Documentation Canon
 
-## Goal
+`docs/` is the only active canon for project intent, product behavior, model
+design, training operations, runtime shape, verification, and repository rules.
 
-`docs/` is the single source of truth for `lkjai` behavior, architecture, operations, and repository policy.
+## Global Rules
 
-## Rules
+1. Keep one canonical owner for each rule.
+2. Keep every docs directory to one `README.md` plus multiple children.
+3. Keep every docs file at 300 lines or fewer.
+4. Keep every authored source file at 200 lines or fewer.
+5. Prefer short declarative bullets over narrative prose.
+6. Remove stale contracts instead of preserving conflicting versions.
+7. Document exact commands, paths, defaults, and payload shapes when they matter.
+8. Optimize for LLM retrieval before human ornament.
 
-- Update docs contracts before changing implementation.
-- Keep each docs file at `<= 300` lines.
-- Keep each source file at `<= 200` lines.
-- Every docs directory must contain exactly one `README.md` TOC and multiple child files/directories.
-- Prefer short declarative bullets over long narrative text.
+## Top-Level Sections
 
-## Top-Level Index
+- [vision/README.md](vision/README.md): purpose, principles, and LLM-readable topology rules
+- [getting-started/README.md](getting-started/README.md): quickstart and verification entrypoints
+- [product/README.md](product/README.md): chat UI, agent tools, and API contracts
+- [architecture/README.md](architecture/README.md): model, training, and runtime architecture
+- [operations/README.md](operations/README.md): Compose profiles, deployment, and quality gates
+- [repository/README.md](repository/README.md): repository layout, workflow, and authoring rules
+- [research/README.md](research/README.md): external model, corpus, and lightweighting references
 
-- [getting-started/README.md](getting-started/README.md): setup and verification entry path.
-- [vision/README.md](vision/README.md): product goal, principles, and LLM-first rules.
-- [product/README.md](product/README.md): private console behavior, API, and librarian-agent UX.
-- [architecture/README.md](architecture/README.md): model, training, orchestration, and storage contracts.
-- [operations/README.md](operations/README.md): compose runtime and verification gates.
-- [repository/README.md](repository/README.md): layout, workflow, and line-limit policy.
+## Recommended Reading Order
 
-## Locked Decisions
-
-- Language: Zig.
-- Training target: strict from-scratch (random initialization).
-- Runtime target: CPU-only.
-- CPU acceleration policy: external native math libraries are allowed.
-- Model profile: dense transformer around `~250M` parameters before quantization.
-- Deployment artifact policy: quantized inference artifact must be `<= 512 MiB`.
-- Domain: English general-purpose with librarian/catalog focus.
-- Access model: single-operator private console.
-- Persistence target: PostgreSQL.
-- Concurrency target: orchestration supports at least `16` concurrent requests with queueing.
-
+1. [vision/purpose.md](vision/purpose.md)
+2. [repository/layout.md](repository/layout.md)
+3. [architecture/model/config.md](architecture/model/config.md)
+4. [architecture/training/corpus.md](architecture/training/corpus.md)
+5. [product/agent-tools.md](product/agent-tools.md)
+6. [architecture/runtime/web.md](architecture/runtime/web.md)
+7. [operations/compose.md](operations/compose.md)
+8. [operations/quality.md](operations/quality.md)

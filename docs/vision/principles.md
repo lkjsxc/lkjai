@@ -1,23 +1,25 @@
-# Principles Contract
+# Principles
 
 ## Build Principles
 
-1. Zig is the implementation language for core runtime, model stack, and orchestration.
-2. Documentation contracts lead implementation.
-3. CPU-only performance is treated as a first-class optimization target.
-4. External CPU math libraries are allowed when they produce measurable gains.
-5. Every critical behavior must be testable and script-verifiable.
+- Documentation defines behavior before implementation.
+- Implementation follows the smallest coherent contract that satisfies the docs.
+- GPU work is preferred over CPU work when it improves training or inference
+  throughput without making verification brittle.
+- Long-running training must be resumable.
+- Verification stays small enough to run routinely.
 
-## Agent Principles
+## Product Principles
 
-- Decompose work into parallel subtasks when safe.
-- Keep deterministic merge behavior for parallel outputs.
-- Keep failure modes explicit and machine-readable.
-- Keep librarian operations auditable and reversible where possible.
+- The web app is local-first.
+- Host-YOLO actions are explicit in transcripts.
+- Tool execution favors operator power over sandboxing.
+- Dangerous defaults must be documented plainly.
 
-## Data Principles
+## Model Principles
 
-- Canonical persistence target is PostgreSQL.
-- Training corpora must be permissive, redistributable, and license-documented.
-- Contract terms are singular and consistent across docs and code.
-
+- The v1 model is trained from scratch.
+- The model architecture borrows proven small-model techniques without copying
+  restricted weights.
+- The training corpus is openly licensed and reproducible.
+- The serving export is the artifact constrained to 512 MiB.

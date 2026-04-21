@@ -1,12 +1,15 @@
 # Model Architecture
 
-## Goal
+Use this subtree for the small decoder model that `lkjai` trains from scratch.
 
-Define canonical architecture and training contracts for the strict from-scratch LLM lifecycle.
+## Read This Section When
+
+- You need parameter, tokenizer, or context defaults.
+- You need the Transformer block contract.
+- You need the lightweighting path.
 
 ## Child Index
 
-- [transformer.md](transformer.md): dense transformer topology and parameter targets.
-- [training.md](training.md): tokenizer, data flow, and optimization loop.
-- [lightweighting.md](lightweighting.md): deploy artifact size and compression path.
-
+- [config.md](config.md): default `lkj-150m` configuration
+- [architecture.md](architecture.md): decoder block and attention contract
+- [lightweighting.md](lightweighting.md): size limit and compression roadmap

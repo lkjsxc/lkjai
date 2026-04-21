@@ -1,16 +1,19 @@
-# Workflow Contract
+# Workflow
 
 ## Sequence
 
-1. Update docs contracts.
+1. Update documentation canon.
 2. Update implementation to match docs.
-3. Run local quality gates.
-4. Run compose verification.
-5. Commit a coherent verified batch.
+3. Run relevant Compose verification.
+4. Commit each coherent verified batch.
 
 ## Commit Policy
 
-- Prefer small focused commits.
-- Keep docs and implementation aligned in the same logical batch.
-- Commit frequently after verified milestones.
+- Commit docs-only batches before dependent code batches.
+- Prefer small commits with one clear purpose.
+- Do not accumulate unrelated verified work into one large commit.
 
+## Current Branch Policy
+
+- Work lands on local `main`.
+- Preserve `tmp/kjxlkj` as untracked reference material.

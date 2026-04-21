@@ -1,24 +1,19 @@
 # Lightweighting Contract
 
-## Goal
+## Required
 
-Guarantee a deployable inference artifact at `<= 512 MiB`.
+- Export fp16 safetensors for v1 serving.
+- Fail export if the serving artifact exceeds 512 MiB.
+- Keep tokenizer and config beside weights for deterministic loading.
 
-## Strategy
+## Optional Hooks
 
-- Keep a dense base model around `~250M` parameters.
-- Publish an inference-ready 4-bit quantized artifact.
-- Keep larger training checkpoints for development workflows.
-- Track artifact metadata in CI/verification output.
+- Add int8 export after fp16 serving is stable.
+- Add int4 export only when verification can load and generate from it.
+- Add distillation only after a teacher model and licensing path are documented.
 
-## Verification Rule
+## Future Research
 
-- Release gate fails if deploy artifact exceeds `512 MiB`.
-- Artifact-size check is mandatory in compose verification.
-
-## Techniques
-
-- Post-training quantization (4-bit).
-- Optional structured pruning for margin.
-- Optional distillation into smaller deploy variants.
-
+- Fujitsu-style extreme quantization is a research direction.
+- Structured pruning is a research direction.
+- NAS-guided layer shape search is a research direction.

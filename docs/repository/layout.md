@@ -1,29 +1,29 @@
-# Layout Contract
+# Repository Layout
 
-## Required Root Entries
+## Root Entries
 
 - `README.md`
 - `LICENSE`
-- `.gitignore`
-- `.env.example`
-- `build.zig`
-- `build.zig.zon`
 - `docs/`
 - `src/`
-- `web/`
-- `scripts/`
+- `training/`
+- `data/`
+- `Cargo.toml`
+- `Cargo.lock`
 - `Dockerfile`
+- `Dockerfile.train`
 - `Dockerfile.verify`
 - `docker-compose.yml`
-- `docker-compose.verify.yml`
 - `verify.sh`
 
-## Source Groups
+## Source Layout
 
-- `src/main.zig`: app entrypoint.
-- `src/server/`: HTTP handling.
-- `src/agent/`: orchestration and librarian behaviors.
-- `src/model/`: tokenizer, architecture, training, lightweighting.
-- `src/storage/`: storage interfaces and adapters.
-- `src/tests/`: focused test modules.
+- `src/`: Rust web, inference, agent, docs, and quality commands.
+- `training/`: Python corpus, tokenizer, model, trainer, export, and tests.
+- `docs/`: canonical documentation.
+- `data/`: local untracked runtime and training artifacts.
 
+## Protected Canon
+
+- The docs canon is protected project intent.
+- Files outside docs may be replaced when needed to satisfy the canon.

@@ -1,11 +1,15 @@
 # Operations
 
-## Goal
+Use this subtree for Compose profiles, deployment, and quality gates.
 
-Define deployment and acceptance commands for deterministic runtime and verification.
+## Read This Section When
+
+- You need to run training, web, or verification profiles.
+- You need local deployment defaults.
+- You need mandatory acceptance gates.
 
 ## Child Index
 
-- [compose.md](compose.md): service topology and lifecycle commands.
-- [quality-gates.md](quality-gates.md): mandatory acceptance checks.
-
+- [compose.md](compose.md): Docker Compose profile contract
+- [quality.md](quality.md): verification gates
+- [deployment.md](deployment.md): local deployment and risk notes

@@ -1,66 +1,34 @@
 # API Contract
 
-## Authentication
+## Routes
 
-- Header: `x-admin-token: <token>`
-- Missing or invalid token:
-  ```json
-  { "status": "error", "code": "unauthorized", "message": "invalid admin token" }
-  ```
+- `GET /`: chat UI.
+- `GET /healthz`: returns `200` with body `ok`.
+- `POST /api/chat`: runs one chat turn and optional tool actions.
+- `GET /api/runs/{id}`: returns one run transcript.
 
-## Chat
+## `POST /api/chat` Request
 
-- `POST /api/chat`
-- Request:
-  ```json
-  { "message": "find records about distributed indexing" }
-  ```
-- Response:
-  ```json
-  {
-    "status": "ok",
-    "reply": "...",
-    "trace": { "parallel_steps": 3, "queue_depth": 0 }
-  }
-  ```
+```json
+{
+  "message": "string",
+  "run_id": "optional-string"
+}
+```
 
-## Upsert Record
+## `POST /api/chat` Response
 
-- `POST /api/records/upsert`
-- Request:
-  ```json
-  { "id": "rec-001", "title": "Indexing", "body": "..." }
-  ```
+```json
+{
+  "run_id": "string",
+  "assistant": "string",
+  "events": []
+}
+```
 
-## Delete Record
+## Event Shape
 
-- `POST /api/records/delete`
-- Request:
-  ```json
-  { "id": "rec-001" }
-  ```
-
-## List Records
-
-- `GET /api/records/list?q=<query>`
-- Response:
-  ```json
-  {
-    "status": "ok",
-    "records": [{ "id": "rec-001", "title": "Indexing" }]
-  }
-  ```
-
-## Health
-
-- `GET /healthz`
-- Semantics: readiness check for app + runtime storage.
-- Healthy response:
-  ```json
-  { "status": "ok", "app": "ready", "storage": "ready" }
-  ```
-- Storage unavailable response:
-  ```json
-  { "status": "error", "code": "storage_unavailable", "app": "ready", "storage": "not_ready" }
-  ```
-- Status codes: `200` when ready, `503` when storage is unavailable.
+- `kind`: `user`, `assistant`, `tool_call`, `tool_result`, or `error`.
+- `content`: human-readable content.
+- `tool`: optional tool name.
+- `timestamp`: RFC 3339 timestamp.

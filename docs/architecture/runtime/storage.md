@@ -1,24 +1,20 @@
-# Storage Contract
+# Runtime Storage
 
-## Goal
+## Root
 
-Persist librarian records and runtime metadata with PostgreSQL.
+- `DATA_DIR` defaults to `/app/data` in containers.
+- Local Compose mounts project `./data` to `/app/data`.
 
-## Canonical Backend
+## Directories
 
-- PostgreSQL is the source of truth backend.
-- Connection string comes from `DATABASE_URL` (compose path: `postgres://lkjai:lkjai@postgres:5432/lkjai`).
+- `corpus/`: raw and tokenized corpus artifacts.
+- `tokenizers/`: tokenizer artifacts.
+- `checkpoints/`: training checkpoints.
+- `models/`: serving exports.
+- `runs/`: training and verification run logs.
+- `agent/`: chat and tool transcripts.
 
-## Record Shape
+## Persistence
 
-- `id` (text primary key)
-- `title` (text)
-- `body` (text)
-- `updated_at` (timestamp)
-
-## Adapter Rules
-
-- Runtime uses a storage interface to keep domain logic decoupled from DB driver details.
-- Runtime selects PostgreSQL storage when `DATABASE_URL` starts with `postgres://` or `postgresql://`.
-- In-memory fallback only applies when a non-PostgreSQL URL is configured.
-- Write and delete operations must return explicit status values.
+- `data/` is untracked except for placeholders.
+- Runtime code creates missing directories on boot.

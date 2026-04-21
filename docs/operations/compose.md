@@ -1,24 +1,28 @@
 # Compose Contract
 
-## Services
+## Profiles
 
-- `postgres`: canonical persistence service.
-- `app`: Zig runtime server.
-- `verify`: runs `verify.sh` (docs checks, Zig gates, `/healthz` probe, and `scripts/verify_api_integration.sh`).
+- `train`: CUDA PyTorch training container.
+- `web`: Rust axum web container.
+- `verify`: repository verification container.
 
-## Runtime Commands
+## Data Mount
+
+- All profiles mount `./data:/app/data`.
+- Training writes corpora, tokenizers, checkpoints, exports, and logs under
+  `/app/data`.
+- Web reads model exports and writes agent transcripts under `/app/data`.
+
+## GPU
+
+- `train` requests NVIDIA GPU access.
+- `web` requests NVIDIA GPU access for Candle inference when available.
+- CPU fallback is allowed for smoke verification only.
+
+## Commands
 
 ```bash
-docker compose up -d --build postgres app
-docker compose ps
-docker compose down -v
-```
-
-## Verification Commands
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.verify.yml build app verify
-docker compose -f docker-compose.yml -f docker-compose.verify.yml up -d postgres app
-docker compose -f docker-compose.yml -f docker-compose.verify.yml run --rm verify
-docker compose -f docker-compose.yml -f docker-compose.verify.yml down -v
+docker compose --profile train run --rm train smoke
+docker compose --profile web up --build web
+docker compose --profile verify run --rm verify
 ```

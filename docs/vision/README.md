@@ -1,12 +1,16 @@
 # Vision
 
-## Goal
+Use this subtree for the intent that explains why `lkjai` exists and why the
+repository is shaped for LLM-first development.
 
-Define why `lkjai` exists and how decisions are optimized for LLM-operated workflows.
+## Read This Section When
+
+- You need product goals and non-goals.
+- You need design and build principles.
+- You need documentation rules optimized for AI-agent operation.
 
 ## Child Index
 
-- [purpose.md](purpose.md): project scope and non-goals.
-- [principles.md](principles.md): engineering and product principles.
-- [llm-optimization.md](llm-optimization.md): writing and structure rules for machine readability.
-
+- [purpose.md](purpose.md): project goal, target audience, and non-goals
+- [principles.md](principles.md): design and engineering principles
+- [llm-optimization.md](llm-optimization.md): formatting and topology rules for LLM readability

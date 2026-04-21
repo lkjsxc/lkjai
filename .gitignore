@@ -1,5 +1,16 @@
+target/
 .env
-zig-cache/
-zig-out/
-tmp/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.pyc
 
+/tmp/
+/data/*
+!/data/.gitkeep
+
+/training/.venv/
+/training/build/
+/training/dist/
+*.egg-info/

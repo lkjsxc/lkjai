@@ -1,5 +1,0 @@
-FROM alpine:3.20
-WORKDIR /workspace
-RUN apk add --no-cache zig bash curl findutils
-COPY . .
-CMD ["bash", "verify.sh"]

@@ -1,12 +1,15 @@
-# Repository Rules
+# Repository
 
-## Goal
+Use this subtree for layout, workflow, and authoring rules.
 
-Define repository layout, docs-first workflow, and line-limit contracts.
+## Read This Section When
+
+- You need to add files.
+- You need commit and docs-first rules.
+- You need line-limit and topology rules.
 
 ## Child Index
 
-- [layout.md](layout.md): required root and source layout.
-- [workflow.md](workflow.md): docs-first change sequence and commit policy.
-- [line-limits.md](line-limits.md): hard line limits and refactor guidance.
-
+- [layout.md](layout.md): root, docs, source, training, and data layout
+- [workflow.md](workflow.md): docs-first implementation sequence and commits
+- [rules.md](rules.md): authoring, line limit, and no-Node rules
