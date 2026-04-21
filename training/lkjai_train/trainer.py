@@ -1,4 +1,5 @@
 import json
+import time
 from dataclasses import asdict
 from pathlib import Path
 import tomllib
@@ -15,6 +16,8 @@ def train_model(
     steps: int = 8,
     config_path: str = "",
     context: int = 0,
+    max_duration_secs: int = 0,
+    checkpoint_name: str = "latest.pt",
 ) -> str:
     cfg = tiny_config() if tiny else load_config(config_path)
     if context:
@@ -25,7 +28,12 @@ def train_model(
     model = LkjModel(cfg).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4)
     losses = []
-    for step in range(steps):
+    min_steps = max(1, int(steps))
+    duration_target = max(0, int(max_duration_secs))
+    start = time.monotonic()
+    deadline = start + duration_target if duration_target else None
+    step = 0
+    while step < min_steps or (deadline is not None and time.monotonic() < deadline):
         x, y = batch(data, cfg.context)
         x, y = x.to(device), y.to(device)
         _, loss = model(x, y)
@@ -33,11 +41,25 @@ def train_model(
         optimizer.step()
         optimizer.zero_grad(set_to_none=True)
         losses.append(float(loss.detach().cpu()))
+        step += 1
+    duration_secs = time.monotonic() - start
     paths.checkpoints.mkdir(parents=True, exist_ok=True)
-    checkpoint = paths.checkpoints / "smoke.pt"
+    checkpoint = paths.checkpoints / checkpoint_name
     torch.save({"model": model.state_dict(), "config": asdict(cfg), "losses": losses}, checkpoint)
+    stop_reason = "steps-or-duration" if duration_target else "steps"
     (paths.runs / "last-train.json").write_text(
-        json.dumps({"device": device, "losses": losses}, indent=2),
+        json.dumps(
+            {
+                "device": device,
+                "losses": losses,
+                "steps_completed": step,
+                "duration_secs": duration_secs,
+                "min_steps": min_steps,
+                "duration_target_secs": duration_target,
+                "stop_reason": stop_reason,
+            },
+            indent=2,
+        ),
         encoding="utf-8",
     )
     return str(checkpoint)

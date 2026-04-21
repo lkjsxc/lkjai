@@ -10,7 +10,7 @@ from .model import LkjModel, ModelConfig
 
 
 def export_model(paths, max_mib: int = 512) -> Path:
-    checkpoint = torch.load(paths.checkpoints / "smoke.pt", map_location="cpu", weights_only=True)
+    checkpoint = torch.load(paths.checkpoints / "latest.pt", map_location="cpu", weights_only=True)
     cfg = ModelConfig(**checkpoint["config"])
     model = LkjModel(cfg)
     model.load_state_dict(checkpoint["model"])
