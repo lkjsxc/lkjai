@@ -64,18 +64,44 @@ def dispatch(args, paths):
 
 
 def train_pipeline(paths):
-    tiny = env_bool("TRAIN_TINY", False)
-    token_budget = env_int("TRAIN_TOKEN_BUDGET", 3_000_000_000)
-    dataset = os.environ.get("TRAIN_DATASET", "HuggingFaceFW/fineweb-edu")
-    vocab_size = env_int("TRAIN_VOCAB_SIZE", 32_000)
-    steps = env_int("TRAIN_STEPS", 8)
-    context = env_int("TRAIN_CONTEXT", 0)
-    config = os.environ.get("TRAIN_CONFIG", "/workspace/configs/lkj-150m.toml")
+    preset = os.environ.get("TRAIN_PRESET", "quick")
+    tiny, token_budget, dataset, vocab_size, steps, context, config = train_settings(preset)
+    log(f"train preset={preset} tiny={tiny} budget={token_budget} steps={steps}")
     prepare_corpus(paths, token_budget, dataset, tiny)
+    log("corpus prepared")
     train_tokenizer(paths, vocab_size)
+    log("tokenizer trained")
     pack_tokens(paths)
+    log("tokens packed")
     train_model(paths, tiny, steps, config, context)
+    log("model trained")
     return export_model(paths, env_int("TRAIN_MAX_ARTIFACT_MIB", 512))
+
+
+def train_settings(preset: str):
+    if preset == "quick":
+        return True, 200, "fixture", 259, 2, 32, ""
+    if preset == "full":
+        return (
+            False,
+            env_int("TRAIN_TOKEN_BUDGET", 3_000_000_000),
+            os.environ.get("TRAIN_DATASET", "HuggingFaceFW/fineweb-edu"),
+            env_int("TRAIN_VOCAB_SIZE", 32_000),
+            env_int("TRAIN_STEPS", 8),
+            env_int("TRAIN_CONTEXT", 0),
+            os.environ.get("TRAIN_CONFIG", "/workspace/configs/lkj-150m.toml"),
+        )
+    if preset == "custom":
+        return (
+            env_bool("TRAIN_TINY", False),
+            env_int("TRAIN_TOKEN_BUDGET", 3_000_000_000),
+            os.environ.get("TRAIN_DATASET", "HuggingFaceFW/fineweb-edu"),
+            env_int("TRAIN_VOCAB_SIZE", 32_000),
+            env_int("TRAIN_STEPS", 8),
+            env_int("TRAIN_CONTEXT", 0),
+            os.environ.get("TRAIN_CONFIG", "/workspace/configs/lkj-150m.toml"),
+        )
+    raise ValueError(f"unknown TRAIN_PRESET={preset}")
 
 
 def env_int(key: str, default: int) -> int:
@@ -87,6 +113,10 @@ def env_bool(key: str, default: bool) -> bool:
     if value is None:
         return default
     return value.lower() in {"1", "true", "yes", "on"}
+
+
+def log(message: str) -> None:
+    print(json.dumps({"event": message}), flush=True)
 
 
 if __name__ == "__main__":

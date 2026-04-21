@@ -13,14 +13,11 @@ def test_smoke_pipeline(tmp_path):
     assert (result / "size.json").exists()
 
 
-def test_train_command_can_run_tiny_pipeline(tmp_path, monkeypatch):
+def test_train_command_defaults_to_quick_pipeline(tmp_path, monkeypatch):
     class TrainArgs:
         command = "train"
 
-    monkeypatch.setenv("TRAIN_TINY", "1")
-    monkeypatch.setenv("TRAIN_TOKEN_BUDGET", "200")
-    monkeypatch.setenv("TRAIN_VOCAB_SIZE", "259")
-    monkeypatch.setenv("TRAIN_STEPS", "1")
+    monkeypatch.delenv("TRAIN_PRESET", raising=False)
     result = dispatch(TrainArgs(), Paths(str(tmp_path)))
     assert (result / "config.json").exists()
     assert (result / "tokenizer.json").exists()

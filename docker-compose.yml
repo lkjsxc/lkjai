@@ -31,7 +31,8 @@ services:
       context: .
       dockerfile: Dockerfile.train
     environment:
-      DATA_DIR: ${DATA_DIR:-/app/data}
+      DATA_DIR: ${TRAIN_DATA_DIR:-/app/data/train}
+      TRAIN_PRESET: ${TRAIN_PRESET:-quick}
       TRAIN_CONFIG: ${TRAIN_CONFIG:-/workspace/configs/lkj-150m.toml}
       TRAIN_DATASET: ${TRAIN_DATASET:-HuggingFaceFW/fineweb-edu}
       TRAIN_CONTEXT: ${TRAIN_CONTEXT:-0}

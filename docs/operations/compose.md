@@ -29,7 +29,10 @@ docker compose --profile verify run --rm verify
 
 ## Training Defaults
 
-- The `train` service starts the full corpus, tokenizer, model, and export
-  pipeline by default.
-- Training can be scaled down for checks with `TRAIN_TINY=1`,
-  `TRAIN_TOKEN_BUDGET`, and `TRAIN_STEPS`.
+- The `train` service starts the `quick` preset by default so
+  `docker compose --profile train up --build` completes on ordinary hosts.
+- Training writes to `TRAIN_DATA_DIR`, defaulting to `/app/data/train`, so quick
+  runs do not overwrite the serving export.
+- Use `TRAIN_PRESET=full` for the full `lkj-150m` config and large corpus.
+- Use `TRAIN_PRESET=custom` with `TRAIN_TINY`, `TRAIN_TOKEN_BUDGET`,
+  `TRAIN_STEPS`, and related knobs for explicit experiments.
