@@ -1,31 +1,27 @@
 # lkjai
 
-`lkjai` is a docs-first project for building a small language model from
-scratch, exporting it below 512 MiB, and hosting a local YOLO AI agent in a
-Rust and axum web application.
+`lkjai` is a docs-first small-LLM project: train in Python/CUDA, serve in
+Rust/Candle, and operate through Compose-first local workflows.
 
-Treat [docs/README.md](docs/README.md) as the only active canon for product
-behavior, model design, training operations, runtime shape, and repository
-rules.
+Treat [docs/README.md](docs/README.md) as the only active canon for behavior,
+architecture, operations, and repository policy.
 
 ## Start Here
 
-- Canonical documentation root: [docs/README.md](docs/README.md)
-- Local quickstart: [docs/getting-started/quickstart.md](docs/getting-started/quickstart.md)
+- Canon root: [docs/README.md](docs/README.md)
+- Quickstart: [docs/getting-started/quickstart.md](docs/getting-started/quickstart.md)
 - Verification: [docs/getting-started/verification.md](docs/getting-started/verification.md)
-- Runtime and training profiles: [docs/operations/compose.md](docs/operations/compose.md)
+- Compose contract: [docs/operations/compose.md](docs/operations/compose.md)
+- Long-run training contract: [docs/operations/training/long-run.md](docs/operations/training/long-run.md)
+- Competency gate: [docs/operations/training/competency-gate.md](docs/operations/training/competency-gate.md)
 
 ## Current Shape
 
-- CUDA PyTorch training pipeline.
-- Rust and axum web application.
-- Candle-based Rust inference path.
-- Local-only host-YOLO agent tools.
-- Docker Compose profiles for `train`, `web`, and `verify`.
-- Root `data/` mount for corpora, tokenizers, checkpoints, model exports, runs,
-  and agent transcripts.
+- Compose profiles: `train`, `web`, `verify`.
+- `train` profile default is a long-run preset targeting ~6 hours.
+- Competency acceptance is fixed-eval pass rate `>= 80%`.
+- Runtime data is mounted at `./data` for corpus/tokenizer/checkpoint/model/run artifacts.
 
 ## Rule
 
-If implementation and documentation diverge, update the documentation canon
-first and then realign implementation.
+When implementation and docs diverge, update docs first, then realign code.

@@ -22,7 +22,9 @@ docker compose --profile verify run --rm verify
 - File line limits pass.
 - No Node runtime files or commands are required.
 - A tiny model can be exported under the configured size limit.
+- Long-run competency is documented but intentionally excluded from verify profile.
 
 ## Non-Goal
 
 - Verification does not train on the full ~3B-token corpus.
+- Verification does not run the six-hour long-run training preset.

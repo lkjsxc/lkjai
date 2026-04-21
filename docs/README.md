@@ -20,7 +20,7 @@ design, training operations, runtime shape, verification, and repository rules.
 - [getting-started/README.md](getting-started/README.md): quickstart and verification entrypoints
 - [product/README.md](product/README.md): chat UI, agent tools, and API contracts
 - [architecture/README.md](architecture/README.md): model, training, and runtime architecture
-- [operations/README.md](operations/README.md): Compose profiles, deployment, and quality gates
+- [operations/README.md](operations/README.md): Compose profiles, long-run training ops, deployment, and quality gates
 - [repository/README.md](repository/README.md): repository layout, workflow, and authoring rules
 - [research/README.md](research/README.md): external model, corpus, and lightweighting references
 
@@ -30,7 +30,10 @@ design, training operations, runtime shape, verification, and repository rules.
 2. [repository/layout.md](repository/layout.md)
 3. [architecture/model/config.md](architecture/model/config.md)
 4. [architecture/training/corpus.md](architecture/training/corpus.md)
-5. [product/agent-tools.md](product/agent-tools.md)
-6. [architecture/runtime/web.md](architecture/runtime/web.md)
-7. [operations/compose.md](operations/compose.md)
-8. [operations/quality.md](operations/quality.md)
+5. [architecture/training/pipeline.md](architecture/training/pipeline.md)
+6. [operations/compose.md](operations/compose.md)
+7. [operations/training/long-run.md](operations/training/long-run.md)
+8. [operations/training/competency-gate.md](operations/training/competency-gate.md)
+9. [operations/quality.md](operations/quality.md)
+10. [product/agent-tools.md](product/agent-tools.md)
+11. [architecture/runtime/web.md](architecture/runtime/web.md)

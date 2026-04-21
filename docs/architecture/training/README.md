@@ -14,3 +14,6 @@ export behavior.
 - [corpus.md](corpus.md): dataset and token budget contract
 - [pipeline.md](pipeline.md): preparation, tokenization, training, and export
 - [cuda.md](cuda.md): GPU-first training behavior
+
+Operational runbooks for six-hour defaults and competency gates are owned by
+[operations/training/README.md](../../operations/training/README.md).

@@ -24,15 +24,27 @@
 ```bash
 docker compose --profile train up --build
 docker compose --profile web up --build web
+docker compose --profile verify build verify
 docker compose --profile verify run --rm verify
 ```
 
 ## Training Defaults
 
-- The `train` service starts the `quick` preset by default so
-  `docker compose --profile train up --build` completes on ordinary hosts.
-- Training writes to `TRAIN_DATA_DIR`, defaulting to `/app/data/train`, so quick
-  runs do not overwrite the serving export.
-- Use `TRAIN_PRESET=full` for the full `lkj-150m` config and large corpus.
-- Use `TRAIN_PRESET=custom` with `TRAIN_TINY`, `TRAIN_TOKEN_BUDGET`,
-  `TRAIN_STEPS`, and related knobs for explicit experiments.
+- The `train` service defaults to `TRAIN_PRESET=longrun`.
+- The default long-run target is `TRAIN_MAX_DURATION_SECS=21600` (~6 hours).
+- `TRAIN_STEPS` is still required as a minimum step floor before duration stop.
+- `TRAIN_FIXED_EVAL_THRESHOLD` defaults to `0.80`.
+- `TRAIN_ENFORCE_COMPETENCY` defaults to enabled for long-run acceptance.
+- Training writes to `TRAIN_DATA_DIR`, default `/app/data/train`.
+
+## Presets
+
+- `longrun`: full dataset/model defaults plus duration-aware stop and competency enforcement.
+- `quick`: deterministic fixture-scale run for fast local debugging.
+- `full`: full dataset/model defaults with configurable stop knobs.
+- `custom`: all behavior controlled by explicit `TRAIN_*` environment values.
+
+## Long-Run Contract Links
+
+- [training/long-run.md](training/long-run.md)
+- [training/competency-gate.md](training/competency-gate.md)

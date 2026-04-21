@@ -18,6 +18,13 @@ docker compose --profile verify build verify
 docker compose --profile verify run --rm verify
 ```
 
+## Long-Run Acceptance Gate
+
+- `docker compose --profile train up --build` produces `runs/fixed-eval.json`.
+- Competency acceptance requires `pass_rate >= 0.80`.
+- For strict enforcement, keep `TRAIN_ENFORCE_COMPETENCY=1`.
+- For exploratory runs, override with `TRAIN_ENFORCE_COMPETENCY=0`.
+
 ## Stop Rule
 
 - Any non-zero gate blocks acceptance.
