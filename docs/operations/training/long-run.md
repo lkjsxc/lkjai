@@ -1,44 +1,41 @@
-# Long-Run Training Contract
+# Agent Tuning Run Contract
 
 ## Default Behavior
 
-- `docker compose --profile train up --build` starts long-run training by default.
-- Default target runtime is `TRAIN_MAX_DURATION_SECS=21600` (~6 hours).
+- `docker compose --profile train up --build train` starts quick validation by default.
+- `TRAIN_PRESET=agent` starts RTX 3070-oriented QLoRA tuning.
 - The train service writes under `TRAIN_DATA_DIR`, default `/app/data/train`.
 
 ## Required Environment Knobs
 
-- `TRAIN_PRESET`: training profile selector. Default Compose value is `longrun`.
-- `TRAIN_MAX_DURATION_SECS`: wall-clock budget in seconds.
-- `TRAIN_STEPS`: minimum optimization steps before duration stop is allowed.
-- `TRAIN_TOKEN_BUDGET`: corpus token budget.
-- `TRAIN_DATASET`: dataset source, default `HuggingFaceFW/fineweb-edu`.
-- `TRAIN_CONFIG`: model config path.
-- `TRAIN_CONTEXT`: optional context override (`0` keeps config value).
-- `TRAIN_TOKENIZER_SAMPLE_CHARS`: tokenizer training sample cap (`5000000` by default).
+- `TRAIN_PRESET`: `quick`, `agent`, or `custom`.
+- `TRAIN_BASE_MODEL`: default `Qwen/Qwen3-0.6B`.
+- `TRAIN_SEQUENCE_LEN`: default `2048`.
+- `TRAIN_LORA_RANK`: default `16`.
+- `TRAIN_LOAD_IN_4BIT`: default enabled.
+- `TRAIN_ENFORCE_COMPETENCY`: fail train command when eval is below threshold.
 
 ## Stop Rule
 
-- Training must run until both conditions are true:
-  1. Minimum `TRAIN_STEPS` has completed.
-  2. `TRAIN_MAX_DURATION_SECS` wall-clock budget has elapsed.
-- If `TRAIN_MAX_DURATION_SECS` is `0`, stop is step-driven only.
+- Quick preset stops after fixture validation and fixed eval.
+- Agent preset is controlled by the tuning backend configuration.
+- Failed dataset validation stops before any GPU training.
 
 ## Artifacts
 
-- Checkpoint: `data/train/checkpoints/latest.pt`
-- Training summary: `data/train/runs/last-train.json`
-- Export: `data/train/models/lkj-150m/{model.safetensors,config.json,tokenizer.json,size.json}`
+- Dataset fixtures: `data/train/datasets/fixtures.jsonl`
+- Adapter output: `data/train/adapters/`
+- Export manifest: `data/train/exports/manifest.json`
 - Fixed eval summary: `data/train/runs/fixed-eval.json`
 
 ## Compose Examples
 
 ```bash
-docker compose --profile train up --build
-TRAIN_MAX_DURATION_SECS=7200 TRAIN_STEPS=256 docker compose --profile train up --build
-TRAIN_PRESET=quick docker compose --profile train up --build
+docker compose --profile train up --build train
+TRAIN_PRESET=agent docker compose --profile train up --build train
+TRAIN_PRESET=custom TRAIN_BASE_MODEL=Qwen/Qwen3-0.6B docker compose --profile train up --build train
 ```
 
 ## Non-Goal
 
-- The verification profile is not a six-hour run. Verification stays smoke-scale.
+- The verification profile does not run GPU QLoRA tuning.

@@ -10,21 +10,16 @@
 
 ```bash
 cp .env.example .env
-docker compose --profile web up --build web
+docker compose --profile web up --build
 ```
 
 ## Model Artifact
 
-- Place serving exports under `data/train/models/lkj-150m`, or set
-  `MODEL_DIR` to another complete export directory.
-- A serving export must include `config.json`, `model.safetensors`, and
-  `tokenizer.json`.
-- The export must also include `manifest.json`; runtime validates the
-  co-located tokenizer hash before loading weights.
-- `INFERENCE_DEVICE=cuda` is the default. Use `cpu` or `auto` only when CUDA
-  fallback is intentional.
-- The app remains bootable without an export, but chat reports an explicit
-  model load error instead of a dummy assistant response.
+- Place GGUF model files under `data/models/`.
+- Set `MODEL_GGUF` to the model path used by the model service.
+- The Rust app talks to `MODEL_API_URL`.
+- The app remains bootable when the model server is unavailable.
+- Chat reports explicit model errors instead of dummy assistant responses.
 
 ## Risk
 

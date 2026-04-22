@@ -2,18 +2,19 @@
 
 ## Required
 
-- Export fp16 safetensors for v1 serving.
-- Fail export if the serving artifact exceeds 512 MiB.
-- Keep tokenizer and config beside weights for deterministic loading.
+- Serve quantized GGUF models through the model server.
+- Default serving quantization is `Q4_K_M`.
+- Store model manifests beside downloaded or converted models.
+- Verification may use a fake model client instead of downloading large weights.
 
 ## Optional Hooks
 
-- Add int8 export after fp16 serving is stable.
-- Add int4 export only when verification can load and generate from it.
-- Add distillation only after a teacher model and licensing path are documented.
+- Add `Q5_K_M` when answer quality matters more than VRAM headroom.
+- Add merged-LoRA GGUF export after QLoRA tuning is stable.
+- Add int8 or fp16 only when the target GPU has enough memory.
 
-## Future Research
+## Rejected For V1
 
-- Fujitsu-style extreme quantization is a research direction.
-- Structured pruning is a research direction.
-- NAS-guided layer shape search is a research direction.
+- A hard 512 MiB production artifact target.
+- Extreme quantization before behavioral evals are meaningful.
+- Distillation before the teacher, dataset, and license path are documented.

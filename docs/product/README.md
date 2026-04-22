@@ -1,16 +1,16 @@
 # Product
 
-Use this subtree for user-visible behavior: chat, agent tools, and HTTP API
-contracts.
+Use this subtree for user-visible behavior: chat, agent tools, memory, and HTTP
+API contracts.
 
 ## Read This Section When
 
-- You need to understand the chat UI.
-- You need the YOLO tool surface.
-- You need route and payload contracts.
+- You need multi-turn chat behavior.
+- You need the structured tool surface.
+- You need route, payload, and event contracts.
 
 ## Child Index
 
-- [chat.md](chat.md): local chat behavior
-- [agent-tools.md](agent-tools.md): command, website, and file tools
+- [chat.md](chat.md): local multi-turn chat behavior
+- [agent-tools.md](agent-tools.md): command, website, file, and memory tools
 - [api.md](api.md): HTTP route and JSON contracts

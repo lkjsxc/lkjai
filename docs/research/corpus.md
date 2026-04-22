@@ -1,17 +1,18 @@
-# Corpus Research
+# Tuning Data Research
 
-## Default Dataset
+## Default Data Shape
 
-- `HuggingFaceFW/fineweb-edu` is the default corpus.
-- It is selected for openly available educational English text.
-- The project samples approximately 3B tokens for full training by default.
+- Use OpenAI-style `messages` JSONL.
+- Preserve tool-call actions and tool results as supervised trajectory data.
+- Include memory retrieval and memory write examples.
 
 ## Verification Dataset
 
-- Verification uses a tiny local fixture.
-- Verification does not download the full corpus.
+- Verification uses tiny local fixtures.
+- Verification does not download large datasets.
+- Fixture cases must cover chat, tool use, memory, and invalid action handling.
 
 ## Metadata Rule
 
-- Dataset name, split, token budget, row count, and license metadata are written
-  beside prepared corpus artifacts.
+- Dataset name, source, license, split, row count, and schema version are written
+  beside prepared dataset artifacts.

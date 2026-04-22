@@ -1,18 +1,18 @@
 # Training Architecture
 
-Use this subtree for corpus, tokenization, CUDA training, checkpointing, and
-export behavior.
+Use this subtree for instruction tuning, tool trajectory tuning, CUDA behavior,
+and export behavior.
 
 ## Read This Section When
 
-- You need the corpus source and token budget.
-- You need training pipeline commands.
-- You need CUDA usage expectations.
+- You need tuning dataset formats.
+- You need post-training pipeline commands.
+- You need RTX 3070 CUDA expectations.
 
 ## Child Index
 
-- [corpus.md](corpus.md): dataset and token budget contract
-- [pipeline.md](pipeline.md): preparation, tokenization, training, and export
+- [corpus.md](corpus.md): instruction and trajectory dataset contract
+- [pipeline.md](pipeline.md): tuning, eval, merge, and export pipeline
 - [cuda.md](cuda.md): GPU-first training behavior
 
 Operational runbooks for six-hour defaults and competency gates are owned by

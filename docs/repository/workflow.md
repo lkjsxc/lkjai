@@ -6,7 +6,7 @@
 2. Update implementation to match docs.
 3. Run relevant Compose verification.
 4. Commit each coherent verified batch.
-5. For training changes, verify fixed-eval competency artifacts and threshold decisions.
+5. For training changes, verify fixed agent eval artifacts and threshold decisions.
 
 ## Commit Policy
 

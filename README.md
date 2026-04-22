@@ -1,7 +1,8 @@
 # lkjai
 
-`lkjai` is a docs-first small-LLM project: train in Python/CUDA, serve in
-Rust/Candle, and operate through Compose-first local workflows.
+`lkjai` is a docs-first local agentic AI system for RTX 3070 8GB: orchestrate
+multi-turn tool use in Rust, serve a small dense model locally, and improve
+behavior through post-training.
 
 Treat [docs/README.md](docs/README.md) as the only active canon for behavior,
 architecture, operations, and repository policy.
@@ -12,15 +13,16 @@ architecture, operations, and repository policy.
 - Quickstart: [docs/getting-started/quickstart.md](docs/getting-started/quickstart.md)
 - Verification: [docs/getting-started/verification.md](docs/getting-started/verification.md)
 - Compose contract: [docs/operations/compose.md](docs/operations/compose.md)
-- Long-run training contract: [docs/operations/training/long-run.md](docs/operations/training/long-run.md)
+- Agent tuning contract: [docs/operations/training/long-run.md](docs/operations/training/long-run.md)
 - Competency gate: [docs/operations/training/competency-gate.md](docs/operations/training/competency-gate.md)
 
 ## Current Shape
 
-- Compose profiles: `train`, `web`, `verify`.
-- `train` profile default is a long-run preset targeting ~6 hours.
-- Competency acceptance is fixed-eval pass rate `>= 80%`.
-- Runtime data is mounted at `./data` for corpus/tokenizer/checkpoint/model/run artifacts.
+- Compose profiles: `model`, `web`, `train`, `verify`.
+- `web` runs the Rust agent orchestrator.
+- `model` runs the local OpenAI-compatible model server.
+- Competency acceptance is fixed agent eval pass rate `>= 80%`.
+- Runtime data is mounted at `./data` for models, adapters, memory, and runs.
 
 ## Rule
 

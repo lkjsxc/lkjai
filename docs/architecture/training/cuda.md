@@ -6,7 +6,7 @@
 - Mixed precision is enabled by default on CUDA.
 - Gradient accumulation is used to fit 8 GiB VRAM.
 - Activation checkpointing is supported by config.
-- Tokenized memmaps minimize CPU-side work during training.
+- QLoRA 4-bit loading is the default agent tuning path.
 
 ## Optional Acceleration
 
@@ -17,4 +17,4 @@
 ## Fallback
 
 - CPU smoke runs may exist for verification.
-- Full training is not expected to be practical on CPU.
+- Full QLoRA tuning is not expected to be practical on CPU.

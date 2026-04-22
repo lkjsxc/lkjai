@@ -5,18 +5,19 @@
 - `GET /` serves the first-screen chat application.
 - The UI exposes a chat transcript, prompt box, run id, model state, and tool
   results.
+- The UI displays plan, tool, observation, memory, assistant, and error events.
 - The app is local-only by default.
 - There is no login in v1.
 
 ## Behavior
 
 - User prompts are sent to `POST /api/chat`.
-- Non-tool prompts are answered by real model generation from the loaded export.
+- The agent may run several model/tool steps before answering.
+- Non-tool prompts are answered through the same agent loop.
 - Model-status strings are not valid assistant replies.
-- The model response may request deterministic tool calls.
+- The model response must use validated JSON actions.
 - Tool calls and outputs are displayed in the transcript.
-- Natural-language tool requests are accepted for shell commands, URL fetches,
-  file reads, file writes, and directory listings.
+- Memory writes are displayed in the transcript.
 - Every run is persisted as JSONL under `data/agent/runs/`.
 
 ## Default Safety Boundary

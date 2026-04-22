@@ -1,26 +1,21 @@
-# Inference Runtime
+# Model Client Runtime
 
 ## Loading
 
-- Model directory defaults to `data/train/models/lkj-150m`.
-- The loader reads `config.json`, `model.safetensors`, `tokenizer.json`, and
-  `manifest.json`.
-- Candle is the Rust inference backend.
-- CPU loading upcasts fp16 weights to fp32 when required by Candle kernels.
-- CUDA loading keeps fp16 weights on device. `INFERENCE_DEVICE=cuda` fails
-  explicitly if the binary or host cannot initialize CUDA.
+- Rust does not load production model weights in v1.
+- Rust calls an OpenAI-compatible local model server.
+- The Compose `model` service owns CUDA model loading.
+- The `web` service owns agent orchestration, tools, memory, and transcripts.
 
 ## Generation
 
-- Generation runs the exported decoder-only transformer.
-- The web chat must never return canned model-status text as an assistant
-  response.
-- Missing model artifacts are reported as explicit runtime errors instead of
-  being hidden behind dummy chat behavior.
+- The model client sends chat-completions requests.
+- Agent prompts require one strict JSON action per model step.
+- Canned model-status text is not a valid assistant response.
+- Model errors become transcript `error` events.
 
-## Compatibility
+## Defaults
 
-- Exported model config must match Rust loader expectations.
-- Tokenizer files must be stored beside the model export.
-- Runtime validates the co-located tokenizer hash from `manifest.json`.
-- Legacy exports must be regenerated with `export-model`.
+- `MODEL_API_URL=http://127.0.0.1:8081/v1/chat/completions`.
+- Compose overrides this to `http://model:8080/v1/chat/completions`.
+- `MODEL_NAME=qwen3-1.7b-q4`.

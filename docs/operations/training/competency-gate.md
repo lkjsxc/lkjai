@@ -1,4 +1,4 @@
-# Competency Gate Contract
+# Agent Competency Gate Contract
 
 ## Canonical Threshold
 
@@ -11,15 +11,12 @@
 - `pass_rate`: `passed / total`.
 - `passed`: number of passing checks.
 - `total`: total checks.
-- `cases`: ordered list of check records:
-  - `id`: stable case identifier.
-  - `passed`: boolean.
-  - `detail`: concise machine-readable reason.
+- `cases`: ordered list of check records with `id`, `passed`, and `detail`.
 
 ## Acceptance Rule
 
 1. If `pass_rate >= threshold`, the run is competency-accepted.
-2. If `pass_rate < threshold`, continue training with another long-run cycle.
+2. If `pass_rate < threshold`, improve prompts, data, or tuning and rerun.
 3. Keep artifact history in `data/train/runs/` for audit and comparison.
 
 ## Enforcement

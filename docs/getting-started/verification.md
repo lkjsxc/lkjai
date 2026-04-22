@@ -2,8 +2,8 @@
 
 ## Goal
 
-Verification proves the repository shape, small training pipeline, model export,
-Rust inference wiring, web health route, and YOLO tool plumbing.
+Verification proves the repository shape, agent loop, structured tools, memory
+store, web health route, and tuning fixture pipeline.
 
 ## Required Command
 
@@ -21,10 +21,11 @@ docker compose --profile verify run --rm verify
 - Markdown links pass.
 - File line limits pass.
 - No Node runtime files or commands are required.
-- A tiny model can be exported under the configured size limit.
-- Long-run competency is documented but intentionally excluded from verify profile.
+- The fake model client can drive a tool call and final answer.
+- Memory write and search pass deterministic checks.
+- Tuning fixtures validate without large downloads.
 
 ## Non-Goal
 
-- Verification does not train on the full ~3B-token corpus.
-- Verification does not run the six-hour long-run training preset.
+- Verification does not download production model weights.
+- Verification does not run QLoRA training.

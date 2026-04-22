@@ -1,15 +1,15 @@
 # Model Architecture
 
-Use this subtree for the small decoder model that `lkjai` trains from scratch.
+Use this subtree for local model selection, serving, and scale policy.
 
 ## Read This Section When
 
-- You need parameter, tokenizer, or context defaults.
-- You need the Transformer block contract.
-- You need the lightweighting path.
+- You need the default local model.
+- You need RTX 3070 8GB serving constraints.
+- You need accepted model-family traits.
 
 ## Child Index
 
-- [config.md](config.md): default `lkj-150m` configuration
-- [architecture.md](architecture.md): decoder block and attention contract
-- [lightweighting.md](lightweighting.md): size limit and compression roadmap
+- [config.md](config.md): default model and runtime settings
+- [architecture.md](architecture.md): accepted dense decoder architecture traits
+- [lightweighting.md](lightweighting.md): quantized serving and export policy

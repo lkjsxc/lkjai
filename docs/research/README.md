@@ -1,15 +1,15 @@
 # Research References
 
-Use this subtree for external references that inform architecture decisions.
+Use this subtree for references that inform model, tuning, and serving decisions.
 
 ## Read This Section When
 
-- You need source-backed model design influences.
-- You need corpus licensing context.
-- You need lightweighting references.
+- You need model selection references.
+- You need tuning references.
+- You need quantized serving references.
 
 ## Child Index
 
-- [models.md](models.md): Qwen, Gemma, LLM-jp, and Nemotron influences
-- [corpus.md](corpus.md): FineWeb-Edu corpus choice
-- [lightweighting.md](lightweighting.md): quantization and compression references
+- [models.md](models.md): Qwen3 model references
+- [corpus.md](corpus.md): tuning data and fixture references
+- [lightweighting.md](lightweighting.md): GGUF and quantization references

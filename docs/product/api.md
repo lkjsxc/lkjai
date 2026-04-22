@@ -4,15 +4,17 @@
 
 - `GET /`: chat UI.
 - `GET /healthz`: returns `200` with body `ok`.
-- `POST /api/chat`: runs one chat turn and optional tool actions.
+- `POST /api/chat`: runs one bounded agent turn.
 - `GET /api/runs/{id}`: returns one run transcript.
+- `GET /api/model`: returns model client status.
 
 ## `POST /api/chat` Request
 
 ```json
 {
   "message": "string",
-  "run_id": "optional-string"
+  "run_id": "optional-string",
+  "max_steps": 6
 }
 ```
 
@@ -22,13 +24,16 @@
 {
   "run_id": "string",
   "assistant": "string",
-  "events": []
+  "events": [],
+  "stop_reason": "final"
 }
 ```
 
 ## Event Shape
 
-- `kind`: `user`, `assistant`, `tool_call`, `tool_result`, or `error`.
+- `kind`: `user`, `assistant`, `plan`, `tool_call`, `tool_result`,
+  `observation`, `memory_write`, or `error`.
 - `content`: human-readable content.
 - `tool`: optional tool name.
 - `timestamp`: RFC 3339 timestamp.
+- `step`: optional agent loop step.

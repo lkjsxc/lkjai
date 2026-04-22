@@ -1,7 +1,9 @@
 # Documentation Canon
 
-`docs/` is the only active canon for project intent, product behavior, model
-design, training operations, runtime shape, verification, and repository rules.
+`docs/` is the active canon for `lkjai`.
+
+The project is a local agentic multi-turn AI system for an RTX 3070 8GB
+workstation. It is not primarily a from-scratch small LLM platform.
 
 ## Global Rules
 
@@ -16,24 +18,24 @@ design, training operations, runtime shape, verification, and repository rules.
 
 ## Top-Level Sections
 
-- [vision/README.md](vision/README.md): purpose, principles, and LLM-readable topology rules
-- [getting-started/README.md](getting-started/README.md): quickstart and verification entrypoints
-- [product/README.md](product/README.md): chat UI, agent tools, and API contracts
-- [architecture/README.md](architecture/README.md): model, training, and runtime architecture
-- [operations/README.md](operations/README.md): Compose profiles, long-run training ops, deployment, and quality gates
+- [vision/README.md](vision/README.md): purpose, principles, and LLM readability
+- [getting-started/README.md](getting-started/README.md): quickstart and verification
+- [product/README.md](product/README.md): chat, tools, memory, and HTTP API
+- [architecture/README.md](architecture/README.md): agent, model, memory, runtime, and training design
+- [operations/README.md](operations/README.md): Compose, deployment, training runs, and gates
 - [repository/README.md](repository/README.md): repository layout, workflow, and authoring rules
-- [research/README.md](research/README.md): external model, corpus, and lightweighting references
+- [research/README.md](research/README.md): model, tuning, and serving references
+- [decisions/README.md](decisions/README.md): keep/remove list and rejected alternatives
 
 ## Recommended Reading Order
 
 1. [vision/purpose.md](vision/purpose.md)
-2. [repository/layout.md](repository/layout.md)
-3. [architecture/model/config.md](architecture/model/config.md)
-4. [architecture/training/corpus.md](architecture/training/corpus.md)
-5. [architecture/training/pipeline.md](architecture/training/pipeline.md)
-6. [operations/compose.md](operations/compose.md)
-7. [operations/training/long-run.md](operations/training/long-run.md)
-8. [operations/training/competency-gate.md](operations/training/competency-gate.md)
+2. [decisions/keep-remove.md](decisions/keep-remove.md)
+3. [architecture/agent/loop.md](architecture/agent/loop.md)
+4. [architecture/agent/schema.md](architecture/agent/schema.md)
+5. [architecture/memory/store.md](architecture/memory/store.md)
+6. [architecture/model/config.md](architecture/model/config.md)
+7. [architecture/training/pipeline.md](architecture/training/pipeline.md)
+8. [operations/compose.md](operations/compose.md)
 9. [operations/quality.md](operations/quality.md)
-10. [product/agent-tools.md](product/agent-tools.md)
-11. [architecture/runtime/web.md](architecture/runtime/web.md)
+10. [product/api.md](product/api.md)

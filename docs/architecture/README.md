@@ -1,15 +1,17 @@
 # Architecture
 
-Use this subtree for model, training, and runtime implementation contracts.
+Use this subtree for the agent, memory, model, runtime, and training contracts.
 
 ## Read This Section When
 
-- You need the target model design.
-- You need corpus and CUDA training contracts.
-- You need the Rust runtime and data layout.
+- You need the multi-turn agent loop.
+- You need structured tool and event contracts.
+- You need model serving, memory, or post-training behavior.
 
 ## Child Index
 
-- [model/README.md](model/README.md): model config, architecture, and lightweighting
-- [training/README.md](training/README.md): corpus, pipeline, and CUDA behavior
-- [runtime/README.md](runtime/README.md): web, inference, and storage behavior
+- [agent/README.md](agent/README.md): plan-act-observe-revise loop and schemas
+- [memory/README.md](memory/README.md): transcript, summary, durable memory, and retrieval
+- [model/README.md](model/README.md): local model selection and serving defaults
+- [training/README.md](training/README.md): instruction and trajectory tuning
+- [runtime/README.md](runtime/README.md): web, model client, and storage behavior

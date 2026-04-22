@@ -1,26 +1,26 @@
 # Model Research
 
-## Qwen3.6
+## Qwen3 1.7B
 
-- Qwen3.6 informs agentic and tool-use goals.
-- Qwen3.6 architecture notes inform hybrid attention and MoE research
-  direction.
-- Source: <https://huggingface.co/Qwen/Qwen3.6-35B-A3B>
-- Source: <https://github.com/QwenLM/Qwen3.6>
+- Default serving model family.
+- Dense causal decoder with Qwen3 agent/tool-use suitability.
+- Apache-2.0 license.
+- Source: <https://huggingface.co/Qwen/Qwen3-1.7B>
 
-## Gemma 4
+## Qwen3 0.6B
 
-- Gemma 4 informs edge-sized model expectations and long-context direction.
-- Function-calling references inform tool schema design.
-- Source: <https://blog.google/innovation-and-ai/technology/developers-tools/gemma-4/>
-- Source: <https://huggingface.co/google/gemma-4-E2B>
+- Default local tuning model family.
+- Small enough for RTX 3070 QLoRA experimentation.
+- Apache-2.0 license.
+- Source: <https://huggingface.co/Qwen/Qwen3-0.6B>
 
-## LLM-jp-4
+## Architecture Traits
 
-- LLM-jp-4 informs open-model transparency and corpus documentation.
-- Source: <https://www.nii.ac.jp/news/release/2026/0403.html>
+- Dense decoder-only architecture.
+- RoPE position encoding.
+- Grouped-query attention.
+- RMSNorm and gated MLP family.
 
-## NVIDIA Nemotron 3
+## Boundary
 
-- Nemotron 3 informs future MTP, MoE, and agentic RL directions.
-- Source: <https://research.nvidia.com/labs/nemotron/Nemotron-3/>
+- Larger models may be served remotely, but v1 local defaults must fit RTX 3070.

@@ -1,21 +1,25 @@
-# Corpus Contract
+# Dataset Contract
 
-## Source
+## Format
 
-- Default dataset: `HuggingFaceFW/fineweb-edu`.
-- Default split: `train`.
-- Default language focus: English educational text.
-- Dataset use must preserve upstream license metadata in `data/train/corpus/`.
+- Training data uses JSONL.
+- Each row contains OpenAI-style `messages`.
+- Tool trajectory rows include assistant JSON action messages and tool results.
+- Memory rows include retrieved memory and expected final behavior.
 
-## Token Budgets
+## Sources
 
-- Full-training default: approximately 3B tokens.
-- Medium pipeline check: 50M tokens.
-- Routine verification: tiny deterministic sample.
+- In-repo fixtures cover verification only.
+- Larger tuning datasets live under `data/train/datasets/`.
+- External datasets must preserve source and license metadata.
 
-## Storage
+## Required Splits
 
-- Raw or streamed corpus metadata lives under `data/train/corpus/raw`.
-- Tokenized shards live under `data/train/corpus/tokenized`.
-- Tokenizer artifacts live under `data/train/tokenizers`.
-- Corpus data is never committed.
+- `instruction`: compact multi-turn instruction behavior.
+- `tool_trajectory`: plan, tool call, observation, final answer.
+- `memory`: recall, summary use, and durable memory writes.
+- `eval`: deterministic fixed cases.
+
+## Non-Goal
+
+- Do not use a 3B-token pretraining corpus as the default path.

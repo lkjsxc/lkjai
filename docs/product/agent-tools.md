@@ -4,15 +4,18 @@
 
 - `shell.exec`: run a host command.
 - `web.fetch`: fetch website text.
-- `file.read`: read a host file.
-- `file.write`: write a host file.
-- `file.list`: list a host directory.
+- `fs.read`: read a host file.
+- `fs.write`: write a host file.
+- `fs.list`: list a host directory.
+- `memory.search`: search durable agent memory.
+- `memory.write`: write durable agent memory.
 
-## Browser Input
+## Selection
 
-- Slash commands are accepted for exact tool selection.
-- Natural-language requests are mapped to tools when intent is clear.
-- Ambiguous requests are answered as chat instead of guessed as tools.
+- The model selects tools by strict JSON action.
+- The runtime validates tool names and argument shapes.
+- Slash commands may remain as debug shortcuts.
+- Ambiguous natural-language requests are resolved by the model loop.
 
 ## YOLO Policy
 
@@ -21,6 +24,7 @@
 - File tools are allowed to access host paths visible inside the container.
 - Tool calls must be logged before execution.
 - Tool results must be logged after execution.
+- Memory writes must be logged.
 
 ## Limits
 

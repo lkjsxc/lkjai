@@ -7,12 +7,13 @@
 
 ## Directories
 
-- `train/corpus/`: raw and tokenized corpus artifacts.
-- `train/tokenizers/`: tokenizer artifacts.
-- `train/checkpoints/`: training checkpoints.
-- `train/models/`: serving exports.
-- `train/runs/`: training and fixed-eval logs.
-- `agent/`: chat and tool transcripts.
+- `models/`: GGUF models and model manifests.
+- `train/datasets/`: instruction and trajectory tuning datasets.
+- `train/adapters/`: LoRA and QLoRA adapters.
+- `train/exports/`: merged and quantized tuning outputs.
+- `train/runs/`: training and eval logs.
+- `agent/runs/`: chat and tool transcripts.
+- `agent/memory.sqlite3`: durable memory and summaries.
 
 ## Persistence
 

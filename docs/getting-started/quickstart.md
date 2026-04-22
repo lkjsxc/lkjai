@@ -3,9 +3,8 @@
 ## Prerequisites
 
 - Docker with Compose v2.
-- NVIDIA driver and NVIDIA container runtime for CUDA profiles.
-- Enough disk under `data/` for corpora, tokenized shards, checkpoints, and
-  model exports.
+- NVIDIA driver and NVIDIA container runtime for the model and train profiles.
+- Enough disk under `data/` for GGUF models, adapters, transcripts, and memory.
 
 ## Prepare
 
@@ -21,31 +20,35 @@ docker compose --profile verify build verify
 docker compose --profile verify run --rm verify
 ```
 
-## Train Default Long-Run Model
+## Run Web App With Model Service
 
 ```bash
-docker compose --profile train up --build
+docker compose --profile web up --build
 ```
 
-The Compose default is a duration-aware long run targeting ~6 hours.
+The web profile starts the Rust orchestrator and the local model server.
 
-## Train Quick Debug Model
+## Run Offline Verification
 
 ```bash
-TRAIN_PRESET=quick TRAIN_ENFORCE_COMPETENCY=0 docker compose --profile train up --build
+docker compose --profile verify build verify
+docker compose --profile verify run --rm verify
 ```
 
-## Run Web App
+Verification uses deterministic fixtures and does not download large models.
+
+## Train Agent Adapter
 
 ```bash
-docker compose --profile web up --build web
+docker compose --profile train up --build train
 ```
 
-The default web bind is `127.0.0.1:${APP_PORT}`. The web profile serves
-`data/train/models/lkj-150m` and requires CUDA by default.
+The default train preset is a quick schema/eval path. Use
+`TRAIN_PRESET=agent` for RTX 3070 QLoRA tuning.
 
-## Inspect Training Outputs
+## Inspect Outputs
 
-- `data/train/runs/last-train.json`: latest training summary
-- `data/train/runs/fixed-eval.json`: competency report (`pass_rate >= 0.80` required)
-- `data/train/models/lkj-150m/`: serving export
+- `data/agent/runs/`: chat and tool transcripts.
+- `data/agent/memory.sqlite3`: durable memory.
+- `data/train/runs/fixed-eval.json`: agent eval report.
+- `data/train/adapters/`: QLoRA adapters.

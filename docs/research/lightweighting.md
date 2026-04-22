@@ -1,17 +1,17 @@
 # Lightweighting Research
 
-## Fujitsu
+## llama.cpp GGUF
 
-- Fujitsu lightweighting references inform future quantization, pruning,
-  distillation, and NAS directions.
-- Source: <https://en-documents.research.global.fujitsu.com/takane-enterprise-llm-with-generative-ai-reconstruction/>
+- GGUF quantization is the v1 local serving path.
+- `Q4_K_M` is the default balance for RTX 3070 8GB.
+- Source: <https://github.com/ggml-org/llama.cpp/blob/master/docs/docker.md>
+
+## Qwen Quantization
+
+- Qwen documentation covers llama.cpp conversion and quantization.
+- Source: <https://qwen.readthedocs.io/en/stable/quantization/llama.cpp.html>
 
 ## V1 Boundary
 
-- v1 requires fp16 safetensors export under 512 MiB.
-- v1 documents int8 and int4 export hooks without requiring production quality.
-
-## Acceptance Rule
-
-- A lightweight export path is accepted only when Rust serving can load or
-  clearly reject the artifact with a useful error.
+- The model server must load or clearly report model load errors.
+- The Rust app must remain focused on orchestration and transcripts.
