@@ -2,7 +2,12 @@ FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
 
 WORKDIR /workspace
 
-RUN python -m pip install --no-cache-dir pytest
+RUN python -m pip install --no-cache-dir \
+    pytest \
+    accelerate==1.2.1 \
+    bitsandbytes==0.45.1 \
+    peft==0.14.0 \
+    transformers==4.47.0
 
 COPY training ./training
 

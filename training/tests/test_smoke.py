@@ -14,16 +14,19 @@ def test_smoke_pipeline(tmp_path):
     assert result.name == "fixed-eval.json"
     report = json.loads(result.read_text(encoding="utf-8"))
     assert report["pass_rate"] == 1.0
-    assert (tmp_path / "policy" / "model.json").exists()
+    assert (tmp_path / "adapters" / "manifest.json").exists()
+    assert (tmp_path / "adapters" / "final").exists()
 
 
 def test_agent_settings_defaults(monkeypatch):
     monkeypatch.delenv("TRAIN_BASE_MODEL", raising=False)
+    monkeypatch.delenv("TRAIN_BATCH_SIZE", raising=False)
     settings = train_settings("agent")
     assert settings.base_model == "Qwen/Qwen3-0.6B"
     assert settings.sequence_len == 2048
     assert settings.lora_rank == 16
     assert settings.load_in_4bit is True
+    assert settings.batch_size == 1
 
 
 def test_fixture_dataset_validates(tmp_path):

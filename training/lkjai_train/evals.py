@@ -6,9 +6,10 @@ def evaluate_fixed_suite(paths, threshold: float = 0.8) -> Path:
     cases = [
         case("fixtures-exist", paths.fixtures.exists(), str(paths.fixtures)),
         case("dataset-metadata-exists", paths.dataset_metadata.exists(), str(paths.dataset_metadata)),
+        case("training-summary-exists", paths.training_summary.exists(), str(paths.training_summary)),
         case("adapter-manifest-exists", paths.adapter_manifest.exists(), str(paths.adapter_manifest)),
+        case("adapter-final-exists", paths.adapter_final.exists(), str(paths.adapter_final)),
         case("export-manifest-exists", paths.export_manifest.exists(), str(paths.export_manifest)),
-        case("trained-policy-exists", paths.policy_model.exists(), str(paths.policy_model)),
         case("tool-trajectory-present", contains(paths.fixtures, "tool_trajectory"), "tool_trajectory"),
         case("memory-case-present", contains(paths.fixtures, "memory.write"), "memory.write"),
     ]

@@ -7,14 +7,14 @@ class Paths:
         self.datasets = self.root / "datasets"
         self.adapters = self.root / "adapters"
         self.exports = self.root / "exports"
-        self.policy = self.root / "policy"
         self.runs = self.root / "runs"
         self.fixtures = self.datasets / "fixtures.jsonl"
         self.dataset_metadata = self.datasets / "metadata.json"
+        self.training_summary = self.adapters / "training-summary.json"
+        self.adapter_final = self.adapters / "final"
         self.adapter_manifest = self.adapters / "manifest.json"
         self.export_manifest = self.exports / "manifest.json"
-        self.policy_model = self.policy / "model.json"
 
     def ensure(self) -> None:
-        for path in [self.datasets, self.adapters, self.exports, self.policy, self.runs]:
+        for path in [self.datasets, self.adapters, self.exports, self.runs]:
             path.mkdir(parents=True, exist_ok=True)

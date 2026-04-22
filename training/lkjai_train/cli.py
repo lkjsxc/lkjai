@@ -4,11 +4,11 @@ import os
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
+from .adapter import train_adapter
 from .dataset import prepare_fixtures, validate_dataset
 from .evals import evaluate_fixed_suite
 from .manifest import export_manifest, train_adapter_manifest
 from .paths import Paths
-from .policy import train_policy
 
 
 def main() -> None:
@@ -20,7 +20,6 @@ def main() -> None:
     validate.add_argument("--path", default="")
     train = sub.add_parser("train-adapter")
     train.add_argument("--preset", default=os.environ.get("TRAIN_PRESET", "quick"))
-    sub.add_parser("train-policy")
     fixed = sub.add_parser("fixed-eval")
     fixed.add_argument("--threshold", type=float, default=0.8)
     sub.add_parser("export-manifest")
@@ -37,9 +36,9 @@ def dispatch(args, paths: Paths):
     if args.command == "validate-dataset":
         return validate_dataset(Path(args.path) if args.path else paths.fixtures)
     if args.command == "train-adapter":
-        return train_adapter_manifest(paths, train_settings(args.preset))
-    if args.command == "train-policy":
-        return train_policy(paths)
+        settings = train_settings(args.preset)
+        train_adapter(paths, settings)
+        return train_adapter_manifest(paths, settings)
     if args.command == "fixed-eval":
         return evaluate_fixed_suite(paths, args.threshold)
     if args.command == "export-manifest":
@@ -54,9 +53,10 @@ def dispatch(args, paths: Paths):
 def smoke(paths: Paths):
     prepare_fixtures(paths)
     validate_dataset(paths.fixtures)
-    train_policy(paths)
-    train_adapter_manifest(paths, train_settings("quick"))
-    export_manifest(paths, train_settings("quick"))
+    settings = train_settings("quick")
+    train_adapter(paths, settings)
+    train_adapter_manifest(paths, settings)
+    export_manifest(paths, settings)
     return evaluate_fixed_suite(paths, 0.0)
 
 
@@ -65,7 +65,7 @@ def train_pipeline(paths: Paths):
     settings = train_settings(preset)
     prepare_fixtures(paths)
     validate_dataset(paths.fixtures)
-    train_policy(paths)
+    train_adapter(paths, settings)
     train_adapter_manifest(paths, settings)
     export_manifest(paths, settings)
     report = evaluate_fixed_suite(paths, settings.fixed_eval_threshold)
@@ -85,13 +85,36 @@ class TrainSettings:
     learning_rate: str
     load_in_4bit: bool
     gradient_checkpointing: bool
+    epochs: float
+    batch_size: int
+    gradient_accumulation: int
+    max_steps: int
+    eval_ratio: float
+    lora_dropout: float
     fixed_eval_threshold: float
     enforce_competency: bool
 
 
 def train_settings(preset: str) -> TrainSettings:
     if preset == "quick":
-        return TrainSettings(preset, "Qwen/Qwen3-0.6B", 512, 4, 8, "1e-4", True, True, 0.8, False)
+        return TrainSettings(
+            preset,
+            "Qwen/Qwen3-0.6B",
+            512,
+            4,
+            8,
+            "1e-4",
+            True,
+            True,
+            1.0,
+            1,
+            1,
+            0,
+            0.5,
+            0.05,
+            0.8,
+            False,
+        )
     if preset in {"agent", "custom"}:
         return TrainSettings(
             preset,
@@ -102,6 +125,12 @@ def train_settings(preset: str) -> TrainSettings:
             os.environ.get("TRAIN_LEARNING_RATE", "1e-4"),
             env_bool("TRAIN_LOAD_IN_4BIT", True),
             env_bool("TRAIN_GRADIENT_CHECKPOINTING", True),
+            env_float("TRAIN_EPOCHS", 1.0),
+            env_int("TRAIN_BATCH_SIZE", 1),
+            env_int("TRAIN_GRADIENT_ACCUMULATION", 8),
+            env_int("TRAIN_MAX_STEPS", 200),
+            env_float("TRAIN_EVAL_RATIO", 0.2),
+            env_float("TRAIN_LORA_DROPOUT", 0.05),
             env_float("TRAIN_FIXED_EVAL_THRESHOLD", 0.8),
             env_bool("TRAIN_ENFORCE_COMPETENCY", False),
         )
