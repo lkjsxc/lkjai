@@ -5,30 +5,7 @@ from pathlib import Path
 
 def train_adapter(paths, settings) -> dict:
     paths.ensure()
-    if settings.preset == "quick":
-        return quick_train(paths)
     return real_train(paths, settings)
-
-
-def quick_train(paths) -> dict:
-    paths.adapter_final.mkdir(parents=True, exist_ok=True)
-    marker = {
-        "mode": "quick",
-        "note": "deterministic smoke path; not a real training checkpoint",
-    }
-    (paths.adapter_final / "quick-marker.json").write_text(
-        json.dumps(marker, indent=2),
-        encoding="utf-8",
-    )
-    summary = {
-        "backend": "quick-smoke",
-        "checkpoint_dir": str(paths.adapter_final),
-        "train_rows": 0,
-        "eval_rows": 0,
-        "metrics": {},
-    }
-    paths.training_summary.write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    return summary
 
 
 def real_train(paths, settings) -> dict:
@@ -45,25 +22,34 @@ def real_train(paths, settings) -> dict:
         )
     except ImportError as error:
         raise RuntimeError(
-            "real training dependencies missing; install transformers, peft, bitsandbytes, accelerate, and torch"
+            "training dependencies missing; install transformers, peft, bitsandbytes, accelerate, torch"
         ) from error
 
     dataset_path = Path(os.environ.get("TRAIN_DATASET_PATH", str(paths.fixtures)))
     if not dataset_path.exists():
         raise RuntimeError(f"training dataset not found: {dataset_path}")
-    texts = dataset_texts(dataset_path)
-    if len(texts) < 2:
-        raise RuntimeError("real training requires at least 2 dataset rows")
-    split = max(1, int(len(texts) * (1.0 - settings.eval_ratio)))
-    split = min(split, len(texts) - 1)
-    train_texts, eval_texts = texts[:split], texts[split:]
 
-    tokenizer = AutoTokenizer.from_pretrained(settings.base_model, use_fast=True)
+    messages_list = load_messages(dataset_path)
+    if len(messages_list) < 2:
+        raise RuntimeError("real training requires at least 2 dataset rows")
+
+    split = max(1, int(len(messages_list) * (1.0 - settings.eval_ratio)))
+    split = min(split, len(messages_list) - 1)
+    train_msgs, eval_msgs = messages_list[:split], messages_list[split:]
+
+    tokenizer = AutoTokenizer.from_pretrained(settings.base_model, use_fast=True, trust_remote_code=True)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    model_kwargs = {"device_map": "auto"}
-    if settings.load_in_4bit:
+    def apply_template(msgs):
+        return tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=False)
+
+    train_texts = [apply_template(m) for m in train_msgs]
+    eval_texts = [apply_template(m) for m in eval_msgs]
+
+    use_4bit = settings.load_in_4bit and torch.cuda.is_available()
+    model_kwargs = {"device_map": "auto", "trust_remote_code": True}
+    if use_4bit:
         quant = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_compute_dtype=torch.float16,
@@ -75,8 +61,9 @@ def real_train(paths, settings) -> dict:
     model = AutoModelForCausalLM.from_pretrained(settings.base_model, **model_kwargs)
     if settings.gradient_checkpointing:
         model.gradient_checkpointing_enable()
-    if settings.load_in_4bit:
+    if use_4bit:
         model = prepare_model_for_kbit_training(model)
+
     target_modules = resolve_target_modules(model)
     model = get_peft_model(
         model,
@@ -89,33 +76,27 @@ def real_train(paths, settings) -> dict:
         ),
     )
 
-    class TokenizedDataset(torch.utils.data.Dataset):
-        def __init__(self, samples):
-            self.samples = samples
-
-        def __len__(self):
-            return len(self.samples)
-
-        def __getitem__(self, index):
-            return self.samples[index]
-
-    def encode_rows(rows):
+    def encode(texts):
         items = []
-        for text in rows:
-            encoded = tokenizer(
-                text,
-                truncation=True,
-                max_length=settings.sequence_len,
-                padding="max_length",
-            )
+        for text in texts:
+            encoded = tokenizer(text, truncation=True, max_length=settings.sequence_len, padding="max_length")
             encoded["labels"] = encoded["input_ids"][:]
             items.append({k: torch.tensor(v) for k, v in encoded.items()})
         return items
 
-    train_data = TokenizedDataset(encode_rows(train_texts))
-    eval_data = TokenizedDataset(encode_rows(eval_texts))
+    class TokenizedDataset(torch.utils.data.Dataset):
+        def __init__(self, samples):
+            self.samples = samples
+        def __len__(self):
+            return len(self.samples)
+        def __getitem__(self, index):
+            return self.samples[index]
+
+    train_data = TokenizedDataset(encode(train_texts))
+    eval_data = TokenizedDataset(encode(eval_texts))
     out_dir = paths.adapters / "checkpoints"
     out_dir.mkdir(parents=True, exist_ok=True)
+
     args = TrainingArguments(
         output_dir=str(out_dir),
         num_train_epochs=settings.epochs,
@@ -154,15 +135,9 @@ def real_train(paths, settings) -> dict:
     return summary
 
 
-def dataset_texts(path: Path) -> list[str]:
+def load_messages(path: Path) -> list[list[dict]]:
     rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
-    samples = []
-    for row in rows:
-        messages = row.get("messages", [])
-        if not messages:
-            continue
-        samples.append("\n".join(f"{item.get('role', 'user')}: {item.get('content', '')}" for item in messages))
-    return samples
+    return [row.get("messages", []) for row in rows if row.get("messages")]
 
 
 def resolve_target_modules(model) -> list[str]:

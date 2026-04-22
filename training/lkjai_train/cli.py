@@ -5,7 +5,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from .adapter import train_adapter
-from .dataset import prepare_fixtures, validate_dataset
+from .dataset import prepare_corpus, prepare_fixtures, validate_dataset
 from .evals import evaluate_fixed_suite
 from .manifest import export_manifest, train_adapter_manifest
 from .paths import Paths
@@ -16,6 +16,7 @@ def main() -> None:
     parser.add_argument("--data-dir", default=os.environ.get("DATA_DIR", "/app/data"))
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("prepare-fixtures")
+    sub.add_parser("prepare-corpus")
     validate = sub.add_parser("validate-dataset")
     validate.add_argument("--path", default="")
     train = sub.add_parser("train-adapter")
@@ -33,6 +34,8 @@ def main() -> None:
 def dispatch(args, paths: Paths):
     if args.command == "prepare-fixtures":
         return prepare_fixtures(paths)
+    if args.command == "prepare-corpus":
+        return prepare_corpus(paths, corpus_size(os.environ.get("TRAIN_PRESET", "quick")))
     if args.command == "validate-dataset":
         return validate_dataset(Path(args.path) if args.path else paths.fixtures)
     if args.command == "train-adapter":
@@ -51,9 +54,10 @@ def dispatch(args, paths: Paths):
 
 
 def smoke(paths: Paths):
+    preset = os.environ.get("TRAIN_PRESET", "quick")
+    settings = train_settings(preset)
     prepare_fixtures(paths)
     validate_dataset(paths.fixtures)
-    settings = train_settings("quick")
     train_adapter(paths, settings)
     train_adapter_manifest(paths, settings)
     export_manifest(paths, settings)
@@ -63,8 +67,8 @@ def smoke(paths: Paths):
 def train_pipeline(paths: Paths):
     preset = os.environ.get("TRAIN_PRESET", "quick")
     settings = train_settings(preset)
-    prepare_fixtures(paths)
-    validate_dataset(paths.fixtures)
+    dataset_path = prepare_corpus(paths, settings.corpus_size) if preset != "quick" else prepare_fixtures(paths)
+    validate_dataset(dataset_path)
     train_adapter(paths, settings)
     train_adapter_manifest(paths, settings)
     export_manifest(paths, settings)
@@ -93,6 +97,7 @@ class TrainSettings:
     lora_dropout: float
     fixed_eval_threshold: float
     enforce_competency: bool
+    corpus_size: int
 
 
 def train_settings(preset: str) -> TrainSettings:
@@ -109,11 +114,12 @@ def train_settings(preset: str) -> TrainSettings:
             1.0,
             1,
             1,
-            0,
+            50,
             0.5,
             0.05,
             0.8,
             False,
+            20,
         )
     if preset in {"agent", "custom"}:
         return TrainSettings(
@@ -128,13 +134,20 @@ def train_settings(preset: str) -> TrainSettings:
             env_float("TRAIN_EPOCHS", 1.0),
             env_int("TRAIN_BATCH_SIZE", 1),
             env_int("TRAIN_GRADIENT_ACCUMULATION", 8),
-            env_int("TRAIN_MAX_STEPS", 200),
+            env_int("TRAIN_MAX_STEPS", 500),
             env_float("TRAIN_EVAL_RATIO", 0.2),
             env_float("TRAIN_LORA_DROPOUT", 0.05),
             env_float("TRAIN_FIXED_EVAL_THRESHOLD", 0.8),
             env_bool("TRAIN_ENFORCE_COMPETENCY", False),
+            env_int("TRAIN_CORPUS_SIZE", 200),
         )
     raise ValueError(f"unknown TRAIN_PRESET={preset}")
+
+
+def corpus_size(preset: str) -> int:
+    if preset == "quick":
+        return 20
+    return env_int("TRAIN_CORPUS_SIZE", 200)
 
 
 def settings_json(settings: TrainSettings) -> str:

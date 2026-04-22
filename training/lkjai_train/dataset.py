@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+from .corpus import write_corpus
+
 FIXTURES = [
     {
         "messages": [
@@ -35,6 +37,15 @@ def prepare_fixtures(paths) -> Path:
     metadata = {"schema": "lkjai-agent-jsonl-v1", "rows": len(FIXTURES)}
     paths.dataset_metadata.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     return paths.fixtures
+
+
+def prepare_corpus(paths, size: int = 200, seed: int = 42) -> Path:
+    paths.ensure()
+    path = paths.datasets / "corpus.jsonl"
+    write_corpus(path, size, seed)
+    metadata = {"schema": "lkjai-agent-jsonl-v1", "rows": size}
+    paths.dataset_metadata.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+    return path
 
 
 def validate_dataset(path: Path) -> Path:

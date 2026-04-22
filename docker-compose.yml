@@ -67,10 +67,11 @@ services:
       TRAIN_EPOCHS: ${TRAIN_EPOCHS:-1}
       TRAIN_BATCH_SIZE: ${TRAIN_BATCH_SIZE:-1}
       TRAIN_GRADIENT_ACCUMULATION: ${TRAIN_GRADIENT_ACCUMULATION:-8}
-      TRAIN_MAX_STEPS: ${TRAIN_MAX_STEPS:-200}
+      TRAIN_MAX_STEPS: ${TRAIN_MAX_STEPS:-500}
       TRAIN_EVAL_RATIO: ${TRAIN_EVAL_RATIO:-0.2}
       TRAIN_FIXED_EVAL_THRESHOLD: ${TRAIN_FIXED_EVAL_THRESHOLD:-0.8}
       TRAIN_ENFORCE_COMPETENCY: ${TRAIN_ENFORCE_COMPETENCY:-0}
+      HF_HOME: /app/data/.hf-cache
     volumes:
       - ./data:/app/data
     deploy:
@@ -91,12 +92,15 @@ services:
       DATA_DIR: /workspace/data/verify
       PYTHONPATH: /workspace/training
       CARGO_TARGET_DIR: /target
+      HF_HOME: /workspace/data/.hf-cache
     volumes:
       - .:/workspace:ro
       - ./data:/workspace/data
       - verify-cargo:/usr/local/cargo/registry
       - verify-target:/target
+      - hf-cache:/workspace/data/.hf-cache
 
 volumes:
   verify-cargo:
   verify-target:
+  hf-cache:

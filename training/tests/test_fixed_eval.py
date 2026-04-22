@@ -1,14 +1,24 @@
 import json
 
+import pytest
+
 from lkjai_train.cli import dispatch
 from lkjai_train.evals import evaluate_fixed_suite
 from lkjai_train.paths import Paths
+
+
+torch = None
+try:
+    import torch
+except ImportError:
+    pass
 
 
 class SmokeArgs:
     command = "smoke"
 
 
+@pytest.mark.skipif(torch is None, reason="torch not installed")
 def test_fixed_eval_report_schema(tmp_path):
     paths = Paths(str(tmp_path))
     dispatch(SmokeArgs(), paths)
