@@ -25,7 +25,12 @@ def real_train(paths, settings) -> dict:
             "training dependencies missing; install transformers, peft, bitsandbytes, accelerate, torch"
         ) from error
 
-    dataset_path = Path(os.environ.get("TRAIN_DATASET_PATH", str(paths.fixtures)))
+    env_path = os.environ.get("TRAIN_DATASET_PATH", "")
+    if env_path:
+        dataset_path = Path(env_path)
+    else:
+        corpus = paths.datasets / "corpus.jsonl"
+        dataset_path = corpus if corpus.exists() else paths.fixtures
     if not dataset_path.exists():
         raise RuntimeError(f"training dataset not found: {dataset_path}")
 

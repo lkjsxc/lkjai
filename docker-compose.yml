@@ -71,6 +71,7 @@ services:
       TRAIN_EVAL_RATIO: ${TRAIN_EVAL_RATIO:-0.2}
       TRAIN_FIXED_EVAL_THRESHOLD: ${TRAIN_FIXED_EVAL_THRESHOLD:-0.8}
       TRAIN_ENFORCE_COMPETENCY: ${TRAIN_ENFORCE_COMPETENCY:-0}
+      TRAIN_CORPUS_SIZE: ${TRAIN_CORPUS_SIZE:-200}
       HF_HOME: /app/data/.hf-cache
     volumes:
       - ./data:/app/data
