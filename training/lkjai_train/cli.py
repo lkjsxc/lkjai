@@ -114,12 +114,12 @@ def train_settings(preset: str) -> TrainSettings:
             1.0,
             1,
             1,
-            50,
+            env_int("TRAIN_MAX_STEPS", 50),
             0.5,
             0.05,
             0.8,
             False,
-            20,
+            env_int("TRAIN_CORPUS_SIZE", 20),
         )
     if preset in {"agent", "custom"}:
         return TrainSettings(

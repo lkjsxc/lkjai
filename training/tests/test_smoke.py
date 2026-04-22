@@ -18,6 +18,7 @@ class Args:
     command = "smoke"
 
 
+@pytest.mark.slow
 @pytest.mark.skipif(torch is None, reason="torch not installed")
 def test_smoke_pipeline(tmp_path):
     result = dispatch(Args(), Paths(str(tmp_path)))

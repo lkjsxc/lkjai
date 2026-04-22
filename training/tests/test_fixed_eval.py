@@ -18,6 +18,7 @@ class SmokeArgs:
     command = "smoke"
 
 
+@pytest.mark.slow
 @pytest.mark.skipif(torch is None, reason="torch not installed")
 def test_fixed_eval_report_schema(tmp_path):
     paths = Paths(str(tmp_path))

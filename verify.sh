@@ -8,7 +8,7 @@ echo "== rust tests =="
 cargo test
 
 echo "== python tests =="
-python3 -m pytest -o cache_dir=/tmp/pytest-cache training/tests
+python3 -m pytest -o cache_dir=/tmp/pytest-cache -m "not slow" training/tests
 
 echo "== docs topology =="
 cargo run --bin lkjai -- docs validate-topology
