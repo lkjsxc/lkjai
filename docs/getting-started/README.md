@@ -16,3 +16,4 @@ Use this subtree for the fastest reliable path to:
 
 - [quickstart.md](quickstart.md): setup and first real runtime/training execution
 - [verification.md](verification.md): mandatory Compose verification flow
+- [troubleshooting.md](troubleshooting.md): common failures and recovery

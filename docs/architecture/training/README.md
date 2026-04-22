@@ -14,6 +14,8 @@ and export behavior.
 - [corpus.md](corpus.md): instruction and trajectory dataset contract
 - [pipeline.md](pipeline.md): tuning, eval, merge, and export pipeline
 - [cuda.md](cuda.md): GPU-first training behavior
+- [dataset.md](dataset.md): dataset schema, generation, and validation
+- [evaluation.md](evaluation.md): fixed eval and competency gate contract
 
 Operational runbooks for six-hour defaults and competency gates are owned by
 [operations/training/README.md](../../operations/training/README.md).

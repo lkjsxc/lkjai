@@ -13,3 +13,4 @@ Use this subtree for local model selection, serving, and scale policy.
 - [config.md](config.md): default model and runtime settings
 - [architecture.md](architecture.md): accepted dense decoder architecture traits
 - [lightweighting.md](lightweighting.md): quantized serving and export policy
+- [serving.md](serving.md): model server endpoint and health contract

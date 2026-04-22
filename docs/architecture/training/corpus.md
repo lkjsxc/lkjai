@@ -1,25 +1,59 @@
-# Dataset Contract
+# Training Corpus
 
-## Format
+## Goal
 
-- Training data uses JSONL.
-- Each row contains OpenAI-style `messages`.
-- Tool trajectory rows include assistant JSON action messages and tool results.
-- Memory rows include retrieved memory and expected final behavior.
+Define the dataset that teaches the agent multi-turn tool use.
 
-## Sources
+## Schema
 
-- In-repo fixtures cover verification only.
-- Larger tuning datasets live under `data/train/datasets/`.
-- External datasets must preserve source and license metadata.
+Each JSONL row:
 
-## Required Splits
+```json
+{
+  "messages": [
+    {"role": "user", "content": "List this directory."},
+    {"role": "assistant", "content": "{\"kind\":\"tool_call\",\"thought\":\"inspect\",\"tool\":\"fs.list\",\"args\":{\"path\":\".\"}}"},
+    {"role": "tool", "name": "fs.list", "content": "README.md\nsrc"},
+    {"role": "assistant", "content": "{\"kind\":\"final\",\"thought\":\"done\",\"content\":\"README.md and src\"}"}
+  ],
+  "tags": ["tool_trajectory", "fs.list"]
+}
+```
 
-- `instruction`: compact multi-turn instruction behavior.
-- `tool_trajectory`: plan, tool call, observation, final answer.
-- `memory`: recall, summary use, and durable memory writes.
-- `eval`: deterministic fixed cases.
+## Generation Strategy
 
-## Non-Goal
+- `prepare-fixtures` writes a minimal deterministic set (2 rows) for smoke
+  checks.
+- `prepare-corpus` generates synthetic trajectories covering all tools.
+- Each trajectory contains a user request, an assistant tool call, a tool result,
+  and a final assistant answer.
+- Corpus size is configurable via `TRAIN_CORPUS_SIZE`.
+- Default corpus size for `agent` preset: 200.
 
-- Do not use a 3B-token pretraining corpus as the default path.
+## Tool Coverage
+
+Every generated corpus must include examples for:
+
+- `shell.exec`
+- `web.fetch`
+- `fs.read`
+- `fs.write`
+- `fs.list`
+- `memory.search`
+- `memory.write`
+
+## Chat Template
+
+- The tokenizer applies the model's chat template during training.
+- Do not pre-format messages as strings in the dataset.
+- Keep the dataset as structured `messages` arrays.
+
+## Verification
+
+```bash
+python -m lkjai_train.cli prepare-corpus
+python -m lkjai_train.cli validate-dataset
+jq -c 'select(.tags | contains(["tool_trajectory"]))' data/train/datasets/corpus.jsonl | wc -l
+```
+
+Expected: tool_trajectory count >= 50.

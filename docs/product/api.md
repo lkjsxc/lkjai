@@ -6,7 +6,7 @@
 - `GET /healthz`: returns `200` with body `ok`.
 - `POST /api/chat`: runs one bounded agent turn.
 - `GET /api/runs/{id}`: returns one run transcript.
-- `GET /api/model`: returns model client status.
+- `GET /api/model`: returns model client status including reachability.
 
 ## `POST /api/chat` Request
 
@@ -36,9 +36,13 @@
   "model": "qwen3-1.7b-q4",
   "api_url": "http://127.0.0.1:8081/v1/chat/completions",
   "loaded": true,
-  "message": "model client configured"
+  "reachable": true,
+  "message": "model server responding"
 }
 ```
+
+- `loaded`: client is configured.
+- `reachable`: last health probe succeeded.
 
 ## Event Shape
 
@@ -52,6 +56,17 @@
 ## Error Contract
 
 - Invalid model responses must produce `error` events in `events`.
+- If the model server is unreachable, `stop_reason` is `model_error`.
 - If no final assistant action is produced, `stop_reason` must indicate failure.
-- `GET /api/model` reflects runtime model client configuration, not benchmarked
-  quality.
+- `GET /api/model` reflects runtime model client configuration and reachability,
+  not benchmarked quality.
+
+## Verification
+
+```bash
+curl -sf http://127.0.0.1:8080/healthz
+curl -sf http://127.0.0.1:8080/api/model | jq .
+curl -sf -X POST http://127.0.0.1:8080/api/chat \
+  -H 'content-type: application/json' \
+  -d '{"message":"hello"}' | jq '.stop_reason'
+```

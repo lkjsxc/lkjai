@@ -5,7 +5,8 @@
 - Default serving family: Qwen3 dense decoder.
 - Default serving scale: 1.7B parameters.
 - Default quantization: GGUF `Q4_K_M`.
-- Default model directory: `data/models/qwen3-1.7b-q4`.
+- Default model artifact: `data/models/qwen3-1.7b-q4.gguf`.
+- Compose model service loads that artifact as `/models/qwen3-1.7b-q4.gguf`.
 - Default model server: llama.cpp OpenAI-compatible server.
 
 ## Tuning Model
@@ -24,7 +25,8 @@
 
 ## Environment
 
-- `MODEL_API_URL` defaults to `http://127.0.0.1:8081/v1/chat/completions`.
+- Compose `web` default: `http://model:8080/v1/chat/completions`.
+- Host operator endpoint: `http://127.0.0.1:8081/v1/chat/completions`.
 - Runtime requires a real model endpoint; policy-file fallback mode is removed.
 - `MODEL_NAME` defaults to `qwen3-1.7b-q4`.
 - `MODEL_CONTEXT_TOKENS=4096`.

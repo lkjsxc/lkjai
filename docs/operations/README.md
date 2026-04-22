@@ -17,3 +17,4 @@ quality gates.
 - [training/README.md](training/README.md): real training runbooks and competency gates
 - [quality.md](quality.md): verification gates and acceptance boundary
 - [deployment.md](deployment.md): local deployment and risk notes
+- [monitoring.md](monitoring.md): health probes and runtime observability

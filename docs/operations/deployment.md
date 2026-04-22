@@ -14,11 +14,20 @@ docker compose --profile model up -d model
 docker compose --profile web up --build web
 ```
 
-## Model Artifact
+## Bootstrap Model Artifact
 
-- Place GGUF model files under `data/models/`.
-- Set `MODEL_GGUF` to the model path used by the model service.
-- The Rust app talks to `MODEL_API_URL`.
+```bash
+mkdir -p data/models
+curl -fL \
+  "https://huggingface.co/lmstudio-community/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q4_K_M.gguf" \
+  -o data/models/qwen3-1.7b-q4.gguf
+```
+
+- Keep `MODEL_GGUF=qwen3-1.7b-q4.gguf` in `.env`.
+- Compose model service reads `/models/${MODEL_GGUF}`.
+- With defaults this resolves to `/models/qwen3-1.7b-q4.gguf`.
+- Compose web uses `MODEL_API_URL=http://model:8080/v1/chat/completions`.
+- Host checks the model endpoint on `http://127.0.0.1:8081/v1/models`.
 - Chat reports explicit model errors instead of dummy assistant responses.
 
 ## Risk

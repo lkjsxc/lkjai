@@ -19,15 +19,18 @@ cp .env.example .env
 mkdir -p data/models data/train data/agent
 ```
 
-## Put a GGUF Model in Place
+## Bootstrap a GGUF Model
 
-Place your serving model at:
+```bash
+curl -fL \
+  "https://huggingface.co/lmstudio-community/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q4_K_M.gguf" \
+  -o data/models/qwen3-1.7b-q4.gguf
+ls -lh data/models/qwen3-1.7b-q4.gguf
+```
 
-- `data/models/${MODEL_GGUF}`
-
-Default in `.env.example`:
-
-- `MODEL_GGUF=qwen3-1.7b-q4.gguf`
+- Keep `MODEL_GGUF=qwen3-1.7b-q4.gguf` in `.env`.
+- Host path: `./data/models/qwen3-1.7b-q4.gguf`.
+- Container path used by model service: `/models/qwen3-1.7b-q4.gguf`.
 
 ## Run Model Service
 
@@ -38,6 +41,7 @@ docker compose --profile model up -d model
 Model API endpoint (default):
 
 - `http://127.0.0.1:8081/v1/chat/completions`
+- `curl --fail http://127.0.0.1:8081/v1/models`
 
 ## Run Web Runtime
 
@@ -52,12 +56,18 @@ Web app endpoint (default):
 ## Run Real Training
 
 ```bash
-TRAIN_PRESET=agent docker compose --profile train up --build train
+docker compose --profile train up --build train
+```
+
+For a quick smoke check with real but short training:
+
+```bash
+TRAIN_PRESET=quick docker compose --profile train up --build train
 ```
 
 Expected training artifacts:
 
-- `data/train/adapters/`: adapter checkpoints and metadata.
+- `data/train/adapters/final/`: real adapter weights.
 - `data/train/runs/fixed-eval.json`: evaluation report.
 - `data/train/exports/manifest.json`: export metadata.
 
@@ -65,7 +75,11 @@ Expected training artifacts:
 
 - `data/agent/runs/`: chat run transcripts.
 - `data/agent/memory.sqlite3`: durable memory database.
-- `GET /api/model`: active model client status.
+- `GET /api/model`: active model client status and reachability.
+
+## Troubleshooting
+
+See [troubleshooting.md](troubleshooting.md) for common failures.
 
 ## Required Verification Before Commit
 
