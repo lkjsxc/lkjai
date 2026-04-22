@@ -20,13 +20,14 @@ docker compose --profile verify build verify
 docker compose --profile verify run --rm verify
 ```
 
-## Run Web App With Model Service
+## Run Web App With Trained Policy
 
 ```bash
 docker compose --profile web up --build
 ```
 
-The web profile starts the Rust orchestrator and the local model server.
+The web profile starts the Rust orchestrator and loads the trained policy from
+`data/train/policy/model.json`.
 
 ## Run Offline Verification
 

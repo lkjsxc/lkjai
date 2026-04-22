@@ -27,6 +27,7 @@ def export_manifest(paths, settings) -> Path:
         "tuning_base_model": settings.base_model,
         "quantization": "Q4_K_M",
         "adapter_manifest": str(paths.adapter_manifest),
+        "policy_model": str(paths.policy_model),
     }
     paths.export_manifest.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     return paths.export_manifest

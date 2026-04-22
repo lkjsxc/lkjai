@@ -14,6 +14,7 @@ def test_smoke_pipeline(tmp_path):
     assert result.name == "fixed-eval.json"
     report = json.loads(result.read_text(encoding="utf-8"))
     assert report["pass_rate"] == 1.0
+    assert (tmp_path / "policy" / "model.json").exists()
 
 
 def test_agent_settings_defaults(monkeypatch):

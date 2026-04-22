@@ -8,6 +8,7 @@ from .dataset import prepare_fixtures, validate_dataset
 from .evals import evaluate_fixed_suite
 from .manifest import export_manifest, train_adapter_manifest
 from .paths import Paths
+from .policy import train_policy
 
 
 def main() -> None:
@@ -19,6 +20,7 @@ def main() -> None:
     validate.add_argument("--path", default="")
     train = sub.add_parser("train-adapter")
     train.add_argument("--preset", default=os.environ.get("TRAIN_PRESET", "quick"))
+    sub.add_parser("train-policy")
     fixed = sub.add_parser("fixed-eval")
     fixed.add_argument("--threshold", type=float, default=0.8)
     sub.add_parser("export-manifest")
@@ -36,6 +38,8 @@ def dispatch(args, paths: Paths):
         return validate_dataset(Path(args.path) if args.path else paths.fixtures)
     if args.command == "train-adapter":
         return train_adapter_manifest(paths, train_settings(args.preset))
+    if args.command == "train-policy":
+        return train_policy(paths)
     if args.command == "fixed-eval":
         return evaluate_fixed_suite(paths, args.threshold)
     if args.command == "export-manifest":
@@ -50,6 +54,7 @@ def dispatch(args, paths: Paths):
 def smoke(paths: Paths):
     prepare_fixtures(paths)
     validate_dataset(paths.fixtures)
+    train_policy(paths)
     train_adapter_manifest(paths, train_settings("quick"))
     export_manifest(paths, train_settings("quick"))
     return evaluate_fixed_suite(paths, 0.0)
@@ -60,6 +65,7 @@ def train_pipeline(paths: Paths):
     settings = train_settings(preset)
     prepare_fixtures(paths)
     validate_dataset(paths.fixtures)
+    train_policy(paths)
     train_adapter_manifest(paths, settings)
     export_manifest(paths, settings)
     report = evaluate_fixed_suite(paths, settings.fixed_eval_threshold)

@@ -35,7 +35,7 @@ fn compact_events(events: &[Event]) -> String {
         .rev()
         .take(20)
         .rev()
-        .map(|event| format!("{}: {}", event.kind, event.content))
+        .map(|event| format!("{}: {}", event.kind, event.content.replace('\n', "\\n")))
         .collect::<Vec<_>>()
         .join("\n")
 }

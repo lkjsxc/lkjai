@@ -4,7 +4,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::config::Config;
+use crate::{config::Config, policy_model::PolicyModel};
 
 #[derive(Clone)]
 pub struct ModelClient {
@@ -14,6 +14,7 @@ pub struct ModelClient {
 #[derive(Clone)]
 enum Mode {
     Http(HttpModel),
+    Policy(PolicyModel),
     Fake(Arc<Mutex<VecDeque<String>>>),
 }
 
@@ -65,6 +66,11 @@ struct AssistantMessage {
 
 impl ModelClient {
     pub fn from_config(config: &Config) -> Self {
+        if let Some(path) = config.model_api_url.strip_prefix("policy://") {
+            return Self {
+                mode: Mode::Policy(PolicyModel::load(path.into())),
+            };
+        }
         Self {
             mode: Mode::Http(HttpModel {
                 client: reqwest::Client::new(),
@@ -85,6 +91,7 @@ impl ModelClient {
     pub async fn chat(&self, messages: &[ModelMessage]) -> Result<String, String> {
         match &self.mode {
             Mode::Http(model) => model.chat(messages).await,
+            Mode::Policy(model) => model.chat(messages),
             Mode::Fake(queue) => queue
                 .lock()
                 .map_err(|_| "fake model lock poisoned".to_string())?
@@ -107,6 +114,7 @@ impl ModelClient {
                 loaded: true,
                 message: "fake model client configured".into(),
             },
+            Mode::Policy(model) => model.status(),
         }
     }
 }

@@ -8,6 +8,7 @@ def evaluate_fixed_suite(paths, threshold: float = 0.8) -> Path:
         case("dataset-metadata-exists", paths.dataset_metadata.exists(), str(paths.dataset_metadata)),
         case("adapter-manifest-exists", paths.adapter_manifest.exists(), str(paths.adapter_manifest)),
         case("export-manifest-exists", paths.export_manifest.exists(), str(paths.export_manifest)),
+        case("trained-policy-exists", paths.policy_model.exists(), str(paths.policy_model)),
         case("tool-trajectory-present", contains(paths.fixtures, "tool_trajectory"), "tool_trajectory"),
         case("memory-case-present", contains(paths.fixtures, "memory.write"), "memory.write"),
     ]

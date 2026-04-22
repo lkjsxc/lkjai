@@ -2,7 +2,7 @@
 
 ## Profiles
 
-- `model`: llama.cpp CUDA model server.
+- `model`: optional llama.cpp CUDA model server.
 - `web`: Rust axum agent orchestrator.
 - `train`: CUDA post-training container.
 - `verify`: repository verification container.
@@ -10,7 +10,8 @@
 ## Data Mount
 
 - All profiles mount `./data:/app/data`.
-- Model serving reads GGUF files from `/app/data/models`.
+- Model serving reads GGUF files from `/app/data/models` when profile `model`
+  is enabled.
 - Training writes datasets, adapters, exports, and logs under `/app/data/train`.
 - Web writes transcripts and memory under `/app/data/agent`.
 
@@ -24,6 +25,7 @@
 
 ```bash
 docker compose --profile web up --build
+docker compose --profile model up model
 docker compose --profile train up --build train
 docker compose --profile verify build verify
 docker compose --profile verify run --rm verify
