@@ -12,6 +12,7 @@
 
 - Commit docs-only batches before dependent code batches.
 - Prefer small commits with one clear purpose.
+- Commit frequently during long-running refactors and training-flow changes.
 - Do not accumulate unrelated verified work into one large commit.
 
 ## Current Branch Policy

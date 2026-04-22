@@ -7,6 +7,7 @@ Use this subtree for the agent, memory, model, runtime, and training contracts.
 - You need the multi-turn agent loop.
 - You need structured tool and event contracts.
 - You need model serving, memory, or post-training behavior.
+- You need exact ownership boundaries between web runtime, model API, and train stack.
 
 ## Child Index
 

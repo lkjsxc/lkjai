@@ -24,9 +24,8 @@
 
 ## Environment
 
-- `MODEL_API_URL` may point to a trained policy with `policy://`.
-- Compose defaults to `policy:///app/data/train/policy/model.json` for an
-  immediately runnable trained local website.
+- `MODEL_API_URL` defaults to `http://127.0.0.1:8081/v1/chat/completions`.
+- Runtime requires a real model endpoint; policy-file fallback mode is removed.
 - `MODEL_NAME` defaults to `qwen3-1.7b-q4`.
 - `MODEL_CONTEXT_TOKENS=4096`.
 - `MODEL_MAX_NEW_TOKENS=512`.

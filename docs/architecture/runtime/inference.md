@@ -1,24 +1,28 @@
 # Model Client Runtime
 
-## Loading
+## Contract
 
-- Rust does not load production model weights in v1.
-- Rust calls an OpenAI-compatible local model server.
-- Rust can also load `policy://` trained policy artifacts for immediate local
-  end-to-end operation.
-- The Compose `model` service owns CUDA model loading.
-- The `web` service owns agent orchestration, tools, memory, and transcripts.
+- The web runtime must call a real OpenAI-compatible chat-completions endpoint.
+- The runtime must not use policy-file fallbacks as production behavior.
+- The model service owns model weights and CUDA lifecycle.
+- The web service owns orchestration, tools, transcripts, and memory.
 
-## Generation
+## Request/Response
 
-- The model client sends chat-completions requests.
-- Agent prompts require one strict JSON action per model step.
-- Canned model-status text is not a valid assistant response.
-- Model errors become transcript `error` events.
+- Request schema: `model`, `messages`, `max_tokens`, `temperature`.
+- Response schema: first `choices[].message.content` is consumed.
+- Each model step must return strict JSON action text for the agent parser.
+
+## Failure Semantics
+
+- HTTP request failures must surface as explicit transcript error events.
+- Non-success status from model server must include status code and body text.
+- Parse failures from model response must surface as explicit transcript errors.
+- No canned fallback answer is allowed when model generation fails.
 
 ## Defaults
 
-- `MODEL_API_URL=policy:///app/data/train/policy/model.json`.
-- Set `MODEL_API_URL=http://127.0.0.1:8081/v1/chat/completions` when using
-  the optional llama.cpp model service.
-- `MODEL_NAME=qwen3-1.7b-q4`.
+- `MODEL_API_URL=http://127.0.0.1:8081/v1/chat/completions`
+- `MODEL_NAME=qwen3-1.7b-q4`
+- `MODEL_MAX_NEW_TOKENS=512`
+- `MODEL_TEMPERATURE=0.2`

@@ -6,27 +6,25 @@
 - `python -m lkjai_train.cli prepare-fixtures`.
 - `python -m lkjai_train.cli validate-dataset`.
 - `python -m lkjai_train.cli train-adapter`.
-- `python -m lkjai_train.cli train-policy`.
 - `python -m lkjai_train.cli fixed-eval`.
 - `python -m lkjai_train.cli export-manifest`.
 - `python -m lkjai_train.cli smoke`.
 
 ## Pipeline Order
 
-1. Prepare fixture or external JSONL datasets.
-2. Validate message and tool trajectory schema.
-3. Run QLoRA tuning for the configured dense model.
-4. Train the local policy artifact for immediate serving.
-5. Run fixed agent evals.
-6. Merge adapter when requested.
-7. Convert and quantize to GGUF when requested.
-8. Write manifest metadata beside artifacts.
+1. Prepare built-in starter dataset or load external JSONL dataset.
+2. Validate message/tool trajectory schema and split metadata.
+3. Run QLoRA adapter training with Transformers + PEFT + bitsandbytes.
+4. Persist adapter checkpoints and train metadata.
+5. Run fixed evals and write report under `data/train/runs/`.
+6. Export manifest metadata for serving handoff.
+7. Keep deterministic `smoke` command for CI-only fast checks.
 
 ## Compose Entrypoint
 
 - The train image defaults to `python -m lkjai_train.cli train`.
-- `TRAIN_PRESET=quick` is the Compose default.
-- `TRAIN_PRESET=agent` runs RTX 3070-oriented QLoRA settings.
+- `TRAIN_PRESET=agent` is the Compose default.
+- `TRAIN_PRESET=quick` is reserved for deterministic smoke checks.
 - `TRAIN_PRESET=custom` reads explicit `TRAIN_*` knobs.
 - `TRAIN_DATA_DIR` defaults to `/app/data/train`.
 - `TRAIN_BASE_MODEL` defaults to `Qwen/Qwen3-0.6B`.
@@ -38,6 +36,5 @@
 
 - Datasets live under `data/train/datasets`.
 - Adapters live under `data/train/adapters`.
-- Runnable trained policy lives under `data/train/policy/model.json`.
 - Exports live under `data/train/exports`.
 - Eval reports live under `data/train/runs`.

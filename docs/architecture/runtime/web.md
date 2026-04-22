@@ -7,6 +7,7 @@
 - Tokio for async runtime.
 - Server-rendered HTML for `GET /`.
 - JSON APIs for chat and transcripts.
+- OpenAI-compatible model endpoint for generation.
 
 ## Bind Defaults
 

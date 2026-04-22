@@ -3,6 +3,7 @@
 ## Required Behavior
 
 - Training uses CUDA when `torch.cuda.is_available()` is true.
+- Training stack uses Transformers + PEFT + bitsandbytes for QLoRA.
 - Mixed precision is enabled by default on CUDA.
 - Gradient accumulation is used to fit 8 GiB VRAM.
 - Activation checkpointing is supported by config.

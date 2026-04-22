@@ -7,9 +7,9 @@ operator-facing acceptance flow.
 
 - You need to run the agent tuning Compose profile.
 - You need fixed-eval competency criteria and artifact schema.
-- You need a deterministic stop/continue decision after each run.
+- You need start/continue/stop rules for long GPU runs.
 
 ## Child Index
 
-- [long-run.md](long-run.md): tuning runtime contract and environment knobs
+- [long-run.md](long-run.md): real training runtime contract and environment knobs
 - [competency-gate.md](competency-gate.md): fixed-eval threshold and acceptance policy

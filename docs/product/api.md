@@ -29,6 +29,17 @@
 }
 ```
 
+## `GET /api/model` Response
+
+```json
+{
+  "model": "qwen3-1.7b-q4",
+  "api_url": "http://127.0.0.1:8081/v1/chat/completions",
+  "loaded": true,
+  "message": "model client configured"
+}
+```
+
 ## Event Shape
 
 - `kind`: `user`, `assistant`, `plan`, `tool_call`, `tool_result`,
@@ -37,3 +48,10 @@
 - `tool`: optional tool name.
 - `timestamp`: RFC 3339 timestamp.
 - `step`: optional agent loop step.
+
+## Error Contract
+
+- Invalid model responses must produce `error` events in `events`.
+- If no final assistant action is produced, `stop_reason` must indicate failure.
+- `GET /api/model` reflects runtime model client configuration, not benchmarked
+  quality.

@@ -2,30 +2,32 @@
 
 ## Goal
 
-Verification proves the repository shape, agent loop, structured tools, memory
-store, web health route, and tuning fixture pipeline.
+Verification proves:
 
-## Required Command
+- docs topology and line-limit constraints remain valid,
+- runtime and training code paths still compile and pass tests,
+- deterministic smoke checks still run inside the verification container.
+
+## Mandatory Commands
 
 ```bash
 docker compose --profile verify build verify
 docker compose --profile verify run --rm verify
 ```
 
-## Required Checks
+## Mandatory Checks in `verify.sh`
 
-- Rust formatting passes.
-- Rust tests pass.
-- Python smoke checks pass.
-- Documentation topology passes.
-- Markdown links pass.
-- File line limits pass.
-- No Node runtime files or commands are required.
-- The fake model client can drive a tool call and final answer.
-- Memory write and search pass deterministic checks.
-- Tuning fixtures validate without large downloads.
+1. `cargo fmt -- --check`
+2. `cargo test`
+3. `python3 -m pytest training/tests`
+4. `cargo run --bin lkjai -- docs validate-topology`
+5. `cargo run --bin lkjai -- docs validate-links`
+6. `cargo run --bin lkjai -- quality check-lines`
+7. `cargo run --bin lkjai -- quality no-node`
+8. `python3 -m lkjai_train.cli --data-dir "$DATA_DIR" smoke`
 
-## Non-Goal
+## Scope Boundary
 
-- Verification does not download production model weights.
-- Verification does not run QLoRA training.
+- Verify is deterministic and lightweight compared with long GPU training runs.
+- Verify does not prove final model quality by itself.
+- Real training acceptance is governed by the training runbook and eval artifacts.

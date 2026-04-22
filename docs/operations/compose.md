@@ -2,9 +2,9 @@
 
 ## Profiles
 
-- `model`: optional llama.cpp CUDA model server.
+- `model`: llama.cpp CUDA model server.
 - `web`: Rust axum agent orchestrator.
-- `train`: CUDA post-training container.
+- `train`: CUDA training container (Transformers + PEFT + bitsandbytes).
 - `verify`: repository verification container.
 
 ## Data Mount
@@ -12,7 +12,8 @@
 - All profiles mount `./data:/app/data`.
 - Model serving reads GGUF files from `/app/data/models` when profile `model`
   is enabled.
-- Training writes datasets, adapters, exports, and logs under `/app/data/train`.
+- Training writes datasets, adapter checkpoints, exports, and logs under
+  `/app/data/train`.
 - Web writes transcripts and memory under `/app/data/agent`.
 
 ## GPU
@@ -24,8 +25,8 @@
 ## Commands
 
 ```bash
-docker compose --profile web up --build
 docker compose --profile model up model
+docker compose --profile web up --build web
 docker compose --profile train up --build train
 docker compose --profile verify build verify
 docker compose --profile verify run --rm verify
@@ -33,10 +34,10 @@ docker compose --profile verify run --rm verify
 
 ## Training Defaults
 
-- The `train` service defaults to `TRAIN_PRESET=quick`.
-- `TRAIN_PRESET=agent` enables RTX 3070 QLoRA defaults.
+- The `train` service defaults to `TRAIN_PRESET=agent`.
+- `TRAIN_PRESET=quick` remains available for deterministic smoke checks.
 - `TRAIN_FIXED_EVAL_THRESHOLD` defaults to `0.80`.
-- `TRAIN_ENFORCE_COMPETENCY` defaults to disabled for quick runs.
+- `TRAIN_ENFORCE_COMPETENCY` defaults to disabled unless explicitly enabled.
 - Training writes to `TRAIN_DATA_DIR`, default `/app/data/train`.
 
 ## Presets
