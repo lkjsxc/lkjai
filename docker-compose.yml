@@ -1,25 +1,22 @@
 name: lkjai
 
 services:
-  web:
-    profiles: ["web"]
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        CUDA_COMPUTE_CAP: ${CUDA_COMPUTE_CAP:-86}
-    network_mode: host
-    environment:
-      APP_HOST: ${APP_HOST:-127.0.0.1}
-      APP_PORT: ${APP_PORT:-8080}
-      DATA_DIR: ${DATA_DIR:-/app/data}
-      MODEL_DIR: ${MODEL_DIR:-/app/data/train/models/lkj-150m}
-      INFERENCE_DEVICE: ${INFERENCE_DEVICE:-cuda}
-      TOOL_TIMEOUT_SECS: ${TOOL_TIMEOUT_SECS:-20}
-      TOOL_OUTPUT_LIMIT: ${TOOL_OUTPUT_LIMIT:-12000}
+  model:
+    profiles: ["web", "model"]
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    command:
+      - -m
+      - /models/${MODEL_GGUF:-qwen3-1.7b-q4.gguf}
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8080"
+      - -c
+      - "${MODEL_CONTEXT_TOKENS:-4096}"
+    ports:
+      - "127.0.0.1:${MODEL_PORT:-8081}:8080"
     volumes:
-      - ./data:/app/data
-      - /:/host
+      - ./data/models:/models
     deploy:
       resources:
         reservations:
@@ -28,6 +25,31 @@ services:
               count: all
               capabilities: [gpu]
 
+  web:
+    profiles: ["web"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - model
+    ports:
+      - "127.0.0.1:${APP_PORT:-8080}:8080"
+    environment:
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8080
+      DATA_DIR: ${DATA_DIR:-/app/data}
+      MODEL_API_URL: ${MODEL_API_URL:-http://model:8080/v1/chat/completions}
+      MODEL_NAME: ${MODEL_NAME:-qwen3-1.7b-q4}
+      MODEL_MAX_NEW_TOKENS: ${MODEL_MAX_NEW_TOKENS:-512}
+      MODEL_TEMPERATURE: ${MODEL_TEMPERATURE:-0.2}
+      AGENT_MAX_STEPS: ${AGENT_MAX_STEPS:-6}
+      AGENT_REPAIR_ATTEMPTS: ${AGENT_REPAIR_ATTEMPTS:-1}
+      TOOL_TIMEOUT_SECS: ${TOOL_TIMEOUT_SECS:-20}
+      TOOL_OUTPUT_LIMIT: ${TOOL_OUTPUT_LIMIT:-12000}
+    volumes:
+      - ./data:/app/data
+      - /:/host
+
   train:
     profiles: ["train"]
     build:
@@ -35,19 +57,16 @@ services:
       dockerfile: Dockerfile.train
     environment:
       DATA_DIR: ${TRAIN_DATA_DIR:-/app/data/train}
-      TRAIN_PRESET: ${TRAIN_PRESET:-longrun}
-      TRAIN_CONFIG: ${TRAIN_CONFIG:-/workspace/configs/lkj-150m.toml}
-      TRAIN_DATASET: ${TRAIN_DATASET:-HuggingFaceFW/fineweb-edu}
-      TRAIN_CONTEXT: ${TRAIN_CONTEXT:-0}
-      TRAIN_MAX_ARTIFACT_MIB: ${TRAIN_MAX_ARTIFACT_MIB:-512}
-      TRAIN_STEPS: ${TRAIN_STEPS:-512}
-      TRAIN_MAX_DURATION_SECS: ${TRAIN_MAX_DURATION_SECS:-21600}
+      TRAIN_PRESET: ${TRAIN_PRESET:-quick}
+      TRAIN_BASE_MODEL: ${TRAIN_BASE_MODEL:-Qwen/Qwen3-0.6B}
+      TRAIN_SEQUENCE_LEN: ${TRAIN_SEQUENCE_LEN:-2048}
+      TRAIN_LORA_RANK: ${TRAIN_LORA_RANK:-16}
+      TRAIN_LORA_ALPHA: ${TRAIN_LORA_ALPHA:-32}
+      TRAIN_LEARNING_RATE: ${TRAIN_LEARNING_RATE:-1e-4}
+      TRAIN_LOAD_IN_4BIT: ${TRAIN_LOAD_IN_4BIT:-1}
+      TRAIN_GRADIENT_CHECKPOINTING: ${TRAIN_GRADIENT_CHECKPOINTING:-1}
       TRAIN_FIXED_EVAL_THRESHOLD: ${TRAIN_FIXED_EVAL_THRESHOLD:-0.8}
-      TRAIN_ENFORCE_COMPETENCY: ${TRAIN_ENFORCE_COMPETENCY:-1}
-      TRAIN_TINY: ${TRAIN_TINY:-0}
-      TRAIN_TOKEN_BUDGET: ${TRAIN_TOKEN_BUDGET:-3000000000}
-      TRAIN_VOCAB_SIZE: ${TRAIN_VOCAB_SIZE:-32000}
-      TRAIN_TOKENIZER_SAMPLE_CHARS: ${TRAIN_TOKENIZER_SAMPLE_CHARS:-5000000}
+      TRAIN_ENFORCE_COMPETENCY: ${TRAIN_ENFORCE_COMPETENCY:-0}
     volumes:
       - ./data:/app/data
     deploy:

@@ -1,7 +1,7 @@
 import json
 
 from lkjai_train.cli import dispatch
-from lkjai_train.fixed_eval import evaluate_fixed_suite
+from lkjai_train.evals import evaluate_fixed_suite
 from lkjai_train.paths import Paths
 
 

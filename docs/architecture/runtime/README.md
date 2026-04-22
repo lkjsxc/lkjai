@@ -6,11 +6,11 @@ state.
 ## Read This Section When
 
 - You need axum route ownership.
-- You need Candle inference behavior.
+- You need model-client behavior.
 - You need runtime data paths.
 
 ## Child Index
 
 - [web.md](web.md): axum server contract
-- [inference.md](inference.md): tokenizer and Candle model loading
+- [inference.md](inference.md): OpenAI-compatible model client behavior
 - [storage.md](storage.md): data directory and transcript storage

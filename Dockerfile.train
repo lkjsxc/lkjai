@@ -2,10 +2,9 @@ FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
 
 WORKDIR /workspace
 
-RUN python -m pip install --no-cache-dir datasets tokenizers safetensors pytest numpy
+RUN python -m pip install --no-cache-dir pytest
 
 COPY training ./training
-COPY configs ./configs
 
 ENV PYTHONPATH=/workspace/training
 ENV DATA_DIR=/app/data
