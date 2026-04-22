@@ -1,87 +1,166 @@
+mod action;
+mod memory;
+mod prompt;
+mod schema;
 mod tools;
 mod transcript;
 
-use crate::{config::Config, inference::Generator};
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
+use crate::{
+    config::Config,
+    model_client::{ModelClient, ModelMessage},
+};
 use uuid::Uuid;
 
+use action::Action;
+use memory::MemoryStore;
+pub use schema::{event, response, ChatRequest, ChatResponse, Event};
 pub use transcript::TranscriptStore;
-
-#[derive(Debug, Deserialize)]
-pub struct ChatRequest {
-    pub message: String,
-    pub run_id: Option<String>,
-}
-
-#[derive(Debug, Serialize)]
-pub struct ChatResponse {
-    pub run_id: String,
-    pub assistant: String,
-    pub events: Vec<Event>,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Event {
-    pub kind: String,
-    pub content: String,
-    pub tool: Option<String>,
-    pub timestamp: DateTime<Utc>,
-}
 
 #[derive(Clone)]
 pub struct Agent {
     config: Config,
     store: TranscriptStore,
-    generator: Generator,
+    memory: MemoryStore,
+    model: ModelClient,
 }
 
 impl Agent {
-    pub fn new(config: Config, generator: Generator) -> Self {
+    pub fn new(config: Config, model: ModelClient) -> Self {
         Self {
             store: TranscriptStore::new(config.runs_dir()),
+            memory: MemoryStore::new(config.memory_path()),
             config,
-            generator,
+            model,
         }
     }
 
     pub async fn chat(&self, request: ChatRequest) -> ChatResponse {
         let run_id = request.run_id.unwrap_or_else(|| Uuid::new_v4().to_string());
-        let mut events = vec![event("user", request.message.clone(), None)];
-        let assistant = match tools::parse_tool(&request.message) {
-            Some(call) => self.run_tool(call, &mut events).await,
-            None => self.generator.generate(&request.message).await,
-        };
-        events.push(event("assistant", assistant.clone(), None));
-        let _ = self.store.append_many(&run_id, &events);
-        ChatResponse {
-            run_id,
-            assistant,
-            events,
+        let max_steps = request.max_steps.unwrap_or(self.config.agent_max_steps);
+        let mut events = vec![event("user", request.message.clone(), None, None)];
+        let mut prior = self.transcript(&run_id).unwrap_or_default();
+        prior.extend(events.clone());
+
+        let mut assistant = String::new();
+        let mut stop_reason = "max_steps".to_string();
+        for step in 1..=max_steps {
+            let action = match self.next_action(&run_id, &prior, step).await {
+                Ok(action) => action,
+                Err(error) => {
+                    events.push(event("error", error, None, Some(step)));
+                    stop_reason = "invalid_action".into();
+                    break;
+                }
+            };
+            if let Some(thought) = action.thought.clone().filter(|v| !v.is_empty()) {
+                events.push(event("plan", thought, None, Some(step)));
+            }
+            match action.kind.as_str() {
+                "final" => {
+                    assistant = action.content.unwrap_or_default();
+                    events.push(event("assistant", assistant.clone(), None, Some(step)));
+                    stop_reason = "final".into();
+                    break;
+                }
+                "tool_call" => {
+                    let result = self.action_tool(action, &run_id, step, &mut events).await;
+                    prior.extend(events.clone());
+                    if result.is_err() {
+                        stop_reason = "tool_error".into();
+                    }
+                }
+                other => {
+                    events.push(event(
+                        "error",
+                        format!("unknown action kind {other}"),
+                        None,
+                        Some(step),
+                    ));
+                    stop_reason = "invalid_action".into();
+                    break;
+                }
+            }
         }
+        if assistant.is_empty() {
+            assistant = format!("agent stopped: {stop_reason}");
+        }
+        self.persist(&run_id, &events);
+        response(run_id, assistant, events, &stop_reason)
     }
 
     pub fn transcript(&self, run_id: &str) -> Result<Vec<Event>, std::io::Error> {
         self.store.read(run_id)
     }
 
-    async fn run_tool(&self, call: tools::ToolCall, events: &mut Vec<Event>) -> String {
-        events.push(event("tool_call", call.summary(), Some(call.name().into())));
-        let result = tools::execute(call, &self.config).await;
-        let content = match result {
-            Ok(output) => output,
-            Err(error) => format!("tool failed: {error}"),
+    async fn next_action(
+        &self,
+        run_id: &str,
+        events: &[Event],
+        step: usize,
+    ) -> Result<Action, String> {
+        let messages = self.prompt(run_id, events, step);
+        let text = self.model.chat(&messages).await?;
+        match action::parse(&text) {
+            Ok(action) => Ok(action),
+            Err(error) if self.config.agent_repair_attempts > 0 => {
+                let mut repair = messages;
+                repair.push(ModelMessage {
+                    role: "user".into(),
+                    content: format!("Repair invalid action JSON. Error: {error}. Text: {text}"),
+                });
+                action::parse(&self.model.chat(&repair).await?)
+            }
+            Err(error) => Err(error),
+        }
+    }
+
+    async fn action_tool(
+        &self,
+        action: Action,
+        run_id: &str,
+        step: usize,
+        events: &mut Vec<Event>,
+    ) -> Result<(), String> {
+        let tool = action
+            .tool
+            .ok_or_else(|| "tool_call missing tool".to_string())?;
+        let args = action.args.unwrap_or(serde_json::Value::Null);
+        let call = tools::ToolCall::from_json(&tool, &args)?;
+        let result = self.run_tool(call, run_id, step, events).await;
+        events.push(event("observation", result, Some(tool), Some(step)));
+        Ok(())
+    }
+
+    async fn run_tool(
+        &self,
+        call: tools::ToolCall,
+        run_id: &str,
+        step: usize,
+        events: &mut Vec<Event>,
+    ) -> String {
+        let tool = call.name().to_string();
+        events.push(event(
+            "tool_call",
+            call.summary(),
+            Some(tool.clone()),
+            Some(step),
+        ));
+        let result = tools::execute(call, &self.config, &self.memory, run_id).await;
+        let content = result.unwrap_or_else(|error| format!("tool failed: {error}"));
+        let kind = if tool == "memory.write" {
+            "memory_write"
+        } else {
+            "tool_result"
         };
-        events.push(event("tool_result", content.clone(), None));
+        events.push(event(kind, content.clone(), Some(tool), Some(step)));
         content
     }
-}
 
-pub fn event(kind: &str, content: String, tool: Option<String>) -> Event {
-    Event {
-        kind: kind.into(),
-        content,
-        tool,
-        timestamp: Utc::now(),
+    fn prompt(&self, run_id: &str, events: &[Event], step: usize) -> Vec<ModelMessage> {
+        prompt::build(run_id, events, step, &self.memory)
+    }
+
+    fn persist(&self, run_id: &str, events: &[Event]) {
+        let _ = self.store.append_many(run_id, events);
     }
 }

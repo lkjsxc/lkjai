@@ -62,7 +62,7 @@
     async function refreshStatus() {
       const response = await fetch("/api/model");
       const model = await response.json();
-      status.textContent = `${model.loaded ? "model loaded" : "fallback"} · ${model.device} · ${model.model_dir}`;
+      status.textContent = `${model.loaded ? "model client" : "model unavailable"} · ${model.model} · ${model.api_url}`;
     }
 
     form.addEventListener("submit", async (event) => {

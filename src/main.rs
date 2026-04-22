@@ -5,7 +5,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[derive(Parser)]
 #[command(name = "lkjai")]
-#[command(about = "Small LLM training and local YOLO agent web app")]
+#[command(about = "Local agentic AI system for multi-turn tool use")]
 struct Args {
     #[command(subcommand)]
     command: Option<Command>,
