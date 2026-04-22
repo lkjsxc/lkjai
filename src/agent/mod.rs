@@ -2,7 +2,7 @@ mod action;
 mod memory;
 mod prompt;
 mod schema;
-mod tools;
+pub mod tools;
 mod transcript;
 
 use crate::{
@@ -38,6 +38,17 @@ impl Agent {
         let run_id = request.run_id.unwrap_or_else(|| Uuid::new_v4().to_string());
         let max_steps = request.max_steps.unwrap_or(self.config.agent_max_steps);
         let mut events = vec![event("user", request.message.clone(), None, None)];
+
+        if !self.model.is_reachable().await {
+            events.push(event(
+                "error",
+                "model server unreachable".into(),
+                None,
+                None,
+            ));
+            return response(run_id, "model unavailable".into(), events, "model_error");
+        }
+
         let mut prior = self.transcript(&run_id).unwrap_or_default();
         prior.extend(events.clone());
 
@@ -47,8 +58,15 @@ impl Agent {
             let action = match self.next_action(&run_id, &prior, step).await {
                 Ok(action) => action,
                 Err(error) => {
-                    events.push(event("error", error, None, Some(step)));
-                    stop_reason = "invalid_action".into();
+                    events.push(event("error", error.clone(), None, Some(step)));
+                    stop_reason = if error.starts_with("model request failed")
+                        || error.starts_with("model server returned")
+                        || error.starts_with("model response parse failed")
+                    {
+                        "model_error".into()
+                    } else {
+                        "invalid_action".into()
+                    };
                     break;
                 }
             };

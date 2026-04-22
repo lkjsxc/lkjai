@@ -48,7 +48,7 @@ async fn healthz() -> &'static str {
 }
 
 async fn model_status(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    Json(state.model.status())
+    Json(state.model.status().await)
 }
 
 async fn chat(

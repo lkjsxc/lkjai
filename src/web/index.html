@@ -21,7 +21,7 @@
     form { display: grid; grid-template-columns: 1fr auto; gap: 10px; border-top: 1px solid var(--line); padding-top: 12px; }
     textarea { resize: vertical; min-height: 70px; max-height: 220px; padding: 12px; font: inherit; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); }
     button { align-self: end; min-width: 84px; height: 44px; border: 0; border-radius: 6px; background: var(--accent); color: white; font-weight: 700; cursor: pointer; }
-    button:disabled { opacity: .55; cursor: wait; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
     @media (max-width: 700px) {
       main { padding: 12px; }
       header { align-items: start; flex-direction: column; }
@@ -50,6 +50,7 @@
     const send = document.getElementById("send");
     const status = document.getElementById("status");
     let runId = null;
+    let modelReachable = false;
 
     function add(kind, content, tool) {
       const node = document.createElement("article");
@@ -60,15 +61,24 @@
     }
 
     async function refreshStatus() {
-      const response = await fetch("/api/model");
-      const model = await response.json();
-      status.textContent = `${model.loaded ? "model client" : "model unavailable"} · ${model.model} · ${model.api_url}`;
+      try {
+        const response = await fetch("/api/model");
+        const model = await response.json();
+        modelReachable = model.reachable;
+        const state = model.reachable ? "model ready" : "model unavailable";
+        status.textContent = `${state} · ${model.model} · ${model.api_url}`;
+        send.disabled = !model.reachable;
+      } catch (error) {
+        modelReachable = false;
+        status.textContent = `error · ${String(error)}`;
+        send.disabled = true;
+      }
     }
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const message = input.value.trim();
-      if (!message) return;
+      if (!message || !modelReachable) return;
       input.value = "";
       send.disabled = true;
       add("user", message);
@@ -87,7 +97,7 @@
       } catch (error) {
         add("error", String(error));
       } finally {
-        send.disabled = false;
+        send.disabled = !modelReachable;
         input.focus();
       }
     });
@@ -97,6 +107,7 @@
     });
 
     refreshStatus().catch((error) => { status.textContent = String(error); });
+    setInterval(refreshStatus, 10000);
   </script>
 </body>
 </html>

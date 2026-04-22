@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::{
     collections::VecDeque,
     sync::{Arc, Mutex},
+    time::Duration,
 };
 
 use crate::config::Config;
@@ -31,6 +32,7 @@ pub struct ModelStatus {
     pub model: String,
     pub api_url: String,
     pub loaded: bool,
+    pub reachable: bool,
     pub message: String,
 }
 
@@ -63,6 +65,17 @@ struct AssistantMessage {
     content: String,
 }
 
+#[derive(Deserialize)]
+struct ModelsResponse {
+    data: Vec<ModelId>,
+}
+
+#[derive(Deserialize)]
+struct ModelId {
+    #[allow(dead_code)]
+    id: String,
+}
+
 impl ModelClient {
     pub fn from_config(config: &Config) -> Self {
         Self {
@@ -93,21 +106,34 @@ impl ModelClient {
         }
     }
 
-    pub fn status(&self) -> ModelStatus {
+    pub async fn status(&self) -> ModelStatus {
         match &self.mode {
-            Mode::Http(model) => ModelStatus {
-                model: model.name.clone(),
-                api_url: model.url.clone(),
-                loaded: true,
-                message: "model client configured".into(),
-            },
+            Mode::Http(model) => {
+                let reachable = model.health().await;
+                ModelStatus {
+                    model: model.name.clone(),
+                    api_url: model.url.clone(),
+                    loaded: true,
+                    reachable,
+                    message: if reachable {
+                        "model server responding".into()
+                    } else {
+                        "model server unreachable".into()
+                    },
+                }
+            }
             Mode::Fake(_) => ModelStatus {
                 model: "fake".into(),
                 api_url: "memory://fake".into(),
                 loaded: true,
+                reachable: true,
                 message: "fake model client configured".into(),
             },
         }
+    }
+
+    pub async fn is_reachable(&self) -> bool {
+        self.status().await.reachable
     }
 }
 
@@ -140,5 +166,28 @@ impl HttpModel {
             .next()
             .map(|choice| choice.message.content)
             .ok_or_else(|| "model response had no choices".into())
+    }
+
+    async fn health(&self) -> bool {
+        let base = self.url.trim_end_matches("/v1/chat/completions");
+        let url = format!("{base}/models");
+        match self
+            .client
+            .get(&url)
+            .timeout(Duration::from_secs(5))
+            .send()
+            .await
+        {
+            Ok(response) => {
+                if !response.status().is_success() {
+                    return false;
+                }
+                match response.json::<ModelsResponse>().await {
+                    Ok(data) => !data.data.is_empty(),
+                    Err(_) => false,
+                }
+            }
+            Err(_) => false,
+        }
     }
 }
