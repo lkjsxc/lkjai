@@ -4,6 +4,7 @@ from lkjai_train.cli import dispatch, train_settings
 from lkjai_train.packer import pack_tokens
 from lkjai_train.paths import Paths
 from lkjai_train.tokenizer import train_tokenizer
+from lkjai_train.trainer import train_model
 
 
 class Args:
@@ -15,6 +16,8 @@ def test_smoke_pipeline(tmp_path):
     assert (result / "config.json").exists()
     assert (result / "model.safetensors").exists()
     assert (result / "size.json").exists()
+    assert (result / "manifest.json").exists()
+    assert (result / "tokenizer.json").exists()
 
 
 def test_train_command_defaults_to_quick_pipeline(tmp_path, monkeypatch):
@@ -53,3 +56,24 @@ def test_pack_tokens_writes_streaming_metadata(tmp_path):
     assert out.name == "tokens.u16"
     assert metadata["token_file"] == "tokens.u16"
     assert metadata["tokens"] > 0
+    assert len(metadata["tokenizer_sha256"]) == 64
+
+
+def test_train_rejects_stale_tokenizer_metadata(tmp_path):
+    class CorpusArgs:
+        command = "prepare-corpus"
+        token_budget = 200
+        dataset = "fixture"
+        tiny = True
+
+    paths = Paths(str(tmp_path))
+    dispatch(CorpusArgs(), paths)
+    train_tokenizer(paths, 259, 0)
+    pack_tokens(paths)
+    (paths.tokenizers / "tokenizer.json").write_text("{}", encoding="utf-8")
+    try:
+        train_model(paths, True, 1)
+    except ValueError as error:
+        assert "tokenizer does not match packed tokens" in str(error)
+    else:
+        raise AssertionError("stale tokenizer was accepted")

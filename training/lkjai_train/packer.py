@@ -3,6 +3,7 @@ from pathlib import Path
 
 import numpy as np
 
+from .artifacts import file_sha256
 from .tokenizer import encode, load_tokenizer
 
 
@@ -14,7 +15,8 @@ def corpus_lines(path: Path):
 
 def pack_tokens(paths) -> Path:
     paths.ensure()
-    tokenizer = load_tokenizer(paths.tokenizers / "tokenizer.json")
+    tokenizer_path = paths.tokenizers / "tokenizer.json"
+    tokenizer = load_tokenizer(tokenizer_path)
     out = paths.tokenized / "tokens.u16"
     tokens = 0
     max_token_id = 0
@@ -36,6 +38,7 @@ def pack_tokens(paths) -> Path:
         "token_file": out.name,
         "format": "flat-binary",
         "max_token_id": max_token_id,
+        "tokenizer_sha256": file_sha256(tokenizer_path),
     }
     (paths.tokenized / "metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     return out

@@ -41,7 +41,8 @@ TRAIN_PRESET=quick TRAIN_ENFORCE_COMPETENCY=0 docker compose --profile train up 
 docker compose --profile web up --build web
 ```
 
-The default web bind is `127.0.0.1:${APP_PORT}`.
+The default web bind is `127.0.0.1:${APP_PORT}`. The web profile serves
+`data/train/models/lkj-150m` and requires CUDA by default.
 
 ## Inspect Training Outputs
 

@@ -2,6 +2,8 @@ use candle_core::{DType, Device, Result, Tensor};
 use serde::Deserialize;
 use std::{collections::HashMap, fs, path::Path};
 
+use super::{device::select_device, sampling::sample_top_k};
+
 #[derive(Clone, Deserialize)]
 struct ModelCfg {
     vocab_size: usize,
@@ -32,10 +34,10 @@ struct Block {
 }
 
 impl LkjModel {
-    pub fn load(dir: &Path) -> Result<Self> {
+    pub fn load(dir: &Path, device_request: &str) -> Result<Self> {
         let cfg: ModelCfg = serde_json::from_str(&fs::read_to_string(dir.join("config.json"))?)
             .map_err(candle_core::Error::msg)?;
-        let device = Device::cuda_if_available(0)?;
+        let device = select_device(device_request)?;
         let dtype = if matches!(device, Device::Cpu) {
             DType::F32
         } else {
@@ -101,7 +103,7 @@ impl LkjModel {
             x = x.add(&ffn)?;
         }
         let h = rms_norm(&x, &self.norm)?.get(seq - 1)?;
-        self.head.matmul(&h.unsqueeze(1)?)?.squeeze(1)
+        self.head.matmul(&h.unsqueeze(1)?.contiguous()?)?.squeeze(1)
     }
 }
 
@@ -109,28 +111,34 @@ impl Block {
     fn attention(&self, x: &Tensor, cfg: &ModelCfg) -> Result<Tensor> {
         let seq = x.dim(0)?;
         let head_dim = cfg.hidden / cfg.heads;
-        let qkv = x.matmul(&self.qkv.t()?)?;
-        let q = heads(&qkv.narrow(1, 0, cfg.hidden)?, cfg.heads, head_dim)?;
-        let k = heads(&qkv.narrow(1, cfg.hidden, cfg.hidden)?, cfg.heads, head_dim)?;
+        let qkv = x.matmul(&self.qkv.t()?.contiguous()?)?;
+        let q = heads(&qkv.narrow(1, 0, cfg.hidden)?, cfg.heads, head_dim)?.contiguous()?;
+        let k =
+            heads(&qkv.narrow(1, cfg.hidden, cfg.hidden)?, cfg.heads, head_dim)?.contiguous()?;
         let v = heads(
             &qkv.narrow(1, cfg.hidden * 2, cfg.hidden)?,
             cfg.heads,
             head_dim,
-        )?;
-        let scores = q.matmul(&k.transpose(1, 2)?)? * (1.0 / (head_dim as f64).sqrt());
-        let scores = scores?.broadcast_add(&causal_mask(seq, cfg.heads, x.device())?)?;
+        )?
+        .contiguous()?;
+        let scores =
+            q.matmul(&k.transpose(1, 2)?.contiguous()?)? * (1.0 / (head_dim as f64).sqrt());
+        let scores = scores?;
+        let scores =
+            scores.broadcast_add(&causal_mask(seq, cfg.heads, x.device(), scores.dtype())?)?;
         let probs = softmax_last(&scores)?;
         let y = probs
             .matmul(&v)?
             .transpose(0, 1)?
+            .contiguous()?
             .reshape((seq, cfg.hidden))?;
-        y.matmul(&self.out.t()?)
+        y.matmul(&self.out.t()?.contiguous()?)
     }
 
     fn ffn(&self, x: &Tensor) -> Result<Tensor> {
-        let gate = x.matmul(&self.gate.t()?)?.silu()?;
-        let up = x.matmul(&self.up.t()?)?;
-        gate.mul(&up)?.matmul(&self.down.t()?)
+        let gate = x.matmul(&self.gate.t()?.contiguous()?)?.silu()?;
+        let up = x.matmul(&self.up.t()?.contiguous()?)?;
+        gate.mul(&up)?.matmul(&self.down.t()?.contiguous()?)
     }
 }
 
@@ -152,14 +160,16 @@ fn rms_norm(x: &Tensor, weight: &Tensor) -> Result<Tensor> {
     x.broadcast_mul(&scale)?.broadcast_mul(weight)
 }
 
-fn causal_mask(seq: usize, heads: usize, device: &Device) -> Result<Tensor> {
+fn causal_mask(seq: usize, heads: usize, device: &Device, dtype: DType) -> Result<Tensor> {
     let mut values = vec![0f32; seq * seq];
     for row in 0..seq {
         for col in row + 1..seq {
             values[row * seq + col] = -1.0e9;
         }
     }
-    Tensor::from_vec(values, (seq, seq), device)?.broadcast_as((heads, seq, seq))
+    Tensor::from_vec(values, (seq, seq), device)?
+        .to_dtype(dtype)?
+        .broadcast_as((heads, seq, seq))
 }
 
 fn softmax_last(x: &Tensor) -> Result<Tensor> {
@@ -169,24 +179,12 @@ fn softmax_last(x: &Tensor) -> Result<Tensor> {
     exp.broadcast_div(&exp.sum_keepdim(dim)?)
 }
 
-fn select_token(logits: Tensor, ids: &[u32], vocab_size: usize) -> Result<u32> {
+fn select_token(logits: Tensor, _ids: &[u32], vocab_size: usize) -> Result<u32> {
     let mut scores = logits.to_dtype(DType::F32)?.to_vec1::<f32>()?;
-    for token in [0usize, 2usize] {
+    for token in [0usize, 1usize, 2usize] {
         if token < scores.len() {
             scores[token] = f32::NEG_INFINITY;
         }
     }
-    for id in ids.iter().rev().take(64) {
-        let index = *id as usize;
-        if index < scores.len() {
-            scores[index] = f32::NEG_INFINITY;
-        }
-    }
-    scores
-        .into_iter()
-        .take(vocab_size)
-        .enumerate()
-        .max_by(|a, b| a.1.total_cmp(&b.1))
-        .map(|(id, _)| id as u32)
-        .ok_or_else(|| candle_core::Error::msg("empty logits"))
+    sample_top_k(&scores, vocab_size, 40, 0.8)
 }

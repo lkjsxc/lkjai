@@ -39,6 +39,6 @@
 
 ## Checkpoints
 
-- Checkpoints live under `data/checkpoints` (default `latest.pt`).
-- Final serving exports live under `data/models/lkj-150m`.
-- Training logs and fixed-eval reports live under `data/runs`.
+- Checkpoints live under `data/train/checkpoints` (default `latest.pt`).
+- Final serving exports live under `data/train/models/lkj-150m`.
+- Training logs and fixed-eval reports live under `data/train/runs`.

@@ -7,11 +7,11 @@
 
 ## Directories
 
-- `corpus/`: raw and tokenized corpus artifacts.
-- `tokenizers/`: tokenizer artifacts.
-- `checkpoints/`: training checkpoints.
-- `models/`: serving exports.
-- `runs/`: training and verification run logs.
+- `train/corpus/`: raw and tokenized corpus artifacts.
+- `train/tokenizers/`: tokenizer artifacts.
+- `train/checkpoints/`: training checkpoints.
+- `train/models/`: serving exports.
+- `train/runs/`: training and fixed-eval logs.
 - `agent/`: chat and tool transcripts.
 
 ## Persistence

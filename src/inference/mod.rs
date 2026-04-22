@@ -1,10 +1,14 @@
+mod device;
+mod export;
 mod model;
+mod sampling;
 
 use crate::config::Config;
+use export::{tokenizer_path, validate_export};
 use model::LkjModel;
 use serde::Serialize;
 use std::{
-    path::{Path, PathBuf},
+    path::PathBuf,
     sync::{Arc, Mutex},
 };
 use tokenizers::Tokenizer;
@@ -70,8 +74,10 @@ impl Generator {
 impl Runtime {
     fn load(config: &Config) -> Result<Self, String> {
         let tokenizer_path = tokenizer_path(config)?;
+        validate_export(config, &tokenizer_path)?;
         let tokenizer = Tokenizer::from_file(&tokenizer_path).map_err(|e| e.to_string())?;
-        let model = LkjModel::load(&config.model_dir).map_err(|e| e.to_string())?;
+        let model = LkjModel::load(&config.model_dir, &config.inference_device)
+            .map_err(|e| e.to_string())?;
         Ok(Self { tokenizer, model })
     }
 
@@ -112,27 +118,7 @@ impl Runtime {
     }
 }
 
-fn tokenizer_path(config: &Config) -> Result<PathBuf, String> {
-    let local = config.model_dir.join("tokenizer.json");
-    if local.exists() {
-        return Ok(local);
-    }
-    let shared = config.data_dir.join("tokenizers/tokenizer.json");
-    if shared.exists() {
-        return Ok(shared);
-    }
-    Err(format!(
-        "tokenizer missing: expected {} or {}",
-        display(&local),
-        display(&shared)
-    ))
-}
-
 fn tail(ids: &[u32], limit: usize) -> &[u32] {
     let start = ids.len().saturating_sub(limit);
     &ids[start..]
-}
-
-fn display(path: &Path) -> String {
-    path.display().to_string()
 }

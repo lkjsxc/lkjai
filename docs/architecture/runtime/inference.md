@@ -2,11 +2,13 @@
 
 ## Loading
 
-- Model directory defaults to `data/models/lkj-150m`.
-- The loader reads `config.json`, `model.safetensors`, and `tokenizer.json`.
+- Model directory defaults to `data/train/models/lkj-150m`.
+- The loader reads `config.json`, `model.safetensors`, `tokenizer.json`, and
+  `manifest.json`.
 - Candle is the Rust inference backend.
 - CPU loading upcasts fp16 weights to fp32 when required by Candle kernels.
-- CUDA loading keeps fp16 weights on device when CUDA is available.
+- CUDA loading keeps fp16 weights on device. `INFERENCE_DEVICE=cuda` fails
+  explicitly if the binary or host cannot initialize CUDA.
 
 ## Generation
 
@@ -20,5 +22,5 @@
 
 - Exported model config must match Rust loader expectations.
 - Tokenizer files must be stored beside the model export.
-- Legacy exports may be repaired by copying `data/tokenizers/tokenizer.json`
-  into the model directory.
+- Runtime validates the co-located tokenizer hash from `manifest.json`.
+- Legacy exports must be regenerated with `export-model`.

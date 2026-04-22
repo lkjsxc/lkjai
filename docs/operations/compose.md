@@ -10,14 +10,18 @@
 
 - All profiles mount `./data:/app/data`.
 - Training writes corpora, tokenizers, checkpoints, exports, and logs under
-  `/app/data`.
-- Web reads model exports and writes agent transcripts under `/app/data`.
+  `/app/data/train`.
+- Web reads the trained export from `/app/data/train/models/lkj-150m` by
+  default and writes agent transcripts under `/app/data`.
 
 ## GPU
 
 - `train` requests NVIDIA GPU access.
-- `web` requests NVIDIA GPU access for Candle inference when available.
-- CPU fallback is allowed for smoke verification only.
+- `web` builds Candle with CUDA support and defaults to
+  `INFERENCE_DEVICE=cuda`.
+- `CUDA_COMPUTE_CAP` defaults to `86` for RTX 30-series CUDA builds; set it
+  before building if the serving GPU has a different compute capability.
+- CPU fallback is explicit only with `INFERENCE_DEVICE=cpu` or `auto`.
 
 ## Commands
 

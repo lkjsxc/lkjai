@@ -5,7 +5,7 @@
 - Default dataset: `HuggingFaceFW/fineweb-edu`.
 - Default split: `train`.
 - Default language focus: English educational text.
-- Dataset use must preserve upstream license metadata in `data/corpus/`.
+- Dataset use must preserve upstream license metadata in `data/train/corpus/`.
 
 ## Token Budgets
 
@@ -15,7 +15,7 @@
 
 ## Storage
 
-- Raw or streamed corpus metadata lives under `data/corpus/raw`.
-- Tokenized shards live under `data/corpus/tokenized`.
-- Tokenizer artifacts live under `data/tokenizers`.
+- Raw or streamed corpus metadata lives under `data/train/corpus/raw`.
+- Tokenized shards live under `data/train/corpus/tokenized`.
+- Tokenizer artifacts live under `data/train/tokenizers`.
 - Corpus data is never committed.

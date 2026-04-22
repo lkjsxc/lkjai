@@ -7,6 +7,7 @@ import tomllib
 import numpy as np
 import torch
 
+from .artifacts import file_sha256
 from .model import LkjModel, ModelConfig, tiny_config
 
 
@@ -24,6 +25,7 @@ def train_model(
         cfg.context = context
     device = "cuda" if torch.cuda.is_available() else "cpu"
     data, metadata = load_tokens(paths)
+    verify_tokenizer_hash(paths, metadata)
     if data.size == 0:
         raise ValueError("tokenized corpus is empty")
     max_token_id = int(metadata.get("max_token_id", int(data.max())))
@@ -98,6 +100,18 @@ def load_tokens(paths):
     if legacy.size:
         metadata["max_token_id"] = int(legacy.max())
     return legacy, metadata
+
+
+def verify_tokenizer_hash(paths, metadata) -> None:
+    expected = metadata.get("tokenizer_sha256")
+    if not expected:
+        raise ValueError("tokenized corpus metadata is missing tokenizer_sha256; rerun pack-tokens")
+    tokenizer = paths.tokenizers / "tokenizer.json"
+    if not tokenizer.exists():
+        raise ValueError(f"tokenizer missing: {tokenizer}")
+    actual = file_sha256(tokenizer)
+    if actual != expected:
+        raise ValueError("tokenizer does not match packed tokens; rerun pack-tokens")
 
 
 def batch(data, context: int, batch_size: int = 2):
