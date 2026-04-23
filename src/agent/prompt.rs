@@ -50,8 +50,8 @@ fn system_prompt() -> String {
     [
         "You are lkjai, a local agent. Read the tagged prompt sections.",
         "Return exactly one JSON object and no prose outside it.",
-        r#"Use {"kind":"final","thought":"...","content":"..."} to answer."#,
-        r#"Use {"kind":"tool_call","thought":"...","tool":"fs.read","args":{"path":"..."}}."#,
+        r#"Use {"kind":"final","content":"..."} to answer."#,
+        r#"Use {"kind":"tool_call","tool":"fs.read","args":{"path":"..."}}."#,
         "Tools: shell.exec(command), web.fetch(url), fs.read(path), fs.write(path, content), fs.list(path), memory.search(query), memory.write(content).",
     ]
     .join("\n")

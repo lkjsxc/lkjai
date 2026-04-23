@@ -101,9 +101,9 @@ def generate_corpus(size: int = 4000, seed: int = 42) -> list[dict]:
 
 
 def corpus_targets(size: int) -> dict[str, int]:
-    docs = int(size * 0.25)
-    tools = int(size * 0.30)
-    kjxlkj = int(size * 0.15)
+    docs = int(size * 0.15)
+    tools = int(size * 0.35)
+    kjxlkj = int(size * 0.10)
     public = int(size * 0.10)
     direct = max(0, size - docs - tools - kjxlkj - public)
     return {"docs": docs, "tools": tools, "kjxlkj": kjxlkj, "public": public, "direct": direct}

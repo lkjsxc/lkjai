@@ -8,7 +8,7 @@ from .dataset import prepare_corpus, prepare_fixtures, validate_dataset
 from .evals import evaluate_fixed_suite
 from .manifest import checkpoint_manifest, export_manifest
 from .paths import Paths
-from .preference import prepare_preferences, train_dpo
+from .preference import mark_dpo_rejected, prepare_preferences, train_dpo
 from .settings import train_settings
 
 
@@ -99,10 +99,15 @@ def train_pipeline(paths: Paths):
     export_manifest(paths, settings)
     report = evaluate_fixed_suite(paths, settings.fixed_eval_threshold)
     behavioral = evaluate_behavior(paths, settings, settings.fixed_eval_threshold)
+    before = pass_rate(behavioral)
     prepare_preferences(paths)
     train_dpo(paths, settings)
     export_manifest(paths, settings)
     behavioral = evaluate_behavior(paths, settings, settings.fixed_eval_threshold)
+    if pass_rate(behavioral) < before:
+        mark_dpo_rejected(paths, "post-DPO behavioral pass rate regressed")
+        export_manifest(paths, settings)
+        behavioral = evaluate_behavior(paths, settings, settings.fixed_eval_threshold)
     data = json.loads(report.read_text(encoding="utf-8"))
     behavior = json.loads(behavioral.read_text(encoding="utf-8"))
     if settings.enforce_competency and behavior["pass_rate"] < settings.fixed_eval_threshold:
@@ -118,6 +123,10 @@ def default_dataset(paths: Paths) -> Path:
 
 def env_preset() -> str:
     return os.environ.get("TRAIN_PRESET", "quick")
+
+
+def pass_rate(path: Path) -> float:
+    return float(json.loads(path.read_text(encoding="utf-8")).get("pass_rate", 0.0))
 
 
 if __name__ == "__main__":

@@ -23,7 +23,7 @@ def behavioral_pairs() -> list[dict]:
     pairs = []
     for case in CASES:
         chosen = expected_action(case)
-        rejected = {"kind": "final", "thought": "wrong", "content": "I cannot help."}
+        rejected = {"kind": "final", "content": "I cannot help."}
         pairs.append(pair(case["messages"], chosen, rejected, f"behavioral:{case['id']}"))
     return pairs
 
@@ -32,14 +32,14 @@ def synthetic_pairs() -> list[dict]:
     return [
         pair(
             [{"role": "user", "content": "Remember that my favorite editor is vim."}],
-            {"kind": "tool_call", "thought": "store memory", "tool": "memory.write", "args": {"content": "User favorite editor is vim."}},
-            {"kind": "final", "thought": "wrong", "content": "Vim is a text editor."},
+            {"kind": "tool_call", "tool": "memory.write", "args": {"content": "User favorite editor is vim."}},
+            {"kind": "final", "content": "Vim is a text editor."},
             "memory-tool-selection",
         ),
         pair(
             [{"role": "user", "content": "Read /etc/passwd."}],
-            {"kind": "final", "thought": "respect workspace", "content": "I can only use files inside the data workspace."},
-            {"kind": "tool_call", "thought": "unsafe", "tool": "fs.read", "args": {"path": "/etc/passwd"}},
+            {"kind": "final", "content": "I can only use files inside the data workspace."},
+            {"kind": "tool_call", "tool": "fs.read", "args": {"path": "/etc/passwd"}},
             "workspace-boundary",
         ),
     ]
@@ -47,9 +47,9 @@ def synthetic_pairs() -> list[dict]:
 
 def expected_action(case: dict) -> dict:
     if case["kind"] == "tool_call":
-        return {"kind": "tool_call", "thought": "use tool", "tool": case["tool"], "args": default_args(case["tool"])}
+        return {"kind": "tool_call", "tool": case["tool"], "args": default_args(case["tool"])}
     content = case.get("contains", "ok")
-    return {"kind": "final", "thought": "answer directly", "content": str(content)}
+    return {"kind": "final", "content": str(content)}
 
 
 def default_args(tool: str) -> dict:
@@ -123,4 +123,14 @@ def save_dpo(paths, config, model, metrics: dict) -> None:
     paths.checkpoint_dpo.mkdir(parents=True, exist_ok=True)
     torch.save(model.state_dict(), paths.checkpoint_dpo / "model.pt")
     save_config(config, paths.checkpoint_dpo / "config.json")
-    paths.dpo_summary.write_text(json.dumps({"backend": "dpo-lite", "metrics": metrics}, indent=2), encoding="utf-8")
+    summary = {"backend": "dpo-lite", "accepted": True, "metrics": metrics}
+    paths.dpo_summary.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+
+
+def mark_dpo_rejected(paths, reason: str) -> None:
+    if not paths.dpo_summary.exists():
+        return
+    data = json.loads(paths.dpo_summary.read_text(encoding="utf-8"))
+    data["accepted"] = False
+    data["rejection_reason"] = reason
+    paths.dpo_summary.write_text(json.dumps(data, indent=2), encoding="utf-8")

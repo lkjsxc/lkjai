@@ -55,6 +55,9 @@ def serving_checkpoint_dir(paths) -> Path:
     dpo_model = paths.checkpoint_dpo / "model.pt"
     final_model = paths.checkpoint_final / "model.pt"
     if dpo_model.exists() and paths.dpo_summary.exists():
+        summary = read_json(paths.dpo_summary)
+        if summary.get("accepted") is False:
+            return paths.checkpoint_final
         if not final_model.exists() or paths.dpo_summary.stat().st_mtime >= final_model.stat().st_mtime:
             return paths.checkpoint_dpo
     return paths.checkpoint_final
