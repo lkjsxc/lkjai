@@ -70,7 +70,7 @@ def test_fixture_dataset_validates(tmp_path):
 def test_prompt_text_appends_assistant_header():
     text = prompt_text([{"role": "user", "content": "hello"}])
     assert text.startswith("<bos>")
-    assert text.endswith('<message role="assistant">')
+    assert text.endswith("<assistant>")
     assert "<conversation>" in text
 
 
@@ -79,6 +79,7 @@ def test_agent_corpus_default_has_required_mix():
     assert len(rows) == 4000
     tags = [tag for row in rows for tag in row.get("tags", [])]
     assert tags.count("tool_trajectory") >= 1000
+    assert tags.count("direct_answer") >= 800
     assert "kjxlkj" in tags
     assert "public_instruction" in tags
 

@@ -27,6 +27,8 @@ Produce a valid, sizable dataset for scratch LM and agent behavior training.
   and privacy-preserving organization tasks.
 - Public instruction rows are optional, permissive-license, and marked with
   source tags.
+- Direct-answer rows remain explicit so the model does not learn to answer every
+  non-tool prompt from docs snippets.
 
 ## Scratch Formatting
 

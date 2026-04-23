@@ -29,7 +29,7 @@ def export_manifest(paths, settings) -> Path:
     model_dir = paths.root.parent / "models" / settings.model_name
     model_dir.mkdir(parents=True, exist_ok=True)
     copy_if_exists(paths.tokenizer_json, model_dir / "tokenizer.json")
-    checkpoint_dir = paths.checkpoint_dpo if (paths.checkpoint_dpo / "model.pt").exists() else paths.checkpoint_final
+    checkpoint_dir = serving_checkpoint_dir(paths)
     copy_if_exists(checkpoint_dir / "config.json", model_dir / "config.json")
     copy_if_exists(checkpoint_dir / "model.pt", model_dir / "model.pt")
     manifest = {
@@ -49,3 +49,12 @@ def export_manifest(paths, settings) -> Path:
 def copy_if_exists(src: Path, dst: Path) -> None:
     if src.exists():
         shutil.copyfile(src, dst)
+
+
+def serving_checkpoint_dir(paths) -> Path:
+    dpo_model = paths.checkpoint_dpo / "model.pt"
+    final_model = paths.checkpoint_final / "model.pt"
+    if dpo_model.exists() and paths.dpo_summary.exists():
+        if not final_model.exists() or paths.dpo_summary.stat().st_mtime >= final_model.stat().st_mtime:
+            return paths.checkpoint_dpo
+    return paths.checkpoint_final

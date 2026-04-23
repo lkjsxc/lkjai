@@ -6,10 +6,10 @@ SPECIAL_TOKENS = [
     "<unk>",
     "<bos>",
     "<eos>",
-    "<|system|>",
-    "<|user|>",
-    "<|assistant|>",
-    "<|tool|>",
+    "<system>",
+    "<user>",
+    "<assistant>",
+    "<tool>",
 ]
 
 
@@ -18,7 +18,7 @@ def message_text(messages: list[dict]) -> str:
     for message in messages:
         parts.append(open_message(message))
         parts.append(message["content"])
-        parts.append("</message>")
+        parts.append(close_message(message))
     parts.extend(["</conversation>", "<eos>"])
     return "\n".join(parts)
 
@@ -28,8 +28,8 @@ def prompt_text(messages: list[dict]) -> str:
     for message in messages:
         parts.append(open_message(message))
         parts.append(message["content"])
-        parts.append("</message>")
-    parts.extend(["</conversation>", '<message role="assistant">'])
+        parts.append(close_message(message))
+    parts.extend(["</conversation>", "<assistant>"])
     return "\n".join(parts)
 
 
@@ -40,9 +40,14 @@ def row_text(row: dict) -> str:
 def open_message(message: dict) -> str:
     role = message["role"]
     name = message.get("name", "")
-    if name:
-        return f'<message role="{role}" name="{name}">'
-    return f'<message role="{role}">'
+    if role == "tool" and name:
+        return f"<tool>{name}\n"
+    return f"<{role}>"
+
+
+def close_message(message: dict) -> str:
+    role = message["role"]
+    return f"</{role}>"
 
 
 def load_rows(path) -> list[dict]:

@@ -123,6 +123,8 @@ def run_loop(model, optimizer, scheduler, loader, val, settings, device: str) ->
             losses.append(float(loss.detach().cpu()))
             best = min(best, losses[-1])
             step += 1
+            if step == 1 or step % 250 == 0:
+                print(json.dumps({"event": "train_step", "step": step, "loss": losses[-1]}), flush=True)
             if step >= settings.max_steps:
                 break
     if step % settings.gradient_accumulation:

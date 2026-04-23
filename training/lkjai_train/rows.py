@@ -26,7 +26,8 @@ def tool_row(user: str, tool: str, args: dict, result: str, final_answer: str) -
 
 
 def assistant(action: dict) -> dict:
-    return {"role": "assistant", "content": json.dumps(action, ensure_ascii=False)}
+    text = json.dumps(action, ensure_ascii=False, separators=(",", ":"))
+    return {"role": "assistant", "content": text}
 
 
 def row(messages: list[dict], tags: list[str]) -> dict:

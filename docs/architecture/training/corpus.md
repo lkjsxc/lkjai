@@ -30,8 +30,9 @@ Each JSONL row:
   and a final assistant answer.
 - Corpus size is configurable via `TRAIN_CORPUS_SIZE`.
 - Default corpus size for `agent` preset: 4,000.
-- Default mix: 40% docs-grounding, 25% tool and memory trajectories, 20% kjxlkj
-  organization trajectories, and 15% vetted public instruction rows.
+- Default mix: 25% docs-grounding, 30% tool and memory trajectories, 20% direct
+  answers, 15% kjxlkj organization trajectories, and 10% vetted public
+  instruction rows.
 - Public rows are skipped when unavailable unless explicitly required.
 
 ## Tool Coverage
