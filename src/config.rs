@@ -24,7 +24,7 @@ impl Config {
             data_dir,
             model_api_url: env::var("MODEL_API_URL")
                 .unwrap_or_else(|_| "http://127.0.0.1:8081/v1/chat/completions".into()),
-            model_name: env::var("MODEL_NAME").unwrap_or_else(|_| "qwen3-1.7b-q4".into()),
+            model_name: env::var("MODEL_NAME").unwrap_or_else(|_| "lkjai-scratch-40m".into()),
             model_max_new_tokens: env_parse("MODEL_MAX_NEW_TOKENS", 512),
             model_temperature: env_parse("MODEL_TEMPERATURE", 0.2),
             agent_max_steps: env_parse("AGENT_MAX_STEPS", 6),

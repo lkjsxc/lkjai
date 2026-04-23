@@ -14,6 +14,6 @@ fn config_has_local_bind_default() {
         config.model_api_url,
         "http://127.0.0.1:8081/v1/chat/completions"
     );
-    assert_eq!(config.model_name, "qwen3-1.7b-q4");
+    assert_eq!(config.model_name, "lkjai-scratch-40m");
     assert_eq!(config.agent_max_steps, 6);
 }

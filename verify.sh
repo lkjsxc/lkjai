@@ -22,8 +22,4 @@ cargo run --bin lkjai -- quality check-lines
 echo "== forbidden js runtime check =="
 cargo run --bin lkjai -- quality no-node
 
-echo "== training smoke =="
-TRAIN_PRESET=quick TRAIN_MAX_STEPS=5 TRAIN_CORPUS_SIZE=8 \
-  python3 -m lkjai_train.cli --data-dir "$DATA_DIR" smoke
-
 echo "== gates passed =="

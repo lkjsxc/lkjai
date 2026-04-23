@@ -1,29 +1,21 @@
 name: lkjai
 
 services:
-  model:
-    profiles: ["model"]
-    image: ghcr.io/ggml-org/llama.cpp:server-cuda
-    command:
-      - -m
-      - /models/${MODEL_GGUF:-qwen3-1.7b-q4.gguf}
-      - --host
-      - 0.0.0.0
-      - --port
-      - "8080"
-      - -c
-      - "${MODEL_CONTEXT_TOKENS:-4096}"
+  inference:
+    profiles: ["inference"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["/app/lkjai", "inference"]
     ports:
-      - "127.0.0.1:${MODEL_PORT:-8081}:8080"
+      - "127.0.0.1:${MODEL_PORT:-8081}:8081"
+    environment:
+      INFERENCE_HOST: 0.0.0.0
+      INFERENCE_PORT: 8081
+      MODEL_ROOT: /models
+      MODEL_NAME: ${MODEL_NAME:-lkjai-scratch-40m}
     volumes:
       - ./data/models:/models
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
 
   web:
     profiles: ["web"]
@@ -36,8 +28,8 @@ services:
       APP_HOST: 0.0.0.0
       APP_PORT: 8080
       DATA_DIR: ${DATA_DIR:-/app/data}
-      MODEL_API_URL: ${MODEL_API_URL:-http://model:8080/v1/chat/completions}
-      MODEL_NAME: ${MODEL_NAME:-qwen3-1.7b-q4}
+      MODEL_API_URL: ${MODEL_API_URL:-http://inference:8081/v1/chat/completions}
+      MODEL_NAME: ${MODEL_NAME:-lkjai-scratch-40m}
       MODEL_MAX_NEW_TOKENS: ${MODEL_MAX_NEW_TOKENS:-512}
       MODEL_TEMPERATURE: ${MODEL_TEMPERATURE:-0.2}
       AGENT_MAX_STEPS: ${AGENT_MAX_STEPS:-6}
@@ -55,24 +47,24 @@ services:
       dockerfile: Dockerfile.train
     environment:
       DATA_DIR: ${TRAIN_DATA_DIR:-/app/data/train}
+      MODEL_NAME: ${MODEL_NAME:-lkjai-scratch-40m}
       TRAIN_PRESET: ${TRAIN_PRESET:-agent}
-      TRAIN_BASE_MODEL: ${TRAIN_BASE_MODEL:-Qwen/Qwen3-0.6B}
-      TRAIN_SEQUENCE_LEN: ${TRAIN_SEQUENCE_LEN:-2048}
-      TRAIN_LORA_RANK: ${TRAIN_LORA_RANK:-16}
-      TRAIN_LORA_ALPHA: ${TRAIN_LORA_ALPHA:-32}
-      TRAIN_LORA_DROPOUT: ${TRAIN_LORA_DROPOUT:-0.05}
-      TRAIN_LEARNING_RATE: ${TRAIN_LEARNING_RATE:-1e-4}
-      TRAIN_LOAD_IN_4BIT: ${TRAIN_LOAD_IN_4BIT:-1}
+      TRAIN_MODEL_PRESET: ${TRAIN_MODEL_PRESET:-scratch-40m}
+      TRAIN_VOCAB_SIZE: ${TRAIN_VOCAB_SIZE:-8192}
+      TRAIN_SEQUENCE_LEN: ${TRAIN_SEQUENCE_LEN:-1024}
+      TRAIN_LAYERS: ${TRAIN_LAYERS:-8}
+      TRAIN_HIDDEN_SIZE: ${TRAIN_HIDDEN_SIZE:-512}
+      TRAIN_HEADS: ${TRAIN_HEADS:-8}
+      TRAIN_KV_HEADS: ${TRAIN_KV_HEADS:-2}
+      TRAIN_FFN_SIZE: ${TRAIN_FFN_SIZE:-1536}
+      TRAIN_LEARNING_RATE: ${TRAIN_LEARNING_RATE:-3e-4}
       TRAIN_GRADIENT_CHECKPOINTING: ${TRAIN_GRADIENT_CHECKPOINTING:-1}
-      TRAIN_EPOCHS: ${TRAIN_EPOCHS:-1}
       TRAIN_BATCH_SIZE: ${TRAIN_BATCH_SIZE:-1}
       TRAIN_GRADIENT_ACCUMULATION: ${TRAIN_GRADIENT_ACCUMULATION:-8}
       TRAIN_MAX_STEPS: ${TRAIN_MAX_STEPS:-500}
-      TRAIN_EVAL_RATIO: ${TRAIN_EVAL_RATIO:-0.2}
       TRAIN_FIXED_EVAL_THRESHOLD: ${TRAIN_FIXED_EVAL_THRESHOLD:-0.8}
       TRAIN_ENFORCE_COMPETENCY: ${TRAIN_ENFORCE_COMPETENCY:-0}
       TRAIN_CORPUS_SIZE: ${TRAIN_CORPUS_SIZE:-200}
-      HF_HOME: /app/data/.hf-cache
     volumes:
       - ./data:/app/data
     deploy:
@@ -93,15 +85,12 @@ services:
       DATA_DIR: /workspace/data/verify
       PYTHONPATH: /workspace/training
       CARGO_TARGET_DIR: /target
-      HF_HOME: /workspace/data/.hf-cache
     volumes:
       - .:/workspace:ro
       - ./data:/workspace/data
       - verify-cargo:/usr/local/cargo/registry
       - verify-target:/target
-      - hf-cache:/workspace/data/.hf-cache
 
 volumes:
   verify-cargo:
   verify-target:
-  hf-cache:

@@ -22,7 +22,7 @@ ENV APP_HOST=127.0.0.1
 ENV APP_PORT=8080
 ENV DATA_DIR=/app/data
 ENV MODEL_API_URL=http://127.0.0.1:8081/v1/chat/completions
-ENV MODEL_NAME=qwen3-1.7b-q4
+ENV MODEL_NAME=lkjai-scratch-40m
 
-EXPOSE 8080
+EXPOSE 8080 8081
 CMD ["/app/lkjai"]

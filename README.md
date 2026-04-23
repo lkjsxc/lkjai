@@ -1,8 +1,8 @@
 # lkjai
 
-`lkjai` is a docs-first local agentic AI system for RTX 3070 8GB: orchestrate
-multi-turn tool use in Rust, serve a small dense model locally, and improve
-behavior through post-training.
+`lkjai` is a docs-first from-scratch multi-turn agent research system for RTX
+3070 8GB: train a small dense decoder locally, run a separate Rust inference
+runtime, and orchestrate tool use, memory, summaries, and JSON actions in Rust.
 
 Treat [docs/README.md](docs/README.md) as the only active canon for behavior,
 architecture, operations, and repository policy.
@@ -13,16 +13,17 @@ architecture, operations, and repository policy.
 - Quickstart: [docs/getting-started/quickstart.md](docs/getting-started/quickstart.md)
 - Verification: [docs/getting-started/verification.md](docs/getting-started/verification.md)
 - Compose contract: [docs/operations/compose.md](docs/operations/compose.md)
-- Agent tuning contract: [docs/operations/training/long-run.md](docs/operations/training/long-run.md)
+- Scratch training contract: [docs/operations/training/long-run.md](docs/operations/training/long-run.md)
 - Competency gate: [docs/operations/training/competency-gate.md](docs/operations/training/competency-gate.md)
 
 ## Current Shape
 
-- Compose profiles: `model`, `web`, `train`, `verify`.
+- Compose profiles: `inference`, `web`, `train`, `verify`.
 - `web` runs the Rust agent orchestrator.
-- `model` runs the local OpenAI-compatible model server.
+- `inference` runs the Rust OpenAI-compatible scratch inference service.
+- `train` prepares corpus/tokenizer/checkpoint artifacts from scratch.
 - Competency acceptance is fixed agent eval pass rate `>= 80%`.
-- Runtime data is mounted at `./data` for models, adapters, memory, and runs.
+- Runtime data is mounted at `./data` for models, checkpoints, memory, and runs.
 
 ## Rule
 
