@@ -96,7 +96,10 @@ async fn models(State(state): State<InferenceState>) -> impl IntoResponse {
         return (
             StatusCode::SERVICE_UNAVAILABLE,
             Json(ErrorBody {
-                error: format!("missing artifact files: {}", state.artifact.missing.join(", ")),
+                error: format!(
+                    "missing artifact files: {}",
+                    state.artifact.missing.join(", ")
+                ),
             }),
         )
             .into_response();
@@ -110,12 +113,18 @@ async fn models(State(state): State<InferenceState>) -> impl IntoResponse {
     .into_response()
 }
 
-async fn chat(State(state): State<InferenceState>, Json(body): Json<ChatRequest>) -> impl IntoResponse {
+async fn chat(
+    State(state): State<InferenceState>,
+    Json(body): Json<ChatRequest>,
+) -> impl IntoResponse {
     if !state.artifact.loaded {
         return (
             StatusCode::SERVICE_UNAVAILABLE,
             Json(ErrorBody {
-                error: format!("model artifact not loaded at {}", state.artifact.root.display()),
+                error: format!(
+                    "model artifact not loaded at {}",
+                    state.artifact.root.display()
+                ),
             }),
         )
             .into_response();
