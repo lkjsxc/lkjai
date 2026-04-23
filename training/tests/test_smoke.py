@@ -108,6 +108,13 @@ def test_agent_context_messages_include_tool_observation():
     assert messages[-1]["content"] == "README.md"
 
 
+def test_agent_context_messages_preserve_empty_observation():
+    content = "recent_events:\nuser: List files.\nobservation: "
+    messages = agent_context_messages(content)
+    assert messages[-1]["role"] == "tool"
+    assert messages[-1]["content"] == ""
+
+
 def test_prepare_preferences_writes_pairs(tmp_path):
     paths = Paths(str(tmp_path))
     out = prepare_preferences(paths)

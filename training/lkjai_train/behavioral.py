@@ -107,6 +107,22 @@ CASES = [
         "contains": "README",
     },
     {
+        "id": "agent-empty-list-result",
+        "messages": [
+            {"role": "system", "content": "Return exactly one JSON object."},
+            {
+                "role": "user",
+                "content": (
+                    "run_id=1\nstep=2\nrecent_events:\n"
+                    "user: List the files in the current directory.\n"
+                    "observation: "
+                ),
+            },
+        ],
+        "kind": "final",
+        "contains": "empty",
+    },
+    {
         "id": "agent-memory-result",
         "messages": [
             {"role": "system", "content": "Return exactly one JSON object."},

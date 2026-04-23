@@ -27,6 +27,7 @@ pub struct Agent {
 
 impl Agent {
     pub fn new(config: Config, model: ModelClient) -> Self {
+        let _ = std::fs::create_dir_all(&config.tool_workspace_dir);
         Self {
             store: TranscriptStore::new(config.runs_dir()),
             memory: MemoryStore::new(config.memory_path()),

@@ -68,7 +68,7 @@ def agent_context_messages(content: str) -> list[dict]:
     if "<events>" in content:
         user = latest_tagged_event(content, "user")
         observation = latest_tagged_event(content, "observation")
-        if user and observation:
+        if user and (observation or has_tagged_event(content, "observation")):
             return [
                 {"role": "user", "content": user},
                 {"role": "tool", "name": guessed_tool(user), "content": observation},
@@ -78,7 +78,7 @@ def agent_context_messages(content: str) -> list[dict]:
         return []
     user = latest_user_event(content)
     observation = latest_event(content, "observation: ")
-    if user and observation:
+    if user and (observation or has_line_event(content, "observation: ")):
         return [
             {"role": "user", "content": user},
             {"role": "tool", "name": guessed_tool(user), "content": observation},
@@ -105,6 +105,10 @@ def latest_tagged_event(content: str, kind: str) -> str:
     return unescape_xml(content[start:stop]).strip()
 
 
+def has_tagged_event(content: str, kind: str) -> bool:
+    return f'<event kind="{kind}">' in content
+
+
 def latest_event(content: str, prefix: str) -> str:
     if "recent_events:" not in content:
         return ""
@@ -112,6 +116,10 @@ def latest_event(content: str, prefix: str) -> str:
         if line.startswith(prefix):
             return line.removeprefix(prefix).replace("\\n", "\n").strip()
     return ""
+
+
+def has_line_event(content: str, prefix: str) -> bool:
+    return any(line.startswith(prefix) for line in content.splitlines())
 
 
 def guessed_tool(user: str) -> str:

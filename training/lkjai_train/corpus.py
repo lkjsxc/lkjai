@@ -17,6 +17,13 @@ _TOOL_TRAJECTORIES = [
         "The current directory contains README.md, Cargo.toml, and a src folder.",
     ),
     (
+        "List the files in the current directory.",
+        "fs.list",
+        {"path": "."},
+        "",
+        "The current workspace directory is empty.",
+    ),
+    (
         "Read the README file.",
         "fs.read",
         {"path": "README.md"},

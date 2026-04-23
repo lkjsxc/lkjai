@@ -94,6 +94,30 @@ async fn absolute_file_paths_are_rejected() {
 }
 
 #[tokio::test]
+async fn list_workspace_root_exists_on_new_agent() {
+    let root = std::env::temp_dir().join(format!("lkjai-test-{}", uuid::Uuid::new_v4()));
+    let config = test_config(&root);
+    let model = ModelClient::fake(vec![
+        r#"{"kind":"tool_call","thought":"list","tool":"fs.list","args":{"path":"."}}"#.into(),
+        r#"{"kind":"final","thought":"done","content":"done"}"#.into(),
+    ]);
+    let agent = Agent::new(config, model);
+    let response = agent
+        .chat(ChatRequest {
+            message: "list files".into(),
+            run_id: Some("run-1".into()),
+            max_steps: Some(2),
+        })
+        .await;
+    assert_eq!(response.stop_reason, "final");
+    assert!(response
+        .events
+        .iter()
+        .any(|event| event.kind == "tool_result" && !event.content.contains("tool failed")));
+    std::fs::remove_dir_all(root).unwrap();
+}
+
+#[tokio::test]
 async fn model_unreachable_turn_is_persisted() {
     let root = std::env::temp_dir().join(format!("lkjai-test-{}", uuid::Uuid::new_v4()));
     let mut config = test_config(&root);
