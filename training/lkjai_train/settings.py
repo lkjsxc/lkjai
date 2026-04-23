@@ -31,7 +31,7 @@ def train_settings(preset: str) -> TrainSettings:
     if preset in {"agent", "custom"}:
         return settings(
             preset,
-            env_str("TRAIN_MODEL_PRESET", "scratch-40m"),
+            env_str("TRAIN_MODEL_PRESET", "scratch-60m"),
             8192,
             1024,
             8,
@@ -39,8 +39,8 @@ def train_settings(preset: str) -> TrainSettings:
             8,
             2,
             1536,
-            500,
-            200,
+            3000,
+            4000,
         )
     raise ValueError(f"unknown TRAIN_PRESET={preset}")
 
@@ -48,7 +48,7 @@ def train_settings(preset: str) -> TrainSettings:
 def quick_settings() -> TrainSettings:
     return TrainSettings(
         "quick",
-        env_str("MODEL_NAME", "lkjai-scratch-40m"),
+        env_str("MODEL_NAME", "lkjai-scratch-60m"),
         "tiny-scratch",
         512,
         64,
@@ -72,7 +72,7 @@ def quick_settings() -> TrainSettings:
 def settings(preset, model_preset, vocab, seq, layers, hidden, heads, kv, ffn, steps, rows):
     return TrainSettings(
         preset=preset,
-        model_name=env_str("MODEL_NAME", "lkjai-scratch-40m"),
+        model_name=env_str("MODEL_NAME", "lkjai-scratch-60m"),
         model_preset=model_preset,
         vocab_size=env_int("TRAIN_VOCAB_SIZE", vocab),
         sequence_len=env_int("TRAIN_SEQUENCE_LEN", seq),

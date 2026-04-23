@@ -12,7 +12,7 @@ services:
       INFERENCE_HOST: 0.0.0.0
       INFERENCE_PORT: 8081
       MODEL_ROOT: /models
-      MODEL_NAME: ${MODEL_NAME:-lkjai-scratch-40m}
+      MODEL_NAME: ${MODEL_NAME:-lkjai-scratch-60m}
     volumes:
       - ./data/models:/models
 
@@ -28,16 +28,16 @@ services:
       APP_PORT: 8080
       DATA_DIR: ${DATA_DIR:-/app/data}
       MODEL_API_URL: ${MODEL_API_URL:-http://inference:8081/v1/chat/completions}
-      MODEL_NAME: ${MODEL_NAME:-lkjai-scratch-40m}
+      MODEL_NAME: ${MODEL_NAME:-lkjai-scratch-60m}
       MODEL_MAX_NEW_TOKENS: ${MODEL_MAX_NEW_TOKENS:-512}
       MODEL_TEMPERATURE: ${MODEL_TEMPERATURE:-0.2}
       AGENT_MAX_STEPS: ${AGENT_MAX_STEPS:-6}
       AGENT_REPAIR_ATTEMPTS: ${AGENT_REPAIR_ATTEMPTS:-1}
+      TOOL_WORKSPACE_DIR: ${TOOL_WORKSPACE_DIR:-/app/data/workspace}
       TOOL_TIMEOUT_SECS: ${TOOL_TIMEOUT_SECS:-20}
       TOOL_OUTPUT_LIMIT: ${TOOL_OUTPUT_LIMIT:-12000}
     volumes:
       - ./data:/app/data
-      - /:/host
 
   train:
     profiles: ["train"]
@@ -46,9 +46,9 @@ services:
       dockerfile: Dockerfile.train
     environment:
       DATA_DIR: ${TRAIN_DATA_DIR:-/app/data/train}
-      MODEL_NAME: ${MODEL_NAME:-lkjai-scratch-40m}
+      MODEL_NAME: ${MODEL_NAME:-lkjai-scratch-60m}
       TRAIN_PRESET: ${TRAIN_PRESET:-agent}
-      TRAIN_MODEL_PRESET: ${TRAIN_MODEL_PRESET:-scratch-40m}
+      TRAIN_MODEL_PRESET: ${TRAIN_MODEL_PRESET:-scratch-60m}
       TRAIN_VOCAB_SIZE: ${TRAIN_VOCAB_SIZE:-8192}
       TRAIN_SEQUENCE_LEN: ${TRAIN_SEQUENCE_LEN:-1024}
       TRAIN_LAYERS: ${TRAIN_LAYERS:-8}
@@ -60,10 +60,10 @@ services:
       TRAIN_GRADIENT_CHECKPOINTING: ${TRAIN_GRADIENT_CHECKPOINTING:-1}
       TRAIN_BATCH_SIZE: ${TRAIN_BATCH_SIZE:-1}
       TRAIN_GRADIENT_ACCUMULATION: ${TRAIN_GRADIENT_ACCUMULATION:-8}
-      TRAIN_MAX_STEPS: ${TRAIN_MAX_STEPS:-500}
+      TRAIN_MAX_STEPS: ${TRAIN_MAX_STEPS:-3000}
       TRAIN_FIXED_EVAL_THRESHOLD: ${TRAIN_FIXED_EVAL_THRESHOLD:-0.8}
       TRAIN_ENFORCE_COMPETENCY: ${TRAIN_ENFORCE_COMPETENCY:-0}
-      TRAIN_CORPUS_SIZE: ${TRAIN_CORPUS_SIZE:-200}
+      TRAIN_CORPUS_SIZE: ${TRAIN_CORPUS_SIZE:-4000}
     volumes:
       - ./data:/app/data
     deploy:

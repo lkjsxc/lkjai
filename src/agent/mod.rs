@@ -4,6 +4,7 @@ mod prompt;
 mod schema;
 pub mod tools;
 mod transcript;
+mod workspace;
 
 use crate::{
     config::Config,

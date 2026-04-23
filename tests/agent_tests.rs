@@ -43,6 +43,57 @@ async fn agent_runs_tool_then_final() {
 }
 
 #[tokio::test]
+async fn shell_runs_inside_tool_workspace() {
+    let root = std::env::temp_dir().join(format!("lkjai-test-{}", uuid::Uuid::new_v4()));
+    let config = test_config(&root);
+    let workspace = config.tool_workspace_dir.display().to_string();
+    let model = ModelClient::fake(vec![
+        r#"{"kind":"tool_call","thought":"inspect","tool":"shell.exec","args":{"command":"pwd"}}"#
+            .into(),
+        r#"{"kind":"final","thought":"done","content":"done"}"#.into(),
+    ]);
+    let agent = Agent::new(config, model);
+    let response = agent
+        .chat(ChatRequest {
+            message: "where am I?".into(),
+            run_id: Some("run-1".into()),
+            max_steps: Some(2),
+        })
+        .await;
+    assert_eq!(response.stop_reason, "final");
+    assert!(response
+        .events
+        .iter()
+        .any(|event| event.kind == "tool_result" && event.content.contains(&workspace)));
+    std::fs::remove_dir_all(root).unwrap();
+}
+
+#[tokio::test]
+async fn absolute_file_paths_are_rejected() {
+    let root = std::env::temp_dir().join(format!("lkjai-test-{}", uuid::Uuid::new_v4()));
+    let config = test_config(&root);
+    let model = ModelClient::fake(vec![
+        r#"{"kind":"tool_call","thought":"read","tool":"fs.read","args":{"path":"/etc/passwd"}}"#
+            .into(),
+        r#"{"kind":"final","thought":"done","content":"blocked"}"#.into(),
+    ]);
+    let agent = Agent::new(config, model);
+    let response = agent
+        .chat(ChatRequest {
+            message: "read passwd".into(),
+            run_id: Some("run-1".into()),
+            max_steps: Some(2),
+        })
+        .await;
+    assert_eq!(response.stop_reason, "final");
+    assert!(response
+        .events
+        .iter()
+        .any(|event| { event.kind == "tool_result" && event.content.contains("absolute paths") }));
+    std::fs::remove_dir_all(root).unwrap();
+}
+
+#[tokio::test]
 async fn model_unreachable_turn_is_persisted() {
     let root = std::env::temp_dir().join(format!("lkjai-test-{}", uuid::Uuid::new_v4()));
     let mut config = test_config(&root);
@@ -73,6 +124,7 @@ fn test_config(root: &std::path::Path) -> Config {
         model_temperature: 0.0,
         agent_max_steps: 6,
         agent_repair_attempts: 1,
+        tool_workspace_dir: root.join("data/workspace"),
         tool_timeout_secs: 20,
         tool_output_limit: 12_000,
     }

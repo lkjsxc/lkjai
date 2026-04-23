@@ -43,12 +43,12 @@ def test_agent_settings_defaults(monkeypatch):
     monkeypatch.delenv("TRAIN_MODEL_PRESET", raising=False)
     monkeypatch.delenv("TRAIN_BATCH_SIZE", raising=False)
     settings = train_settings("agent")
-    assert settings.model_preset == "scratch-40m"
+    assert settings.model_preset == "scratch-60m"
     assert settings.sequence_len == 1024
     assert settings.hidden_size == 512
     assert settings.kv_heads == 2
     assert settings.batch_size == 1
-    assert settings.corpus_size == 200
+    assert settings.corpus_size == 4000
 
 
 def test_quick_settings_are_tiny():

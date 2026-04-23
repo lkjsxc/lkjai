@@ -11,6 +11,7 @@ pub struct Config {
     pub model_temperature: f32,
     pub agent_max_steps: usize,
     pub agent_repair_attempts: usize,
+    pub tool_workspace_dir: PathBuf,
     pub tool_timeout_secs: u64,
     pub tool_output_limit: usize,
 }
@@ -24,11 +25,12 @@ impl Config {
             data_dir,
             model_api_url: env::var("MODEL_API_URL")
                 .unwrap_or_else(|_| "http://127.0.0.1:8081/v1/chat/completions".into()),
-            model_name: env::var("MODEL_NAME").unwrap_or_else(|_| "lkjai-scratch-40m".into()),
+            model_name: env::var("MODEL_NAME").unwrap_or_else(|_| "lkjai-scratch-60m".into()),
             model_max_new_tokens: env_parse("MODEL_MAX_NEW_TOKENS", 512),
             model_temperature: env_parse("MODEL_TEMPERATURE", 0.2),
             agent_max_steps: env_parse("AGENT_MAX_STEPS", 6),
             agent_repair_attempts: env_parse("AGENT_REPAIR_ATTEMPTS", 1),
+            tool_workspace_dir: env_path("TOOL_WORKSPACE_DIR", "/app/data/workspace"),
             tool_timeout_secs: env_parse("TOOL_TIMEOUT_SECS", 20),
             tool_output_limit: env_parse("TOOL_OUTPUT_LIMIT", 12_000),
         }

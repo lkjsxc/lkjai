@@ -75,7 +75,7 @@ struct ErrorBody {
 pub async fn serve() -> Result<(), Box<dyn std::error::Error>> {
     let host = env::var("INFERENCE_HOST").unwrap_or_else(|_| "127.0.0.1".into());
     let port = env_parse("INFERENCE_PORT", 8081);
-    let model = env::var("MODEL_NAME").unwrap_or_else(|_| "lkjai-scratch-40m".into());
+    let model = env::var("MODEL_NAME").unwrap_or_else(|_| "lkjai-scratch-60m".into());
     let root = env::var("MODEL_ROOT")
         .map(PathBuf::from)
         .unwrap_or_else(|_| PathBuf::from("/models"));

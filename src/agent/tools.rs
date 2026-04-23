@@ -1,12 +1,9 @@
 use crate::config::Config;
 use serde_json::Value;
-use std::{
-    path::{Path, PathBuf},
-    time::Duration,
-};
+use std::{path::PathBuf, time::Duration};
 use tokio::{fs, process::Command, time};
 
-use super::memory::MemoryStore;
+use super::{memory::MemoryStore, workspace::workspace_path};
 
 #[derive(Clone, Debug)]
 pub enum ToolCall {
@@ -80,13 +77,32 @@ pub async fn execute(
 ) -> Result<String, String> {
     let timeout = Duration::from_secs(config.tool_timeout_secs);
     let output = match call {
-        ToolCall::Shell { command } => time::timeout(timeout, run_shell(command)).await,
-        ToolCall::Fetch { url } => time::timeout(timeout, fetch(url)).await,
-        ToolCall::Read { path } => time::timeout(timeout, read_file(host_path(path))).await,
-        ToolCall::Write { path, content } => {
-            time::timeout(timeout, write_file(host_path(path), content)).await
+        ToolCall::Shell { command } => {
+            time::timeout(
+                timeout,
+                run_shell(command, config.tool_workspace_dir.clone()),
+            )
+            .await
         }
-        ToolCall::List { path } => time::timeout(timeout, list_dir(host_path(path))).await,
+        ToolCall::Fetch { url } => time::timeout(timeout, fetch(url)).await,
+        ToolCall::Read { path } => {
+            time::timeout(
+                timeout,
+                read_file(workspace_path(&config.tool_workspace_dir, path)?),
+            )
+            .await
+        }
+        ToolCall::Write { path, content } => {
+            let path = workspace_path(&config.tool_workspace_dir, path)?;
+            time::timeout(timeout, write_file(path, content)).await
+        }
+        ToolCall::List { path } => {
+            time::timeout(
+                timeout,
+                list_dir(workspace_path(&config.tool_workspace_dir, path)?),
+            )
+            .await
+        }
         ToolCall::MemorySearch { query } => return memory.search(&query, 5).map(|v| v.join("\n")),
         ToolCall::MemoryWrite { content } => {
             return memory.write("run", Some(run_id), &content).map(|_| content);
@@ -107,12 +123,13 @@ fn required(args: &Value, key: &str) -> Result<String, String> {
         .ok_or_else(|| format!("missing string arg {key}"))
 }
 
-async fn run_shell(command: String) -> Result<String, String> {
+async fn run_shell(command: String, workspace: PathBuf) -> Result<String, String> {
+    fs::create_dir_all(&workspace)
+        .await
+        .map_err(|error| error.to_string())?;
     let mut cmd = Command::new("sh");
     cmd.arg("-lc").arg(command);
-    if Path::new("/host").exists() {
-        cmd.current_dir("/host");
-    }
+    cmd.current_dir(workspace);
     let output = cmd.output().await.map_err(|error| error.to_string())?;
     let text = format!(
         "{}{}",
@@ -163,13 +180,6 @@ async fn list_dir(path: PathBuf) -> Result<String, String> {
     }
     names.sort();
     Ok(names.join("\n"))
-}
-
-fn host_path(path: String) -> PathBuf {
-    if path.starts_with("/host/") || path == "/host" || !path.starts_with('/') {
-        return PathBuf::from(path);
-    }
-    PathBuf::from("/host").join(path.trim_start_matches('/'))
 }
 
 fn truncate(mut value: String, limit: usize) -> String {
