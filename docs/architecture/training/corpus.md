@@ -47,6 +47,8 @@ Each row is JSONL in `lkjai-agent-jsonl-v2`:
 
 - Storage remains JSONL.
 - Model-facing text uses paired XML-like sections.
+- Prompt construction ends with `<assistant_json>` so the model learns the same
+  continuation boundary used during inference.
 - Recommended sections: `<policy>`, `<memory>`, `<events>`, `<tool_result>`,
   `<task>`, and `<request>`.
 - Assistant outputs stay strict JSON because the runtime validates typed fields

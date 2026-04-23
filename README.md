@@ -26,7 +26,7 @@ architecture, operations, and repository policy.
 - Competency acceptance is behavioral eval pass rate `>= 80%`.
 - Runtime data is mounted at `./data` for models, checkpoints, memory, runs, and
   the tool workspace.
-- The default agent corpus target is 4,000 rows before preference optimization.
+- The default agent corpus target is 12,000 rows before preference optimization.
 
 ## Rule
 

@@ -6,7 +6,7 @@ from lkjai_train.cli import dispatch, train_settings
 from lkjai_train.corpus import generate_corpus
 from lkjai_train.dataset import prepare_fixtures, validate_dataset
 from lkjai_train.formatting import prompt_text
-from lkjai_train.generation import agent_context_messages, first_json_object, latest_user_event, normalize_action
+from lkjai_train.generation import agent_context_messages, first_json_object, latest_user_event, normalize_action, normalize_messages
 from lkjai_train.paths import Paths
 from lkjai_train.preference import prepare_preferences
 
@@ -87,6 +87,13 @@ def test_normalize_action_extracts_first_json_object():
     text = 'noise {"kind":"final","content":"ok"} trailing'
     assert json.loads(normalize_action(text))["content"] == "ok"
     assert first_json_object(text) == '{"kind":"final","content":"ok"}'
+
+
+def test_raw_user_prompt_becomes_default_task():
+    messages = normalize_messages([{"role": "user", "content": "What is 2+3?"}])
+    assert "<task>" in messages[0]["content"]
+    assert "<request>What is 2+3?</request>" in messages[0]["content"]
+    assert "<constraints>Return one valid JSON action.</constraints>" in messages[0]["content"]
 
 
 def test_latest_user_event_extracts_tagged_context():

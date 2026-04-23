@@ -52,11 +52,11 @@ def normalize_messages(messages: list[dict]) -> list[dict]:
     latest = messages[-1].get("content", "")
     agent_messages = agent_context_messages(latest)
     if agent_messages:
-        return agent_messages
+        return [normalize_message(message) for message in agent_messages]
     extracted = latest_user_event(latest)
     if extracted:
-        return [{"role": "user", "content": extracted}]
-    return messages
+        return [normalize_message({"role": "user", "content": extracted})]
+    return [normalize_message(message) for message in messages]
 
 
 def agent_context_messages(content: str) -> list[dict]:
@@ -102,6 +102,25 @@ def guessed_tool(user: str) -> str:
 
 def unescape_xml(text: str) -> str:
     return text.replace("&lt;", "<").replace("&amp;", "&")
+
+
+def normalize_message(message: dict) -> dict:
+    if message.get("role") != "user":
+        return message
+    content = message.get("content", "")
+    if "<task>" in content:
+        return message
+    return {"role": "user", "content": default_task(content)}
+
+
+def default_task(request: str) -> str:
+    return (
+        "<task>\n"
+        f"<request>{request}</request>\n"
+        "<context></context>\n"
+        "<constraints>Return one valid JSON action.</constraints>\n"
+        "</task>"
+    )
 
 
 def normalize_action(text: str) -> str:
