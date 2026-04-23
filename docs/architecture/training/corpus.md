@@ -7,7 +7,10 @@ Define the canonical training dataset for raw-generation evaluation and
 
 ## Storage Schema
 
-Each row is JSONL in `lkjai-agent-jsonl-v2`:
+Editable source entries live in JSON array files under
+`training/corpus_sources/`; see
+[source-corpus.md](source-corpus.md). Generated rows are JSONL in
+`lkjai-agent-jsonl-v2`:
 
 ```json
 {
@@ -65,6 +68,7 @@ Each row is JSONL in `lkjai-agent-jsonl-v2`:
 
 ## Sources
 
+- Tagged JSON source arrays under `training/corpus_sources/`.
 - `lkjai` docs-derived grounding rows.
 - `kjxlkj` contract and API rows.
 - Synthetic tool and confirmation trajectories tied to the real runtime.

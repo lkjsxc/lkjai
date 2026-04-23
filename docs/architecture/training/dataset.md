@@ -6,6 +6,7 @@ Describe the on-disk dataset artifacts used by training and evaluation.
 
 ## Layout
 
+- Editable source corpus: `training/corpus_sources/*.json`
 - Canonical combined corpus: `data/train/datasets/corpus.jsonl`
 - Canonical train split: `data/train/datasets/train.jsonl`
 - Canonical validation split: `data/train/datasets/val.jsonl`
@@ -24,6 +25,8 @@ Describe the on-disk dataset artifacts used by training and evaluation.
 
 ## Validation
 
+- Source validation requires each JSON source entry to contain `tags` and
+  object-shaped `content`.
 - Validation requires at least one row in every emitted split file.
 - Each row must contain valid `messages`, `tags`, and `meta`.
 - Validation must fail on missing split labels or missing provenance fields.

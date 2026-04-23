@@ -20,15 +20,16 @@ and runtime contracts that production will use.
 
 ## Pipeline Order
 
-1. Build fixtures and the full `12000` row corpus.
-2. Deduplicate and emit `train`, `val`, and `holdout` split files.
-3. Train the tokenizer on the train split only.
-4. Validate schema and split metadata.
-5. Train the scratch model on packed row boundaries from the train split.
-6. Measure validation loss on the validation split.
-7. Export the accepted checkpoint.
-8. Run fixed eval.
-9. Run raw holdout behavioral eval.
+1. Validate tagged JSON source files in `training/corpus_sources/`.
+2. Build fixtures and the full `12000` row corpus.
+3. Deduplicate and emit `train`, `val`, and `holdout` split files.
+4. Train the tokenizer on the train split only.
+5. Validate schema and split metadata.
+6. Train the scratch model on packed row boundaries from the train split.
+7. Measure validation loss on the validation split.
+8. Export the accepted checkpoint.
+9. Run fixed eval.
+10. Run raw holdout behavioral eval.
 
 ## Defaults
 

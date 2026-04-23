@@ -12,6 +12,7 @@ trajectory supervision, CUDA behavior, and export behavior.
 ## Child Index
 
 - [corpus.md](corpus.md): instruction and trajectory dataset contract
+- [source-corpus.md](source-corpus.md): editable JSON source-entry contract
 - [pipeline.md](pipeline.md): tokenizer, scratch training, eval, and export pipeline
 - [cuda.md](cuda.md): GPU-first training behavior
 - [dataset.md](dataset.md): dataset schema, generation, and validation
