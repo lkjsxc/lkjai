@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 
 
@@ -8,7 +9,11 @@ class ActionIndex:
 
     @classmethod
     def load(cls, model_dir: Path):
-        corpus = model_dir.parent.parent / "train" / "datasets" / "corpus.jsonl"
+        configured = os.environ.get("ACTION_INDEX_PATH", "")
+        if configured:
+            corpus = Path(configured)
+        else:
+            corpus = model_dir.parent.parent / "train" / "datasets" / "corpus.jsonl"
         if not corpus.exists():
             return cls({})
         items = {}

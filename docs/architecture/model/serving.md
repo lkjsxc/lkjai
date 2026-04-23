@@ -30,6 +30,7 @@ the separate inference runtime.
 
 - Scratch model directory inside container: `/models/${MODEL_NAME}`.
 - Host mount: `./data/models:/models`.
+- Action index path: `/app/data/train/datasets/corpus.jsonl`.
 - Default artifact root: `data/models/lkjai-scratch-60m/`.
 - Required files: serving manifest, model config, tokenizer, and checkpoint.
 - Serving loads `model.pt` with the local scratch model code and generates real

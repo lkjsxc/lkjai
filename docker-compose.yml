@@ -13,8 +13,10 @@ services:
       INFERENCE_PORT: 8081
       MODEL_ROOT: /models
       MODEL_NAME: ${MODEL_NAME:-lkjai-scratch-60m}
+      ACTION_INDEX_PATH: /app/data/train/datasets/corpus.jsonl
     volumes:
       - ./data/models:/models
+      - ./data:/app/data
 
   web:
     profiles: ["web"]

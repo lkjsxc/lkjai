@@ -12,6 +12,8 @@
 - All runtime profiles mount `./data:/app/data`.
 - Inference mounts `./data/models` to `/models`.
 - Inference loads `/models/${MODEL_NAME}`.
+- Inference reads `/app/data/train/datasets/corpus.jsonl` for exact supervised
+  action-index hits.
 - Training writes datasets, tokenizer, checkpoints, exports, and logs under
   `/app/data/train`.
 - Web writes transcripts and memory under `/app/data/agent`.
