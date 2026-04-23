@@ -6,7 +6,6 @@ import torch
 
 from .behavioral import CASES
 from .formatting import prompt_text
-from .generation import LoadedModel
 from .scratch_model import ModelConfig, ScratchLM, save_config
 from .tokenizer import load_tokenizer
 
@@ -77,9 +76,13 @@ def pair(messages: list[dict], chosen: dict, rejected: dict, source: str) -> dic
 def train_dpo(paths, settings) -> Path:
     if not paths.preference_pairs.exists():
         prepare_preferences(paths)
-    model_dir = paths.checkpoint_final
-    loaded = LoadedModel(model_dir, device="cuda" if torch.cuda.is_available() else "cpu")
-    model, tokenizer, config, device = loaded.model, loaded.tokenizer, loaded.config, loaded.device
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    tokenizer = load_tokenizer(paths.tokenizer_json)
+    config = ModelConfig(**json.loads((paths.checkpoint_final / "config.json").read_text()))
+    model = ScratchLM(config).to(device)
+    state = torch.load(paths.checkpoint_final / "model.pt", map_location=device, weights_only=True)
+    model.load_state_dict(state)
+    model.train()
     optimizer = torch.optim.AdamW(model.parameters(), lr=settings.learning_rate * 0.25)
     pairs = read_pairs(paths.preference_pairs)
     steps = int(os.environ.get("TRAIN_DPO_STEPS", str(min(200, max(20, settings.max_steps // 10)))))
