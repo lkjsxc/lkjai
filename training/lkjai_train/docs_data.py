@@ -1,23 +1,26 @@
 from pathlib import Path
 
-from .rows import final_row
 
-
-def docs_rows(root: Path, limit: int = 60) -> list[dict]:
+def doc_records(root: Path) -> list[dict]:
     if not root.exists():
         return []
-    rows = []
+    records = []
     for path in sorted(root.rglob("*.md")):
-        if len(rows) >= limit:
-            break
         text = path.read_text(encoding="utf-8")
         title = first_heading(text) or path.stem.replace("-", " ")
         snippet = compact(text)
         if not snippet:
             continue
-        prompt = f"What does {path.as_posix()} define?"
-        rows.append(final_row(prompt, f"{title}: {snippet}", ["docs_grounding", path.as_posix()]))
-    return rows
+        records.append(
+            {
+                "path": path.as_posix(),
+                "title": title,
+                "snippet": snippet,
+                "defaults": defaults_line(text),
+                "verification": verification_line(text),
+            }
+        )
+    return records
 
 
 def first_heading(text: str) -> str:
@@ -33,6 +36,24 @@ def compact(text: str) -> str:
         stripped = line.strip()
         if stripped and not stripped.startswith("#"):
             lines.append(stripped.lstrip("- "))
-        if len(" ".join(lines)) > 240:
+        if len(" ".join(lines)) > 360:
             break
-    return " ".join(lines)[:300]
+    return " ".join(lines)[:420]
+
+
+def defaults_line(text: str) -> str:
+    for line in text.splitlines():
+        if line.strip().startswith("-") and "default" in line.lower():
+            return line.strip().lstrip("- ").strip()
+    return ""
+
+
+def verification_line(text: str) -> str:
+    capture = False
+    for line in text.splitlines():
+        if line.startswith("## Verification"):
+            capture = True
+            continue
+        if capture and line.strip():
+            return line.strip().lstrip("- ").strip()
+    return ""

@@ -3,7 +3,6 @@ from pathlib import Path
 
 import torch
 
-from .action_index import ActionIndex
 from .formatting import prompt_text
 from .scratch_model import ModelConfig, ScratchLM
 from .tokenizer import load_tokenizer
@@ -16,32 +15,28 @@ class LoadedModel:
         self.tokenizer = load_tokenizer(model_dir / "tokenizer.json")
         config = ModelConfig(**json.loads((model_dir / "config.json").read_text()))
         self.model = ScratchLM(config).to(self.device)
-        state = torch.load(model_dir / "model.pt", map_location=self.device, weights_only=True)
-        self.model.load_state_dict(state)
+        self.model.load_state_dict(torch.load(model_dir / "model.pt", map_location=self.device, weights_only=True))
         self.model.eval()
         self.config = config
-        self.index = ActionIndex.load(model_dir)
 
     @torch.inference_mode()
     def complete(self, messages: list[dict], max_tokens: int = 128, temperature: float = 0.0) -> str:
         normalized = normalize_messages(messages)
-        indexed = self.index.lookup(normalized)
-        if indexed:
-            return indexed
-        encoded = self.tokenizer.encode(prompt_text(normalized)).ids
-        input_ids = torch.tensor([encoded[-self.config.sequence_len :]], device=self.device)
+        prompt_ids = self.tokenizer.encode(prompt_text(normalized)).ids[-self.config.sequence_len :]
+        input_ids = torch.tensor([prompt_ids], device=self.device)
+        logits, _, cache = self.model(input_ids, use_cache=True)
         eos = self.tokenizer.token_to_id("<eos>")
+        generated = []
+        next_logits = logits[:, -1, :]
         for _ in range(max_tokens):
-            window = input_ids[:, -self.config.sequence_len :]
-            logits, _ = self.model(window)
-            next_logits = logits[:, -1, :]
             next_id = choose_token(next_logits, temperature)
-            input_ids = torch.cat([input_ids, next_id], dim=1)
-            if eos is not None and int(next_id.item()) == eos:
+            token = int(next_id.item())
+            generated.append(token)
+            if eos is not None and token == eos:
                 break
-        new_ids = input_ids[0, len(encoded) :].detach().cpu().tolist()
-        text = self.tokenizer.decode(new_ids, skip_special_tokens=False)
-        return normalize_action(text)
+            logits, _, cache = self.model(next_id, cache=cache, use_cache=True)
+            next_logits = logits[:, -1, :]
+        return normalize_action(self.tokenizer.decode(generated, skip_special_tokens=False))
 
 
 def choose_token(logits: torch.Tensor, temperature: float) -> torch.Tensor:
@@ -69,67 +64,39 @@ def agent_context_messages(content: str) -> list[dict]:
         user = latest_tagged_event(content, "user")
         observation = latest_tagged_event(content, "observation")
         if user and (observation or has_tagged_event(content, "observation")):
-            return [
-                {"role": "user", "content": user},
-                {"role": "tool", "name": guessed_tool(user), "content": observation},
-            ]
+            return [{"role": "user", "content": user}, {"role": "tool", "name": guessed_tool(user), "content": observation}]
         return [{"role": "user", "content": user}] if user else []
-    if "recent_events:" not in content:
-        return []
-    user = latest_user_event(content)
-    observation = latest_event(content, "observation: ")
-    if user and (observation or has_line_event(content, "observation: ")):
-        return [
-            {"role": "user", "content": user},
-            {"role": "tool", "name": guessed_tool(user), "content": observation},
-        ]
     return []
 
 
 def latest_user_event(content: str) -> str:
-    if "<events>" in content:
-        return latest_tagged_event(content, "user")
-    return latest_event(content, "user: ")
+    return latest_tagged_event(content, "user") if "<events>" in content else ""
 
 
 def latest_tagged_event(content: str, kind: str) -> str:
-    marker = f'<event kind="{kind}">'
-    end = "</event>"
+    marker, end = f'<event kind="{kind}">', "</event>"
     index = content.rfind(marker)
     if index < 0:
         return ""
     start = index + len(marker)
     stop = content.find(end, start)
-    if stop < 0:
-        return ""
-    return unescape_xml(content[start:stop]).strip()
+    return "" if stop < 0 else unescape_xml(content[start:stop]).strip()
 
 
 def has_tagged_event(content: str, kind: str) -> bool:
     return f'<event kind="{kind}">' in content
 
 
-def latest_event(content: str, prefix: str) -> str:
-    if "recent_events:" not in content:
-        return ""
-    for line in reversed(content.splitlines()):
-        if line.startswith(prefix):
-            return line.removeprefix(prefix).replace("\\n", "\n").strip()
-    return ""
-
-
-def has_line_event(content: str, prefix: str) -> bool:
-    return any(line.startswith(prefix) for line in content.splitlines())
-
-
 def guessed_tool(user: str) -> str:
     lower = user.lower()
     if "remember" in lower:
         return "memory.write"
+    if "search" in lower and "resource" in lower:
+        return "resource.search"
+    if "preview" in lower:
+        return "resource.preview_markdown"
     if "list" in lower:
         return "fs.list"
-    if "read" in lower:
-        return "fs.read"
     return "tool"
 
 
@@ -145,12 +112,8 @@ def normalize_action(text: str) -> str:
             return candidate
         except json.JSONDecodeError:
             pass
-    cleaned = text.replace("<eos>", "").strip()
-    return json.dumps({
-        "kind": "final",
-        "thought": "generated text did not contain valid action json",
-        "content": cleaned,
-    })
+    cleaned = text.replace("<eos>", "").replace("<assistant_json>", "").strip()
+    return json.dumps({"kind": "final", "thought": "generated text did not contain valid action json", "content": cleaned})
 
 
 def first_json_object(text: str) -> str:

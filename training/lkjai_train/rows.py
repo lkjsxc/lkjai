@@ -1,34 +1,120 @@
 import json
 
 
-def direct_row(user: str, answer: str, tags: list[str] | None = None) -> dict:
-    action = {"kind": "final", "content": answer}
-    return row([{"role": "user", "content": user}, assistant(action)], tags or ["direct_answer"])
-
-
-def final_row(user: str, answer: str, tags: list[str]) -> dict:
-    action = {"kind": "final", "content": answer}
-    return row([{"role": "user", "content": user}, assistant(action)], tags)
-
-
-def tool_row(user: str, tool: str, args: dict, result: str, final_answer: str) -> dict:
-    action = {"kind": "tool_call", "tool": tool, "args": args}
-    final = {"kind": "final", "content": final_answer}
-    return row(
-        [
-            {"role": "user", "content": user},
-            assistant(action),
-            {"role": "tool", "name": tool, "content": result},
-            assistant(final),
-        ],
-        ["tool_trajectory", tool],
-    )
-
-
-def assistant(action: dict) -> dict:
+def action_message(action: dict) -> dict:
     text = json.dumps(action, ensure_ascii=False, separators=(",", ":"))
     return {"role": "assistant", "content": text}
 
 
-def row(messages: list[dict], tags: list[str]) -> dict:
-    return {"messages": messages, "tags": tags}
+def meta(
+    row_id: str,
+    domain: str,
+    skill: str,
+    source_ref: str,
+    *,
+    split: str,
+    toolset: str = "none",
+    language: str = "en",
+    license_name: str = "project-local",
+    safety_scope: str = "workspace-safe",
+) -> dict:
+    return {
+        "id": row_id,
+        "split": split,
+        "provenance": "project-authored",
+        "author_type": "llm-curated",
+        "author_model": "gpt-5.4-codex",
+        "quality_tier": "high",
+        "domain": domain,
+        "skill": skill,
+        "toolset": toolset,
+        "language": language,
+        "safety_scope": safety_scope,
+        "license": license_name,
+        "source_ref": source_ref,
+    }
+
+
+def row(messages: list[dict], tags: list[str], metadata: dict) -> dict:
+    return {"messages": messages, "tags": sorted(set(tags)), "meta": metadata}
+
+
+def signature(row: dict) -> str:
+    payload = {
+        "messages": row.get("messages", []),
+        "tags": sorted(set(row.get("tags", []))),
+    }
+    return json.dumps(payload, ensure_ascii=False, sort_keys=True)
+
+
+def direct_row(prompt: str, answer: str, tags: list[str], metadata: dict) -> dict:
+    return row(
+        [{"role": "user", "content": prompt}, action_message({"kind": "final", "content": answer})],
+        tags,
+        metadata,
+    )
+
+
+def tool_only_row(
+    prompt: str,
+    tool: str,
+    args: dict,
+    tags: list[str],
+    metadata: dict,
+    thought: str = "use tool",
+) -> dict:
+    return row(
+        [
+            {"role": "user", "content": prompt},
+            action_message({"kind": "tool_call", "thought": thought, "tool": tool, "args": args}),
+        ],
+        tags,
+        metadata,
+    )
+
+
+def tool_row(
+    prompt: str,
+    tool: str,
+    args: dict,
+    result: str,
+    final_answer: str,
+    tags: list[str],
+    metadata: dict,
+) -> dict:
+    return row(
+        [
+            {"role": "user", "content": prompt},
+            action_message({"kind": "tool_call", "tool": tool, "args": args}),
+            {"role": "tool", "name": tool, "content": result},
+            action_message({"kind": "final", "content": final_answer}),
+        ],
+        tags,
+        metadata,
+    )
+
+
+def confirm_row(
+    prompt: str,
+    operation: str,
+    pending_tool: str,
+    pending_args: dict,
+    summary: str,
+    tags: list[str],
+    metadata: dict,
+) -> dict:
+    return row(
+        [
+            {"role": "user", "content": prompt},
+            action_message(
+                {
+                    "kind": "request_confirmation",
+                    "summary": summary,
+                    "operation": operation,
+                    "pending_tool_call": {"tool": pending_tool, "args": pending_args},
+                }
+            ),
+        ],
+        tags,
+        metadata,
+    )

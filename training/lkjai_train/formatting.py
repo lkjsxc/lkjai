@@ -6,30 +6,27 @@ SPECIAL_TOKENS = [
     "<unk>",
     "<bos>",
     "<eos>",
-    "<system>",
-    "<user>",
-    "<assistant>",
-    "<tool>",
+    "<assistant_json>",
 ]
 
 
 def message_text(messages: list[dict]) -> str:
-    parts = ["<bos>", "<conversation>"]
+    parts = ["<bos>", "<dialogue>"]
     for message in messages:
         parts.append(open_message(message))
-        parts.append(message["content"])
-        parts.append(close_message(message))
-    parts.extend(["</conversation>", "<eos>"])
+        parts.append(escape_text(message["content"]))
+        parts.append(close_message())
+    parts.extend(["</dialogue>", "<eos>"])
     return "\n".join(parts)
 
 
 def prompt_text(messages: list[dict]) -> str:
-    parts = ["<bos>", "<conversation>"]
+    parts = ["<bos>", "<dialogue>"]
     for message in messages:
         parts.append(open_message(message))
-        parts.append(message["content"])
-        parts.append(close_message(message))
-    parts.extend(["</conversation>", "<assistant>"])
+        parts.append(escape_text(message["content"]))
+        parts.append(close_message())
+    parts.extend(["</dialogue>", "<assistant_json>"])
     return "\n".join(parts)
 
 
@@ -41,19 +38,17 @@ def open_message(message: dict) -> str:
     role = message["role"]
     name = message.get("name", "")
     if role == "tool" and name:
-        return f"<tool>{name}\n"
-    return f"<{role}>"
+        return f'<message role="{role}"><tool_name>{escape_text(name)}</tool_name><content>'
+    return f'<message role="{role}"><content>'
 
 
-def close_message(message: dict) -> str:
-    role = message["role"]
-    return f"</{role}>"
+def close_message() -> str:
+    return "</content></message>"
+
+
+def escape_text(text: str) -> str:
+    return text.replace("&", "&amp;").replace("<", "&lt;")
 
 
 def load_rows(path) -> list[dict]:
-    rows = []
-    with path.open("r", encoding="utf-8") as file:
-        for line in file:
-            if line.strip():
-                rows.append(json.loads(line))
-    return rows
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]

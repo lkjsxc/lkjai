@@ -1,19 +1,59 @@
-use crate::config::Config;
 use serde_json::Value;
-use std::{path::PathBuf, time::Duration};
-use tokio::{fs, process::Command, time};
 
-use super::{memory::MemoryStore, workspace::workspace_path};
+use crate::config::Config;
+
+use super::{memory::MemoryStore, tool_local, tool_remote};
 
 #[derive(Clone, Debug)]
 pub enum ToolCall {
-    Shell { command: String },
-    Fetch { url: String },
-    Read { path: String },
-    Write { path: String, content: String },
-    List { path: String },
-    MemorySearch { query: String },
-    MemoryWrite { content: String },
+    Shell {
+        command: String,
+    },
+    Fetch {
+        url: String,
+    },
+    Read {
+        path: String,
+    },
+    Write {
+        path: String,
+        content: String,
+    },
+    List {
+        path: String,
+    },
+    MemorySearch {
+        query: String,
+    },
+    MemoryWrite {
+        content: String,
+    },
+    ResourceSearch {
+        query: String,
+        kind: String,
+    },
+    ResourceFetch {
+        reference: String,
+    },
+    ResourceHistory {
+        reference: String,
+    },
+    ResourcePreview {
+        body: String,
+        current_resource_id: Option<String>,
+    },
+    ResourceCreateNote {
+        body: String,
+        alias: Option<String>,
+        is_private: bool,
+    },
+    ResourceUpdate {
+        reference: String,
+        body: String,
+        alias: Option<String>,
+        is_favorite: bool,
+        is_private: bool,
+    },
 }
 
 impl ToolCall {
@@ -41,6 +81,32 @@ impl ToolCall {
             "memory.write" => Ok(Self::MemoryWrite {
                 content: required(args, "content")?,
             }),
+            "resource.search" => Ok(Self::ResourceSearch {
+                query: required(args, "query")?,
+                kind: optional(args, "kind").unwrap_or_else(|| "all".into()),
+            }),
+            "resource.fetch" => Ok(Self::ResourceFetch {
+                reference: required_any(args, &["ref", "id"])?,
+            }),
+            "resource.history" => Ok(Self::ResourceHistory {
+                reference: required_any(args, &["ref", "id"])?,
+            }),
+            "resource.preview_markdown" => Ok(Self::ResourcePreview {
+                body: required(args, "body")?,
+                current_resource_id: optional(args, "current_resource_id"),
+            }),
+            "resource.create_note" => Ok(Self::ResourceCreateNote {
+                body: required(args, "body")?,
+                alias: optional(args, "alias"),
+                is_private: optional_bool(args, "is_private", false),
+            }),
+            "resource.update_resource" => Ok(Self::ResourceUpdate {
+                reference: required_any(args, &["ref", "id"])?,
+                body: required(args, "body")?,
+                alias: optional(args, "alias"),
+                is_favorite: optional_bool(args, "is_favorite", false),
+                is_private: optional_bool(args, "is_private", false),
+            }),
             other => Err(format!("unknown tool {other}")),
         }
     }
@@ -54,6 +120,12 @@ impl ToolCall {
             Self::List { .. } => "fs.list",
             Self::MemorySearch { .. } => "memory.search",
             Self::MemoryWrite { .. } => "memory.write",
+            Self::ResourceSearch { .. } => "resource.search",
+            Self::ResourceFetch { .. } => "resource.fetch",
+            Self::ResourceHistory { .. } => "resource.history",
+            Self::ResourcePreview { .. } => "resource.preview_markdown",
+            Self::ResourceCreateNote { .. } => "resource.create_note",
+            Self::ResourceUpdate { .. } => "resource.update_resource",
         }
     }
 
@@ -65,6 +137,16 @@ impl ToolCall {
             Self::Write { path, content } => format!("{path} ({} bytes)", content.len()),
             Self::MemorySearch { query } => query.clone(),
             Self::MemoryWrite { content } => content.clone(),
+            Self::ResourceSearch { query, kind } => format!("{query} [{kind}]"),
+            Self::ResourceFetch { reference } | Self::ResourceHistory { reference } => {
+                reference.clone()
+            }
+            Self::ResourcePreview { body, .. } | Self::ResourceCreateNote { body, .. } => {
+                body.chars().take(80).collect()
+            }
+            Self::ResourceUpdate {
+                reference, body, ..
+            } => format!("{reference}: {}", body.chars().take(60).collect::<String>()),
         }
     }
 }
@@ -75,117 +157,32 @@ pub async fn execute(
     memory: &MemoryStore,
     run_id: &str,
 ) -> Result<String, String> {
-    let timeout = Duration::from_secs(config.tool_timeout_secs);
-    let output = match call {
-        ToolCall::Shell { command } => {
-            time::timeout(
-                timeout,
-                run_shell(command, config.tool_workspace_dir.clone()),
-            )
-            .await
-        }
-        ToolCall::Fetch { url } => time::timeout(timeout, fetch(url)).await,
-        ToolCall::Read { path } => {
-            time::timeout(
-                timeout,
-                read_file(workspace_path(&config.tool_workspace_dir, path)?),
-            )
-            .await
-        }
-        ToolCall::Write { path, content } => {
-            let path = workspace_path(&config.tool_workspace_dir, path)?;
-            time::timeout(timeout, write_file(path, content)).await
-        }
-        ToolCall::List { path } => {
-            time::timeout(
-                timeout,
-                list_dir(workspace_path(&config.tool_workspace_dir, path)?),
-            )
-            .await
-        }
-        ToolCall::MemorySearch { query } => return memory.search(&query, 5).map(|v| v.join("\n")),
-        ToolCall::MemoryWrite { content } => {
-            return memory.write("run", Some(run_id), &content).map(|_| content);
-        }
-    };
-    match output {
-        Ok(Ok(value)) => Ok(truncate(value, config.tool_output_limit)),
-        Ok(Err(error)) => Err(error),
-        Err(_) => Err("tool timed out".into()),
+    if let Some(value) = tool_local::execute(&call, config, memory, run_id).await? {
+        return Ok(value);
     }
+    if let Some(value) = tool_remote::execute(&call, config).await? {
+        return Ok(value);
+    }
+    Err(format!("tool not implemented: {}", call.name()))
 }
 
 fn required(args: &Value, key: &str) -> Result<String, String> {
+    optional(args, key).ok_or_else(|| format!("missing string arg {key}"))
+}
+
+fn required_any(args: &Value, keys: &[&str]) -> Result<String, String> {
+    keys.iter()
+        .find_map(|key| optional(args, key))
+        .ok_or_else(|| format!("missing one of {}", keys.join(", ")))
+}
+
+fn optional(args: &Value, key: &str) -> Option<String> {
     args.get(key)
         .and_then(Value::as_str)
         .filter(|value| !value.is_empty())
         .map(str::to_string)
-        .ok_or_else(|| format!("missing string arg {key}"))
 }
 
-async fn run_shell(command: String, workspace: PathBuf) -> Result<String, String> {
-    fs::create_dir_all(&workspace)
-        .await
-        .map_err(|error| error.to_string())?;
-    let mut cmd = Command::new("sh");
-    cmd.arg("-lc").arg(command);
-    cmd.current_dir(workspace);
-    let output = cmd.output().await.map_err(|error| error.to_string())?;
-    let text = format!(
-        "{}{}",
-        String::from_utf8_lossy(&output.stdout),
-        String::from_utf8_lossy(&output.stderr)
-    );
-    Ok(format!("exit={} \n{}", output.status, text))
-}
-
-async fn fetch(url: String) -> Result<String, String> {
-    reqwest::get(url)
-        .await
-        .map_err(|error| error.to_string())?
-        .text()
-        .await
-        .map_err(|error| error.to_string())
-}
-
-async fn read_file(path: PathBuf) -> Result<String, String> {
-    fs::read_to_string(path)
-        .await
-        .map_err(|error| error.to_string())
-}
-
-async fn write_file(path: PathBuf, content: String) -> Result<String, String> {
-    if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent)
-            .await
-            .map_err(|error| error.to_string())?;
-    }
-    fs::write(&path, content)
-        .await
-        .map_err(|error| error.to_string())?;
-    Ok(format!("wrote {}", path.display()))
-}
-
-async fn list_dir(path: PathBuf) -> Result<String, String> {
-    let mut entries = fs::read_dir(path)
-        .await
-        .map_err(|error| error.to_string())?;
-    let mut names = Vec::new();
-    while let Some(entry) = entries
-        .next_entry()
-        .await
-        .map_err(|error| error.to_string())?
-    {
-        names.push(entry.path().display().to_string());
-    }
-    names.sort();
-    Ok(names.join("\n"))
-}
-
-fn truncate(mut value: String, limit: usize) -> String {
-    if value.len() > limit {
-        value.truncate(limit);
-        value.push_str("\n[truncated]");
-    }
-    value
+fn optional_bool(args: &Value, key: &str, default: bool) -> bool {
+    args.get(key).and_then(Value::as_bool).unwrap_or(default)
 }

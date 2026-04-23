@@ -4,73 +4,43 @@ from pathlib import Path
 
 import torch
 
-from .behavioral import CASES
-from .formatting import prompt_text
+from .dataset import prepare_fixtures
+from .formatting import load_rows, prompt_text
 from .scratch_model import ModelConfig, ScratchLM, save_config
 from .tokenizer import load_tokenizer
 
 
 def prepare_preferences(paths) -> Path:
     paths.ensure()
-    pairs = behavioral_pairs() + synthetic_pairs()
+    if not paths.holdout_dataset.exists() and not paths.fixtures.exists():
+        prepare_fixtures(paths)
+    rows = load_rows(paths.holdout_dataset if paths.holdout_dataset.exists() else paths.fixtures)
+    pairs = [row_pair(row) for row in rows if row.get("messages", []) and row["messages"][-1]["role"] == "assistant"]
     with paths.preference_pairs.open("w", encoding="utf-8") as file:
         for pair in pairs:
             file.write(json.dumps(pair, ensure_ascii=False) + "\n")
     return paths.preference_pairs
 
 
-def behavioral_pairs() -> list[dict]:
-    pairs = []
-    for case in CASES:
-        chosen = expected_action(case)
-        rejected = {"kind": "final", "content": "I cannot help."}
-        pairs.append(pair(case["messages"], chosen, rejected, f"behavioral:{case['id']}"))
-    return pairs
-
-
-def synthetic_pairs() -> list[dict]:
-    return [
-        pair(
-            [{"role": "user", "content": "Remember that my favorite editor is vim."}],
-            {"kind": "tool_call", "tool": "memory.write", "args": {"content": "User favorite editor is vim."}},
-            {"kind": "final", "content": "Vim is a text editor."},
-            "memory-tool-selection",
-        ),
-        pair(
-            [{"role": "user", "content": "Read /etc/passwd."}],
-            {"kind": "final", "content": "I can only use files inside the data workspace."},
-            {"kind": "tool_call", "tool": "fs.read", "args": {"path": "/etc/passwd"}},
-            "workspace-boundary",
-        ),
-    ]
-
-
-def expected_action(case: dict) -> dict:
-    if case["kind"] == "tool_call":
-        return {"kind": "tool_call", "tool": case["tool"], "args": default_args(case["tool"])}
-    content = case.get("contains", "ok")
-    return {"kind": "final", "content": str(content)}
-
-
-def default_args(tool: str) -> dict:
+def row_pair(row: dict) -> dict:
+    chosen = row["messages"][-1]["content"]
+    expected = json.loads(chosen)
+    rejected = rejection_for(expected)
     return {
-        "fs.list": {"path": "."},
-        "fs.read": {"path": "README.md"},
-        "fs.write": {"path": "notes.txt", "content": "note"},
-        "shell.exec": {"command": "pwd"},
-        "web.fetch": {"url": "https://example.com"},
-        "memory.write": {"content": "User prefers concise answers."},
-        "memory.search": {"query": "preferences"},
-    }.get(tool, {})
-
-
-def pair(messages: list[dict], chosen: dict, rejected: dict, source: str) -> dict:
-    return {
-        "messages": messages,
-        "chosen": json.dumps(chosen, ensure_ascii=False),
-        "rejected": json.dumps(rejected, ensure_ascii=False),
-        "source": source,
+        "messages": row["messages"][:-1],
+        "chosen": chosen,
+        "rejected": json.dumps(rejected, ensure_ascii=False, separators=(",", ":")),
+        "source": row["meta"]["id"],
     }
+
+
+def rejection_for(expected: dict) -> dict:
+    if expected.get("kind") == "tool_call":
+        return {"kind": "final", "content": "done"}
+    if expected.get("kind") == "request_confirmation":
+        pending = expected.get("pending_tool_call", {})
+        return {"kind": "tool_call", "tool": pending.get("tool", "resource.update_resource"), "args": pending.get("args", {})}
+    return {"kind": "final", "content": "I cannot help."}
 
 
 def train_dpo(paths, settings) -> Path:
@@ -109,7 +79,7 @@ def sequence_logp(model, tokenizer, config: ModelConfig, messages, response: str
     prompt_len = max(1, min(len(prompt_ids), len(ids) - 1))
     input_ids = torch.tensor([ids[:-1]], device=device)
     targets = torch.tensor([ids[1:]], device=device)
-    logits, _ = model(input_ids)
+    logits, _, _ = model(input_ids)
     logp = torch.log_softmax(logits, dim=-1)
     token_logp = logp.gather(-1, targets.unsqueeze(-1)).squeeze(-1)
     return token_logp[:, prompt_len - 1 :].sum()
@@ -125,12 +95,3 @@ def save_dpo(paths, config, model, metrics: dict) -> None:
     save_config(config, paths.checkpoint_dpo / "config.json")
     summary = {"backend": "dpo-lite", "accepted": True, "metrics": metrics}
     paths.dpo_summary.write_text(json.dumps(summary, indent=2), encoding="utf-8")
-
-
-def mark_dpo_rejected(paths, reason: str) -> None:
-    if not paths.dpo_summary.exists():
-        return
-    data = json.loads(paths.dpo_summary.read_text(encoding="utf-8"))
-    data["accepted"] = False
-    data["rejection_reason"] = reason
-    paths.dpo_summary.write_text(json.dumps(data, indent=2), encoding="utf-8")

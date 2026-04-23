@@ -1,33 +1,28 @@
 import json
-from pathlib import Path
 
 
-def evaluate_fixed_suite(paths, threshold: float = 0.8) -> Path:
+def evaluate_fixed_suite(paths, threshold: float = 0.0):
     summary = read_json(paths.training_summary) if paths.training_summary.exists() else {}
     metadata = read_json(paths.dataset_metadata) if paths.dataset_metadata.exists() else {}
-    dataset = paths.corpus if paths.corpus.exists() else paths.fixtures
+    tokenizer = read_json(paths.tokenizer_manifest) if paths.tokenizer_manifest.exists() else {}
+    minimum_rows, minimum_unique, minimum_tokens = minimums(metadata)
     cases = [
-        case("fixtures-exist", paths.fixtures.exists(), str(paths.fixtures)),
+        case("train-split-exists", paths.train_dataset.exists(), str(paths.train_dataset)),
+        case("val-split-exists", paths.val_dataset.exists(), str(paths.val_dataset)),
+        case("holdout-split-exists", paths.holdout_dataset.exists(), str(paths.holdout_dataset)),
         case("dataset-metadata-exists", paths.dataset_metadata.exists(), str(paths.dataset_metadata)),
         case("training-summary-exists", paths.training_summary.exists(), str(paths.training_summary)),
         case("tokenizer-manifest-exists", paths.tokenizer_manifest.exists(), str(paths.tokenizer_manifest)),
         case("checkpoint-manifest-exists", paths.checkpoint_manifest.exists(), str(paths.checkpoint_manifest)),
         case("export-manifest-exists", paths.export_manifest.exists(), str(paths.export_manifest)),
-        case("tool-trajectory-present", contains(dataset, "tool_trajectory"), "tool_trajectory"),
-        case("memory-case-present", contains(dataset, "memory.write"), "memory.write"),
         case("checkpoint-has-weights", has_checkpoint_weights(paths.checkpoint_final), "checkpoint weights"),
         case("summary-has-loss", has_loss_metrics(summary), "loss metrics"),
-        case("dataset-large-enough", dataset_large_enough(metadata), "agent row target"),
-        case("metadata-has-sources", metadata_has_sources(metadata), "dataset sources"),
+        case("dataset-large-enough", int(metadata.get("rows", 0)) >= minimum_rows, f"{minimum_rows} rows"),
+        case("dataset-unique-enough", int(metadata.get("unique_rows", 0)) >= minimum_unique, f"{minimum_unique} unique rows"),
+        case("tokenizer-train-tokens", int(tokenizer.get("train_tokens", 0)) >= minimum_tokens, f"{minimum_tokens} train tokens"),
     ]
     passed = sum(1 for item in cases if item["passed"])
-    report = {
-        "threshold": threshold,
-        "pass_rate": passed / len(cases),
-        "passed": passed,
-        "total": len(cases),
-        "cases": cases,
-    }
+    report = {"threshold": threshold, "pass_rate": passed / len(cases), "passed": passed, "total": len(cases), "cases": cases}
     paths.runs.mkdir(parents=True, exist_ok=True)
     out = paths.runs / "fixed-eval.json"
     out.write_text(json.dumps(report, indent=2), encoding="utf-8")
@@ -38,15 +33,8 @@ def case(case_id: str, passed: bool, detail: str) -> dict:
     return {"id": case_id, "passed": bool(passed), "detail": detail}
 
 
-def contains(path: Path, needle: str) -> bool:
-    return path.exists() and needle in path.read_text(encoding="utf-8")
-
-
-def has_checkpoint_weights(checkpoint_dir: Path) -> bool:
-    if not checkpoint_dir.exists():
-        return False
-    files = {p.name for p in checkpoint_dir.iterdir() if p.is_file()}
-    return "config.json" in files and "model.pt" in files
+def has_checkpoint_weights(checkpoint_dir) -> bool:
+    return checkpoint_dir.exists() and (checkpoint_dir / "config.json").exists() and (checkpoint_dir / "model.pt").exists()
 
 
 def has_loss_metrics(summary: dict) -> bool:
@@ -54,16 +42,11 @@ def has_loss_metrics(summary: dict) -> bool:
     return bool(metrics) and any("loss" in str(key).lower() for key in metrics.keys())
 
 
-def dataset_large_enough(metadata: dict) -> bool:
-    target = int(metadata.get("target_rows", metadata.get("rows", 0)) or 0)
-    rows = int(metadata.get("rows", 0) or 0)
-    return rows >= 4000 if target >= 4000 else rows > 0
+def minimums(metadata: dict) -> tuple[int, int, int]:
+    if metadata.get("rows", 0) and int(metadata.get("rows", 0)) < 100:
+        return 3, 3, 32
+    return 12_000, 8_000, 1_000_000
 
 
-def metadata_has_sources(metadata: dict) -> bool:
-    sources = metadata.get("sources", [])
-    return bool(sources) and all(item.get("name") and item.get("license") for item in sources)
-
-
-def read_json(path: Path) -> dict:
+def read_json(path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))

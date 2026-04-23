@@ -14,6 +14,8 @@ pub struct Config {
     pub tool_workspace_dir: PathBuf,
     pub tool_timeout_secs: u64,
     pub tool_output_limit: usize,
+    pub kjxlkj_api_url: String,
+    pub kjxlkj_session_cookie: String,
 }
 
 impl Config {
@@ -33,6 +35,9 @@ impl Config {
             tool_workspace_dir: env_path("TOOL_WORKSPACE_DIR", "/app/data/workspace"),
             tool_timeout_secs: env_parse("TOOL_TIMEOUT_SECS", 20),
             tool_output_limit: env_parse("TOOL_OUTPUT_LIMIT", 12_000),
+            kjxlkj_api_url: env::var("KJXLKJ_API_URL")
+                .unwrap_or_else(|_| "http://127.0.0.1:8080".into()),
+            kjxlkj_session_cookie: env::var("KJXLKJ_SESSION_COOKIE").unwrap_or_default(),
         }
     }
 

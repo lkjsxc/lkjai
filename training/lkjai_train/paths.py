@@ -12,6 +12,9 @@ class Paths:
         self.preferences = self.root / "preferences"
         self.fixtures = self.datasets / "fixtures.jsonl"
         self.corpus = self.datasets / "corpus.jsonl"
+        self.train_dataset = self.datasets / "train.jsonl"
+        self.val_dataset = self.datasets / "val.jsonl"
+        self.holdout_dataset = self.datasets / "holdout.jsonl"
         self.dataset_metadata = self.datasets / "metadata.json"
         self.tokenizer_json = self.tokenizer / "tokenizer.json"
         self.tokenizer_manifest = self.tokenizer / "manifest.json"
@@ -25,12 +28,5 @@ class Paths:
         self.preference_pairs = self.preferences / "pairs.jsonl"
 
     def ensure(self) -> None:
-        for path in [
-            self.datasets,
-            self.tokenizer,
-            self.checkpoints,
-            self.exports,
-            self.runs,
-            self.preferences,
-        ]:
+        for path in [self.datasets, self.tokenizer, self.checkpoints, self.exports, self.runs, self.preferences]:
             path.mkdir(parents=True, exist_ok=True)

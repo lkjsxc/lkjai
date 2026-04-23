@@ -1,7 +1,11 @@
 mod action;
+mod confirmation;
 mod memory;
 mod prompt;
 mod schema;
+mod tool_local;
+mod tool_remote;
+mod tool_runner;
 pub mod tools;
 mod transcript;
 mod workspace;
@@ -92,6 +96,18 @@ impl Agent {
                         stop_reason = "tool_error".into();
                     }
                 }
+                "request_confirmation" => match confirmation::handle(action, step, &mut events) {
+                    Ok(message) => {
+                        assistant = message;
+                        stop_reason = "confirmation_required".into();
+                        break;
+                    }
+                    Err(error) => {
+                        events.push(event("error", error, None, Some(step)));
+                        stop_reason = "invalid_action".into();
+                        break;
+                    }
+                },
                 other => {
                     events.push(event(
                         "error",
@@ -149,34 +165,9 @@ impl Agent {
             .ok_or_else(|| "tool_call missing tool".to_string())?;
         let args = action.args.unwrap_or(serde_json::Value::Null);
         let call = tools::ToolCall::from_json(&tool, &args)?;
-        let result = self.run_tool(call, run_id, step, events).await;
+        let result = tool_runner::run(call, &self.config, &self.memory, run_id, step, events).await;
         events.push(event("observation", result, Some(tool), Some(step)));
         Ok(())
-    }
-
-    async fn run_tool(
-        &self,
-        call: tools::ToolCall,
-        run_id: &str,
-        step: usize,
-        events: &mut Vec<Event>,
-    ) -> String {
-        let tool = call.name().to_string();
-        events.push(event(
-            "tool_call",
-            call.summary(),
-            Some(tool.clone()),
-            Some(step),
-        ));
-        let result = tools::execute(call, &self.config, &self.memory, run_id).await;
-        let content = result.unwrap_or_else(|error| format!("tool failed: {error}"));
-        let kind = if tool == "memory.write" {
-            "memory_write"
-        } else {
-            "tool_result"
-        };
-        events.push(event(kind, content.clone(), Some(tool), Some(step)));
-        content
     }
 
     fn prompt(&self, run_id: &str, events: &[Event], step: usize) -> Vec<ModelMessage> {

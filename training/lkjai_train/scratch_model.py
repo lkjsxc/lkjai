@@ -1,5 +1,4 @@
 import json
-import math
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -27,8 +26,7 @@ class RMSNorm(nn.Module):
         self.eps = eps
 
     def forward(self, x):
-        scale = torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + self.eps)
-        return self.weight * x * scale
+        return self.weight * x * torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + self.eps)
 
 
 class SwiGLU(nn.Module):
@@ -48,26 +46,33 @@ class Attention(nn.Module):
         self.heads = config.heads
         self.kv_heads = config.kv_heads
         self.head_dim = config.hidden_size // config.heads
+        self.max_len = config.sequence_len
         kv_dim = self.kv_heads * self.head_dim
         self.q = nn.Linear(config.hidden_size, config.hidden_size, bias=False)
         self.k = nn.Linear(config.hidden_size, kv_dim, bias=False)
         self.v = nn.Linear(config.hidden_size, kv_dim, bias=False)
         self.o = nn.Linear(config.hidden_size, config.hidden_size, bias=False)
 
-    def forward(self, x, cos, sin):
+    def forward(self, x, layer_cache=None, use_cache: bool = False):
         batch, seq, _ = x.shape
+        offset = 0 if layer_cache is None else layer_cache["k"].size(2)
         q = self.q(x).view(batch, seq, self.heads, self.head_dim).transpose(1, 2)
-        k = self.k(x).view(batch, seq, self.kv_heads, self.head_dim).transpose(1, 2)
-        v = self.v(x).view(batch, seq, self.kv_heads, self.head_dim).transpose(1, 2)
-        q, k = apply_rope(q, cos, sin), apply_rope(k, cos, sin)
+        k_base = self.k(x).view(batch, seq, self.kv_heads, self.head_dim).transpose(1, 2)
+        v_base = self.v(x).view(batch, seq, self.kv_heads, self.head_dim).transpose(1, 2)
+        cos, sin = rope_cache(seq, self.head_dim, x.device, offset)
+        q, k_base = apply_rope(q, cos, sin), apply_rope(k_base, cos, sin)
+        if layer_cache is not None:
+            k_base = torch.cat([layer_cache["k"], k_base], dim=2)[:, :, -self.max_len :]
+            v_base = torch.cat([layer_cache["v"], v_base], dim=2)[:, :, -self.max_len :]
+        k, v = k_base, v_base
         if self.heads != self.kv_heads:
             repeats = self.heads // self.kv_heads
-            k = k.repeat_interleave(repeats, dim=1)
-            v = v.repeat_interleave(repeats, dim=1)
-        mask = torch.ones(seq, seq, device=x.device, dtype=torch.bool).tril()
-        y = F.scaled_dot_product_attention(q, k, v, attn_mask=mask)
-        y = y.transpose(1, 2).contiguous().view(batch, seq, -1)
-        return self.o(y)
+            k = k_base.repeat_interleave(repeats, dim=1)
+            v = v_base.repeat_interleave(repeats, dim=1)
+        attn = F.scaled_dot_product_attention(q, k, v, is_causal=layer_cache is None)
+        output = self.o(attn.transpose(1, 2).contiguous().view(batch, seq, -1))
+        next_cache = {"k": k_base.detach(), "v": v_base.detach()} if use_cache else None
+        return output, next_cache
 
 
 class Block(nn.Module):
@@ -78,9 +83,10 @@ class Block(nn.Module):
         self.attn = Attention(config)
         self.ffn = SwiGLU(config)
 
-    def forward(self, x, cos, sin):
-        x = x + self.attn(self.attn_norm(x), cos, sin)
-        return x + self.ffn(self.ffn_norm(x))
+    def forward(self, x, cache=None, use_cache: bool = False):
+        attn_out, next_cache = self.attn(self.attn_norm(x), cache, use_cache)
+        x = x + attn_out
+        return x + self.ffn(self.ffn_norm(x)), next_cache
 
 
 class ScratchLM(nn.Module):
@@ -94,29 +100,29 @@ class ScratchLM(nn.Module):
         self.lm_head.weight = self.tok.weight
         self.apply(init_weights)
 
-    def forward(self, idx, labels=None):
-        seq = idx.size(1)
+    def forward(self, idx, labels=None, cache=None, use_cache: bool = False):
         x = self.tok(idx)
-        cos, sin = rope_cache(seq, self.config.hidden_size // self.config.heads, idx.device)
-        for block in self.blocks:
-            x = block(x, cos, sin)
+        next_cache = [] if use_cache else None
+        for index, block in enumerate(self.blocks):
+            layer_cache = None if cache is None else cache[index]
+            x, cached = block(x, layer_cache, use_cache)
+            if use_cache:
+                next_cache.append(cached)
         logits = self.lm_head(self.norm(x))
         loss = None
         if labels is not None:
-            loss = F.cross_entropy(logits[:, :-1].reshape(-1, logits.size(-1)), labels[:, 1:].reshape(-1))
-        return logits, loss
+            loss = F.cross_entropy(logits.reshape(-1, logits.size(-1)), labels.reshape(-1))
+        return logits, loss, next_cache
 
 
 def init_weights(module):
-    if isinstance(module, nn.Linear):
-        nn.init.normal_(module.weight, mean=0.0, std=0.02)
-    if isinstance(module, nn.Embedding):
+    if isinstance(module, (nn.Linear, nn.Embedding)):
         nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
 
-def rope_cache(seq: int, dim: int, device):
+def rope_cache(seq: int, dim: int, device, offset: int = 0):
     freq = 1.0 / (10000 ** (torch.arange(0, dim, 2, device=device).float() / dim))
-    pos = torch.arange(seq, device=device).float()
+    pos = torch.arange(offset, offset + seq, device=device).float()
     angles = torch.outer(pos, freq)
     return angles.cos()[None, None, :, :], angles.sin()[None, None, :, :]
 

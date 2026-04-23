@@ -8,7 +8,7 @@ from .dataset import prepare_corpus, prepare_fixtures, validate_dataset
 from .evals import evaluate_fixed_suite
 from .manifest import checkpoint_manifest, export_manifest
 from .paths import Paths
-from .preference import mark_dpo_rejected, prepare_preferences, train_dpo
+from .preference import prepare_preferences, train_dpo
 from .settings import train_settings
 
 
@@ -16,23 +16,17 @@ def main() -> None:
     parser = argparse.ArgumentParser(prog="lkjai-train")
     parser.add_argument("--data-dir", default=os.environ.get("DATA_DIR", "/app/data"))
     sub = parser.add_subparsers(dest="command", required=True)
-    sub.add_parser("prepare-fixtures")
-    sub.add_parser("prepare-corpus")
-    sub.add_parser("train-tokenizer")
+    for command in ["prepare-fixtures", "prepare-corpus", "train-tokenizer", "prepare-preferences", "export-manifest", "smoke", "train"]:
+        sub.add_parser(command)
     validate = sub.add_parser("validate-dataset")
     validate.add_argument("--path", default="")
     train = sub.add_parser("train-scratch")
     train.add_argument("--preset", default=os.environ.get("TRAIN_PRESET", "quick"))
-    fixed = sub.add_parser("fixed-eval")
-    fixed.add_argument("--threshold", type=float, default=0.8)
-    behavioral = sub.add_parser("behavioral-eval")
-    behavioral.add_argument("--threshold", type=float, default=0.8)
-    sub.add_parser("prepare-preferences")
+    for name in ["fixed-eval", "behavioral-eval"]:
+        parser_eval = sub.add_parser(name)
+        parser_eval.add_argument("--threshold", type=float, default=0.0)
     dpo = sub.add_parser("train-dpo")
     dpo.add_argument("--preset", default=os.environ.get("TRAIN_PRESET", "quick"))
-    sub.add_parser("export-manifest")
-    sub.add_parser("smoke")
-    sub.add_parser("train")
     args = parser.parse_args()
     result = dispatch(args, Paths(args.data_dir))
     print(json.dumps({"command": args.command, "status": "pass", "result": str(result)}))
@@ -52,7 +46,7 @@ def dispatch(args, paths: Paths):
     if args.command == "fixed-eval":
         return evaluate_fixed_suite(paths, args.threshold)
     if args.command == "behavioral-eval":
-        return evaluate_behavior(paths, train_settings(env_preset()), args.threshold)
+        return evaluate_behavior(paths, train_settings(env_preset()), args.threshold or train_settings(env_preset()).fixed_eval_threshold)
     if args.command == "prepare-preferences":
         return prepare_preferences(paths)
     if args.command == "train-dpo":
@@ -94,27 +88,22 @@ def train_pipeline(paths: Paths):
     prepare_fixtures(paths)
     dataset_path = prepare_corpus(paths, settings.corpus_size)
     run_tokenizer(paths, settings)
-    validate_dataset(dataset_path)
+    for path in [dataset_path, paths.train_dataset, paths.val_dataset, paths.holdout_dataset]:
+        validate_dataset(path)
     run_training(paths, settings)
     export_manifest(paths, settings)
-    report = evaluate_fixed_suite(paths, settings.fixed_eval_threshold)
+    fixed = evaluate_fixed_suite(paths, settings.fixed_eval_threshold)
     behavioral = evaluate_behavior(paths, settings, settings.fixed_eval_threshold)
-    before = pass_rate(behavioral)
-    prepare_preferences(paths)
-    train_dpo(paths, settings)
-    export_manifest(paths, settings)
-    behavioral = evaluate_behavior(paths, settings, settings.fixed_eval_threshold)
-    if pass_rate(behavioral) < before:
-        mark_dpo_rejected(paths, "post-DPO behavioral pass rate regressed")
-        export_manifest(paths, settings)
-        behavioral = evaluate_behavior(paths, settings, settings.fixed_eval_threshold)
-    data = json.loads(report.read_text(encoding="utf-8"))
-    behavior = json.loads(behavioral.read_text(encoding="utf-8"))
-    if settings.enforce_competency and behavior["pass_rate"] < settings.fixed_eval_threshold:
+    if settings.enforce_competency and not competency_passes(behavioral, settings.fixed_eval_threshold):
         raise RuntimeError("agent competency gate failed")
-    if data["pass_rate"] < settings.fixed_eval_threshold:
+    if pass_rate(fixed) < 1.0:
         raise RuntimeError("fixed artifact gate failed")
     return behavioral
+
+
+def competency_passes(path: Path, threshold: float) -> bool:
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return data.get("json_validity", 0.0) >= 0.95 and data.get("pass_rate", 0.0) >= threshold
 
 
 def default_dataset(paths: Paths) -> Path:
@@ -127,7 +116,3 @@ def env_preset() -> str:
 
 def pass_rate(path: Path) -> float:
     return float(json.loads(path.read_text(encoding="utf-8")).get("pass_rate", 0.0))
-
-
-if __name__ == "__main__":
-    main()

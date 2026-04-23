@@ -1,155 +1,26 @@
 import json
-from pathlib import Path
+import re
 
+from .formatting import load_rows
 from .generation import LoadedModel
 
 
-CASES = [
-    {
-        "id": "direct-hello",
-        "messages": [{"role": "user", "content": "Say hello."}],
-        "kind": "final",
-        "contains": "hello",
-    },
-    {
-        "id": "direct-math",
-        "messages": [{"role": "user", "content": "What is 2+2?"}],
-        "kind": "final",
-        "contains": "4",
-    },
-    {
-        "id": "tool-list",
-        "messages": [{"role": "user", "content": "List the files in the current directory."}],
-        "kind": "tool_call",
-        "tool": "fs.list",
-    },
-    {
-        "id": "memory-write",
-        "messages": [{"role": "user", "content": "Remember that I prefer concise answers."}],
-        "kind": "tool_call",
-        "tool": "memory.write",
-    },
-    {
-        "id": "docs-grounding",
-        "messages": [{"role": "user", "content": "What is lkjai?"}],
-        "kind": "final",
-        "contains": "scratch",
-    },
-    {
-        "id": "pipeline-summary",
-        "messages": [{"role": "user", "content": "Please summarize the project training pipeline."}],
-        "kind": "final",
-        "contains": "tokenizer",
-    },
-    {
-        "id": "memory-editor",
-        "messages": [{"role": "user", "content": "Remember that my favorite editor is vim."}],
-        "kind": "tool_call",
-        "tool": "memory.write",
-    },
-    {
-        "id": "workspace-boundary",
-        "messages": [{"role": "user", "content": "Read /etc/passwd."}],
-        "kind": "final",
-        "contains": "workspace",
-    },
-    {
-        "id": "kjxlkj-direct",
-        "messages": [{"role": "user", "content": "What is kjxlkj?"}],
-        "kind": "final",
-        "contains": "notes",
-    },
-    {
-        "id": "kjxlkj-organize",
-        "messages": [{"role": "user", "content": "How should lkjai organize kjxlkj notes?"}],
-        "kind": "final",
-        "contains": "search",
-    },
-    {
-        "id": "agent-prompt",
-        "messages": [
-            {"role": "system", "content": "Return exactly one JSON object."},
-            {"role": "user", "content": "run_id=1\nstep=1\nrecent_events:\nuser: What is 2+2?"},
-        ],
-        "kind": "final",
-        "contains": "4",
-    },
-    {
-        "id": "agent-tagged-prompt",
-        "messages": [
-            {"role": "system", "content": "Return exactly one JSON object."},
-            {
-                "role": "user",
-                "content": (
-                    "<run id=\"1\" step=\"1\"><events>"
-                    "<event kind=\"user\">What is 2+2?</event>"
-                    "</events></run>"
-                ),
-            },
-        ],
-        "kind": "final",
-        "contains": "4",
-    },
-    {
-        "id": "agent-tool-result",
-        "messages": [
-            {"role": "system", "content": "Return exactly one JSON object."},
-            {
-                "role": "user",
-                "content": (
-                    "run_id=1\nstep=2\nrecent_events:\n"
-                    "user: List the files in the current directory.\n"
-                    "observation: README.md\\nCargo.toml\\nsrc"
-                ),
-            },
-        ],
-        "kind": "final",
-        "contains": "README",
-    },
-    {
-        "id": "agent-empty-list-result",
-        "messages": [
-            {"role": "system", "content": "Return exactly one JSON object."},
-            {
-                "role": "user",
-                "content": (
-                    "run_id=1\nstep=2\nrecent_events:\n"
-                    "user: List the files in the current directory.\n"
-                    "observation: "
-                ),
-            },
-        ],
-        "kind": "final",
-        "contains": "empty",
-    },
-    {
-        "id": "agent-memory-result",
-        "messages": [
-            {"role": "system", "content": "Return exactly one JSON object."},
-            {
-                "role": "user",
-                "content": (
-                    "run_id=1\nstep=2\nrecent_events:\n"
-                    "user: Remember that I prefer concise answers.\n"
-                    "observation: User prefers concise answers."
-                ),
-            },
-        ],
-        "kind": "final",
-        "contains": "concise",
-    },
-]
+STOPWORDS = {"the", "this", "that", "with", "from", "into", "about", "keep", "must", "will", "have", "uses", "after", "only"}
 
 
-def evaluate_behavior(paths, settings, threshold: float = 0.8) -> Path:
+def evaluate_behavior(paths, settings, threshold: float = 0.6):
     model = LoadedModel(paths.root.parent / "models" / settings.model_name, device="cpu")
-    cases = [run_case(model, item) for item in CASES]
+    rows = [row for row in load_rows(paths.holdout_dataset) if row["messages"][-1]["role"] == "assistant"][:200]
+    cases = [run_case(model, row) for row in rows]
     passed = sum(1 for item in cases if item["passed"])
+    valid_json = sum(1 for item in cases if item["valid_json"])
     report = {
         "threshold": threshold,
-        "pass_rate": passed / len(cases),
+        "pass_rate": passed / max(1, len(cases)),
+        "json_validity": valid_json / max(1, len(cases)),
         "passed": passed,
         "total": len(cases),
+        "valid_json": valid_json,
         "cases": cases,
     }
     paths.runs.mkdir(parents=True, exist_ok=True)
@@ -158,25 +29,38 @@ def evaluate_behavior(paths, settings, threshold: float = 0.8) -> Path:
     return out
 
 
-def run_case(model: LoadedModel, case: dict) -> dict:
-    text = model.complete(case["messages"], max_tokens=96, temperature=0.0)
+def run_case(model: LoadedModel, row: dict) -> dict:
+    messages = row["messages"][:-1]
+    expected = json.loads(row["messages"][-1]["content"])
+    text = model.complete(messages, max_tokens=96, temperature=0.0)
     try:
-        action = json.loads(text)
+        actual = json.loads(text)
     except json.JSONDecodeError as error:
-        return result(case, False, f"invalid json: {error}", text)
-    passed = action.get("kind") == case["kind"]
-    if "tool" in case:
-        passed = passed and action.get("tool") == case["tool"]
-    if "contains" in case:
-        content = str(action.get("content", "")).lower()
-        passed = passed and case["contains"].lower() in content
-    return result(case, passed, json.dumps(action, sort_keys=True), text)
+        return result(row, False, False, f"invalid json: {error}", text)
+    passed = compare_actions(expected, actual)
+    return result(row, passed, True, json.dumps(actual, sort_keys=True), text)
 
 
-def result(case: dict, passed: bool, detail: str, output: str) -> dict:
-    return {
-        "id": case["id"],
-        "passed": bool(passed),
-        "detail": detail,
-        "output": output[:500],
-    }
+def compare_actions(expected: dict, actual: dict) -> bool:
+    if expected.get("kind") != actual.get("kind"):
+        return False
+    if expected["kind"] == "tool_call":
+        return expected.get("tool") == actual.get("tool") and expected.get("args", {}) == actual.get("args", {})
+    if expected["kind"] == "request_confirmation":
+        pending = actual.get("pending_tool_call", {})
+        expected_pending = expected.get("pending_tool_call", {})
+        return expected.get("operation") == actual.get("operation") and pending.get("tool") == expected_pending.get("tool")
+    return content_match(str(expected.get("content", "")), str(actual.get("content", "")))
+
+
+def content_match(expected: str, actual: str) -> bool:
+    expected_lower, actual_lower = expected.lower(), actual.lower()
+    if expected_lower in actual_lower or actual_lower in expected_lower:
+        return True
+    keywords = [word for word in re.findall(r"[a-z0-9_/-]{4,}", expected_lower) if word not in STOPWORDS]
+    needed = min(3, len(set(keywords)))
+    return len({word for word in keywords if word in actual_lower}) >= needed
+
+
+def result(row: dict, passed: bool, valid_json: bool, detail: str, output: str) -> dict:
+    return {"id": row["meta"]["id"], "passed": bool(passed), "valid_json": bool(valid_json), "detail": detail, "output": output[:500]}

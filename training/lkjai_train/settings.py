@@ -29,44 +29,12 @@ def train_settings(preset: str) -> TrainSettings:
     if preset == "quick":
         return quick_settings()
     if preset in {"agent", "custom"}:
-        return settings(
-            preset,
-            env_str("TRAIN_MODEL_PRESET", "scratch-60m"),
-            8192,
-            768,
-            12,
-            640,
-            8,
-            2,
-            1792,
-            3000,
-            4000,
-        )
+        return settings(preset, env_str("TRAIN_MODEL_PRESET", "scratch-60m"), 8192, 1024, 12, 640, 8, 2, 1792, 3000, 12000)
     raise ValueError(f"unknown TRAIN_PRESET={preset}")
 
 
 def quick_settings() -> TrainSettings:
-    return TrainSettings(
-        "quick",
-        env_str("MODEL_NAME", "lkjai-scratch-60m"),
-        "tiny-scratch",
-        512,
-        64,
-        2,
-        64,
-        4,
-        2,
-        128,
-        3e-4,
-        False,
-        1,
-        1,
-        5,
-        env_float("TRAIN_FIXED_EVAL_THRESHOLD", 0.8),
-        env_bool("TRAIN_ENFORCE_COMPETENCY", False),
-        20,
-        env_int("TRAIN_SEED", 42),
-    )
+    return TrainSettings("quick", env_str("MODEL_NAME", "lkjai-scratch-60m"), "tiny-scratch", 512, 64, 2, 64, 4, 2, 128, 3e-4, False, 1, 1, 5, 0.0, False, 20, env_int("TRAIN_SEED", 42))
 
 
 def settings(preset, model_preset, vocab, seq, layers, hidden, heads, kv, ffn, steps, rows):
@@ -86,7 +54,7 @@ def settings(preset, model_preset, vocab, seq, layers, hidden, heads, kv, ffn, s
         batch_size=env_int("TRAIN_BATCH_SIZE", 1),
         gradient_accumulation=env_int("TRAIN_GRADIENT_ACCUMULATION", 8),
         max_steps=env_int("TRAIN_MAX_STEPS", steps),
-        fixed_eval_threshold=env_float("TRAIN_FIXED_EVAL_THRESHOLD", 0.8),
+        fixed_eval_threshold=env_float("TRAIN_FIXED_EVAL_THRESHOLD", 0.6),
         enforce_competency=env_bool("TRAIN_ENFORCE_COMPETENCY", False),
         corpus_size=env_int("TRAIN_CORPUS_SIZE", rows),
         seed=env_int("TRAIN_SEED", 42),

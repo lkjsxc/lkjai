@@ -137,6 +137,34 @@ async fn model_unreachable_turn_is_persisted() {
     std::fs::remove_dir_all(root).unwrap();
 }
 
+#[tokio::test]
+async fn confirmation_request_stops_without_running_mutation() {
+    let root = std::env::temp_dir().join(format!("lkjai-test-{}", uuid::Uuid::new_v4()));
+    let config = test_config(&root);
+    let model = ModelClient::fake(vec![
+        r##"{"kind":"request_confirmation","summary":"Update release notes?","operation":"resource.update_resource","pending_tool_call":{"tool":"resource.update_resource","args":{"ref":"release-notes","body":"# Updated","is_private":false}}}"##.into(),
+    ]);
+    let agent = Agent::new(config, model);
+    let response = agent
+        .chat(ChatRequest {
+            message: "update release notes".into(),
+            run_id: Some("run-1".into()),
+            max_steps: Some(2),
+        })
+        .await;
+    assert_eq!(response.stop_reason, "confirmation_required");
+    assert_eq!(response.assistant, "Update release notes?");
+    assert!(response
+        .events
+        .iter()
+        .any(|event| event.kind == "confirmation_request"));
+    assert!(!response
+        .events
+        .iter()
+        .any(|event| event.kind == "tool_call"));
+    std::fs::remove_dir_all(root).unwrap();
+}
+
 fn test_config(root: &std::path::Path) -> Config {
     Config {
         host: "127.0.0.1".into(),
@@ -151,5 +179,7 @@ fn test_config(root: &std::path::Path) -> Config {
         tool_workspace_dir: root.join("data/workspace"),
         tool_timeout_secs: 20,
         tool_output_limit: 12_000,
+        kjxlkj_api_url: "http://127.0.0.1:8080".into(),
+        kjxlkj_session_cookie: String::new(),
     }
 }
