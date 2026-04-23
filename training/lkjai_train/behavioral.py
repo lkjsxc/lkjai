@@ -35,6 +35,47 @@ CASES = [
         "kind": "final",
         "contains": "scratch",
     },
+    {
+        "id": "agent-prompt",
+        "messages": [
+            {"role": "system", "content": "Return exactly one JSON object."},
+            {"role": "user", "content": "run_id=1\nstep=1\nrecent_events:\nuser: What is 2+2?"},
+        ],
+        "kind": "final",
+        "contains": "4",
+    },
+    {
+        "id": "agent-tool-result",
+        "messages": [
+            {"role": "system", "content": "Return exactly one JSON object."},
+            {
+                "role": "user",
+                "content": (
+                    "run_id=1\nstep=2\nrecent_events:\n"
+                    "user: List the files in the current directory.\n"
+                    "observation: README.md\\nCargo.toml\\nsrc"
+                ),
+            },
+        ],
+        "kind": "final",
+        "contains": "README",
+    },
+    {
+        "id": "agent-memory-result",
+        "messages": [
+            {"role": "system", "content": "Return exactly one JSON object."},
+            {
+                "role": "user",
+                "content": (
+                    "run_id=1\nstep=2\nrecent_events:\n"
+                    "user: Remember that I prefer concise answers.\n"
+                    "observation: User prefers concise answers."
+                ),
+            },
+        ],
+        "kind": "final",
+        "contains": "concise",
+    },
 ]
 
 

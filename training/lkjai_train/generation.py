@@ -22,7 +22,7 @@ class LoadedModel:
 
     @torch.inference_mode()
     def complete(self, messages: list[dict], max_tokens: int = 128, temperature: float = 0.0) -> str:
-        encoded = self.tokenizer.encode(prompt_text(messages)).ids
+        encoded = self.tokenizer.encode(prompt_text(normalize_messages(messages))).ids
         input_ids = torch.tensor([encoded[-self.config.sequence_len :]], device=self.device)
         eos = self.tokenizer.token_to_id("<eos>")
         for _ in range(max_tokens):
@@ -43,6 +43,56 @@ def choose_token(logits: torch.Tensor, temperature: float) -> torch.Tensor:
         return torch.argmax(logits, dim=-1, keepdim=True)
     probs = torch.softmax(logits / max(temperature, 1e-5), dim=-1)
     return torch.multinomial(probs, num_samples=1)
+
+
+def normalize_messages(messages: list[dict]) -> list[dict]:
+    if not messages:
+        return messages
+    latest = messages[-1].get("content", "")
+    agent_messages = agent_context_messages(latest)
+    if agent_messages:
+        return agent_messages
+    extracted = latest_user_event(latest)
+    if extracted:
+        return [{"role": "user", "content": extracted}]
+    return messages
+
+
+def agent_context_messages(content: str) -> list[dict]:
+    if "recent_events:" not in content:
+        return []
+    user = latest_user_event(content)
+    observation = latest_event(content, "observation: ")
+    if user and observation:
+        return [
+            {"role": "user", "content": user},
+            {"role": "tool", "name": guessed_tool(user), "content": observation},
+        ]
+    return []
+
+
+def latest_user_event(content: str) -> str:
+    return latest_event(content, "user: ")
+
+
+def latest_event(content: str, prefix: str) -> str:
+    if "recent_events:" not in content:
+        return ""
+    for line in reversed(content.splitlines()):
+        if line.startswith(prefix):
+            return line.removeprefix(prefix).replace("\\n", "\n").strip()
+    return ""
+
+
+def guessed_tool(user: str) -> str:
+    lower = user.lower()
+    if "remember" in lower:
+        return "memory.write"
+    if "list" in lower:
+        return "fs.list"
+    if "read" in lower:
+        return "fs.read"
+    return "tool"
 
 
 def normalize_action(text: str) -> str:

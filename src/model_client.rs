@@ -169,7 +169,10 @@ impl HttpModel {
     }
 
     async fn health(&self) -> bool {
-        let base = self.url.trim_end_matches("/v1/chat/completions");
+        let base = self
+            .url
+            .strip_suffix("/chat/completions")
+            .unwrap_or(self.url.as_str());
         let url = format!("{base}/models");
         match self
             .client

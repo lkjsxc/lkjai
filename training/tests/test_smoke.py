@@ -5,7 +5,12 @@ import pytest
 from lkjai_train.cli import dispatch, train_settings
 from lkjai_train.dataset import prepare_fixtures, validate_dataset
 from lkjai_train.formatting import prompt_text
-from lkjai_train.generation import first_json_object, normalize_action
+from lkjai_train.generation import (
+    agent_context_messages,
+    first_json_object,
+    latest_user_event,
+    normalize_action,
+)
 from lkjai_train.paths import Paths
 
 
@@ -69,3 +74,15 @@ def test_normalize_action_extracts_first_json_object():
     text = 'noise {"kind":"final","content":"ok"} trailing'
     assert json.loads(normalize_action(text))["content"] == "ok"
     assert first_json_object(text) == '{"kind":"final","content":"ok"}'
+
+
+def test_latest_user_event_extracts_agent_context():
+    content = "run_id=1\nrecent_events:\nuser: What is 2+2?\nobservation: ignored"
+    assert latest_user_event(content) == "What is 2+2?"
+
+
+def test_agent_context_messages_include_tool_observation():
+    content = "recent_events:\nuser: List files.\nobservation: README.md"
+    messages = agent_context_messages(content)
+    assert messages[-1]["role"] == "tool"
+    assert messages[-1]["content"] == "README.md"
