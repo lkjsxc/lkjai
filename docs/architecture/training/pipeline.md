@@ -14,6 +14,7 @@ supervision artifacts from local data.
 - `python -m lkjai_train.cli validate-dataset`.
 - `python -m lkjai_train.cli train-scratch`.
 - `python -m lkjai_train.cli fixed-eval`.
+- `python -m lkjai_train.cli behavioral-eval`.
 - `python -m lkjai_train.cli export-manifest`.
 - `python -m lkjai_train.cli smoke`.
 
@@ -25,14 +26,14 @@ supervision artifacts from local data.
 4. Initialize a small dense decoder from random weights.
 5. Train next-token prediction on structured chat/action trajectories.
 6. Persist scratch checkpoints and train metadata.
-7. Run fixed evals and write report under `data/train/runs/`.
-8. Export manifest metadata for serving handoff.
+7. Export manifest metadata for serving handoff.
+8. Run fixed and behavioral evals under `data/train/runs/`.
 9. Keep deterministic `smoke` command for fast local checks.
 
 ## Dataset Preparation
 
 - `prepare-fixtures`: writes 2 deterministic rows for smoke tests.
-- `prepare-corpus`: generates synthetic agent trajectories.
+- `prepare-corpus`: generates docs-derived and synthetic agent trajectories.
 - Both write JSONL with `messages` and `tags`.
 - Formatting happens through the project scratch chat serializer, not through an
   upstream pretrained tokenizer template.
@@ -67,7 +68,8 @@ supervision artifacts from local data.
 docker compose --profile train up --build train
 ls -lh data/train/checkpoints/final/
 cat data/train/runs/fixed-eval.json | jq .pass_rate
+cat data/train/runs/behavioral-eval.json | jq .pass_rate
 ```
 
 Expected: checkpoint directory contains model weights, config, tokenizer
-manifest, and `pass_rate` >= threshold.
+manifest, and behavioral `pass_rate` >= threshold.

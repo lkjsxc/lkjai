@@ -3,7 +3,7 @@
 ## Accepted Defaults
 
 - Runtime orchestrator: Rust with axum.
-- Inference runtime: separate Rust OpenAI-compatible service.
+- Inference runtime: separate Python/Torch OpenAI-compatible service.
 - Serving model family: local scratch dense decoder.
 - Training scale: `scratch-40m`, targeting 25-60M parameters.
 - Training method: local PyTorch from random initialization.
@@ -21,13 +21,16 @@
 - Synthetic corpus generator produces >= 100 trajectories for agent training.
 - Scratch chat formatting is owned by this repository.
 - Fixed eval checks tokenizer, checkpoint, dataset, and loss artifacts.
+- Behavioral eval checks real generated responses and owns competency.
 - Immediate Compose verify is docs/test focused; training smoke is optional.
 
 ## Rationale
 
 - From-scratch training is the research question, even when weaker than
   pretrained workflows.
-- Keeping inference in Rust preserves a clear runtime direction.
+- Serving trained checkpoints now is more valuable than preserving a placeholder
+  Rust inference stub.
+- Rust remains the web and agent runtime direction.
 - SQLite keeps memory simple, inspectable, and local.
 - Health probes prevent silent fallback to fake responses.
 - Real training requires real data; synthetic trajectories bootstrap behavior.

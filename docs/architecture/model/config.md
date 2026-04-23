@@ -7,7 +7,7 @@
 - Default serving scale: 25-60M parameters.
 - Default model artifact root: `data/models/lkjai-scratch-40m/`.
 - Compose `inference` service loads scratch manifests from `/models`.
-- Default serving direction: Rust OpenAI-compatible inference runtime.
+- Default serving direction: Python/Torch OpenAI-compatible inference runtime.
 
 ## Training Model
 

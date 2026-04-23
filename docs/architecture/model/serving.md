@@ -7,8 +7,8 @@ the separate inference runtime.
 
 ## Server
 
-- Default: Rust OpenAI-compatible inference service.
-- Container image: built from this repository.
+- Default: Python/Torch OpenAI-compatible inference service.
+- Container image: built from `Dockerfile.inference`.
 - Load root: `/models/${MODEL_NAME}`.
 - Bind: `0.0.0.0:8081` inside container.
 - Host port: `127.0.0.1:${MODEL_PORT:-8081}`.
@@ -32,8 +32,10 @@ the separate inference runtime.
 - Host mount: `./data/models:/models`.
 - Default artifact root: `data/models/lkjai-scratch-40m/`.
 - Required files: serving manifest, model config, tokenizer, and checkpoint.
-- Initial Rust inference may validate artifacts and return deterministic JSON
-  until real tensor decoding is implemented.
+- Serving loads `model.pt` with the local scratch model code and generates real
+  next-token output.
+- Runtime quality is accepted only through behavioral evals, not artifact
+  existence alone.
 
 ## Verification
 

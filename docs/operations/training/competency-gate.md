@@ -2,8 +2,9 @@
 
 ## Canonical Threshold
 
-- Competency is defined as fixed-eval pass rate `>= 0.80`.
-- Fixed-eval results are written to `data/train/runs/fixed-eval.json`.
+- Competency is defined as behavioral eval pass rate `>= 0.80`.
+- Behavioral results are written to `data/train/runs/behavioral-eval.json`.
+- Fixed eval remains an artifact health gate.
 
 ## Fixed-Eval Schema
 

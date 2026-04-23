@@ -13,14 +13,16 @@ verification.
   requests.
 - Health probe uses `GET /v1/models` with a 5-second timeout.
 - `GET /api/model` returns `reachable` based on the last probe result.
+- The default inference service is Python/Torch and must load exported scratch
+  artifacts from disk.
 
 ## Request/Response
 
 - Request schema: `model`, `messages`, `max_tokens`, `temperature`.
 - Response schema: first `choices[].message.content` is consumed.
 - Each model step must return strict JSON action text for the agent parser.
-- Initial scratch inference may return deterministic JSON while real decode is
-  incomplete, but it must still be served by the inference container.
+- The inference service generates autoregressively from the trained checkpoint
+  and returns the first valid JSON action found in generated text.
 
 ## Failure Semantics
 

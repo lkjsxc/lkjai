@@ -3,7 +3,7 @@
 ## Goal
 
 Run scratch tokenizer and language-model training with measurable artifacts for
-local serving and evaluation.
+local serving and behavioral evaluation.
 
 ## Default Behavior
 
@@ -36,6 +36,7 @@ local serving and evaluation.
 - Tokenizer training failure stops before checkpoint training.
 - Training errors stop pipeline with non-zero exit.
 - Competency enforcement stops acceptance when below threshold.
+- Behavioral eval failure triggers data/config iteration before acceptance.
 
 ## Required Artifacts
 
@@ -44,6 +45,7 @@ local serving and evaluation.
 - Checkpoint manifest: `data/train/checkpoints/manifest.json`
 - Export manifest: `data/train/exports/manifest.json`
 - Fixed eval summary: `data/train/runs/fixed-eval.json`
+- Behavioral eval summary: `data/train/runs/behavioral-eval.json`
 
 ## Compose Examples
 
@@ -56,5 +58,5 @@ TRAIN_PRESET=custom TRAIN_MAX_STEPS=50 docker compose --profile train up --build
 ## Boundary
 
 - Verify profile remains deterministic and lightweight.
-- Long-run quality decisions depend on training artifacts and eval reports, not
-  verify output.
+- Long-run quality decisions depend on behavioral eval and saved inference
+  transcripts, not artifact existence alone.

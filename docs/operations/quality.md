@@ -19,12 +19,12 @@ docker compose --profile verify up --build --abort-on-container-exit verify
 ## Training Gate
 
 - `docker compose --profile train up --build train` is a separate training gate.
-- It produces `runs/fixed-eval.json`.
-- Agent competency acceptance requires `pass_rate >= 0.80`.
+- It produces `runs/fixed-eval.json` and `runs/behavioral-eval.json`.
+- Agent competency acceptance requires behavioral `pass_rate >= 0.80`.
 - For strict enforcement, keep `TRAIN_ENFORCE_COMPETENCY=1`.
 - For exploratory runs, override with `TRAIN_ENFORCE_COMPETENCY=0`.
-- Real model quality must be judged from scratch checkpoint artifacts and eval
-  reports, not from docs-only verification.
+- Real model quality must be judged from generated responses and behavioral
+  reports, not docs-only verification.
 
 ## Stop Rule
 

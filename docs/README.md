@@ -8,6 +8,8 @@ repository policy.
 - Build a from-scratch small dense language model for RTX 3070 8GB research.
 - Run a local multi-turn agent loop with tools, memory, summaries, and strict
   JSON actions.
+- Serve trained scratch checkpoints through an OpenAI-compatible Python/Torch
+  inference service until native Rust tensor decoding exists.
 - Train tokenizer, corpus, model checkpoints, and agent-style supervision from
   local project artifacts instead of pretrained base weights.
 - Keep this repository optimized for LLM-to-LLM maintenance.

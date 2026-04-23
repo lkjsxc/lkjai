@@ -9,7 +9,8 @@ Measure whether training produced usable scratch artifacts.
 - Fixed eval runs after every training pipeline.
 - Fixed eval checks artifact existence, dataset coverage, checkpoint structure,
   tokenizer structure, and loss metrics.
-- Competency gate uses fixed eval pass rate.
+- Behavioral eval checks whether generated responses are valid and useful.
+- Competency gate uses behavioral eval pass rate.
 
 ## Fixed Eval Checks
 
@@ -30,7 +31,8 @@ Measure whether training produced usable scratch artifacts.
 - Threshold default: `0.80`.
 - Enforcement: `TRAIN_ENFORCE_COMPETENCY=1` fails the pipeline when below
   threshold.
-- Pass rate: `passed / total` checks.
+- Artifact pass rate: `passed / total` fixed checks.
+- Behavioral pass rate: prompt cases passed by actual model inference.
 
 ## Report Schema
 
@@ -50,5 +52,7 @@ Measure whether training produced usable scratch artifacts.
 
 ```bash
 python -m lkjai_train.cli fixed-eval
+python -m lkjai_train.cli behavioral-eval
 cat data/train/runs/fixed-eval.json | jq .pass_rate
+cat data/train/runs/behavioral-eval.json | jq .pass_rate
 ```

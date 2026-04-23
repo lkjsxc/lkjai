@@ -2,7 +2,7 @@
 
 ## Profiles
 
-- `inference`: Rust OpenAI-compatible scratch inference service.
+- `inference`: Python/Torch OpenAI-compatible scratch inference service.
 - `web`: Rust axum agent orchestrator.
 - `train`: PyTorch scratch training container.
 - `verify`: repository verification container.
@@ -19,8 +19,7 @@
 ## GPU
 
 - `train` requests NVIDIA GPU access for scratch training.
-- `inference` starts as a Rust artifact-loading service; real GPU decode is
-  future work.
+- `inference` loads exported PyTorch scratch checkpoints and tokenizers.
 - `web` does not load model weights and does not require CUDA.
 
 ## Commands
@@ -41,6 +40,8 @@ docker compose --profile verify up --build --abort-on-container-exit verify
 - `TRAIN_FIXED_EVAL_THRESHOLD` defaults to `0.80`.
 - `TRAIN_ENFORCE_COMPETENCY` defaults to disabled unless explicitly enabled.
 - Training writes to `TRAIN_DATA_DIR`, default `/app/data/train`.
+- Behavioral competency requires `data/train/runs/behavioral-eval.json`
+  `pass_rate >= 0.80`.
 
 ## Presets
 

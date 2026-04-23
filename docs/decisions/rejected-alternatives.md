@@ -39,6 +39,12 @@
 
 ## Python Default Serving
 
-- Rejected for v1.
-- Training can remain Python, but default serving direction is Rust.
+- Accepted for current v1 serving.
+- Native Rust tensor decoding remains a future implementation direction.
 - The web app and inference runtime must remain separate containers.
+
+## Deterministic Inference Stub
+
+- Rejected as a competency path.
+- Artifact validation is useful health information but not model behavior.
+- Generated responses from trained checkpoints are required for acceptance.

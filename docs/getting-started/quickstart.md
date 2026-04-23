@@ -31,8 +31,8 @@ Inference API endpoint:
 - `http://127.0.0.1:8081/v1/chat/completions`
 - `curl --fail http://127.0.0.1:8081/v1/models`
 
-The first inference implementation validates scratch artifact paths and returns
-deterministic JSON actions until real tensor decoding is implemented.
+The inference implementation loads exported scratch artifacts and generates
+JSON actions from the trained PyTorch checkpoint.
 
 ## Run Web Runtime
 
@@ -61,6 +61,7 @@ Expected training artifacts:
 - `data/train/tokenizer/`: local byte-level BPE tokenizer.
 - `data/train/checkpoints/final/`: scratch model weights and config.
 - `data/train/runs/fixed-eval.json`: evaluation report.
+- `data/train/runs/behavioral-eval.json`: generated response competency report.
 - `data/train/exports/manifest.json`: serving metadata.
 
 ## Inspect Runtime Outputs
