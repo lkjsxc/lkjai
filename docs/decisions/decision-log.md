@@ -5,7 +5,7 @@
 - Runtime orchestrator: Rust with axum.
 - Inference runtime: separate Python/Torch OpenAI-compatible service.
 - Serving model family: local scratch dense decoder.
-- Training scale: `scratch-40m`, targeting 25-60M parameters.
+- Training scale: `scratch-60m`, targeting 50-80M parameters.
 - Training method: local PyTorch from random initialization.
 - Tokenizer: local byte-level BPE.
 - Memory backend: SQLite plus FTS lexical retrieval.
@@ -23,6 +23,11 @@
 - Fixed eval checks tokenizer, checkpoint, dataset, and loss artifacts.
 - Behavioral eval checks real generated responses and owns competency.
 - Immediate Compose verify is docs/test focused; training smoke is optional.
+- Agent corpus default is 4,000 rows.
+- DPO is the first preference optimization phase.
+- Runtime tool access is bounded to `TOOL_WORKSPACE_DIR`.
+- kjxlkj integration starts as lkjai docs, corpus, and eval coverage before
+  kjxlkj runtime routes.
 
 ## Rationale
 

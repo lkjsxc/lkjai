@@ -15,6 +15,8 @@
 - Training writes datasets, tokenizer, checkpoints, exports, and logs under
   `/app/data/train`.
 - Web writes transcripts and memory under `/app/data/agent`.
+- Web uses `/app/data/workspace` as the only filesystem root for tools.
+- Web must not mount the host root.
 
 ## GPU
 
@@ -26,7 +28,7 @@
 
 ```bash
 cp .env.example .env
-mkdir -p data/models/lkjai-scratch-40m data/train data/agent
+mkdir -p data/models/lkjai-scratch-60m data/train data/agent data/workspace
 docker compose --profile inference up --build inference
 docker compose --profile web up --build web
 docker compose --profile train up --build train
@@ -46,7 +48,7 @@ docker compose --profile verify up --build --abort-on-container-exit verify
 ## Presets
 
 - `quick`: tiny scratch run for local smoke.
-- `agent`: `scratch-40m` defaults for RTX 3070 8GB research.
+- `agent`: `scratch-60m` defaults for RTX 3070 8GB research.
 - `custom`: all behavior controlled by explicit `TRAIN_*` environment values.
 
 ## Long-Run Contract Links

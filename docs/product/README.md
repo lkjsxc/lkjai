@@ -15,3 +15,4 @@ API contracts.
 - [chat.md](chat.md): local multi-turn chat behavior and stop reasons
 - [agent-tools.md](agent-tools.md): command, website, file, and memory tools
 - [api.md](api.md): HTTP route, payload, and error contracts
+- [kjxlkj-integration.md](kjxlkj-integration.md): future note-app handoff

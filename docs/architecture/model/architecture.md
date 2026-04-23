@@ -13,9 +13,11 @@
 
 ## RTX 3070 Constraint
 
-- The default training preset targets 25-60M parameters.
+- The default training preset targets 50-80M parameters.
 - The default model must fit RTX 3070 8GB training experiments with gradient
   accumulation.
+- If the target shape does not fit, reduce sequence length before hidden size and
+  document the accepted fallback in the training summary.
 - Native context is capped operationally even if the model advertises more.
 - Agent memory uses retrieval and summaries.
 

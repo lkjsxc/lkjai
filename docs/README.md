@@ -11,7 +11,11 @@ repository policy.
 - Serve trained scratch checkpoints through an OpenAI-compatible Python/Torch
   inference service until native Rust tensor decoding exists.
 - Train tokenizer, corpus, model checkpoints, and agent-style supervision from
-  local project artifacts instead of pretrained base weights.
+  local project artifacts plus vetted permissive public data instead of
+  pretrained base weights.
+- Improve the supervised checkpoint with eval-gated DPO preference training
+  before attempting heavier rollout-based reinforcement learning.
+- Keep agent tools inside the mounted data workspace by default.
 - Keep this repository optimized for LLM-to-LLM maintenance.
 
 ## Global Rules

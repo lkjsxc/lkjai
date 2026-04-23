@@ -11,6 +11,8 @@ Measure whether training produced usable scratch artifacts.
   tokenizer structure, and loss metrics.
 - Behavioral eval checks whether generated responses are valid and useful.
 - Competency gate uses behavioral eval pass rate.
+- Sandbox eval checks that unsafe filesystem paths are rejected.
+- Preference eval compares pre-DPO and post-DPO behavioral reports.
 
 ## Fixed Eval Checks
 
@@ -25,6 +27,8 @@ Measure whether training produced usable scratch artifacts.
 9. `checkpoint-has-weights`: checkpoint directory contains model weights and
    config.
 10. `summary-has-loss`: training summary contains non-empty metrics.
+11. `dataset-large-enough`: agent preset corpus contains at least 4,000 rows.
+12. `metadata-has-sources`: dataset metadata lists source names and licenses.
 
 ## Competency Gate
 
@@ -33,6 +37,9 @@ Measure whether training produced usable scratch artifacts.
   threshold.
 - Artifact pass rate: `passed / total` fixed checks.
 - Behavioral pass rate: prompt cases passed by actual model inference.
+- Required behavioral coverage: direct answers, docs summaries, all tool names,
+  memory write/search, kjxlkj organization prompts, path sandbox rejection, and
+  prompt-repair cases.
 
 ## Report Schema
 

@@ -16,6 +16,7 @@ trajectory supervision, CUDA behavior, and export behavior.
 - [cuda.md](cuda.md): GPU-first training behavior
 - [dataset.md](dataset.md): dataset schema, generation, and validation
 - [evaluation.md](evaluation.md): fixed eval and competency gate contract
+- [preference.md](preference.md): preference-pair and DPO post-training rules
 
 Operational runbooks for six-hour defaults and competency gates are owned by
 [operations/training/README.md](../../operations/training/README.md).

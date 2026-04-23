@@ -14,7 +14,7 @@ local serving and behavioral evaluation.
 ## Required Environment Knobs
 
 - `TRAIN_PRESET`: `quick`, `agent`, `custom`.
-- `TRAIN_MODEL_PRESET`: default `scratch-40m`.
+- `TRAIN_MODEL_PRESET`: default `scratch-60m`.
 - `TRAIN_VOCAB_SIZE`: default `8192`.
 - `TRAIN_SEQUENCE_LEN`: default `1024`.
 - `TRAIN_LAYERS`: default preset-owned.
@@ -25,8 +25,8 @@ local serving and behavioral evaluation.
 - `TRAIN_GRADIENT_CHECKPOINTING`: default enabled.
 - `TRAIN_BATCH_SIZE`: default `1`.
 - `TRAIN_GRADIENT_ACCUMULATION`: default `8`.
-- `TRAIN_MAX_STEPS`: default `500`.
-- `TRAIN_CORPUS_SIZE`: default `200`.
+- `TRAIN_MAX_STEPS`: default `3000`.
+- `TRAIN_CORPUS_SIZE`: default `4000`.
 - `TRAIN_FIXED_EVAL_THRESHOLD`: default `0.80`.
 - `TRAIN_ENFORCE_COMPETENCY`: fail command when eval is below threshold.
 
@@ -46,6 +46,8 @@ local serving and behavioral evaluation.
 - Export manifest: `data/train/exports/manifest.json`
 - Fixed eval summary: `data/train/runs/fixed-eval.json`
 - Behavioral eval summary: `data/train/runs/behavioral-eval.json`
+- Preference pairs: `data/train/preferences/pairs.jsonl`
+- DPO summary: `data/train/checkpoints/dpo-summary.json`
 
 ## Compose Examples
 

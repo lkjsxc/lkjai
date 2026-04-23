@@ -2,11 +2,11 @@
 
 ## Tool Names
 
-- `shell.exec`: run a host command.
+- `shell.exec`: run a command inside the data workspace.
 - `web.fetch`: fetch website text.
-- `fs.read`: read a host file.
-- `fs.write`: write a host file.
-- `fs.list`: list a host directory.
+- `fs.read`: read a workspace file.
+- `fs.write`: write a workspace file.
+- `fs.list`: list a workspace directory.
 - `memory.search`: search durable agent memory.
 - `memory.write`: write durable agent memory.
 
@@ -21,7 +21,8 @@
 
 - Tools run without confirmation.
 - Command execution is not sandboxed by the application.
-- File tools are allowed to access host paths visible inside the container.
+- File and shell tools are bounded to `TOOL_WORKSPACE_DIR`.
+- The container must not mount host `/` for agent tools.
 - Tool calls must be logged before execution.
 - Tool results must be logged after execution.
 - Memory writes must be logged.

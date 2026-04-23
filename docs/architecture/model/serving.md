@@ -30,7 +30,7 @@ the separate inference runtime.
 
 - Scratch model directory inside container: `/models/${MODEL_NAME}`.
 - Host mount: `./data/models:/models`.
-- Default artifact root: `data/models/lkjai-scratch-40m/`.
+- Default artifact root: `data/models/lkjai-scratch-60m/`.
 - Required files: serving manifest, model config, tokenizer, and checkpoint.
 - Serving loads `model.pt` with the local scratch model code and generates real
   next-token output.
@@ -45,4 +45,4 @@ sleep 5
 curl -sf http://127.0.0.1:8081/v1/models | jq '.data[0].id'
 ```
 
-Expected: `lkjai-scratch-40m` when the artifact directory is readable.
+Expected: `lkjai-scratch-60m` when the artifact directory is readable.

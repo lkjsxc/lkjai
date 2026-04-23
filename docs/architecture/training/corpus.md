@@ -24,11 +24,15 @@ Each JSONL row:
 
 - `prepare-fixtures` writes a minimal deterministic set (2 rows) for smoke
   checks.
-- `prepare-corpus` generates synthetic trajectories covering all tools.
+- `prepare-corpus` generates synthetic trajectories covering all tools plus
+  docs-grounded answers and kjxlkj organization examples.
 - Each trajectory contains a user request, an assistant tool call, a tool result,
   and a final assistant answer.
 - Corpus size is configurable via `TRAIN_CORPUS_SIZE`.
-- Default corpus size for `agent` preset: 200.
+- Default corpus size for `agent` preset: 4,000.
+- Default mix: 40% docs-grounding, 25% tool and memory trajectories, 20% kjxlkj
+  organization trajectories, and 15% vetted public instruction rows.
+- Public rows are skipped when unavailable unless explicitly required.
 
 ## Tool Coverage
 
@@ -49,6 +53,14 @@ Every generated corpus must include examples for:
 - Do not pre-format messages as strings in the dataset.
 - Keep the dataset as structured `messages` arrays.
 
+## Prompt And Action Format
+
+- Runtime prompts use paired section tags such as `<run>`, `<summary>`,
+  `<memories>`, and `<events>` for segmentation.
+- Assistant outputs remain strict JSON actions, not XML, because tool execution
+  needs typed validation.
+- Training and inference must use the same serializer.
+
 ## Verification
 
 ```bash
@@ -57,4 +69,4 @@ python -m lkjai_train.cli validate-dataset
 jq -c 'select(.tags | contains(["tool_trajectory"]))' data/train/datasets/corpus.jsonl | wc -l
 ```
 
-Expected: tool_trajectory count >= 50.
+Expected: tool_trajectory count >= 1,000 for agent training.

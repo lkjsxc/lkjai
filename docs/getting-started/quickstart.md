@@ -17,7 +17,7 @@ Compose.
 
 ```bash
 cp .env.example .env
-mkdir -p data/models/lkjai-scratch-40m data/train data/agent
+mkdir -p data/models/lkjai-scratch-60m data/train data/agent data/workspace
 ```
 
 ## Run Inference Service
@@ -68,6 +68,7 @@ Expected training artifacts:
 
 - `data/agent/runs/`: chat run transcripts.
 - `data/agent/memory.sqlite3`: durable memory database.
+- `data/workspace/`: only filesystem root used by agent file and shell tools.
 - `GET /api/model`: active model client status and reachability.
 
 ## Troubleshooting

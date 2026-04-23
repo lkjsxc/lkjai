@@ -10,8 +10,10 @@ Produce a valid, sizable dataset for scratch LM and agent behavior training.
   `tags`.
 - `messages` follows the chat format: `role`, `content`, optional `name`.
 - Roles: `system`, `user`, `assistant`, `tool`.
-- The dataset must contain at least 100 rows for the `agent` preset.
+- The dataset must contain at least 4,000 rows for the `agent` preset.
 - The dataset must cover all tool trajectories used by the agent.
+- The dataset metadata must record source, license, row count, split, and schema
+  version for each generated or imported source.
 
 ## Generation
 
@@ -21,6 +23,10 @@ Produce a valid, sizable dataset for scratch LM and agent behavior training.
   assistant final answer.
 - Trajectories cover every tool: `shell.exec`, `web.fetch`, `fs.read`,
   `fs.write`, `fs.list`, `memory.search`, `memory.write`.
+- kjxlkj trajectories cover search, read, summarize, create-note, update-note,
+  and privacy-preserving organization tasks.
+- Public instruction rows are optional, permissive-license, and marked with
+  source tags.
 
 ## Scratch Formatting
 
@@ -42,4 +48,4 @@ python -m lkjai_train.cli validate-dataset
 wc -l data/train/datasets/corpus.jsonl
 ```
 
-Expected: row count >= 100 for agent training.
+Expected: row count >= 4,000 for agent training.

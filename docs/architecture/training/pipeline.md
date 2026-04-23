@@ -15,6 +15,8 @@ supervision artifacts from local data.
 - `python -m lkjai_train.cli train-scratch`.
 - `python -m lkjai_train.cli fixed-eval`.
 - `python -m lkjai_train.cli behavioral-eval`.
+- `python -m lkjai_train.cli prepare-preferences`.
+- `python -m lkjai_train.cli train-dpo`.
 - `python -m lkjai_train.cli export-manifest`.
 - `python -m lkjai_train.cli smoke`.
 
@@ -28,12 +30,15 @@ supervision artifacts from local data.
 6. Persist scratch checkpoints and train metadata.
 7. Export manifest metadata for serving handoff.
 8. Run fixed and behavioral evals under `data/train/runs/`.
-9. Keep deterministic `smoke` command for fast local checks.
+9. Generate preference pairs from eval failures and canonical answers.
+10. Run DPO post-training when enabled and rerun behavioral eval.
+11. Keep deterministic `smoke` command for fast local checks.
 
 ## Dataset Preparation
 
 - `prepare-fixtures`: writes 2 deterministic rows for smoke tests.
-- `prepare-corpus`: generates docs-derived and synthetic agent trajectories.
+- `prepare-corpus`: generates docs-derived, synthetic agent, kjxlkj, and
+  optional vetted public trajectories.
 - Both write JSONL with `messages` and `tags`.
 - Formatting happens through the project scratch chat serializer, not through an
   upstream pretrained tokenizer template.
@@ -51,7 +56,7 @@ supervision artifacts from local data.
 | Preset | Model | Steps | Corpus Size | Purpose |
 |--------|-------|-------|-------------|---------|
 | quick  | tiny scratch | 5 | 20 | local smoke |
-| agent  | scratch-40m | 500 | 200 | main research path |
+| agent  | scratch-60m | 3000 | 4000 | main research path |
 | custom | env config | `TRAIN_MAX_STEPS` | `TRAIN_CORPUS_SIZE` | full control |
 
 ## Artifacts
@@ -61,6 +66,7 @@ supervision artifacts from local data.
 - Checkpoints live under `data/train/checkpoints`.
 - Serving exports live under `data/train/exports`.
 - Eval reports live under `data/train/runs`.
+- Preference pairs live under `data/train/preferences`.
 
 ## Verification
 

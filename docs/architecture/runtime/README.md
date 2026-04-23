@@ -14,3 +14,4 @@ state.
 - [web.md](web.md): axum server contract
 - [inference.md](inference.md): OpenAI-compatible model client behavior
 - [storage.md](storage.md): data directory and transcript storage
+- [workspace.md](workspace.md): data-directory tool workspace boundary

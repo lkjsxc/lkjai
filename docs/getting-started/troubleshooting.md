@@ -16,7 +16,7 @@ curl -v http://127.0.0.1:8081/v1/models
 ```
 
 Fix:
-- Ensure `MODEL_NAME=lkjai-scratch-40m` unless testing another artifact.
+- Ensure `MODEL_NAME=lkjai-scratch-60m` unless testing another artifact.
 - Ensure `data/models/${MODEL_NAME}` exists or run training/export first.
 - Run `docker compose --profile inference up --build inference`.
 

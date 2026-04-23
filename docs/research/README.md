@@ -14,3 +14,5 @@ future baselines.
 - [models.md](models.md): pretrained systems as inspiration or baselines
 - [corpus.md](corpus.md): scratch corpus and fixture references
 - [lightweighting.md](lightweighting.md): optional compression references
+- [prompt-format.md](prompt-format.md): XML-style prompt sections and JSON actions
+- [reinforcement-learning.md](reinforcement-learning.md): DPO, GRPO, and RL policy

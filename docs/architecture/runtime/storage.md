@@ -15,8 +15,10 @@
 - `train/runs/`: training and eval logs.
 - `agent/runs/`: chat and tool transcripts.
 - `agent/memory.sqlite3`: durable memory and summaries.
+- `workspace/`: only filesystem root visible to agent file and shell tools.
 
 ## Persistence
 
 - `data/` is untracked except for placeholders.
 - Runtime code creates missing directories on boot.
+- Agent tools must not require host root mounts.
