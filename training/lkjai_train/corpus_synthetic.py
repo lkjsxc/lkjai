@@ -1,38 +1,17 @@
 import itertools
 
 from .corpus_shared import split_for, xml_prompt
+from .corpus_source import tagged_contents
 from .public_data import ANGLES, AUDIENCES, CONSTRAINTS, DELIVERABLES, GENERAL_TOPICS, SAFER_ALTERNATIVES, SAFETY_BOUNDARIES, SAFETY_REQUESTS
 from .rows import direct_row, meta, tool_row
 
 
-FACTS = [
-    ("the difference between notes and media in kjxlkj", "Notes store editable markdown content. Media store uploaded files plus metadata and can be attached to notes."),
-    ("what `/api/resources/search` returns", "It returns JSON search results with resource payloads plus paging cursors."),
-    ("when kjxlkj writes require confirmation", "Create and update operations should be confirmed before the assistant executes them."),
-    ("what history means in kjxlkj", "History is the immutable sequence of saved snapshots for one resource."),
-    ("why prompt and training format must match", "If training and inference serialization differ, the model learns the wrong continuation boundary."),
-    ("why raw generation must be evaluated directly", "Proxy fallbacks can hide model failures and produce inflated quality claims."),
-    ("what retrieval should do for a 1024-token model", "Retrieval should select short relevant context instead of pushing the full history into one prompt."),
-    ("why typed tools are preferred", "Typed tools expose clear arguments, validation, and side-effect boundaries."),
-]
-
+FACTS = [(item["subject"], item["answer"]) for item in tagged_contents("general", "concept_fact")]
 TOOL_SCENARIOS = [
-    ("List the docs directory.", "fs.list", {"path": "docs"}, "docs\nREADME.md", "The workspace docs directory and README are available."),
-    ("List the project root.", "fs.list", {"path": "."}, "README.md\nsrc\ndocs", "The workspace root contains README.md, src, and docs."),
-    ("Read the main README.", "fs.read", {"path": "README.md"}, "# lkjai\n\nDocs-first scratch agent.", "The README describes a docs-first scratch agent."),
-    ("Read the docs README.", "fs.read", {"path": "docs/README.md"}, "# Docs\n\nCanonical project contracts.", "The docs README acts as the project table of contents."),
-    ("Store a preference about concise answers.", "memory.write", {"content": "User prefers concise answers."}, "User prefers concise answers.", "I recorded the concise-answer preference."),
-    ("Search memory for preferences.", "memory.search", {"query": "preferences"}, "User prefers concise answers.", "The stored preference says answers should stay concise."),
-    ("Fetch a public page.", "web.fetch", {"url": "https://example.com"}, "<html>Example Domain</html>", "The fetched page is Example Domain."),
-    ("Run pwd in the workspace.", "shell.exec", {"command": "pwd"}, "/app/data/workspace", "The shell runs inside the workspace directory."),
+    (item["prompt"], item["tool"], item["args"], item["result"], item["answer"])
+    for item in tagged_contents("general", "local_tool_scenario")
 ]
-
-TOOL_VARIANTS = [
-    ("Return the correct tool, keep paths workspace-relative.", "tool_trajectory"),
-    ("Use the tool before answering.", "tool_trajectory"),
-    ("Prefer the typed tool call instead of prose.", "tool_selection"),
-    ("Keep the action JSON minimal and valid.", "action_json"),
-]
+TOOL_VARIANTS = [(item["constraint"], item["tag"]) for item in tagged_contents("general", "tool_variant")]
 
 
 def general_rows(limit: int) -> list[dict]:

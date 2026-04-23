@@ -3,12 +3,10 @@ import json
 import os
 from pathlib import Path
 
-from .behavioral import evaluate_behavior
+from .corpus_source import SOURCE_DIR, validate_sources
 from .dataset import prepare_corpus, prepare_fixtures, validate_dataset
-from .evals import evaluate_fixed_suite
 from .manifest import checkpoint_manifest, export_manifest
 from .paths import Paths
-from .preference import prepare_preferences, train_dpo
 from .settings import train_settings
 
 
@@ -16,7 +14,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(prog="lkjai-train")
     parser.add_argument("--data-dir", default=os.environ.get("DATA_DIR", "/app/data"))
     sub = parser.add_subparsers(dest="command", required=True)
-    for command in ["prepare-fixtures", "prepare-corpus", "train-tokenizer", "prepare-preferences", "export-manifest", "smoke", "train"]:
+    for command in ["validate-sources", "prepare-fixtures", "prepare-corpus", "train-tokenizer", "prepare-preferences", "export-manifest", "smoke", "train"]:
         sub.add_parser(command)
     validate = sub.add_parser("validate-dataset")
     validate.add_argument("--path", default="")
@@ -35,6 +33,9 @@ def main() -> None:
 def dispatch(args, paths: Paths):
     if args.command == "prepare-fixtures":
         return prepare_fixtures(paths)
+    if args.command == "validate-sources":
+        validate_sources()
+        return SOURCE_DIR
     if args.command == "prepare-corpus":
         return prepare_corpus(paths, train_settings(env_preset()).corpus_size)
     if args.command == "train-tokenizer":
@@ -44,12 +45,20 @@ def dispatch(args, paths: Paths):
     if args.command == "train-scratch":
         return run_training(paths, train_settings(args.preset))
     if args.command == "fixed-eval":
+        from .evals import evaluate_fixed_suite
+
         return evaluate_fixed_suite(paths, args.threshold)
     if args.command == "behavioral-eval":
+        from .behavioral import evaluate_behavior
+
         return evaluate_behavior(paths, train_settings(env_preset()), args.threshold or train_settings(env_preset()).fixed_eval_threshold)
     if args.command == "prepare-preferences":
+        from .preference import prepare_preferences
+
         return prepare_preferences(paths)
     if args.command == "train-dpo":
+        from .preference import train_dpo
+
         return train_dpo(paths, train_settings(args.preset))
     if args.command == "export-manifest":
         return export_manifest(paths, train_settings(env_preset()))
@@ -74,6 +83,8 @@ def run_tokenizer(paths: Paths, settings):
 
 
 def smoke(paths: Paths):
+    from .evals import evaluate_fixed_suite
+
     settings = train_settings("quick")
     prepare_fixtures(paths)
     run_tokenizer(paths, settings)
@@ -84,7 +95,11 @@ def smoke(paths: Paths):
 
 
 def train_pipeline(paths: Paths):
+    from .behavioral import evaluate_behavior
+    from .evals import evaluate_fixed_suite
+
     settings = train_settings(env_preset())
+    validate_sources()
     prepare_fixtures(paths)
     dataset_path = prepare_corpus(paths, settings.corpus_size)
     run_tokenizer(paths, settings)
@@ -116,3 +131,7 @@ def env_preset() -> str:
 
 def pass_rate(path: Path) -> float:
     return float(json.loads(path.read_text(encoding="utf-8")).get("pass_rate", 0.0))
+
+
+if __name__ == "__main__":
+    main()

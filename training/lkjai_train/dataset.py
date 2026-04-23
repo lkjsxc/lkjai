@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 from .corpus import generate_corpus, source_metadata, split_rows
+from .corpus_source import validate_sources
 from .rows import direct_row, meta, signature, tool_only_row
 
 
@@ -55,6 +56,7 @@ def prepare_fixtures(paths) -> Path:
 
 
 def prepare_corpus(paths, size: int = 12000, seed: int = 42) -> Path:
+    validate_sources()
     paths.ensure()
     rows = generate_corpus(size, seed)
     split = split_rows(rows)

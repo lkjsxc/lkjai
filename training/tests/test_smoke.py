@@ -4,6 +4,7 @@ import pytest
 
 from lkjai_train.cli import dispatch, train_settings
 from lkjai_train.corpus import generate_corpus
+from lkjai_train.corpus_source import load_entries, tagged_contents, validate_sources
 from lkjai_train.dataset import prepare_fixtures, validate_dataset
 from lkjai_train.formatting import prompt_text
 from lkjai_train.generation import agent_context_messages, first_json_object, latest_user_event, normalize_action, normalize_messages
@@ -54,6 +55,12 @@ def test_quick_settings_are_tiny():
     assert settings.sequence_len == 64
     assert settings.hidden_size == 64
     assert settings.max_steps == 5
+
+
+def test_source_corpus_files_are_tagged_json_arrays():
+    validate_sources()
+    assert load_entries("general")
+    assert tagged_contents("kjxlkj", "search_term")
 
 
 def test_fixture_dataset_validates(tmp_path):

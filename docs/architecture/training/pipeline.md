@@ -9,6 +9,7 @@ and runtime contracts that production will use.
 
 - `docker compose --profile train up --build train`
 - `python -m lkjai_train.cli prepare-fixtures`
+- `python -m lkjai_train.cli validate-sources`
 - `python -m lkjai_train.cli prepare-corpus`
 - `python -m lkjai_train.cli train-tokenizer`
 - `python -m lkjai_train.cli validate-dataset`
