@@ -43,7 +43,8 @@ def prepare_corpus(paths, size: int = 200, seed: int = 42) -> Path:
     paths.ensure()
     path = paths.datasets / "corpus.jsonl"
     write_corpus(path, size, seed)
-    metadata = {"schema": "lkjai-agent-jsonl-v1", "rows": size}
+    rows = sum(1 for line in path.read_text(encoding="utf-8").splitlines() if line)
+    metadata = {"schema": "lkjai-agent-jsonl-v1", "rows": rows}
     paths.dataset_metadata.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     return path
 

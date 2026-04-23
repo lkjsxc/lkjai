@@ -1,6 +1,9 @@
 import json
+import os
 import random
 from pathlib import Path
+
+from .docs_data import docs_rows
 
 _TOOL_TRAJECTORIES = [
     (
@@ -117,6 +120,7 @@ _DIRECT_ANSWERS = [
     ("Explain Docker.", "Docker is a platform for developing, shipping, and running applications in containers."),
     ("What is the capital of France?", "The capital of France is Paris."),
     ("Define machine learning.", "Machine learning is a field of AI where systems learn patterns from data."),
+    ("What is lkjai?", "lkjai is a docs-first scratch-model agent research system."),
 ]
 
 
@@ -126,28 +130,45 @@ def generate_corpus(size: int = 200, seed: int = 42) -> list[dict]:
     trajectories = list(_TOOL_TRAJECTORIES)
     direct = list(_DIRECT_ANSWERS)
 
+    doc_limit = max(1, min(60, size // 4))
+    rows.extend(docs_rows(Path(os.environ.get("REPO_DOCS_DIR", "/workspace/docs")), doc_limit))
+    for user, answer in direct:
+        rows.append(direct_row(user, answer))
+    for user, tool, args, result, final_answer in trajectories:
+        rows.append(tool_row(user, tool, args, result, final_answer))
     while len(rows) < size:
         if rng.random() < 0.3 and direct:
             user, answer = rng.choice(direct)
-            rows.append({
-                "messages": [
-                    {"role": "user", "content": user},
-                    {"role": "assistant", "content": json.dumps({"kind": "final", "thought": "answer directly", "content": answer})},
-                ],
-                "tags": ["direct_answer"],
-            })
+            rows.append(direct_row(user, answer))
         else:
             user, tool, args, result, final_answer = rng.choice(trajectories)
-            rows.append({
-                "messages": [
-                    {"role": "user", "content": user},
-                    {"role": "assistant", "content": json.dumps({"kind": "tool_call", "thought": "use tool", "tool": tool, "args": args})},
-                    {"role": "tool", "name": tool, "content": result},
-                    {"role": "assistant", "content": json.dumps({"kind": "final", "thought": "done", "content": final_answer})},
-                ],
-                "tags": ["tool_trajectory", tool],
-            })
+            rows.append(tool_row(user, tool, args, result, final_answer))
     return rows
+
+
+def direct_row(user: str, answer: str) -> dict:
+    action = {"kind": "final", "thought": "answer directly", "content": answer}
+    return {
+        "messages": [
+            {"role": "user", "content": user},
+            {"role": "assistant", "content": json.dumps(action)},
+        ],
+        "tags": ["direct_answer"],
+    }
+
+
+def tool_row(user: str, tool: str, args: dict, result: str, final_answer: str) -> dict:
+    action = {"kind": "tool_call", "thought": "use tool", "tool": tool, "args": args}
+    final = {"kind": "final", "thought": "done", "content": final_answer}
+    return {
+        "messages": [
+            {"role": "user", "content": user},
+            {"role": "assistant", "content": json.dumps(action)},
+            {"role": "tool", "name": tool, "content": result},
+            {"role": "assistant", "content": json.dumps(final)},
+        ],
+        "tags": ["tool_trajectory", tool],
+    }
 
 
 def write_corpus(path: Path, size: int = 200, seed: int = 42) -> Path:

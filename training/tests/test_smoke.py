@@ -4,6 +4,8 @@ import pytest
 
 from lkjai_train.cli import dispatch, train_settings
 from lkjai_train.dataset import prepare_fixtures, validate_dataset
+from lkjai_train.formatting import prompt_text
+from lkjai_train.generation import first_json_object, normalize_action
 from lkjai_train.paths import Paths
 
 
@@ -55,3 +57,15 @@ def test_fixture_dataset_validates(tmp_path):
     paths = Paths(str(tmp_path))
     fixture = prepare_fixtures(paths)
     assert validate_dataset(fixture) == fixture
+
+
+def test_prompt_text_appends_assistant_header():
+    text = prompt_text([{"role": "user", "content": "hello"}])
+    assert text.startswith("<bos>")
+    assert text.endswith("<|assistant|>")
+
+
+def test_normalize_action_extracts_first_json_object():
+    text = 'noise {"kind":"final","content":"ok"} trailing'
+    assert json.loads(normalize_action(text))["content"] == "ok"
+    assert first_json_object(text) == '{"kind":"final","content":"ok"}'

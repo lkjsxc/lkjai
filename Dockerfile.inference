@@ -1,0 +1,16 @@
+FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
+
+WORKDIR /workspace
+
+RUN python -m pip install --no-cache-dir tokenizers==0.21.1
+
+COPY training ./training
+
+ENV PYTHONPATH=/workspace/training
+ENV MODEL_ROOT=/models
+ENV MODEL_NAME=lkjai-scratch-40m
+ENV INFERENCE_HOST=0.0.0.0
+ENV INFERENCE_PORT=8081
+
+EXPOSE 8081
+ENTRYPOINT ["python", "-m", "lkjai_train.inference_server"]

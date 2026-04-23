@@ -5,8 +5,7 @@ services:
     profiles: ["inference"]
     build:
       context: .
-      dockerfile: Dockerfile
-    command: ["/app/lkjai", "inference"]
+      dockerfile: Dockerfile.inference
     ports:
       - "127.0.0.1:${MODEL_PORT:-8081}:8081"
     environment:

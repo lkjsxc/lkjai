@@ -7,9 +7,11 @@ RUN python -m pip install --no-cache-dir \
     tokenizers==0.21.1
 
 COPY training ./training
+COPY docs ./docs
 
 ENV PYTHONPATH=/workspace/training
 ENV DATA_DIR=/app/data
+ENV REPO_DOCS_DIR=/workspace/docs
 
 ENTRYPOINT ["python", "-m", "lkjai_train.cli"]
 CMD ["train"]

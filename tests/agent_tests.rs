@@ -42,6 +42,26 @@ async fn agent_runs_tool_then_final() {
     std::fs::remove_dir_all(root).unwrap();
 }
 
+#[tokio::test]
+async fn model_unreachable_turn_is_persisted() {
+    let root = std::env::temp_dir().join(format!("lkjai-test-{}", uuid::Uuid::new_v4()));
+    let mut config = test_config(&root);
+    config.model_api_url = "http://127.0.0.1:9/v1/chat/completions".into();
+    let model = ModelClient::from_config(&config);
+    let agent = Agent::new(config, model);
+    let response = agent
+        .chat(ChatRequest {
+            message: "hello".into(),
+            run_id: Some("run-1".into()),
+            max_steps: Some(1),
+        })
+        .await;
+    assert_eq!(response.stop_reason, "model_error");
+    let loaded = agent.transcript("run-1").unwrap();
+    assert!(loaded.iter().any(|event| event.kind == "error"));
+    std::fs::remove_dir_all(root).unwrap();
+}
+
 fn test_config(root: &std::path::Path) -> Config {
     Config {
         host: "127.0.0.1".into(),

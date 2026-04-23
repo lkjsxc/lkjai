@@ -46,10 +46,12 @@ impl Agent {
                 None,
                 None,
             ));
+            self.persist(&run_id, &events);
             return response(run_id, "model unavailable".into(), events, "model_error");
         }
 
-        let mut prior = self.transcript(&run_id).unwrap_or_default();
+        let base_prior = self.transcript(&run_id).unwrap_or_default();
+        let mut prior = base_prior.clone();
         prior.extend(events.clone());
 
         let mut assistant = String::new();
@@ -82,6 +84,7 @@ impl Agent {
                 }
                 "tool_call" => {
                     let result = self.action_tool(action, &run_id, step, &mut events).await;
+                    prior = base_prior.clone();
                     prior.extend(events.clone());
                     if result.is_err() {
                         stop_reason = "tool_error".into();
