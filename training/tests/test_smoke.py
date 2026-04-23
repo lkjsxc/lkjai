@@ -3,6 +3,7 @@ import json
 import pytest
 
 from lkjai_train.cli import dispatch, train_settings
+from lkjai_train.action_index import ActionIndex
 from lkjai_train.corpus import generate_corpus
 from lkjai_train.dataset import prepare_fixtures, validate_dataset
 from lkjai_train.formatting import prompt_text
@@ -113,3 +114,22 @@ def test_prepare_preferences_writes_pairs(tmp_path):
     lines = [json.loads(line) for line in out.read_text(encoding="utf-8").splitlines()]
     assert lines
     assert {"messages", "chosen", "rejected", "source"}.issubset(lines[0])
+
+
+def test_action_index_finds_supervised_prompt(tmp_path):
+    paths = Paths(str(tmp_path / "train"))
+    paths.ensure()
+    paths.corpus.write_text(
+        json.dumps({
+            "messages": [
+                {"role": "user", "content": "Say hello."},
+                {"role": "assistant", "content": '{"kind":"final","content":"Hello!"}'},
+            ]
+        })
+        + "\n",
+        encoding="utf-8",
+    )
+    model_dir = tmp_path / "models" / "lkjai-scratch-60m"
+    model_dir.mkdir(parents=True)
+    index = ActionIndex.load(model_dir)
+    assert index.lookup([{"role": "user", "content": "Say hello."}]) == '{"kind":"final","content":"Hello!"}'

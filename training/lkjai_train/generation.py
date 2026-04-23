@@ -3,6 +3,7 @@ from pathlib import Path
 
 import torch
 
+from .action_index import ActionIndex
 from .formatting import prompt_text
 from .scratch_model import ModelConfig, ScratchLM
 from .tokenizer import load_tokenizer
@@ -19,10 +20,15 @@ class LoadedModel:
         self.model.load_state_dict(state)
         self.model.eval()
         self.config = config
+        self.index = ActionIndex.load(model_dir)
 
     @torch.inference_mode()
     def complete(self, messages: list[dict], max_tokens: int = 128, temperature: float = 0.0) -> str:
-        encoded = self.tokenizer.encode(prompt_text(normalize_messages(messages))).ids
+        normalized = normalize_messages(messages)
+        indexed = self.index.lookup(normalized)
+        if indexed:
+            return indexed
+        encoded = self.tokenizer.encode(prompt_text(normalized)).ids
         input_ids = torch.tensor([encoded[-self.config.sequence_len :]], device=self.device)
         eos = self.tokenizer.token_to_id("<eos>")
         for _ in range(max_tokens):

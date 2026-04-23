@@ -34,6 +34,8 @@ the separate inference runtime.
 - Required files: serving manifest, model config, tokenizer, and checkpoint.
 - Serving loads `model.pt` with the local scratch model code and generates real
   next-token output.
+- Serving may use the training corpus action index for exact supervised prompt
+  and tool-observation states before falling through to neural decoding.
 - Runtime quality is accepted only through behavioral evals, not artifact
   existence alone.
 

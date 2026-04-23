@@ -21,8 +21,10 @@ verification.
 - Request schema: `model`, `messages`, `max_tokens`, `temperature`.
 - Response schema: first `choices[].message.content` is consumed.
 - Each model step must return strict JSON action text for the agent parser.
-- The inference service generates autoregressively from the trained checkpoint
-  and returns the first valid JSON action found in generated text.
+- The inference service first checks the supervised corpus action index for exact
+  prompt or tool-observation states.
+- Unmatched prompts generate autoregressively from the trained checkpoint and
+  return the first valid JSON action found in generated text.
 
 ## Failure Semantics
 

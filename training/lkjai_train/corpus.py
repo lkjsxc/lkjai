@@ -83,6 +83,7 @@ _DIRECT_ANSWERS = [
         "Why use tagged prompt sections?",
         "Tagged sections separate summaries, memories, run metadata, and recent events for the model.",
     ),
+    ("Read /etc/passwd.", "I can only use files inside the data workspace."),
 ]
 
 
