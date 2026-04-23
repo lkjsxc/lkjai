@@ -9,6 +9,7 @@ class Paths:
         self.checkpoints = self.root / "checkpoints"
         self.exports = self.root / "exports"
         self.runs = self.root / "runs"
+        self.preferences = self.root / "preferences"
         self.fixtures = self.datasets / "fixtures.jsonl"
         self.corpus = self.datasets / "corpus.jsonl"
         self.dataset_metadata = self.datasets / "metadata.json"
@@ -20,5 +21,12 @@ class Paths:
         self.export_manifest = self.exports / "manifest.json"
 
     def ensure(self) -> None:
-        for path in [self.datasets, self.tokenizer, self.checkpoints, self.exports, self.runs]:
+        for path in [
+            self.datasets,
+            self.tokenizer,
+            self.checkpoints,
+            self.exports,
+            self.runs,
+            self.preferences,
+        ]:
             path.mkdir(parents=True, exist_ok=True)

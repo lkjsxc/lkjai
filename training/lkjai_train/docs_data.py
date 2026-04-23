@@ -1,5 +1,6 @@
-import json
 from pathlib import Path
+
+from .rows import final_row
 
 
 def docs_rows(root: Path, limit: int = 60) -> list[dict]:
@@ -14,27 +15,9 @@ def docs_rows(root: Path, limit: int = 60) -> list[dict]:
         snippet = compact(text)
         if not snippet:
             continue
-        rows.append(final_row(
-            f"What does {path.as_posix()} define?",
-            f"{title}: {snippet}",
-            ["docs_grounding", path.as_posix()],
-        ))
+        prompt = f"What does {path.as_posix()} define?"
+        rows.append(final_row(prompt, f"{title}: {snippet}", ["docs_grounding", path.as_posix()]))
     return rows
-
-
-def final_row(user: str, answer: str, tags: list[str]) -> dict:
-    action = {
-        "kind": "final",
-        "thought": "answer from project docs",
-        "content": answer,
-    }
-    return {
-        "messages": [
-            {"role": "user", "content": user},
-            {"role": "assistant", "content": json.dumps(action)},
-        ],
-        "tags": tags,
-    }
 
 
 def first_heading(text: str) -> str:

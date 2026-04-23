@@ -3,6 +3,7 @@ import json
 import pytest
 
 from lkjai_train.cli import dispatch, train_settings
+from lkjai_train.corpus import generate_corpus
 from lkjai_train.dataset import prepare_fixtures, validate_dataset
 from lkjai_train.formatting import prompt_text
 from lkjai_train.generation import (
@@ -67,7 +68,17 @@ def test_fixture_dataset_validates(tmp_path):
 def test_prompt_text_appends_assistant_header():
     text = prompt_text([{"role": "user", "content": "hello"}])
     assert text.startswith("<bos>")
-    assert text.endswith("<|assistant|>")
+    assert text.endswith('<message role="assistant">')
+    assert "<conversation>" in text
+
+
+def test_agent_corpus_default_has_required_mix():
+    rows = generate_corpus(4000)
+    assert len(rows) == 4000
+    tags = [tag for row in rows for tag in row.get("tags", [])]
+    assert tags.count("tool_trajectory") >= 1000
+    assert "kjxlkj" in tags
+    assert "public_instruction" in tags
 
 
 def test_normalize_action_extracts_first_json_object():
@@ -79,6 +90,11 @@ def test_normalize_action_extracts_first_json_object():
 def test_latest_user_event_extracts_agent_context():
     content = "run_id=1\nrecent_events:\nuser: What is 2+2?\nobservation: ignored"
     assert latest_user_event(content) == "What is 2+2?"
+
+
+def test_latest_user_event_extracts_tagged_context():
+    content = '<events><event kind="user">What is lkjai?</event></events>'
+    assert latest_user_event(content) == "What is lkjai?"
 
 
 def test_agent_context_messages_include_tool_observation():

@@ -4,6 +4,9 @@ import random
 from pathlib import Path
 
 from .docs_data import docs_rows
+from .kjxlkj_data import kjxlkj_rows
+from .public_data import PUBLIC_SOURCE_METADATA, public_rows
+from .rows import direct_row, tool_row
 
 _TOOL_TRAJECTORIES = [
     (
@@ -21,39 +24,25 @@ _TOOL_TRAJECTORIES = [
         "The README describes lkjai as a local agentic AI system.",
     ),
     (
-        "Show me the contents of src/main.rs.",
-        "fs.read",
-        {"path": "src/main.rs"},
-        'fn main() {\n    println!("hello");\n}',
-        "src/main.rs contains a simple Rust main function that prints hello.",
-    ),
-    (
-        "Create a file named notes.txt with 'buy milk'.",
+        "Create a file named notes.txt with buy milk.",
         "fs.write",
         {"path": "notes.txt", "content": "buy milk"},
         "wrote notes.txt",
-        "I created notes.txt with the content 'buy milk'.",
+        "I created notes.txt with the requested content.",
     ),
     (
         "Run pwd.",
         "shell.exec",
         {"command": "pwd"},
-        "/workspace",
-        "The current working directory is /workspace.",
-    ),
-    (
-        "Run ls -la.",
-        "shell.exec",
-        {"command": "ls -la"},
-        "total 12\ndrwxr-xr-x 3 user user 4096 Jan 01 00:00 .",
-        "The directory listing shows the expected files and folders.",
+        "/app/data/workspace",
+        "The command ran inside /app/data/workspace.",
     ),
     (
         "Fetch https://example.com.",
         "web.fetch",
         {"url": "https://example.com"},
         "<html><body>Example Domain</body></html>",
-        "The page at example.com contains a simple HTML body with 'Example Domain'.",
+        "The page at example.com contains Example Domain.",
     ),
     (
         "Remember that I prefer concise answers.",
@@ -63,115 +52,89 @@ _TOOL_TRAJECTORIES = [
         "Noted. I will keep my answers concise.",
     ),
     (
+        "Remember that my favorite editor is vim.",
+        "memory.write",
+        {"content": "User favorite editor is vim."},
+        "User favorite editor is vim.",
+        "Noted. I will remember that your favorite editor is vim.",
+    ),
+    (
         "What do you remember about my preferences?",
         "memory.search",
         {"query": "preferences"},
         "User prefers concise answers.",
         "I remember that you prefer concise answers.",
     ),
-    (
-        "Write a greeting to hello.txt.",
-        "fs.write",
-        {"path": "hello.txt", "content": "Hello, world!"},
-        "wrote hello.txt",
-        "I wrote 'Hello, world!' to hello.txt.",
-    ),
-    (
-        "List the src directory.",
-        "fs.list",
-        {"path": "src"},
-        "main.rs\nlib.rs",
-        "The src directory contains main.rs and lib.rs.",
-    ),
-    (
-        "Run echo hello.",
-        "shell.exec",
-        {"command": "echo hello"},
-        "hello",
-        "The command output is 'hello'.",
-    ),
-    (
-        "Fetch https://github.com.",
-        "web.fetch",
-        {"url": "https://github.com"},
-        "<html>GitHub</html>",
-        "GitHub's homepage loaded successfully.",
-    ),
-    (
-        "Remember my name is Alice.",
-        "memory.write",
-        {"content": "User name is Alice."},
-        "User name is Alice.",
-        "Got it, Alice.",
-    ),
-    (
-        "Search memory for Alice.",
-        "memory.search",
-        {"query": "Alice"},
-        "User name is Alice.",
-        "I found that your name is Alice.",
-    ),
 ]
 
 _DIRECT_ANSWERS = [
     ("What is 2+2?", "2+2 equals 4."),
     ("Say hello.", "Hello!"),
-    ("What is Rust?", "Rust is a systems programming language focused on safety and performance."),
-    ("Explain Docker.", "Docker is a platform for developing, shipping, and running applications in containers."),
-    ("What is the capital of France?", "The capital of France is Paris."),
-    ("Define machine learning.", "Machine learning is a field of AI where systems learn patterns from data."),
     ("What is lkjai?", "lkjai is a docs-first scratch-model agent research system."),
+    (
+        "Please summarize the project training pipeline.",
+        "The pipeline prepares corpus data, trains a tokenizer, trains the scratch model, exports artifacts, and runs fixed plus behavioral evals.",
+    ),
+    (
+        "Why use JSON actions?",
+        "JSON actions give the runtime typed fields it can validate before executing tools.",
+    ),
+    (
+        "Why use tagged prompt sections?",
+        "Tagged sections separate summaries, memories, run metadata, and recent events for the model.",
+    ),
 ]
 
 
-def generate_corpus(size: int = 200, seed: int = 42) -> list[dict]:
+def generate_corpus(size: int = 4000, seed: int = 42) -> list[dict]:
     rng = random.Random(seed)
+    targets = corpus_targets(size)
     rows = []
-    trajectories = list(_TOOL_TRAJECTORIES)
-    direct = list(_DIRECT_ANSWERS)
-
-    doc_limit = max(1, min(60, size // 4))
-    rows.extend(docs_rows(Path(os.environ.get("REPO_DOCS_DIR", "/workspace/docs")), doc_limit))
-    for user, answer in direct:
-        rows.append(direct_row(user, answer))
-    for user, tool, args, result, final_answer in trajectories:
-        rows.append(tool_row(user, tool, args, result, final_answer))
-    while len(rows) < size:
-        if rng.random() < 0.3 and direct:
-            user, answer = rng.choice(direct)
-            rows.append(direct_row(user, answer))
-        else:
-            user, tool, args, result, final_answer = rng.choice(trajectories)
-            rows.append(tool_row(user, tool, args, result, final_answer))
-    return rows
+    rows.extend(repeat_docs(targets["docs"]))
+    rows.extend(repeat_rows([direct_row(*item) for item in _DIRECT_ANSWERS], targets["direct"], rng))
+    tool_rows = [tool_row(*item) for item in _TOOL_TRAJECTORIES]
+    rows.extend(repeat_rows(tool_rows, targets["tools"], rng))
+    rows.extend(kjxlkj_rows(targets["kjxlkj"]))
+    rows.extend(public_rows(targets["public"]))
+    rng.shuffle(rows)
+    return rows[:size]
 
 
-def direct_row(user: str, answer: str) -> dict:
-    action = {"kind": "final", "thought": "answer directly", "content": answer}
-    return {
-        "messages": [
-            {"role": "user", "content": user},
-            {"role": "assistant", "content": json.dumps(action)},
-        ],
-        "tags": ["direct_answer"],
-    }
+def corpus_targets(size: int) -> dict[str, int]:
+    docs = int(size * 0.40)
+    tools = int(size * 0.25)
+    kjxlkj = int(size * 0.20)
+    public = int(size * 0.15)
+    direct = max(0, size - docs - tools - kjxlkj - public)
+    return {"docs": docs, "tools": tools, "kjxlkj": kjxlkj, "public": public, "direct": direct}
 
 
-def tool_row(user: str, tool: str, args: dict, result: str, final_answer: str) -> dict:
-    action = {"kind": "tool_call", "thought": "use tool", "tool": tool, "args": args}
-    final = {"kind": "final", "thought": "done", "content": final_answer}
-    return {
-        "messages": [
-            {"role": "user", "content": user},
-            {"role": "assistant", "content": json.dumps(action)},
-            {"role": "tool", "name": tool, "content": result},
-            {"role": "assistant", "content": json.dumps(final)},
-        ],
-        "tags": ["tool_trajectory", tool],
-    }
+def repeat_docs(limit: int) -> list[dict]:
+    root = Path(os.environ.get("REPO_DOCS_DIR", "/workspace/docs"))
+    base = docs_rows(root, 5000) or [direct_row("What is lkjai?", _DIRECT_ANSWERS[2][1])]
+    return repeat_rows(base, limit, random.Random(7))
 
 
-def write_corpus(path: Path, size: int = 200, seed: int = 42) -> Path:
+def repeat_rows(base: list[dict], limit: int, rng: random.Random) -> list[dict]:
+    if not base or limit <= 0:
+        return []
+    return [base[rng.randrange(len(base))] for _ in range(limit)]
+
+
+def source_metadata(size: int, rows: int) -> list[dict]:
+    targets = corpus_targets(size)
+    return [
+        {"name": "lkjai-docs", "license": "project-local", "rows": targets["docs"]},
+        {"name": "lkjai-tool-trajectories", "license": "project-local", "rows": targets["tools"]},
+        {"name": "kjxlkj-doc-trajectories", "license": "project-local", "rows": targets["kjxlkj"]},
+        {"name": "lkjai-direct-answers", "license": "project-local", "rows": targets["direct"]},
+        {**PUBLIC_SOURCE_METADATA[0], "rows": targets["public"]},
+        *PUBLIC_SOURCE_METADATA[1:],
+        {"name": "actual-written-rows", "license": "n/a", "rows": rows},
+    ]
+
+
+def write_corpus(path: Path, size: int = 4000, seed: int = 42) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     rows = generate_corpus(size, seed)
     with path.open("w", encoding="utf-8") as file:

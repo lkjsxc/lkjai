@@ -7,7 +7,7 @@ from .generation import LoadedModel
 
 
 class State:
-    model_name = os.environ.get("MODEL_NAME", "lkjai-scratch-40m")
+    model_name = os.environ.get("MODEL_NAME", "lkjai-scratch-60m")
     model_root = Path(os.environ.get("MODEL_ROOT", "/models"))
     loaded: LoadedModel | None = None
     error = ""

@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from .corpus import write_corpus
+from .corpus import source_metadata, write_corpus
 
 FIXTURES = [
     {
@@ -34,17 +34,27 @@ def prepare_fixtures(paths) -> Path:
     with paths.fixtures.open("w", encoding="utf-8") as file:
         for row in FIXTURES:
             file.write(json.dumps(row) + "\n")
-    metadata = {"schema": "lkjai-agent-jsonl-v1", "rows": len(FIXTURES)}
+    metadata = {
+        "schema": "lkjai-agent-jsonl-v1",
+        "rows": len(FIXTURES),
+        "target_rows": len(FIXTURES),
+        "sources": [{"name": "fixtures", "license": "project-local", "rows": len(FIXTURES)}],
+    }
     paths.dataset_metadata.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     return paths.fixtures
 
 
-def prepare_corpus(paths, size: int = 200, seed: int = 42) -> Path:
+def prepare_corpus(paths, size: int = 4000, seed: int = 42) -> Path:
     paths.ensure()
     path = paths.datasets / "corpus.jsonl"
     write_corpus(path, size, seed)
     rows = sum(1 for line in path.read_text(encoding="utf-8").splitlines() if line)
-    metadata = {"schema": "lkjai-agent-jsonl-v1", "rows": rows}
+    metadata = {
+        "schema": "lkjai-agent-jsonl-v1",
+        "rows": rows,
+        "target_rows": size,
+        "sources": source_metadata(size, rows),
+    }
     paths.dataset_metadata.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     return path
 

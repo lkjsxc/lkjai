@@ -59,6 +59,15 @@ def normalize_messages(messages: list[dict]) -> list[dict]:
 
 
 def agent_context_messages(content: str) -> list[dict]:
+    if "<events>" in content:
+        user = latest_tagged_event(content, "user")
+        observation = latest_tagged_event(content, "observation")
+        if user and observation:
+            return [
+                {"role": "user", "content": user},
+                {"role": "tool", "name": guessed_tool(user), "content": observation},
+            ]
+        return [{"role": "user", "content": user}] if user else []
     if "recent_events:" not in content:
         return []
     user = latest_user_event(content)
@@ -72,7 +81,22 @@ def agent_context_messages(content: str) -> list[dict]:
 
 
 def latest_user_event(content: str) -> str:
+    if "<events>" in content:
+        return latest_tagged_event(content, "user")
     return latest_event(content, "user: ")
+
+
+def latest_tagged_event(content: str, kind: str) -> str:
+    marker = f'<event kind="{kind}">'
+    end = "</event>"
+    index = content.rfind(marker)
+    if index < 0:
+        return ""
+    start = index + len(marker)
+    stop = content.find(end, start)
+    if stop < 0:
+        return ""
+    return unescape_xml(content[start:stop]).strip()
 
 
 def latest_event(content: str, prefix: str) -> str:
@@ -93,6 +117,10 @@ def guessed_tool(user: str) -> str:
     if "read" in lower:
         return "fs.read"
     return "tool"
+
+
+def unescape_xml(text: str) -> str:
+    return text.replace("&lt;", "<").replace("&amp;", "&")
 
 
 def normalize_action(text: str) -> str:

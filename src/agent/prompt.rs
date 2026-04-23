@@ -22,27 +22,34 @@ pub fn build(
         ModelMessage {
             role: "user".into(),
             content: format!(
-                "run_id={run_id}\nstep={step}\nsummary:\n{summary}\nmemories:\n{memories}\nrecent_events:\n{}",
-                compact_events(events)
+                "<run id=\"{run_id}\" step=\"{step}\">\n<summary>\n{summary}\n</summary>\n<memories>\n{memories}\n</memories>\n<events>\n{}\n</events>\n</run>",
+                event_tags(events)
             ),
         },
     ]
 }
 
-fn compact_events(events: &[Event]) -> String {
+fn event_tags(events: &[Event]) -> String {
     events
         .iter()
         .rev()
         .take(20)
         .rev()
-        .map(|event| format!("{}: {}", event.kind, event.content.replace('\n', "\\n")))
+        .map(|event| {
+            format!(
+                "<event kind=\"{}\">{}</event>",
+                event.kind,
+                event.content.replace('&', "&amp;").replace('<', "&lt;")
+            )
+        })
         .collect::<Vec<_>>()
         .join("\n")
 }
 
 fn system_prompt() -> String {
     [
-        "You are lkjai, a local agent. Return exactly one JSON object.",
+        "You are lkjai, a local agent. Read the tagged prompt sections.",
+        "Return exactly one JSON object and no prose outside it.",
         r#"Use {"kind":"final","thought":"...","content":"..."} to answer."#,
         r#"Use {"kind":"tool_call","thought":"...","tool":"fs.read","args":{"path":"..."}}."#,
         "Tools: shell.exec(command), web.fetch(url), fs.read(path), fs.write(path, content), fs.list(path), memory.search(query), memory.write(content).",
