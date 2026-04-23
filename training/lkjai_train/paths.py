@@ -5,16 +5,20 @@ class Paths:
     def __init__(self, data_dir: str = "/app/data") -> None:
         self.root = Path(data_dir)
         self.datasets = self.root / "datasets"
-        self.adapters = self.root / "adapters"
+        self.tokenizer = self.root / "tokenizer"
+        self.checkpoints = self.root / "checkpoints"
         self.exports = self.root / "exports"
         self.runs = self.root / "runs"
         self.fixtures = self.datasets / "fixtures.jsonl"
+        self.corpus = self.datasets / "corpus.jsonl"
         self.dataset_metadata = self.datasets / "metadata.json"
-        self.training_summary = self.adapters / "training-summary.json"
-        self.adapter_final = self.adapters / "final"
-        self.adapter_manifest = self.adapters / "manifest.json"
+        self.tokenizer_json = self.tokenizer / "tokenizer.json"
+        self.tokenizer_manifest = self.tokenizer / "manifest.json"
+        self.training_summary = self.checkpoints / "training-summary.json"
+        self.checkpoint_final = self.checkpoints / "final"
+        self.checkpoint_manifest = self.checkpoints / "manifest.json"
         self.export_manifest = self.exports / "manifest.json"
 
     def ensure(self) -> None:
-        for path in [self.datasets, self.adapters, self.exports, self.runs]:
+        for path in [self.datasets, self.tokenizer, self.checkpoints, self.exports, self.runs]:
             path.mkdir(parents=True, exist_ok=True)

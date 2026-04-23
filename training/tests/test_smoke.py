@@ -8,8 +8,10 @@ from lkjai_train.paths import Paths
 
 
 torch = None
+tokenizers = None
 try:
     import torch
+    import tokenizers
 except ImportError:
     pass
 
@@ -19,34 +21,34 @@ class Args:
 
 
 @pytest.mark.slow
-@pytest.mark.skipif(torch is None, reason="torch not installed")
-def test_smoke_pipeline(tmp_path):
+@pytest.mark.skipif(torch is None or tokenizers is None, reason="training deps not installed")
+def test_smoke_pipeline(tmp_path, monkeypatch):
+    monkeypatch.setenv("TRAIN_MAX_STEPS", "1")
     result = dispatch(Args(), Paths(str(tmp_path)))
     assert result.name == "fixed-eval.json"
     report = json.loads(result.read_text(encoding="utf-8"))
     assert report["pass_rate"] == 1.0
-    assert (tmp_path / "adapters" / "manifest.json").exists()
-    assert (tmp_path / "adapters" / "final").exists()
-
-
-def test_smoke_pipeline_without_training_deps(tmp_path):
-    """Validate that smoke fails gracefully when training deps are missing."""
-    if torch is not None:
-        pytest.skip("torch is installed")
-    with pytest.raises(RuntimeError):
-        dispatch(Args(), Paths(str(tmp_path)))
+    assert (tmp_path / "checkpoints" / "manifest.json").exists()
+    assert (tmp_path / "checkpoints" / "final" / "model.pt").exists()
 
 
 def test_agent_settings_defaults(monkeypatch):
-    monkeypatch.delenv("TRAIN_BASE_MODEL", raising=False)
+    monkeypatch.delenv("TRAIN_MODEL_PRESET", raising=False)
     monkeypatch.delenv("TRAIN_BATCH_SIZE", raising=False)
     settings = train_settings("agent")
-    assert settings.base_model == "Qwen/Qwen3-0.6B"
-    assert settings.sequence_len == 2048
-    assert settings.lora_rank == 16
-    assert settings.load_in_4bit is True
+    assert settings.model_preset == "scratch-40m"
+    assert settings.sequence_len == 1024
+    assert settings.hidden_size == 512
+    assert settings.kv_heads == 2
     assert settings.batch_size == 1
     assert settings.corpus_size == 200
+
+
+def test_quick_settings_are_tiny():
+    settings = train_settings("quick")
+    assert settings.sequence_len == 64
+    assert settings.hidden_size == 64
+    assert settings.max_steps == 5
 
 
 def test_fixture_dataset_validates(tmp_path):

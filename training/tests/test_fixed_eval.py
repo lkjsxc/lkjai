@@ -8,8 +8,10 @@ from lkjai_train.paths import Paths
 
 
 torch = None
+tokenizers = None
 try:
     import torch
+    import tokenizers
 except ImportError:
     pass
 
@@ -19,8 +21,9 @@ class SmokeArgs:
 
 
 @pytest.mark.slow
-@pytest.mark.skipif(torch is None, reason="torch not installed")
-def test_fixed_eval_report_schema(tmp_path):
+@pytest.mark.skipif(torch is None or tokenizers is None, reason="training deps not installed")
+def test_fixed_eval_report_schema(tmp_path, monkeypatch):
+    monkeypatch.setenv("TRAIN_MAX_STEPS", "1")
     paths = Paths(str(tmp_path))
     dispatch(SmokeArgs(), paths)
     report_path = evaluate_fixed_suite(paths, 0.8)

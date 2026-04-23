@@ -15,10 +15,7 @@ RUN python3 -m pip install --break-system-packages --no-cache-dir \
     torch --index-url https://download.pytorch.org/whl/cpu
 
 RUN python3 -m pip install --break-system-packages --no-cache-dir \
-    accelerate==1.6.0 \
-    bitsandbytes==0.45.5 \
-    peft==0.15.1 \
-    transformers==4.51.3
+    tokenizers==0.21.1
 
 COPY verify.sh /verify.sh
 RUN chmod +x /verify.sh
