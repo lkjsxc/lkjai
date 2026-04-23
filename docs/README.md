@@ -5,8 +5,11 @@ repository policy.
 
 ## System Goal
 
-- Run a **real** local LLM-backed agent loop on RTX 3070 via Docker Compose.
-- Run **real** adapter training with measurable artifacts.
+- Build a from-scratch small dense language model for RTX 3070 8GB research.
+- Run a local multi-turn agent loop with tools, memory, summaries, and strict
+  JSON actions.
+- Train tokenizer, corpus, model checkpoints, and agent-style supervision from
+  local project artifacts instead of pretrained base weights.
 - Keep this repository optimized for LLM-to-LLM maintenance.
 
 ## Global Rules
@@ -35,9 +38,9 @@ repository policy.
 
 1. [vision/purpose.md](vision/purpose.md)
 2. [repository/workflow.md](repository/workflow.md)
-3. [operations/compose.md](operations/compose.md)
-4. [architecture/runtime/inference.md](architecture/runtime/inference.md)
-5. [architecture/training/pipeline.md](architecture/training/pipeline.md)
-6. [operations/training/long-run.md](operations/training/long-run.md)
+3. [architecture/training/pipeline.md](architecture/training/pipeline.md)
+4. [architecture/model/config.md](architecture/model/config.md)
+5. [architecture/runtime/inference.md](architecture/runtime/inference.md)
+6. [operations/compose.md](operations/compose.md)
 7. [operations/quality.md](operations/quality.md)
 8. [product/api.md](product/api.md)

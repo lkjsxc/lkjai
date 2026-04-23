@@ -1,16 +1,16 @@
-# Model Serving Contract
+# Scratch Serving Contract
 
 ## Goal
 
-Define how model weights are loaded and how the runtime talks to the model
-server.
+Define how scratch model artifacts are loaded and how the web runtime talks to
+the separate inference runtime.
 
 ## Server
 
-- Default: llama.cpp OpenAI-compatible CUDA server.
-- Container image: `ghcr.io/ggml-org/llama.cpp:server-cuda`.
-- Load command: `-m /models/${MODEL_GGUF}`.
-- Bind: `0.0.0.0:8080` inside container.
+- Default: Rust OpenAI-compatible inference service.
+- Container image: built from this repository.
+- Load root: `/models/${MODEL_NAME}`.
+- Bind: `0.0.0.0:8081` inside container.
 - Host port: `127.0.0.1:${MODEL_PORT:-8081}`.
 
 ## Endpoint
@@ -23,21 +23,24 @@ server.
 ## Health
 
 - The web runtime probes `GET /v1/models` on startup and before chat turns.
-- If the model server is unreachable, the runtime reports `reachable: false` and
-  refuses to generate.
+- If the inference server is unreachable, the runtime reports
+  `reachable: false` and refuses to generate.
 
 ## Weights
 
-- GGUF file path inside container: `/models/${MODEL_GGUF}`.
+- Scratch model directory inside container: `/models/${MODEL_NAME}`.
 - Host mount: `./data/models:/models`.
-- Default artifact: `data/models/qwen3-1.7b-q4.gguf`.
+- Default artifact root: `data/models/lkjai-scratch-40m/`.
+- Required files: serving manifest, model config, tokenizer, and checkpoint.
+- Initial Rust inference may validate artifacts and return deterministic JSON
+  until real tensor decoding is implemented.
 
 ## Verification
 
 ```bash
-docker compose --profile model up -d model
+docker compose --profile inference up -d inference
 sleep 5
 curl -sf http://127.0.0.1:8081/v1/models | jq '.data[0].id'
 ```
 
-Expected: a model identifier string.
+Expected: `lkjai-scratch-40m` when the artifact directory is readable.

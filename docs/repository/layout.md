@@ -19,7 +19,7 @@
 ## Source Layout
 
 - `src/`: Rust web, model client, agent, memory, docs, and quality commands.
-- `training/`: Python tuning dataset, eval, manifest, and tests.
+- `training/`: Python tokenizer, scratch training, eval, manifest, and tests.
 - `docs/`: canonical documentation.
 - `data/`: local untracked runtime and training artifacts.
 

@@ -20,7 +20,9 @@
 
 - The v1 model is a small dense decoder-only model.
 - Prefer RMSNorm, RoPE, SwiGLU, pre-norm, and GQA-capable architectures.
-- Prefer pretrained open weights plus local post-training over brute-force
-  pretraining.
-- Quantized local serving is accepted when the model server can load and answer.
-- Custom model kernels are research, not the v1 production path.
+- The default model starts from random initialization.
+- Pretrained models are rejected alternatives or future comparison baselines,
+  never default serving or training dependencies.
+- Agent behavior is taught through local structured trajectories, not inherited
+  from an upstream chat model.
+- Rust inference is the default direction for serving scratch artifacts.

@@ -1,15 +1,16 @@
 # Research References
 
-Use this subtree for references that inform model, tuning, and serving decisions.
+Use this subtree for references that inform scratch model design, datasets, and
+future baselines.
 
 ## Read This Section When
 
-- You need model selection references.
-- You need tuning references.
-- You need quantized serving references.
+- You need inspiration from recent model families.
+- You need corpus references.
+- You need optional compression references.
 
 ## Child Index
 
-- [models.md](models.md): Qwen3 model references
-- [corpus.md](corpus.md): tuning data and fixture references
-- [lightweighting.md](lightweighting.md): GGUF and quantization references
+- [models.md](models.md): pretrained systems as inspiration or baselines
+- [corpus.md](corpus.md): scratch corpus and fixture references
+- [lightweighting.md](lightweighting.md): optional compression references

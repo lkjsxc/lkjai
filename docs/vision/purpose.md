@@ -5,9 +5,11 @@
 - Build a small local agentic AI system for RTX 3070 8GB.
 - Prioritize multi-turn behavior, tool calling, memory handling, and an explicit
   plan-act-observe-revise loop.
-- Serve a small dense decoder model through a local model server.
+- Train a small dense decoder-only language model from random initialization.
+- Serve scratch-model artifacts through a separate local inference runtime.
 - Use external memory and summaries instead of unrealistic native context.
-- Improve behavior through instruction tuning and tool trajectory tuning.
+- Improve behavior through tokenizer, corpus, language-model training, and
+  agent-style supervised trajectories.
 - Host the user-facing application with Rust and axum.
 
 ## Audience
@@ -18,7 +20,10 @@
 
 ## Non-Goals
 
-- Do not center v1 on from-scratch pretraining.
+- Do not use a pretrained base model as the default path.
+- Do not use QLoRA or LoRA adapters as the default path.
+- Do not use Qwen, Gemma, Kimi, DeepSeek, or other recent pretrained models as
+  runtime dependencies.
 - Do not preserve compatibility with older code or docs.
 - Do not add MoE in v1.
 - Do not add phase-1 multimodality.

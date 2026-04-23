@@ -1,11 +1,11 @@
 # Training Operations
 
-Use this subtree for agent tuning behavior, competency gating, and
-operator-facing acceptance flow.
+Use this subtree for scratch tokenizer/model training behavior, competency
+gating, and operator-facing acceptance flow.
 
 ## Read This Section When
 
-- You need to run the agent tuning Compose profile.
+- You need to run the scratch training Compose profile.
 - You need fixed-eval competency criteria and artifact schema.
 - You need start/continue/stop rules for long GPU runs.
 

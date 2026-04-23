@@ -42,9 +42,10 @@ Every generated corpus must include examples for:
 - `memory.search`
 - `memory.write`
 
-## Chat Template
+## Scratch Tokenization
 
-- The tokenizer applies the model's chat template during training.
+- Train a byte-level BPE tokenizer from local corpus text.
+- Do not use a pretrained tokenizer as the default.
 - Do not pre-format messages as strings in the dataset.
 - Keep the dataset as structured `messages` arrays.
 

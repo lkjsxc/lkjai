@@ -4,42 +4,43 @@
 
 Recover from common setup and runtime failures.
 
-## Model Server Not Reachable
+## Inference Not Reachable
 
 Symptom: `GET /api/model` shows `reachable: false`.
 
 Check:
 ```bash
-docker compose --profile model ps
-docker logs <model-container-name>
+docker compose --profile inference ps
+docker logs <inference-container-name>
 curl -v http://127.0.0.1:8081/v1/models
 ```
 
 Fix:
-- Ensure `data/models/${MODEL_GGUF}` exists.
-- Ensure NVIDIA container runtime is installed.
-- Run `docker compose --profile model up -d model`.
+- Ensure `MODEL_NAME=lkjai-scratch-40m` unless testing another artifact.
+- Ensure `data/models/${MODEL_NAME}` exists or run training/export first.
+- Run `docker compose --profile inference up --build inference`.
 
-## Web Runtime Cannot Reach Model
+## Web Runtime Cannot Reach Inference
 
 Symptom: Chat returns `model_error` events.
 
 Check:
-- `MODEL_API_URL` in the web container matches the model container address.
-- Inside the web container: `curl http://model:8080/v1/models`.
+- `MODEL_API_URL` in the web container matches the inference container address.
+- Inside the web container: `curl http://inference:8081/v1/models`.
 
 Fix:
 - If using host networking, use host IP.
-- If using Docker Compose default network, use `http://model:8080/v1/chat/completions`.
+- If using Docker Compose, use
+  `http://inference:8081/v1/chat/completions`.
 
 ## Training Finishes Instantly
 
-Symptom: No GPU activity, adapter directory only contains JSON markers.
+Symptom: checkpoint artifacts exist but metrics are missing or empty.
 
 Check:
-- `TRAIN_PRESET` is not `quick` for real runs.
-- Dataset row count: `wc -l data/train/datasets/fixtures.jsonl`.
-- Training logs for `trainer.train()` output.
+- `TRAIN_PRESET` is not accidentally set to a tiny custom run.
+- Dataset row count: `wc -l data/train/datasets/corpus.jsonl`.
+- Training logs for loss output.
 
 Fix:
 - Use `TRAIN_PRESET=agent`.
@@ -48,23 +49,25 @@ Fix:
 
 ## Verify Profile Fails
 
-Symptom: `docker compose --profile verify run --rm verify` exits non-zero.
+Symptom: `docker compose --profile verify up --build --abort-on-container-exit verify`
+exits non-zero.
 
 Check:
 - Rust formatting: `cargo fmt -- --check`.
 - Rust tests: `cargo test`.
-- Python tests: `python3 -m pytest training/tests`.
+- Python tests: `python3 -m pytest -m "not slow" training/tests`.
 - Line limits: `cargo run --bin lkjai -- quality check-lines`.
 - Docs topology: `cargo run --bin lkjai -- docs validate-topology`.
 
 Fix each failing gate before retrying.
 
-## Out of Memory During Training
+## Out Of Memory During Training
 
 Symptom: CUDA OOM or container killed.
 
 Fix:
 - Reduce `TRAIN_SEQUENCE_LEN`.
-- Reduce `TRAIN_LORA_RANK`.
+- Reduce `TRAIN_HIDDEN_SIZE`.
+- Reduce `TRAIN_LAYERS`.
 - Increase `TRAIN_GRADIENT_ACCUMULATION` and reduce batch size.
-- Ensure `TRAIN_LOAD_IN_4BIT=1`.
+- Use `TRAIN_PRESET=quick` to verify the pipeline before a long run.

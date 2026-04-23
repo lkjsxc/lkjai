@@ -1,15 +1,29 @@
 # Rejected Alternatives
 
-## From-Scratch Pretraining First
+## Pretrained Default Runtime
 
 - Rejected for v1.
-- RTX 3070 8GB cannot realistically produce strong agent behavior this way.
-- The project needs tool use, memory, and multi-turn planning sooner.
+- Qwen, Gemma, Kimi, DeepSeek, and similar systems are not default runtime
+  dependencies.
+- They may be future comparison baselines or sources of design lessons.
+
+## QLoRA First
+
+- Rejected for v1.
+- Adapter training moves the research center back to pretrained behavior.
+- This project intentionally studies weak local scratch models plus agent
+  scaffolding.
+
+## Pretrained Tokenizer
+
+- Rejected for the default path.
+- The tokenizer is part of the from-scratch artifact chain.
+- Future baselines may compare against pretrained tokenizers explicitly.
 
 ## MoE
 
 - Rejected for v1.
-- Dense 0.6B-1.7B models are simpler to tune and serve locally.
+- Dense small models are simpler to train and inspect locally.
 - MoE increases implementation and routing complexity without solving v1 needs.
 
 ## Huge Native Context
@@ -23,8 +37,8 @@
 - Rejected for v1.
 - It dilutes the core agent loop, tool use, and memory work.
 
-## Custom Production Model Runtime
+## Python Default Serving
 
 - Rejected for v1.
-- llama.cpp provides a more realistic local serving path.
-- Rust should focus on orchestration, not model kernel parity.
+- Training can remain Python, but default serving direction is Rust.
+- The web app and inference runtime must remain separate containers.

@@ -2,19 +2,19 @@
 
 ## Required
 
-- Serve quantized GGUF models through the model server.
-- Default serving quantization is `Q4_K_M`.
-- Store model manifests beside downloaded or converted models.
-- Verification may use a fake model client instead of downloading large weights.
+- Keep the default scratch preset small enough for RTX 3070 8GB.
+- Store model manifests beside scratch checkpoints.
+- Prefer architecture and batch-size reductions before quantization.
+- Verification may use deterministic tiny scratch artifacts.
 
 ## Optional Hooks
 
-- Add `Q5_K_M` when answer quality matters more than VRAM headroom.
-- Add merged-LoRA GGUF export after QLoRA tuning is stable.
-- Add int8 or fp16 only when the target GPU has enough memory.
+- Add int8 or lower-precision inference after real Rust decoding exists.
+- Add GGUF export only as an optional compatibility experiment.
+- Add distillation only after teacher, dataset, and license policy are written.
 
 ## Rejected For V1
 
 - A hard 512 MiB production artifact target.
 - Extreme quantization before behavioral evals are meaningful.
-- Distillation before the teacher, dataset, and license path are documented.
+- Pretrained quantized serving models as the default runtime.

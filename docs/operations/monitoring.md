@@ -6,14 +6,12 @@ Observe runtime health without adding heavy telemetry dependencies.
 
 ## Contract
 
-- The web runtime must verify the model server is reachable before claiming it is
+- The web runtime must verify inference is reachable before claiming a model is
   loaded.
-- The model server health probe must use the OpenAI-compatible models endpoint or
-  a lightweight server-specific health endpoint.
-- Health failures must be exposed to operators through `GET /api/model` and the
-  web UI.
-- The runtime must never silently fall back to canned or fake responses when the
-  model server is unreachable.
+- The inference health probe must use the OpenAI-compatible models endpoint.
+- Health failures must be exposed through `GET /api/model` and the web UI.
+- The runtime must never silently fall back to canned or fake responses when
+  inference is unreachable.
 
 ## Health Probe
 
@@ -29,7 +27,7 @@ GET ${MODEL_API_URL%/v1/chat/completions}/models
 
 ```json
 {
-  "model": "qwen3-1.7b-q4",
+  "model": "lkjai-scratch-40m",
   "api_url": "http://127.0.0.1:8081/v1/chat/completions",
   "loaded": true,
   "reachable": true,
@@ -53,4 +51,4 @@ GET ${MODEL_API_URL%/v1/chat/completions}/models
 curl -sf http://127.0.0.1:8080/api/model | jq .
 ```
 
-Expected: `reachable` matches the actual model server state.
+Expected: `reachable` matches the actual inference server state.

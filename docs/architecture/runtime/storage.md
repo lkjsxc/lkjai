@@ -7,10 +7,11 @@
 
 ## Directories
 
-- `models/`: GGUF models and model manifests.
-- `train/datasets/`: instruction and trajectory tuning datasets.
-- `train/adapters/`: LoRA and QLoRA adapters.
-- `train/exports/`: merged and quantized tuning outputs.
+- `models/`: scratch serving artifacts and model manifests.
+- `train/datasets/`: instruction and trajectory training datasets.
+- `train/tokenizer/`: locally trained tokenizer artifacts.
+- `train/checkpoints/`: scratch model checkpoints.
+- `train/exports/`: serving manifests copied from training outputs.
 - `train/runs/`: training and eval logs.
 - `agent/runs/`: chat and tool transcripts.
 - `agent/memory.sqlite3`: durable memory and summaries.

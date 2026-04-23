@@ -1,4 +1,4 @@
-# Decoder Architecture
+# Scratch Decoder Architecture
 
 ## Accepted Traits
 
@@ -8,11 +8,14 @@
 - Grouped-query attention is preferred.
 - Feed-forward layers use SwiGLU or a close gated MLP variant.
 - Norm layers use RMSNorm.
-- Tied embeddings are acceptable when the upstream model uses them.
+- Tied embeddings are the default.
+- Weights are initialized locally; no pretrained tensors are loaded.
 
 ## RTX 3070 Constraint
 
-- The default model must serve interactively on 8GB VRAM when quantized.
+- The default training preset targets 25-60M parameters.
+- The default model must fit RTX 3070 8GB training experiments with gradient
+  accumulation.
 - Native context is capped operationally even if the model advertises more.
 - Agent memory uses retrieval and summaries.
 
@@ -20,5 +23,6 @@
 
 - MoE is rejected for v1.
 - Phase-1 multimodality is rejected.
-- Custom Rust kernels for Qwen are rejected for v1 production serving.
-- From-scratch pretraining remains research only.
+- Pretrained serving models are rejected as defaults.
+- QLoRA and LoRA adapters are rejected as defaults.
+- Recent pretrained systems may inspire architecture choices only.

@@ -1,26 +1,22 @@
-# Model Research
+# Model References
 
-## Qwen3 1.7B
+## Policy
 
-- Default serving model family.
-- Dense causal decoder with Qwen3 agent/tool-use suitability.
-- Apache-2.0 license.
-- Source: <https://huggingface.co/Qwen/Qwen3-1.7B>
+- These models are not default runtime dependencies.
+- Use them only for design inspiration or future comparison baselines.
+- Do not load their pretrained weights in the main training path.
 
-## Qwen3 0.6B
+## Qwen
 
-- Default local tuning model family.
-- Small enough for RTX 3070 QLoRA experimentation.
-- Apache-2.0 license.
-- Source: <https://huggingface.co/Qwen/Qwen3-0.6B>
+- Useful inspiration: compact dense decoder variants, chat/tool conventions, and
+  local deployment ergonomics.
 
-## Architecture Traits
+## Kimi And DeepSeek
 
-- Dense decoder-only architecture.
-- RoPE position encoding.
-- Grouped-query attention.
-- RMSNorm and gated MLP family.
+- Useful inspiration: agentic evaluation, long-context tradeoffs, and structured
+  tool-use pressure.
 
-## Boundary
+## Gemma
 
-- Larger models may be served remotely, but v1 local defaults must fit RTX 3070.
+- Useful inspiration: small-model training discipline, tokenizer/model release
+  documentation, and evaluation reporting.

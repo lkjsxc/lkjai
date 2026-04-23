@@ -6,29 +6,28 @@
 - Default bind is `127.0.0.1`.
 - Host-YOLO makes public deployment unsafe.
 
-## Start Model + Web
+## Start Inference + Web
 
 ```bash
 cp .env.example .env
-docker compose --profile model up -d model
+mkdir -p data/models/lkjai-scratch-40m data/train data/agent
+docker compose --profile inference up --build inference
 docker compose --profile web up --build web
 ```
 
-## Bootstrap Model Artifact
+## Bootstrap Scratch Artifact
 
-```bash
-mkdir -p data/models
-curl -fL \
-  "https://huggingface.co/lmstudio-community/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q4_K_M.gguf" \
-  -o data/models/qwen3-1.7b-q4.gguf
-```
+- The default artifact root is `data/models/lkjai-scratch-40m/`.
+- Training export copies or writes serving manifests into that directory.
+- Compose web uses `MODEL_API_URL=http://inference:8081/v1/chat/completions`.
+- Host checks inference on `http://127.0.0.1:8081/v1/models`.
+- Chat reports explicit model errors instead of dummy web-runtime responses.
 
-- Keep `MODEL_GGUF=qwen3-1.7b-q4.gguf` in `.env`.
-- Compose model service reads `/models/${MODEL_GGUF}`.
-- With defaults this resolves to `/models/qwen3-1.7b-q4.gguf`.
-- Compose web uses `MODEL_API_URL=http://model:8080/v1/chat/completions`.
-- Host checks the model endpoint on `http://127.0.0.1:8081/v1/models`.
-- Chat reports explicit model errors instead of dummy assistant responses.
+## Rejected Bootstrap
+
+- Do not download Qwen, Gemma, Kimi, DeepSeek, or any other pretrained model as
+  the default runtime artifact.
+- Do not bootstrap default serving from a GGUF pretrained model.
 
 ## Risk
 

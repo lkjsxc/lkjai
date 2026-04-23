@@ -2,7 +2,7 @@
 
 ## Goal
 
-Produce a valid, sizable dataset for agent behavior tuning.
+Produce a valid, sizable dataset for scratch LM and agent behavior training.
 
 ## Contract
 
@@ -22,11 +22,11 @@ Produce a valid, sizable dataset for agent behavior tuning.
 - Trajectories cover every tool: `shell.exec`, `web.fetch`, `fs.read`,
   `fs.write`, `fs.list`, `memory.search`, `memory.write`.
 
-## Chat Template
+## Scratch Formatting
 
-- Tokenization must use `tokenizer.apply_chat_template(messages, tokenize=False)`
-  instead of naive string concatenation.
-- This ensures the base model's expected formatting is preserved.
+- Dataset rows stay as structured messages.
+- Tokenization uses the project scratch chat serializer.
+- No upstream pretrained tokenizer template is allowed in the default path.
 
 ## Validation
 

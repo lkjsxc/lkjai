@@ -2,62 +2,50 @@
 
 ## Profiles
 
-- `model`: llama.cpp CUDA model server.
+- `inference`: Rust OpenAI-compatible scratch inference service.
 - `web`: Rust axum agent orchestrator.
-- `train`: CUDA training container (Transformers + PEFT + bitsandbytes).
+- `train`: PyTorch scratch training container.
 - `verify`: repository verification container.
 
 ## Data Mount
 
-- All profiles mount `./data:/app/data`.
-- Model serving mounts `./data/models` to `/models` when profile `model` is
-  enabled.
-- Model serving loads `/models/${MODEL_GGUF}`.
-- Training writes datasets, adapter checkpoints, exports, and logs under
+- All runtime profiles mount `./data:/app/data`.
+- Inference mounts `./data/models` to `/models`.
+- Inference loads `/models/${MODEL_NAME}`.
+- Training writes datasets, tokenizer, checkpoints, exports, and logs under
   `/app/data/train`.
 - Web writes transcripts and memory under `/app/data/agent`.
 
 ## GPU
 
-- `model` requests NVIDIA GPU access.
-- `train` requests NVIDIA GPU access for QLoRA runs.
+- `train` requests NVIDIA GPU access for scratch training.
+- `inference` starts as a Rust artifact-loading service; real GPU decode is
+  future work.
 - `web` does not load model weights and does not require CUDA.
-
-## Healthcheck
-
-- The `model` service includes a Docker healthcheck using `curl -f
-  http://localhost:8080/health` or `/v1/models`.
-- The `web` service may optionally wait for `model` to be healthy.
 
 ## Commands
 
 ```bash
-mkdir -p data/models
-curl -fL \
-  "https://huggingface.co/lmstudio-community/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q4_K_M.gguf" \
-  -o data/models/qwen3-1.7b-q4.gguf
-```
-
-```bash
-docker compose --profile model up -d model
+cp .env.example .env
+mkdir -p data/models/lkjai-scratch-40m data/train data/agent
+docker compose --profile inference up --build inference
 docker compose --profile web up --build web
 docker compose --profile train up --build train
-docker compose --profile verify build verify
-docker compose --profile verify run --rm verify
+docker compose --profile verify up --build --abort-on-container-exit verify
 ```
 
 ## Training Defaults
 
 - The `train` service defaults to `TRAIN_PRESET=agent`.
-- `TRAIN_PRESET=quick` runs real training with reduced steps for fast checks.
+- `TRAIN_PRESET=quick` runs tiny scratch training with reduced steps.
 - `TRAIN_FIXED_EVAL_THRESHOLD` defaults to `0.80`.
 - `TRAIN_ENFORCE_COMPETENCY` defaults to disabled unless explicitly enabled.
 - Training writes to `TRAIN_DATA_DIR`, default `/app/data/train`.
 
 ## Presets
 
-- `quick`: real training with small step count for CI smoke.
-- `agent`: QLoRA-oriented tuning defaults for RTX 3070 8GB.
+- `quick`: tiny scratch run for local smoke.
+- `agent`: `scratch-40m` defaults for RTX 3070 8GB research.
 - `custom`: all behavior controlled by explicit `TRAIN_*` environment values.
 
 ## Long-Run Contract Links

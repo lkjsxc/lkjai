@@ -16,7 +16,7 @@
 ## Acceptance Rule
 
 1. If `pass_rate >= threshold`, the run is competency-accepted.
-2. If `pass_rate < threshold`, improve data, training config, or model choice and rerun.
+2. If `pass_rate < threshold`, improve data, training config, or model scale and rerun.
 3. Keep artifact history in `data/train/runs/` for audit and comparison.
 
 ## Enforcement

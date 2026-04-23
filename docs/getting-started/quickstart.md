@@ -2,46 +2,37 @@
 
 ## Goal
 
-Bring up a local, real-LLM runtime and execute a real training run with Docker
+Bring up the local agent runtime and run the scratch training path with Docker
 Compose.
 
 ## Prerequisites
 
 - Docker Engine + Compose v2.
-- NVIDIA driver + NVIDIA container runtime.
+- NVIDIA driver + NVIDIA container runtime for training runs.
 - RTX 3070 8GB target machine.
-- Free disk for model weights and training artifacts under `data/`.
+- Free disk for model, tokenizer, checkpoint, memory, and transcript artifacts
+  under `data/`.
 
 ## Prepare Workspace
 
 ```bash
 cp .env.example .env
-mkdir -p data/models data/train data/agent
+mkdir -p data/models/lkjai-scratch-40m data/train data/agent
 ```
 
-## Bootstrap a GGUF Model
+## Run Inference Service
 
 ```bash
-curl -fL \
-  "https://huggingface.co/lmstudio-community/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q4_K_M.gguf" \
-  -o data/models/qwen3-1.7b-q4.gguf
-ls -lh data/models/qwen3-1.7b-q4.gguf
+docker compose --profile inference up --build inference
 ```
 
-- Keep `MODEL_GGUF=qwen3-1.7b-q4.gguf` in `.env`.
-- Host path: `./data/models/qwen3-1.7b-q4.gguf`.
-- Container path used by model service: `/models/qwen3-1.7b-q4.gguf`.
-
-## Run Model Service
-
-```bash
-docker compose --profile model up -d model
-```
-
-Model API endpoint (default):
+Inference API endpoint:
 
 - `http://127.0.0.1:8081/v1/chat/completions`
 - `curl --fail http://127.0.0.1:8081/v1/models`
+
+The first inference implementation validates scratch artifact paths and returns
+deterministic JSON actions until real tensor decoding is implemented.
 
 ## Run Web Runtime
 
@@ -49,17 +40,17 @@ Model API endpoint (default):
 docker compose --profile web up --build web
 ```
 
-Web app endpoint (default):
+Web app endpoint:
 
 - `http://127.0.0.1:8080`
 
-## Run Real Training
+## Run Scratch Training
 
 ```bash
 docker compose --profile train up --build train
 ```
 
-For a quick smoke check with real but short training:
+For a quick smoke check:
 
 ```bash
 TRAIN_PRESET=quick docker compose --profile train up --build train
@@ -67,9 +58,10 @@ TRAIN_PRESET=quick docker compose --profile train up --build train
 
 Expected training artifacts:
 
-- `data/train/adapters/final/`: real adapter weights.
+- `data/train/tokenizer/`: local byte-level BPE tokenizer.
+- `data/train/checkpoints/final/`: scratch model weights and config.
 - `data/train/runs/fixed-eval.json`: evaluation report.
-- `data/train/exports/manifest.json`: export metadata.
+- `data/train/exports/manifest.json`: serving metadata.
 
 ## Inspect Runtime Outputs
 
@@ -84,6 +76,5 @@ See [troubleshooting.md](troubleshooting.md) for common failures.
 ## Required Verification Before Commit
 
 ```bash
-docker compose --profile verify build verify
-docker compose --profile verify run --rm verify
+docker compose --profile verify up --build --abort-on-container-exit verify
 ```

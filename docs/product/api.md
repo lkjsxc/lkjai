@@ -33,7 +33,7 @@
 
 ```json
 {
-  "model": "qwen3-1.7b-q4",
+  "model": "lkjai-scratch-40m",
   "api_url": "http://127.0.0.1:8081/v1/chat/completions",
   "loaded": true,
   "reachable": true,

@@ -3,11 +3,11 @@
 ## Required Behavior
 
 - Training uses CUDA when `torch.cuda.is_available()` is true.
-- Training stack uses Transformers + PEFT + bitsandbytes for QLoRA.
+- Training stack uses local PyTorch scratch-model code.
 - Mixed precision is enabled by default on CUDA.
 - Gradient accumulation is used to fit 8 GiB VRAM.
 - Activation checkpointing is supported by config.
-- QLoRA 4-bit loading is the default agent tuning path.
+- No pretrained base model or 4-bit adapter loading is used by default.
 
 ## Optional Acceleration
 
@@ -18,4 +18,4 @@
 ## Fallback
 
 - CPU smoke runs may exist for verification.
-- Full QLoRA tuning is not expected to be practical on CPU.
+- Full scratch training is expected to prefer CUDA.
