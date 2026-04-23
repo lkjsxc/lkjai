@@ -13,6 +13,7 @@ from lkjai_train.generation import (
     normalize_action,
 )
 from lkjai_train.paths import Paths
+from lkjai_train.preference import prepare_preferences
 
 
 torch = None
@@ -45,8 +46,9 @@ def test_agent_settings_defaults(monkeypatch):
     monkeypatch.delenv("TRAIN_BATCH_SIZE", raising=False)
     settings = train_settings("agent")
     assert settings.model_preset == "scratch-60m"
-    assert settings.sequence_len == 1024
-    assert settings.hidden_size == 512
+    assert settings.sequence_len == 768
+    assert settings.hidden_size == 640
+    assert settings.layers == 12
     assert settings.kv_heads == 2
     assert settings.batch_size == 1
     assert settings.corpus_size == 4000
@@ -102,3 +104,11 @@ def test_agent_context_messages_include_tool_observation():
     messages = agent_context_messages(content)
     assert messages[-1]["role"] == "tool"
     assert messages[-1]["content"] == "README.md"
+
+
+def test_prepare_preferences_writes_pairs(tmp_path):
+    paths = Paths(str(tmp_path))
+    out = prepare_preferences(paths)
+    lines = [json.loads(line) for line in out.read_text(encoding="utf-8").splitlines()]
+    assert lines
+    assert {"messages", "chosen", "rejected", "source"}.issubset(lines[0])

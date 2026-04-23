@@ -29,14 +29,16 @@ def export_manifest(paths, settings) -> Path:
     model_dir = paths.root.parent / "models" / settings.model_name
     model_dir.mkdir(parents=True, exist_ok=True)
     copy_if_exists(paths.tokenizer_json, model_dir / "tokenizer.json")
-    copy_if_exists(paths.checkpoint_final / "config.json", model_dir / "config.json")
-    copy_if_exists(paths.checkpoint_final / "model.pt", model_dir / "model.pt")
+    checkpoint_dir = paths.checkpoint_dpo if (paths.checkpoint_dpo / "model.pt").exists() else paths.checkpoint_final
+    copy_if_exists(checkpoint_dir / "config.json", model_dir / "config.json")
+    copy_if_exists(checkpoint_dir / "model.pt", model_dir / "model.pt")
     manifest = {
         "format": "lkjai-scratch-serving-manifest-v1",
         "model": settings.model_name,
         "tokenizer": str(model_dir / "tokenizer.json"),
         "config": str(model_dir / "config.json"),
         "checkpoint": str(model_dir / "model.pt"),
+        "checkpoint_source": str(checkpoint_dir),
         "checkpoint_manifest": str(paths.checkpoint_manifest),
     }
     paths.export_manifest.write_text(json.dumps(manifest, indent=2), encoding="utf-8")

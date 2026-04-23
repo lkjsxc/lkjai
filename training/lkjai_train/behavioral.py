@@ -36,10 +36,56 @@ CASES = [
         "contains": "scratch",
     },
     {
+        "id": "pipeline-summary",
+        "messages": [{"role": "user", "content": "Please summarize the project training pipeline."}],
+        "kind": "final",
+        "contains": "tokenizer",
+    },
+    {
+        "id": "memory-editor",
+        "messages": [{"role": "user", "content": "Remember that my favorite editor is vim."}],
+        "kind": "tool_call",
+        "tool": "memory.write",
+    },
+    {
+        "id": "workspace-boundary",
+        "messages": [{"role": "user", "content": "Read /etc/passwd."}],
+        "kind": "final",
+        "contains": "workspace",
+    },
+    {
+        "id": "kjxlkj-direct",
+        "messages": [{"role": "user", "content": "What is kjxlkj?"}],
+        "kind": "final",
+        "contains": "notes",
+    },
+    {
+        "id": "kjxlkj-organize",
+        "messages": [{"role": "user", "content": "How should lkjai organize kjxlkj notes?"}],
+        "kind": "final",
+        "contains": "search",
+    },
+    {
         "id": "agent-prompt",
         "messages": [
             {"role": "system", "content": "Return exactly one JSON object."},
             {"role": "user", "content": "run_id=1\nstep=1\nrecent_events:\nuser: What is 2+2?"},
+        ],
+        "kind": "final",
+        "contains": "4",
+    },
+    {
+        "id": "agent-tagged-prompt",
+        "messages": [
+            {"role": "system", "content": "Return exactly one JSON object."},
+            {
+                "role": "user",
+                "content": (
+                    "<run id=\"1\" step=\"1\"><events>"
+                    "<event kind=\"user\">What is 2+2?</event>"
+                    "</events></run>"
+                ),
+            },
         ],
         "kind": "final",
         "contains": "4",

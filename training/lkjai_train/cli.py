@@ -8,6 +8,7 @@ from .dataset import prepare_corpus, prepare_fixtures, validate_dataset
 from .evals import evaluate_fixed_suite
 from .manifest import checkpoint_manifest, export_manifest
 from .paths import Paths
+from .preference import prepare_preferences, train_dpo
 from .settings import train_settings
 
 
@@ -26,6 +27,9 @@ def main() -> None:
     fixed.add_argument("--threshold", type=float, default=0.8)
     behavioral = sub.add_parser("behavioral-eval")
     behavioral.add_argument("--threshold", type=float, default=0.8)
+    sub.add_parser("prepare-preferences")
+    dpo = sub.add_parser("train-dpo")
+    dpo.add_argument("--preset", default=os.environ.get("TRAIN_PRESET", "quick"))
     sub.add_parser("export-manifest")
     sub.add_parser("smoke")
     sub.add_parser("train")
@@ -49,6 +53,10 @@ def dispatch(args, paths: Paths):
         return evaluate_fixed_suite(paths, args.threshold)
     if args.command == "behavioral-eval":
         return evaluate_behavior(paths, train_settings(env_preset()), args.threshold)
+    if args.command == "prepare-preferences":
+        return prepare_preferences(paths)
+    if args.command == "train-dpo":
+        return train_dpo(paths, train_settings(args.preset))
     if args.command == "export-manifest":
         return export_manifest(paths, train_settings(env_preset()))
     if args.command == "smoke":
@@ -90,6 +98,10 @@ def train_pipeline(paths: Paths):
     run_training(paths, settings)
     export_manifest(paths, settings)
     report = evaluate_fixed_suite(paths, settings.fixed_eval_threshold)
+    behavioral = evaluate_behavior(paths, settings, settings.fixed_eval_threshold)
+    prepare_preferences(paths)
+    train_dpo(paths, settings)
+    export_manifest(paths, settings)
     behavioral = evaluate_behavior(paths, settings, settings.fixed_eval_threshold)
     data = json.loads(report.read_text(encoding="utf-8"))
     behavior = json.loads(behavioral.read_text(encoding="utf-8"))

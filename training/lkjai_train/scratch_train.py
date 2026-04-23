@@ -19,15 +19,18 @@ def train_scratch(paths, settings) -> dict:
     ids = encode_rows(tokenizer, rows)
     if len(ids) < settings.sequence_len + 2:
         ids = ids * ((settings.sequence_len + 2) // max(1, len(ids)) + 1)
+    train_ids, val_ids = split_ids(ids)
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     torch.manual_seed(settings.seed)
     config = model_config(settings, tokenizer.get_vocab_size())
     model = ScratchLM(config).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=settings.learning_rate)
-    data = TokenDataset(ids, settings.sequence_len)
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda(settings.max_steps))
+    data = TokenDataset(train_ids, settings.sequence_len)
     loader = DataLoader(data, batch_size=settings.batch_size, shuffle=True)
-    metrics = run_loop(model, optimizer, loader, settings, device)
+    val = TokenDataset(val_ids, settings.sequence_len)
+    metrics = run_loop(model, optimizer, scheduler, loader, val, settings, device)
     return save_training(paths, settings, config, model, rows, metrics)
 
 
@@ -54,6 +57,11 @@ def encode_rows(tokenizer, rows: list[dict]) -> list[int]:
         if eos is not None:
             ids.append(eos)
     return ids
+
+
+def split_ids(ids: list[int]) -> tuple[list[int], list[int]]:
+    cut = max(1, int(len(ids) * 0.9))
+    return ids[:cut], ids[cut:] or ids[: max(2, len(ids) // 10)]
 
 
 class TokenDataset(Dataset):
@@ -84,32 +92,75 @@ def model_config(settings, vocab_size: int) -> ModelConfig:
     )
 
 
-def run_loop(model, optimizer, loader, settings, device: str) -> dict:
+def lr_lambda(max_steps: int):
+    warmup = min(100, max(1, max_steps // 10))
+
+    def schedule(step: int) -> float:
+        if step < warmup:
+            return max(0.1, (step + 1) / warmup)
+        progress = (step - warmup) / max(1, max_steps - warmup)
+        return max(0.1, 0.5 * (1.0 + __import__("math").cos(__import__("math").pi * progress)))
+
+    return schedule
+
+
+def run_loop(model, optimizer, scheduler, loader, val, settings, device: str) -> dict:
     model.train()
     step = 0
     losses = []
+    best = float("inf")
     while step < settings.max_steps:
         for input_ids, labels in loader:
             input_ids, labels = input_ids.to(device), labels.to(device)
-            _, loss = model(input_ids, labels)
+            with torch.autocast(device_type="cuda", dtype=torch.float16, enabled=device == "cuda"):
+                _, loss = model(input_ids, labels)
             (loss / settings.gradient_accumulation).backward()
             if (step + 1) % settings.gradient_accumulation == 0:
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                 optimizer.step()
+                scheduler.step()
                 optimizer.zero_grad(set_to_none=True)
             losses.append(float(loss.detach().cpu()))
+            best = min(best, losses[-1])
             step += 1
             if step >= settings.max_steps:
                 break
     if step % settings.gradient_accumulation:
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         optimizer.step()
+        scheduler.step()
         optimizer.zero_grad(set_to_none=True)
-    return {"train_loss": losses[-1], "mean_loss": sum(losses) / len(losses), "steps": step}
+    val_loss = evaluate_loss(model, val, settings, device)
+    return {
+        "train_loss": losses[-1],
+        "mean_loss": sum(losses) / len(losses),
+        "best_train_loss": best,
+        "val_loss": val_loss,
+        "steps": step,
+    }
+
+
+@torch.inference_mode()
+def evaluate_loss(model, dataset, settings, device: str) -> float:
+    model.eval()
+    loader = DataLoader(dataset, batch_size=settings.batch_size, shuffle=False)
+    losses = []
+    for index, (input_ids, labels) in enumerate(loader):
+        if index >= 8:
+            break
+        _, loss = model(input_ids.to(device), labels.to(device))
+        losses.append(float(loss.detach().cpu()))
+    model.train()
+    return sum(losses) / max(1, len(losses))
 
 
 def save_training(paths, settings, config, model, rows, metrics: dict) -> dict:
     paths.checkpoint_final.mkdir(parents=True, exist_ok=True)
+    paths.checkpoint_best.mkdir(parents=True, exist_ok=True)
     torch.save(model.state_dict(), paths.checkpoint_final / "model.pt")
+    torch.save(model.state_dict(), paths.checkpoint_best / "model.pt")
     save_config(config, paths.checkpoint_final / "config.json")
+    save_config(config, paths.checkpoint_best / "config.json")
     summary = {
         "backend": "tiny-pytorch-scratch",
         "checkpoint_dir": str(paths.checkpoint_final),

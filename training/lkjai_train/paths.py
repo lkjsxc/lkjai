@@ -17,8 +17,12 @@ class Paths:
         self.tokenizer_manifest = self.tokenizer / "manifest.json"
         self.training_summary = self.checkpoints / "training-summary.json"
         self.checkpoint_final = self.checkpoints / "final"
+        self.checkpoint_best = self.checkpoints / "best"
+        self.checkpoint_dpo = self.checkpoints / "dpo"
+        self.dpo_summary = self.checkpoints / "dpo-summary.json"
         self.checkpoint_manifest = self.checkpoints / "manifest.json"
         self.export_manifest = self.exports / "manifest.json"
+        self.preference_pairs = self.preferences / "pairs.jsonl"
 
     def ensure(self) -> None:
         for path in [
