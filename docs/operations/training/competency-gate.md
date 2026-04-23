@@ -1,27 +1,19 @@
 # Agent Competency Gate Contract
 
-## Canonical Threshold
+## Canonical Rule
 
-- Competency is defined as behavioral eval pass rate `>= 0.80`.
-- Behavioral results are written to `data/train/runs/behavioral-eval.json`.
-- Fixed eval remains an artifact health gate.
+An accepted model must pass fixed eval and beat the previous shipped model on
+raw holdout behavior.
 
-## Fixed-Eval Schema
+## Thresholds
 
-- `threshold`: configured threshold.
-- `pass_rate`: `passed / total`.
-- `passed`: number of passing checks.
-- `total`: total checks.
-- `cases`: ordered list of check records with `id`, `passed`, and `detail`.
-
-## Acceptance Rule
-
-1. If `pass_rate >= threshold`, the run is competency-accepted.
-2. If `pass_rate < threshold`, improve data, training config, or model scale and rerun.
-3. Keep artifact history in `data/train/runs/` for audit and comparison.
+- JSON validity on holdout: `>= 0.95`
+- Holdout read/search/history/preview success: `>= 0.60`
+- Holdout confirmation-planning success: `>= 0.50`
 
 ## Enforcement
 
-- `TRAIN_FIXED_EVAL_THRESHOLD` configures the threshold (default `0.80`).
-- `TRAIN_ENFORCE_COMPETENCY=1` fails the training pipeline when below threshold.
-- Quick/smoke workflows may disable enforcement for fast deterministic checks.
+- `TRAIN_ENFORCE_COMPETENCY=1` fails the pipeline when behavioral thresholds are
+  missed.
+- Quick smoke workflows may disable enforcement.
+- Exact-match supervised lookup does not count toward competency.

@@ -2,20 +2,24 @@
 
 ## Goal
 
-Prepare lkjai to become the server-side assistant for kjxlkj without changing
-kjxlkj runtime code in this phase.
+Make `lkjai` ready to act as the server-side assistant for `kjxlkj` through
+typed resource APIs.
 
-## Target Behavior
+## Canonical Tool Surface
 
-- Users invoke lkjai from a future kjxlkj chat surface.
-- lkjai can search notes, read resources, summarize clusters, propose edits,
-  create notes, update notes, and organize information.
-- lkjai preserves kjxlkj visibility defaults and avoids exposing private
-  resource content in public summaries.
-- lkjai training data uses kjxlkj docs and API contracts as supervision.
+- `resource.search`
+- `resource.fetch`
+- `resource.history`
+- `resource.preview_markdown`
+- `resource.create_note`
+- `resource.update_resource`
 
-## Phase Boundary
+## Rules
 
-- This phase adds lkjai docs, corpus generation, and eval prompts for kjxlkj.
-- A later kjxlkj phase adds HTTP routes, UI chat, and authenticated server-side
-  command execution.
+- `lkjai` should target `kjxlkj` resource APIs, not filesystem-shaped note
+  folders.
+- Read, search, history, and preview may run directly.
+- Create and update operations must first produce
+  `{"kind":"request_confirmation", ...}`.
+- The mainline integration is API and contract work only. No end-user chat UI
+  is required in this phase.

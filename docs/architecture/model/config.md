@@ -1,35 +1,39 @@
 # Scratch Model Defaults
 
-## Serving Model
+## Goal
+
+Keep one coherent contract for training, export, and serving on a local RTX
+3070 class machine.
+
+## Defaults
 
 - Default serving name: `lkjai-scratch-60m`.
 - Default serving family: local scratch dense decoder.
-- Default serving scale: 50-80M parameters.
-- Default model artifact root: `data/models/lkjai-scratch-60m/`.
-- Compose `inference` service loads scratch manifests from `/models`.
-- Default serving direction: Python/Torch OpenAI-compatible inference runtime.
-
-## Training Model
-
+- Default serving scale: `50M-60M` parameters.
+- Default artifact root: `data/models/lkjai-scratch-60m/`.
 - Default training starts from random initialization.
-- Default tokenizer is a locally trained byte-level BPE tokenizer.
-- Default preset: `scratch-60m`.
-- Default pipeline writes tokenizer, checkpoint, summary, and eval manifests.
-- Pretrained bases and adapters are not default artifacts.
+- Default tokenizer is a local byte-level BPE tokenizer trained on the train
+  split only.
 
-## Runtime Context
+## Context Contract
 
-- Model-native long context is not the memory mechanism.
-- Active prompt context defaults to `4096` tokens.
-- Operators may raise active context to `8192` tokens when VRAM allows.
-- Old conversation state is represented by summaries and retrieved memory.
+- Active model context is `1024` tokens.
+- Training, evaluation, export, and serving must use the same `1024` token
+  contract.
+- Long conversations depend on summaries, retrieval, and compact tool results,
+  not a hidden larger context window.
+
+## Precision And Runtime
+
+- Training default: BF16 when the local CUDA stack supports it.
+- Training fallback: FP16 only when BF16 is unavailable or unstable.
+- Serving default: Python/Torch OpenAI-compatible runtime with KV-cache decode.
+- Runtime quality must come from real generation. No supervised exact-match
+  lookup is allowed in the default path.
 
 ## Environment
 
-- Compose `web` default: `http://inference:8081/v1/chat/completions`.
-- Host operator endpoint: `http://127.0.0.1:8081/v1/chat/completions`.
-- Runtime requires a real model endpoint; policy-file fallback mode is removed.
-- `MODEL_NAME` defaults to `lkjai-scratch-60m`.
-- `MODEL_CONTEXT_TOKENS=4096`.
-- `MODEL_MAX_NEW_TOKENS=512`.
-- `MODEL_TEMPERATURE=0.2`.
+- `MODEL_NAME=lkjai-scratch-60m`
+- `MODEL_CONTEXT_TOKENS=1024`
+- `MODEL_MAX_NEW_TOKENS=512`
+- `MODEL_TEMPERATURE=0.2`

@@ -2,80 +2,47 @@
 
 ## Goal
 
-Train tokenizer, corpus, scratch language-model checkpoints, and agent-style
-supervision artifacts from local data.
+Train, export, and evaluate the 60M-class scratch model using the same dataset
+and runtime contracts that production will use.
 
 ## Commands
 
-- `docker compose --profile train up --build train`.
-- `python -m lkjai_train.cli prepare-fixtures`.
-- `python -m lkjai_train.cli prepare-corpus`.
-- `python -m lkjai_train.cli train-tokenizer`.
-- `python -m lkjai_train.cli validate-dataset`.
-- `python -m lkjai_train.cli train-scratch`.
-- `python -m lkjai_train.cli fixed-eval`.
-- `python -m lkjai_train.cli behavioral-eval`.
-- `python -m lkjai_train.cli prepare-preferences`.
-- `python -m lkjai_train.cli train-dpo`.
-- `python -m lkjai_train.cli export-manifest`.
-- `python -m lkjai_train.cli smoke`.
+- `docker compose --profile train up --build train`
+- `python -m lkjai_train.cli prepare-fixtures`
+- `python -m lkjai_train.cli prepare-corpus`
+- `python -m lkjai_train.cli train-tokenizer`
+- `python -m lkjai_train.cli validate-dataset`
+- `python -m lkjai_train.cli train-scratch`
+- `python -m lkjai_train.cli fixed-eval`
+- `python -m lkjai_train.cli behavioral-eval`
+- `python -m lkjai_train.cli export-manifest`
+- `python -m lkjai_train.cli smoke`
 
 ## Pipeline Order
 
-1. Prepare built-in starter dataset or generate synthetic corpus.
-2. Train a local byte-level BPE tokenizer from corpus text.
-3. Validate message/tool trajectory schema and split metadata.
-4. Initialize a small dense decoder from random weights.
-5. Train next-token prediction on structured chat/action trajectories.
-6. Persist scratch checkpoints and train metadata.
-7. Export manifest metadata for serving handoff.
-8. Run fixed and behavioral evals under `data/train/runs/`.
-9. Generate preference pairs from eval failures and canonical answers.
-10. Run DPO post-training when enabled and rerun behavioral eval.
-11. Keep deterministic `smoke` command for fast local checks.
+1. Build fixtures and the full `12000` row corpus.
+2. Deduplicate and emit `train`, `val`, and `holdout` split files.
+3. Train the tokenizer on the train split only.
+4. Validate schema and split metadata.
+5. Train the scratch model on packed row boundaries from the train split.
+6. Measure validation loss on the validation split.
+7. Export the accepted checkpoint.
+8. Run fixed eval.
+9. Run raw holdout behavioral eval.
 
-## Dataset Preparation
+## Defaults
 
-- `prepare-fixtures`: writes 2 deterministic rows for smoke tests.
-- `prepare-corpus`: generates docs-derived, synthetic agent, kjxlkj, and
-  optional vetted public trajectories.
-- Both write JSONL with `messages` and `tags`.
-- Formatting happens through the project scratch chat serializer, not through an
-  upstream pretrained tokenizer template.
-
-## Compose Entrypoint
-
-- The train image defaults to `python -m lkjai_train.cli train`.
-- `TRAIN_PRESET=agent` is the Compose default.
-- `TRAIN_PRESET=quick` runs tiny scratch training with reduced steps.
-- `TRAIN_PRESET=custom` reads explicit `TRAIN_*` knobs.
-- `TRAIN_DATA_DIR` defaults to `/app/data/train`.
-
-## Presets
-
-| Preset | Model | Steps | Corpus Size | Purpose |
-|--------|-------|-------|-------------|---------|
-| quick  | tiny scratch | 5 | 20 | local smoke |
-| agent  | scratch-60m | 3000 | 4000 | main research path |
-| custom | env config | `TRAIN_MAX_STEPS` | `TRAIN_CORPUS_SIZE` | full control |
+- `TRAIN_PRESET=agent`
+- `TRAIN_MODEL_PRESET=scratch-60m`
+- `TRAIN_SEQUENCE_LEN=1024`
+- `TRAIN_CORPUS_SIZE=12000`
+- `TRAIN_MAX_STEPS=3000`
+- `TRAIN_DATA_DIR=/app/data/train`
 
 ## Artifacts
 
-- Datasets live under `data/train/datasets`.
-- Tokenizers live under `data/train/tokenizer`.
-- Checkpoints live under `data/train/checkpoints`.
-- Serving exports live under `data/train/exports`.
-- Eval reports live under `data/train/runs`.
-- Preference pairs live under `data/train/preferences`.
-
-## Verification
-
-```bash
-docker compose --profile train up --build train
-ls -lh data/train/checkpoints/final/
-cat data/train/runs/fixed-eval.json | jq .pass_rate
-cat data/train/runs/behavioral-eval.json | jq .pass_rate
-```
-
-Expected: checkpoint directory contains model weights, config, tokenizer
-manifest, and behavioral `pass_rate` >= threshold.
+- Datasets: `data/train/datasets`
+- Tokenizer: `data/train/tokenizer`
+- Checkpoints: `data/train/checkpoints`
+- Exports: `data/train/exports`
+- Eval reports: `data/train/runs`

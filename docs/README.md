@@ -1,52 +1,47 @@
 # Documentation Canon
 
-`docs/` is the source of truth for runtime behavior, training behavior, and
-repository policy.
+`docs/` is the only active canon for `lkjai`.
 
 ## System Goal
 
-- Build a from-scratch small dense language model for RTX 3070 8GB research.
-- Run a local multi-turn agent loop with tools, memory, summaries, and strict
-  JSON actions.
-- Serve trained scratch checkpoints through an OpenAI-compatible Python/Torch
-  inference service until native Rust tensor decoding exists.
-- Train tokenizer, corpus, model checkpoints, and agent-style supervision from
-  local project artifacts plus vetted permissive public data instead of
-  pretrained base weights.
-- Improve the supervised checkpoint with eval-gated DPO preference training
-  before attempting heavier rollout-based reinforcement learning.
-- Keep agent tools inside the mounted data workspace by default.
-- Keep this repository optimized for LLM-to-LLM maintenance.
+- Train and serve a small commercial-safe scratch model on an RTX 3070 class
+  machine.
+- Keep the runtime LLM-readable: paired XML-like prompt sections, one strict
+  JSON action output, and no hidden compatibility shims.
+- Judge quality on raw generation only. Exact-match supervised lookup is not an
+  accepted runtime or evaluation path.
+- Keep `kjxlkj` integration API-first. `lkjai` should target typed resource
+  routes instead of filesystem-shaped note workflows.
 
 ## Global Rules
 
 1. Keep one canonical owner for each contract.
-2. Keep each docs directory to exactly one `README.md` plus multiple children.
+2. Keep each docs directory to one `README.md` plus multiple children.
 3. Keep each docs file at `<= 300` lines.
 4. Keep each authored source file at `<= 200` lines.
-5. Prefer stable headings: `Goal`, `Contract`, `Defaults`, `Verification`.
-6. Prefer exact commands, paths, and payload shapes over prose.
-7. Remove stale behavior rather than preserving compatibility shims.
-8. Docs-first workflow is mandatory: update docs, then implementation.
+5. Prefer exact defaults, commands, paths, and payloads.
+6. Remove conflicting legacy behavior instead of preserving it.
+7. Docs-first workflow is mandatory: change docs, then code, then retrain.
+8. Evaluation claims must match the real runtime path.
 
 ## Top-Level Sections
 
-- [vision/README.md](vision/README.md): intent and LLM-oriented authoring rules.
+- [vision/README.md](vision/README.md): product intent and LLM-first rules.
 - [getting-started/README.md](getting-started/README.md): setup, run, verify.
 - [product/README.md](product/README.md): chat, tools, and API behavior.
 - [architecture/README.md](architecture/README.md): agent, runtime, model, training.
 - [operations/README.md](operations/README.md): Compose, deployment, quality gates.
 - [repository/README.md](repository/README.md): layout, workflow, and file rules.
-- [research/README.md](research/README.md): external model/training references.
+- [research/README.md](research/README.md): external references that inform the canon.
 - [decisions/README.md](decisions/README.md): accepted and rejected choices.
 
 ## Recommended Reading Order
 
 1. [vision/purpose.md](vision/purpose.md)
 2. [repository/workflow.md](repository/workflow.md)
-3. [architecture/training/pipeline.md](architecture/training/pipeline.md)
-4. [architecture/model/config.md](architecture/model/config.md)
-5. [architecture/runtime/inference.md](architecture/runtime/inference.md)
-6. [operations/compose.md](operations/compose.md)
-7. [operations/quality.md](operations/quality.md)
-8. [product/api.md](product/api.md)
+3. [architecture/training/corpus.md](architecture/training/corpus.md)
+4. [architecture/training/pipeline.md](architecture/training/pipeline.md)
+5. [architecture/model/config.md](architecture/model/config.md)
+6. [architecture/model/serving.md](architecture/model/serving.md)
+7. [product/kjxlkj-integration.md](product/kjxlkj-integration.md)
+8. [operations/training/competency-gate.md](operations/training/competency-gate.md)

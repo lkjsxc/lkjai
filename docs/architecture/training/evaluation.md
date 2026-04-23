@@ -2,64 +2,32 @@
 
 ## Goal
 
-Measure whether training produced usable scratch artifacts.
+Define the checks that decide whether a model is better in the real runtime.
 
-## Contract
+## Fixed Eval
 
-- Fixed eval runs after every training pipeline.
-- Fixed eval checks artifact existence, dataset coverage, checkpoint structure,
-  tokenizer structure, and loss metrics.
-- Behavioral eval checks whether generated responses are valid and useful.
-- Competency gate uses behavioral eval pass rate.
-- Sandbox eval checks that unsafe filesystem paths are rejected.
-- Preference eval compares pre-DPO and post-DPO behavioral reports.
+- Fixed eval verifies artifacts, data integrity, dedup quality, and split shape.
+- It writes `data/train/runs/fixed-eval.json`.
+- It must fail when the corpus remains mostly repeated boilerplate.
 
-## Fixed Eval Checks
+## Behavioral Eval
 
-1. `fixtures-exist`: dataset file exists.
-2. `dataset-metadata-exists`: metadata JSON exists.
-3. `training-summary-exists`: summary JSON with metrics exists.
-4. `tokenizer-manifest-exists`: tokenizer manifest JSON exists.
-5. `checkpoint-manifest-exists`: scratch checkpoint manifest JSON exists.
-6. `export-manifest-exists`: export manifest exists.
-7. `tool-trajectory-present`: dataset contains tool call examples.
-8. `memory-case-present`: dataset contains memory write examples.
-9. `checkpoint-has-weights`: checkpoint directory contains model weights and
-   config.
-10. `summary-has-loss`: training summary contains non-empty metrics.
-11. `dataset-large-enough`: agent preset corpus contains at least 4,000 rows.
-12. `metadata-has-sources`: dataset metadata lists source names and licenses.
+- Behavioral eval runs against the exported model with raw generation only.
+- It writes `data/train/runs/behavioral-eval.json`.
+- It reads cases from the holdout split.
+- There is no supervised action lookup in the accepted path.
 
-## Competency Gate
+## Acceptance Metrics
 
-- Threshold default: `0.80`.
-- Enforcement: `TRAIN_ENFORCE_COMPETENCY=1` fails the pipeline when below
-  threshold.
-- Artifact pass rate: `passed / total` fixed checks.
-- Behavioral pass rate: prompt cases passed by actual model inference.
-- Required behavioral coverage: direct answers, docs summaries, all tool names,
-  memory write/search, kjxlkj organization prompts, path sandbox rejection, and
-  prompt-repair cases.
+- JSON validity on holdout: `>= 0.95`
+- Holdout read/search/history/preview success: `>= 0.60`
+- Holdout create/update confirmation-planning success: `>= 0.50`
+- Any accepted run must beat the previous shipped model on raw holdout pass
+  rate.
 
-## Report Schema
+## Failure Handling
 
-```json
-{
-  "threshold": 0.8,
-  "pass_rate": 0.9,
-  "passed": 9,
-  "total": 10,
-  "cases": [
-    {"id": "fixtures-exist", "passed": true, "detail": "..."}
-  ]
-}
-```
-
-## Verification
-
-```bash
-python -m lkjai_train.cli fixed-eval
-python -m lkjai_train.cli behavioral-eval
-cat data/train/runs/fixed-eval.json | jq .pass_rate
-cat data/train/runs/behavioral-eval.json | jq .pass_rate
-```
+- Fixed eval failure blocks acceptance immediately.
+- Behavioral regression blocks export acceptance.
+- Preference training is optional and must be rejected if it lowers raw holdout
+  quality.

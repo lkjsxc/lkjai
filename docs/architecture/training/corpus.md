@@ -2,72 +2,69 @@
 
 ## Goal
 
-Define the dataset that teaches the agent multi-turn tool use.
+Define the canonical training dataset for raw-generation evaluation and
+`kjxlkj` API integration.
 
-## Schema
+## Storage Schema
 
-Each JSONL row:
+Each row is JSONL in `lkjai-agent-jsonl-v2`:
 
 ```json
 {
   "messages": [
-    {"role": "user", "content": "List this directory."},
-    {"role": "assistant", "content": "{\"kind\":\"tool_call\",\"thought\":\"inspect\",\"tool\":\"fs.list\",\"args\":{\"path\":\".\"}}"},
-    {"role": "tool", "name": "fs.list", "content": "README.md\nsrc"},
-    {"role": "assistant", "content": "{\"kind\":\"final\",\"thought\":\"done\",\"content\":\"README.md and src\"}"}
+    {"role": "user", "content": "<task><request>Summarize ...</request></task>"},
+    {"role": "assistant", "content": "{\"kind\":\"final\",\"content\":\"...\"}"}
   ],
-  "tags": ["tool_trajectory", "fs.list"]
+  "tags": ["docs_grounding", "language:en"],
+  "meta": {
+    "id": "docs-lkjai-000001",
+    "split": "train",
+    "provenance": "project-authored",
+    "author_type": "llm-curated",
+    "author_model": "gpt-5.4-codex",
+    "quality_tier": "high",
+    "domain": "lkjai-docs",
+    "skill": "grounding",
+    "toolset": "none",
+    "language": "en",
+    "safety_scope": "workspace-safe",
+    "license": "project-local",
+    "source_ref": "docs/architecture/training/corpus.md"
+  }
 }
 ```
 
-## Generation Strategy
+## Rules
 
-- `prepare-fixtures` writes a minimal deterministic set (2 rows) for smoke
-  checks.
-- `prepare-corpus` generates synthetic trajectories covering all tools plus
-  docs-grounded answers and kjxlkj organization examples.
-- Each trajectory contains a user request, an assistant tool call, a tool result,
-  and a final assistant answer.
-- Corpus size is configurable via `TRAIN_CORPUS_SIZE`.
-- Default corpus size for `agent` preset: 4,000.
-- Default mix: 15% docs-grounding, 35% tool and memory trajectories, 30% direct
-  answers, 10% kjxlkj organization trajectories, and 10% vetted public
-  instruction rows.
-- Public rows are skipped when unavailable unless explicitly required.
+- `messages`, `tags`, and `meta` are required.
+- Roles allowed: `system`, `user`, `assistant`, `tool`.
+- `assistant` content must be one valid JSON action.
+- `meta.split` is one of `train`, `val`, or `holdout`.
+- Public rows must use explicit permissive licenses only.
+- The mainline corpus must stay commercial-safe.
 
-## Tool Coverage
+## Model-Facing Serialization
 
-Every generated corpus must include examples for:
+- Storage remains JSONL.
+- Model-facing text uses paired XML-like sections.
+- Recommended sections: `<policy>`, `<memory>`, `<events>`, `<tool_result>`,
+  `<task>`, and `<request>`.
+- Assistant outputs stay strict JSON because the runtime validates typed fields
+  before execution.
 
-- `shell.exec`
-- `web.fetch`
-- `fs.read`
-- `fs.write`
-- `fs.list`
-- `memory.search`
-- `memory.write`
+## Dataset Targets
 
-## Scratch Tokenization
+- Total rows: `12000`
+- Train rows: `9600`
+- Validation rows: `1200`
+- Holdout rows: `1200`
+- Unique normalized rows: at least `8000`
+- Deduplicated tokenizer tokens on the train split: at least `1000000`
 
-- Train a byte-level BPE tokenizer from local corpus text.
-- Do not use a pretrained tokenizer as the default.
-- Do not pre-format messages as strings in the dataset.
-- Keep the dataset as structured `messages` arrays.
+## Sources
 
-## Prompt And Action Format
-
-- Runtime prompts use paired section tags such as `<run>`, `<summary>`,
-  `<memories>`, and `<events>` for segmentation.
-- Assistant outputs remain strict JSON actions, not XML, because tool execution
-  needs typed validation.
-- Training and inference must use the same serializer.
-
-## Verification
-
-```bash
-python -m lkjai_train.cli prepare-corpus
-python -m lkjai_train.cli validate-dataset
-jq -c 'select(.tags | contains(["tool_trajectory"]))' data/train/datasets/corpus.jsonl | wc -l
-```
-
-Expected: tool_trajectory count >= 1,000 for agent training.
+- `lkjai` docs-derived grounding rows.
+- `kjxlkj` contract and API rows.
+- Synthetic tool and confirmation trajectories tied to the real runtime.
+- Safety, privacy, and boundary rows.
+- Carefully selected permissive public rows with explicit provenance.

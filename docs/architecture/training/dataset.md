@@ -2,52 +2,36 @@
 
 ## Goal
 
-Produce a valid, sizable dataset for scratch LM and agent behavior training.
+Describe the on-disk dataset artifacts used by training and evaluation.
 
-## Contract
+## Layout
 
-- The dataset is a JSONL file where each row contains `messages` and optional
-  `tags`.
-- `messages` follows the chat format: `role`, `content`, optional `name`.
-- Roles: `system`, `user`, `assistant`, `tool`.
-- The dataset must contain at least 4,000 rows for the `agent` preset.
-- The dataset must cover all tool trajectories used by the agent.
-- The dataset metadata must record source, license, row count, split, and schema
-  version for each generated or imported source.
+- Canonical combined corpus: `data/train/datasets/corpus.jsonl`
+- Canonical train split: `data/train/datasets/train.jsonl`
+- Canonical validation split: `data/train/datasets/val.jsonl`
+- Canonical holdout split: `data/train/datasets/holdout.jsonl`
+- Fixtures: `data/train/datasets/fixtures.jsonl`
+- Metadata: `data/train/datasets/metadata.json`
 
-## Generation
+## Metadata
 
-- `prepare-fixtures` creates a minimal deterministic set for smoke checks.
-- `prepare-corpus` generates synthetic trajectories for real training.
-- Synthetic trajectories include: user request, assistant tool call, tool result,
-  assistant final answer.
-- Trajectories cover every tool: `shell.exec`, `web.fetch`, `fs.read`,
-  `fs.write`, `fs.list`, `memory.search`, `memory.write`.
-- kjxlkj trajectories cover search, read, summarize, create-note, update-note,
-  and privacy-preserving organization tasks.
-- Public instruction rows are optional, permissive-license, and marked with
-  source tags.
-- Direct-answer rows remain explicit so the model does not learn to answer every
-  non-tool prompt from docs snippets.
-
-## Scratch Formatting
-
-- Dataset rows stay as structured messages.
-- Tokenization uses the project scratch chat serializer.
-- No upstream pretrained tokenizer template is allowed in the default path.
+- `schema`: active schema id.
+- `rows`: total rows written.
+- `split_rows`: counts by split.
+- `unique_rows`: normalized unique row count.
+- `duplicate_rows`: normalized duplicate row count.
+- `sources`: ordered source list with license and provenance details.
 
 ## Validation
 
-- Every row must have a non-empty `messages` list.
-- Every message must have a valid `role` and string `content`.
-- Validation runs before GPU training starts.
+- Validation requires at least one row in every emitted split file.
+- Each row must contain valid `messages`, `tags`, and `meta`.
+- Validation must fail on missing split labels or missing provenance fields.
+- Validation proves shape only, not quality.
 
-## Verification
+## Split Policy
 
-```bash
-python -m lkjai_train.cli prepare-corpus
-python -m lkjai_train.cli validate-dataset
-wc -l data/train/datasets/corpus.jsonl
-```
-
-Expected: row count >= 4,000 for agent training.
+- Split is row-based, not token-stream-based.
+- Training uses `train.jsonl`.
+- Validation loss uses `val.jsonl`.
+- Behavioral evaluation uses `holdout.jsonl`.
