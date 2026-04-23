@@ -5,6 +5,7 @@ SEARCH_TERMS = [
     "editor workflow",
     "verification failures",
     "search ranking",
+    "release notes",
     "release checklist",
     "privacy policy",
     "compose bootstrap",
