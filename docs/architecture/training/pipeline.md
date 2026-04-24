@@ -22,16 +22,17 @@ same real tool loop that production will use.
 ## Pipeline Order
 
 1. Validate tagged JSON source files in `training/corpus_sources/`.
-2. Build fixtures and the full 500M-token Kimi corpus outside git.
-3. Deduplicate and emit `train`, `val`, and `holdout` split files.
-4. Train the tokenizer on the train split only.
-5. Validate schema and split metadata.
-6. Train the scratch model on packed row boundaries from the train split.
-7. Measure validation loss on the validation split.
-8. Export the accepted checkpoint.
-9. Run fixed eval.
-10. Run raw holdout behavioral eval.
-11. Record pass-rate, invalid-XML, wrong-tool, and non-finish trends.
+2. Build fixtures and the mainline 60K corpus.
+3. Build the full 500M-token Kimi corpus under `data/kimi-corpus/` outside git.
+4. Deduplicate and emit `train`, `val`, and `holdout` split files.
+5. Train the tokenizer on the train split only.
+6. Validate schema, split metadata, and write `validation-report.json`.
+7. Train the scratch model on packed row boundaries from the train split.
+8. Measure validation loss on the validation split.
+9. Export the accepted checkpoint.
+10. Run fixed eval.
+11. Run raw holdout behavioral eval.
+12. Record pass-rate, invalid-XML, wrong-tool, and non-finish trends.
 
 ## Defaults
 

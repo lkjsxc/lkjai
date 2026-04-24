@@ -75,6 +75,34 @@ Editable source entries live in JSON array files under
 - The target remains below the classic 20 tokens/parameter heuristic.
 - Quality, tool fidelity, and holdout isolation remain mandatory.
 
+## Kimi Corpus Layout
+
+Generated artifacts live under `data/kimi-corpus/` (gitignored):
+
+```
+data/kimi-corpus/
+  train/train-0001.jsonl
+  val/val-0001.jsonl
+  holdout/holdout-0001.jsonl
+  manifest.json
+  validation-report.json
+```
+
+- `manifest.json` records schema, row counts, split counts, token counts, and sources.
+- `validation-report.json` records total rows, duplicate rate, XML validity rate, `agent.finish` termination rate, tool distribution, and provenance distribution.
+
+## Kimi-Generated Provenance
+
+Active `kimi-generated` rows must use:
+
+- `provenance`: `kimi-generated`
+- `author_type`: `external-agent-generated`
+- `author_model`: `kimi-code`
+- explicit `source_ref` and `license`
+
+These rows are mechanically derived from repository files and runtime schemas,
+but the trace assembly and multi-turn structure are Kimi-authored.
+
 ## Sources
 
 - Kimi-generated active XML action traces.
