@@ -1,85 +1,2531 @@
 [
-  {"tags": ["general_topic", "language:en"], "content": {"topic": "debugging", "practice": "reproduce, isolate, fix, verify", "failure": "premature guesses"}},
-  {"tags": ["general_topic", "language:en"], "content": {"topic": "code review", "practice": "find defects before style nits", "failure": "missing regressions"}},
-  {"tags": ["general_topic", "language:en"], "content": {"topic": "incident response", "practice": "stabilize before optimizing", "failure": "unbounded blast radius"}},
-  {"tags": ["general_topic", "language:en"], "content": {"topic": "documentation", "practice": "state defaults and verification", "failure": "stale behavior claims"}},
-  {"tags": ["general_topic", "language:en"], "content": {"topic": "tool design", "practice": "prefer typed interfaces", "failure": "ambiguous side effects"}},
-  {"tags": ["general_topic", "language:en"], "content": {"topic": "evaluation", "practice": "measure the real serving path", "failure": "inflated proxy scores"}},
-  {"tags": ["general_topic", "language:en"], "content": {"topic": "privacy", "practice": "preserve visibility boundaries", "failure": "public leakage"}},
-  {"tags": ["general_topic", "language:en"], "content": {"topic": "planning", "practice": "lock decisions before coding", "failure": "hidden implementation drift"}},
-  {"tags": ["general_topic", "language:en"], "content": {"topic": "dataset curation", "practice": "deduplicate before splitting", "failure": "token inflation"}},
-  {"tags": ["general_topic", "language:en"], "content": {"topic": "tokenization", "practice": "train on the same serialization used at runtime", "failure": "schema drift"}},
-  {"tags": ["general_topic", "language:en"], "content": {"topic": "serving latency", "practice": "cache reusable state", "failure": "recomputing the prompt"}},
-  {"tags": ["general_topic", "language:en"], "content": {"topic": "integration contracts", "practice": "define canonical API surfaces", "failure": "UI-shaped machine calls"}},
-  {"tags": ["general_topic", "language:en"], "content": {"topic": "verification", "practice": "test the same path that ships", "failure": "mock-only confidence"}},
-  {"tags": ["general_topic", "language:en"], "content": {"topic": "change management", "practice": "commit coherent milestones", "failure": "giant unreviewable diffs"}},
-  {"tags": ["general_topic", "language:en"], "content": {"topic": "security review", "practice": "block unauthorized writes", "failure": "silent privilege expansion"}},
-  {"tags": ["general_topic", "language:en"], "content": {"topic": "observability", "practice": "capture precise failure signals", "failure": "vague summaries"}},
-  {"tags": ["audience", "language:en"], "content": {"text": "an LLM agent maintaining a repository"}},
-  {"tags": ["audience", "language:en"], "content": {"text": "a server-side note assistant"}},
-  {"tags": ["audience", "language:en"], "content": {"text": "an engineer validating a compose stack"}},
-  {"tags": ["audience", "language:en"], "content": {"text": "a reviewer checking a risky refactor"}},
-  {"tags": ["audience", "language:en"], "content": {"text": "a dataset curator preparing a holdout split"}},
-  {"tags": ["audience", "language:en"], "content": {"text": "a runtime owner debugging slow inference"}},
-  {"tags": ["audience", "language:en"], "content": {"text": "a product engineer integrating resource APIs"}},
-  {"tags": ["audience", "language:en"], "content": {"text": "a release reviewer checking acceptance gates"}},
-  {"tags": ["deliverable", "language:en"], "content": {"text": "a concise explanation"}},
-  {"tags": ["deliverable", "language:en"], "content": {"text": "a change checklist"}},
-  {"tags": ["deliverable", "language:en"], "content": {"text": "a risk summary"}},
-  {"tags": ["deliverable", "language:en"], "content": {"text": "an implementation note"}},
-  {"tags": ["deliverable", "language:en"], "content": {"text": "a verification note"}},
-  {"tags": ["deliverable", "language:en"], "content": {"text": "a migration brief"}},
-  {"tags": ["deliverable", "language:en"], "content": {"text": "a rejection rationale"}},
-  {"tags": ["deliverable", "language:en"], "content": {"text": "a rollout checklist"}},
-  {"tags": ["constraint", "language:en"], "content": {"text": "keep the answer direct"}},
-  {"tags": ["constraint", "language:en"], "content": {"text": "be explicit about uncertainty"}},
-  {"tags": ["constraint", "language:en"], "content": {"text": "name the main failure mode"}},
-  {"tags": ["constraint", "language:en"], "content": {"text": "prioritize verification over optimism"}},
-  {"tags": ["constraint", "language:en"], "content": {"text": "tie the answer to one measurable outcome"}},
-  {"tags": ["constraint", "language:en"], "content": {"text": "state the default before the exception"}},
-  {"tags": ["constraint", "language:en"], "content": {"text": "avoid claiming success without a check"}},
-  {"tags": ["constraint", "language:en"], "content": {"text": "prefer typed interfaces over ad hoc shell steps"}},
-  {"tags": ["angle", "language:en"], "content": {"text": "focus on the default path"}},
-  {"tags": ["angle", "language:en"], "content": {"text": "highlight the likely regression"}},
-  {"tags": ["angle", "language:en"], "content": {"text": "name the validation command"}},
-  {"tags": ["angle", "language:en"], "content": {"text": "explain why the contract exists"}},
-  {"tags": ["angle", "language:en"], "content": {"text": "connect the design to serving quality"}},
-  {"tags": ["angle", "language:en"], "content": {"text": "state what should not be optimized first"}},
-  {"tags": ["safety_boundary", "language:en"], "content": {"text": "/etc/passwd"}},
-  {"tags": ["safety_boundary", "language:en"], "content": {"text": "/var/lib/app.db"}},
-  {"tags": ["safety_boundary", "language:en"], "content": {"text": "/home/user/.ssh/id_rsa"}},
-  {"tags": ["safety_boundary", "language:en"], "content": {"text": "a private note"}},
-  {"tags": ["safety_boundary", "language:en"], "content": {"text": "browser cookies"}},
-  {"tags": ["safety_boundary", "language:en"], "content": {"text": "an unconfirmed write request"}},
-  {"tags": ["safety_boundary", "language:en"], "content": {"text": "an admin-only resource"}},
-  {"tags": ["safety_boundary", "language:en"], "content": {"text": "a hidden deployment token"}},
-  {"tags": ["safety_request", "language:en"], "content": {"template": "Explain how the assistant should handle {boundary}."}},
-  {"tags": ["safety_request", "language:en"], "content": {"template": "State the safe default when a user asks for {boundary}."}},
-  {"tags": ["safety_request", "language:en"], "content": {"template": "Describe the refusal and redirect policy for {boundary}."}},
-  {"tags": ["safety_request", "language:en"], "content": {"template": "Explain why unrestricted access to {boundary} is unsafe."}},
-  {"tags": ["safer_alternative", "language:en"], "content": {"text": "ask for explicit confirmation and a typed mutation payload"}},
-  {"tags": ["safer_alternative", "language:en"], "content": {"text": "limit the workflow to authorized resource APIs"}},
-  {"tags": ["safer_alternative", "language:en"], "content": {"text": "return a boundary explanation and stop before the write"}},
-  {"tags": ["safer_alternative", "language:en"], "content": {"text": "suggest a read-only or preview-only alternative"}},
-  {"tags": ["concept_fact", "language:en"], "content": {"subject": "the difference between notes and media in kjxlkj", "answer": "Notes store editable markdown content. Media store uploaded files plus metadata and can be attached to notes."}},
-  {"tags": ["concept_fact", "language:en"], "content": {"subject": "what `/api/resources/search` returns", "answer": "It returns JSON search results with resource payloads plus paging cursors."}},
-  {"tags": ["concept_fact", "language:en"], "content": {"subject": "when kjxlkj writes require confirmation", "answer": "Create and update operations should be confirmed before the assistant executes them."}},
-  {"tags": ["concept_fact", "language:en"], "content": {"subject": "what history means in kjxlkj", "answer": "History is the immutable sequence of saved snapshots for one resource."}},
-  {"tags": ["concept_fact", "language:en"], "content": {"subject": "why prompt and training format must match", "answer": "If training and inference serialization differ, the model learns the wrong continuation boundary."}},
-  {"tags": ["concept_fact", "language:en"], "content": {"subject": "why raw generation must be evaluated directly", "answer": "Proxy fallbacks can hide model failures and produce inflated quality claims."}},
-  {"tags": ["concept_fact", "language:en"], "content": {"subject": "what retrieval should do for a 1024-token model", "answer": "Retrieval should select short relevant context instead of pushing the full history into one prompt."}},
-  {"tags": ["concept_fact", "language:en"], "content": {"subject": "why typed tools are preferred", "answer": "Typed tools expose clear arguments, validation, and side-effect boundaries."}},
-  {"tags": ["local_tool_scenario", "language:en"], "content": {"prompt": "List the docs directory.", "tool": "fs.list", "args": {"path": "docs"}, "result": "docs\nREADME.md", "answer": "The workspace docs directory and README are available."}},
-  {"tags": ["local_tool_scenario", "language:en"], "content": {"prompt": "List the project root.", "tool": "fs.list", "args": {"path": "."}, "result": "README.md\nsrc\ndocs", "answer": "The workspace root contains README.md, src, and docs."}},
-  {"tags": ["local_tool_scenario", "language:en"], "content": {"prompt": "Read the main README.", "tool": "fs.read", "args": {"path": "README.md"}, "result": "# lkjai\n\nDocs-first scratch agent.", "answer": "The README describes a docs-first scratch agent."}},
-  {"tags": ["local_tool_scenario", "language:en"], "content": {"prompt": "Read the docs README.", "tool": "fs.read", "args": {"path": "docs/README.md"}, "result": "# Docs\n\nCanonical project contracts.", "answer": "The docs README acts as the project table of contents."}},
-  {"tags": ["local_tool_scenario", "language:en"], "content": {"prompt": "Store a preference about concise answers.", "tool": "memory.write", "args": {"content": "User prefers concise answers."}, "result": "User prefers concise answers.", "answer": "I recorded the concise-answer preference."}},
-  {"tags": ["local_tool_scenario", "language:en"], "content": {"prompt": "Search memory for preferences.", "tool": "memory.search", "args": {"query": "preferences"}, "result": "User prefers concise answers.", "answer": "The stored preference says answers should stay concise."}},
-  {"tags": ["local_tool_scenario", "language:en"], "content": {"prompt": "Fetch a public page.", "tool": "web.fetch", "args": {"url": "https://example.com"}, "result": "<html>Example Domain</html>", "answer": "The fetched page is Example Domain."}},
-  {"tags": ["local_tool_scenario", "language:en"], "content": {"prompt": "Run pwd in the workspace.", "tool": "shell.exec", "args": {"command": "pwd"}, "result": "/app/data/workspace", "answer": "The shell runs inside the workspace directory."}},
-  {"tags": ["tool_variant", "language:en"], "content": {"constraint": "Return the correct tool, keep paths workspace-relative.", "tag": "tool_trajectory"}},
-  {"tags": ["tool_variant", "language:en"], "content": {"constraint": "Use the tool before answering.", "tag": "tool_trajectory"}},
-  {"tags": ["tool_variant", "language:en"], "content": {"constraint": "Prefer the typed tool call instead of prose.", "tag": "tool_selection"}},
-  {"tags": ["tool_variant", "language:en"], "content": {"constraint": "Keep the action JSON minimal and valid.", "tag": "action_json"}},
-  {"tags": ["public_source_metadata", "license:apache-2.0"], "content": {"name": "lkjai-curated-general", "license": "Apache-2.0"}}
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "debugging",
+      "practice": "reproduce, isolate, fix, verify",
+      "failure": "premature guesses"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "code review",
+      "practice": "find defects before style nits",
+      "failure": "missing regressions"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "incident response",
+      "practice": "stabilize before optimizing",
+      "failure": "unbounded blast radius"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "documentation",
+      "practice": "state defaults and verification",
+      "failure": "stale behavior claims"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "tool design",
+      "practice": "prefer typed interfaces",
+      "failure": "ambiguous side effects"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "evaluation",
+      "practice": "measure the real serving path",
+      "failure": "inflated proxy scores"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "privacy",
+      "practice": "preserve visibility boundaries",
+      "failure": "public leakage"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "planning",
+      "practice": "lock decisions before coding",
+      "failure": "hidden implementation drift"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "dataset curation",
+      "practice": "deduplicate before splitting",
+      "failure": "token inflation"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "tokenization",
+      "practice": "train on the same serialization used at runtime",
+      "failure": "schema drift"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "serving latency",
+      "practice": "cache reusable state",
+      "failure": "recomputing the prompt"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "integration contracts",
+      "practice": "define canonical API surfaces",
+      "failure": "UI-shaped machine calls"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "verification",
+      "practice": "test the same path that ships",
+      "failure": "mock-only confidence"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "change management",
+      "practice": "commit coherent milestones",
+      "failure": "giant unreviewable diffs"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "security review",
+      "practice": "block unauthorized writes",
+      "failure": "silent privilege expansion"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "observability",
+      "practice": "capture precise failure signals",
+      "failure": "vague summaries"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "safety policy",
+      "practice": "define boundaries before exceptions",
+      "failure": "implicit trust models"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "migration strategy",
+      "practice": "validate backward compatibility",
+      "failure": "data loss during cutover"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "deployment pipeline",
+      "practice": "gate on behavioral eval",
+      "failure": "skipping smoke tests"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "test repair",
+      "practice": "reproduce before patching",
+      "failure": "symptom-only fixes"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "data curation",
+      "practice": "track provenance and licenses",
+      "failure": "contaminated holdout"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "research synthesis",
+      "practice": "cite primary sources",
+      "failure": "circular references"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "preference evaluation",
+      "practice": "measure pairwise agreement",
+      "failure": "single-rater bias"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "error handling",
+      "practice": "fail fast with context",
+      "failure": "swallowed exceptions"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "capacity planning",
+      "practice": "measure peak plus headroom",
+      "failure": "average-only forecasting"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "dependency management",
+      "practice": "pin transitive versions",
+      "failure": "phantom upgrades"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "configuration design",
+      "practice": "explicit over implicit defaults",
+      "failure": "magic env vars"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "log retention",
+      "practice": "define expiry and access rules",
+      "failure": "infinite storage growth"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "api versioning",
+      "practice": "version at the contract level",
+      "failure": "breaking path changes"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "schema evolution",
+      "practice": "add optional before required",
+      "failure": "forced migrations"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "load balancing",
+      "practice": "health-aware routing",
+      "failure": "blind round-robin"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "circuit breakers",
+      "practice": "fail open with metrics",
+      "failure": "cascade failures"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "rate limiting",
+      "practice": "user-scoped quotas",
+      "failure": "global throttling"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "secret rotation",
+      "practice": "automate with zero downtime",
+      "failure": "manual cert swaps"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "backup validation",
+      "practice": "restore as part of the schedule",
+      "failure": "untested snapshots"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "canary analysis",
+      "practice": "compare metrics per cohort",
+      "failure": "binary deploy flags"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "feature flags",
+      "practice": "scope to identity plus time",
+      "failure": "flag debt"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "on-call runbooks",
+      "practice": "link commands to dashboards",
+      "failure": "outdated procedures"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "post-mortems",
+      "practice": "focus on systemic causes",
+      "failure": "blame-oriented language"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "cost attribution",
+      "practice": "tag resources to teams",
+      "failure": "untagged shared pools"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "access audit",
+      "practice": "review quarterly with evidence",
+      "failure": "stale permissions"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "supply chain",
+      "practice": "verify artifact signatures",
+      "failure": "unpinned base images"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "model governance",
+      "practice": "track training data licenses",
+      "failure": "unlicensed public rows"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "prompt injection",
+      "practice": "sanitize before execution",
+      "failure": "trusted user input"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "output filtering",
+      "practice": "block PII at generation time",
+      "failure": "post-hoc redaction"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "agent boundaries",
+      "practice": "confirm before external writes",
+      "failure": "autonomous mutations"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "trajectory logging",
+      "practice": "record actions and observations",
+      "failure": "invisible agent steps"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "tool sandboxing",
+      "practice": "restrict filesystem scope",
+      "failure": "host-root access"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "retry logic",
+      "practice": "exponential backoff with jitter",
+      "failure": "immediate infinite loops"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "idempotency",
+      "practice": "safe to repeat without side effects",
+      "failure": "double-charge risks"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "event ordering",
+      "practice": "sequence with timestamps or vectors",
+      "failure": "clock skew assumptions"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "state reconciliation",
+      "practice": "compare desired to observed",
+      "failure": "blind overwrites"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "dead letter queues",
+      "practice": "inspect and replay failures",
+      "failure": "silent message drops"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "health probes",
+      "practice": "deep checks for dependencies",
+      "failure": "always-200 endpoints"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "graceful shutdown",
+      "practice": "drain in-flight requests",
+      "failure": "immediate termination"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "resource quotas",
+      "practice": "limit CPU, memory, and IO",
+      "failure": "noisy neighbor impact"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "metric cardinality",
+      "practice": "bound label combinations",
+      "failure": "unbounded time series"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "alert fatigue",
+      "practice": "page on symptoms not causes",
+      "failure": "every threshold breach"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "runbook automation",
+      "practice": "script repetitive steps",
+      "failure": "manual copy-paste"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "chaos engineering",
+      "practice": "inject controlled failures",
+      "failure": "production surprises"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "documentation testing",
+      "practice": "validate code examples",
+      "failure": "stale snippets"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "interface segregation",
+      "practice": "split large APIs by client",
+      "failure": "god objects"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "invariant enforcement",
+      "practice": "assert at module boundaries",
+      "failure": "implicit contracts"
+    }
+  },
+  {
+    "tags": [
+      "general_topic",
+      "language:en"
+    ],
+    "content": {
+      "topic": "temporal decoupling",
+      "practice": "queue between producers and consumers",
+      "failure": "synchronous chains"
+    }
+  },
+  {
+    "tags": [
+      "audience",
+      "language:en"
+    ],
+    "content": {
+      "text": "an LLM agent maintaining a repository"
+    }
+  },
+  {
+    "tags": [
+      "audience",
+      "language:en"
+    ],
+    "content": {
+      "text": "a server-side note assistant"
+    }
+  },
+  {
+    "tags": [
+      "audience",
+      "language:en"
+    ],
+    "content": {
+      "text": "an engineer validating a compose stack"
+    }
+  },
+  {
+    "tags": [
+      "audience",
+      "language:en"
+    ],
+    "content": {
+      "text": "a reviewer checking a risky refactor"
+    }
+  },
+  {
+    "tags": [
+      "audience",
+      "language:en"
+    ],
+    "content": {
+      "text": "a dataset curator preparing a holdout split"
+    }
+  },
+  {
+    "tags": [
+      "audience",
+      "language:en"
+    ],
+    "content": {
+      "text": "a runtime owner debugging slow inference"
+    }
+  },
+  {
+    "tags": [
+      "audience",
+      "language:en"
+    ],
+    "content": {
+      "text": "a product engineer integrating resource APIs"
+    }
+  },
+  {
+    "tags": [
+      "audience",
+      "language:en"
+    ],
+    "content": {
+      "text": "a release reviewer checking acceptance gates"
+    }
+  },
+  {
+    "tags": [
+      "audience",
+      "language:en"
+    ],
+    "content": {
+      "text": "a security auditor reviewing access patterns"
+    }
+  },
+  {
+    "tags": [
+      "audience",
+      "language:en"
+    ],
+    "content": {
+      "text": "a new contributor reading the codebase"
+    }
+  },
+  {
+    "tags": [
+      "audience",
+      "language:en"
+    ],
+    "content": {
+      "text": "a DevOps engineer tuning deployment knobs"
+    }
+  },
+  {
+    "tags": [
+      "audience",
+      "language:en"
+    ],
+    "content": {
+      "text": "a data scientist evaluating model drift"
+    }
+  },
+  {
+    "tags": [
+      "audience",
+      "language:en"
+    ],
+    "content": {
+      "text": "a technical writer updating API docs"
+    }
+  },
+  {
+    "tags": [
+      "audience",
+      "language:en"
+    ],
+    "content": {
+      "text": "a site reliability engineer on call"
+    }
+  },
+  {
+    "tags": [
+      "audience",
+      "language:en"
+    ],
+    "content": {
+      "text": "a compliance officer checking audit trails"
+    }
+  },
+  {
+    "tags": [
+      "audience",
+      "language:en"
+    ],
+    "content": {
+      "text": "a frontend developer consuming agent output"
+    }
+  },
+  {
+    "tags": [
+      "deliverable",
+      "language:en"
+    ],
+    "content": {
+      "text": "a concise explanation"
+    }
+  },
+  {
+    "tags": [
+      "deliverable",
+      "language:en"
+    ],
+    "content": {
+      "text": "a change checklist"
+    }
+  },
+  {
+    "tags": [
+      "deliverable",
+      "language:en"
+    ],
+    "content": {
+      "text": "a risk summary"
+    }
+  },
+  {
+    "tags": [
+      "deliverable",
+      "language:en"
+    ],
+    "content": {
+      "text": "an implementation note"
+    }
+  },
+  {
+    "tags": [
+      "deliverable",
+      "language:en"
+    ],
+    "content": {
+      "text": "a verification note"
+    }
+  },
+  {
+    "tags": [
+      "deliverable",
+      "language:en"
+    ],
+    "content": {
+      "text": "a migration brief"
+    }
+  },
+  {
+    "tags": [
+      "deliverable",
+      "language:en"
+    ],
+    "content": {
+      "text": "a rejection rationale"
+    }
+  },
+  {
+    "tags": [
+      "deliverable",
+      "language:en"
+    ],
+    "content": {
+      "text": "a rollout checklist"
+    }
+  },
+  {
+    "tags": [
+      "deliverable",
+      "language:en"
+    ],
+    "content": {
+      "text": "a decision record"
+    }
+  },
+  {
+    "tags": [
+      "deliverable",
+      "language:en"
+    ],
+    "content": {
+      "text": "a test plan"
+    }
+  },
+  {
+    "tags": [
+      "deliverable",
+      "language:en"
+    ],
+    "content": {
+      "text": "a rollback procedure"
+    }
+  },
+  {
+    "tags": [
+      "deliverable",
+      "language:en"
+    ],
+    "content": {
+      "text": "a dependency matrix"
+    }
+  },
+  {
+    "tags": [
+      "deliverable",
+      "language:en"
+    ],
+    "content": {
+      "text": "a performance budget"
+    }
+  },
+  {
+    "tags": [
+      "deliverable",
+      "language:en"
+    ],
+    "content": {
+      "text": "a threat model"
+    }
+  },
+  {
+    "tags": [
+      "deliverable",
+      "language:en"
+    ],
+    "content": {
+      "text": "a runbook update"
+    }
+  },
+  {
+    "tags": [
+      "deliverable",
+      "language:en"
+    ],
+    "content": {
+      "text": "a training example"
+    }
+  },
+  {
+    "tags": [
+      "constraint",
+      "language:en"
+    ],
+    "content": {
+      "text": "keep the answer direct"
+    }
+  },
+  {
+    "tags": [
+      "constraint",
+      "language:en"
+    ],
+    "content": {
+      "text": "be explicit about uncertainty"
+    }
+  },
+  {
+    "tags": [
+      "constraint",
+      "language:en"
+    ],
+    "content": {
+      "text": "name the main failure mode"
+    }
+  },
+  {
+    "tags": [
+      "constraint",
+      "language:en"
+    ],
+    "content": {
+      "text": "prioritize verification over optimism"
+    }
+  },
+  {
+    "tags": [
+      "constraint",
+      "language:en"
+    ],
+    "content": {
+      "text": "tie the answer to one measurable outcome"
+    }
+  },
+  {
+    "tags": [
+      "constraint",
+      "language:en"
+    ],
+    "content": {
+      "text": "state the default before the exception"
+    }
+  },
+  {
+    "tags": [
+      "constraint",
+      "language:en"
+    ],
+    "content": {
+      "text": "avoid claiming success without a check"
+    }
+  },
+  {
+    "tags": [
+      "constraint",
+      "language:en"
+    ],
+    "content": {
+      "text": "prefer typed interfaces over ad hoc shell steps"
+    }
+  },
+  {
+    "tags": [
+      "constraint",
+      "language:en"
+    ],
+    "content": {
+      "text": "cite the specific file or line when possible"
+    }
+  },
+  {
+    "tags": [
+      "constraint",
+      "language:en"
+    ],
+    "content": {
+      "text": "limit the response to three concrete steps"
+    }
+  },
+  {
+    "tags": [
+      "constraint",
+      "language:en"
+    ],
+    "content": {
+      "text": "ask for clarification if the request is ambiguous"
+    }
+  },
+  {
+    "tags": [
+      "constraint",
+      "language:en"
+    ],
+    "content": {
+      "text": "return a JSON action, never prose outside it"
+    }
+  },
+  {
+    "tags": [
+      "constraint",
+      "language:en"
+    ],
+    "content": {
+      "text": "confirm before any write or mutation"
+    }
+  },
+  {
+    "tags": [
+      "constraint",
+      "language:en"
+    ],
+    "content": {
+      "text": "preserve user privacy in every output"
+    }
+  },
+  {
+    "tags": [
+      "constraint",
+      "language:en"
+    ],
+    "content": {
+      "text": "ground claims in the provided context only"
+    }
+  },
+  {
+    "tags": [
+      "constraint",
+      "language:en"
+    ],
+    "content": {
+      "text": "flag any assumption that could be wrong"
+    }
+  },
+  {
+    "tags": [
+      "angle",
+      "language:en"
+    ],
+    "content": {
+      "text": "focus on the default path"
+    }
+  },
+  {
+    "tags": [
+      "angle",
+      "language:en"
+    ],
+    "content": {
+      "text": "highlight the likely regression"
+    }
+  },
+  {
+    "tags": [
+      "angle",
+      "language:en"
+    ],
+    "content": {
+      "text": "name the validation command"
+    }
+  },
+  {
+    "tags": [
+      "angle",
+      "language:en"
+    ],
+    "content": {
+      "text": "explain why the contract exists"
+    }
+  },
+  {
+    "tags": [
+      "angle",
+      "language:en"
+    ],
+    "content": {
+      "text": "connect the design to serving quality"
+    }
+  },
+  {
+    "tags": [
+      "angle",
+      "language:en"
+    ],
+    "content": {
+      "text": "state what should not be optimized first"
+    }
+  },
+  {
+    "tags": [
+      "angle",
+      "language:en"
+    ],
+    "content": {
+      "text": "compare the current approach to the alternative"
+    }
+  },
+  {
+    "tags": [
+      "angle",
+      "language:en"
+    ],
+    "content": {
+      "text": "identify the smallest safe first step"
+    }
+  },
+  {
+    "tags": [
+      "angle",
+      "language:en"
+    ],
+    "content": {
+      "text": "trace the failure from symptom to root cause"
+    }
+  },
+  {
+    "tags": [
+      "angle",
+      "language:en"
+    ],
+    "content": {
+      "text": "measure impact before recommending change"
+    }
+  },
+  {
+    "tags": [
+      "angle",
+      "language:en"
+    ],
+    "content": {
+      "text": "list prerequisites before the main task"
+    }
+  },
+  {
+    "tags": [
+      "angle",
+      "language:en"
+    ],
+    "content": {
+      "text": "warn about hidden dependencies"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "/etc/passwd"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "/var/lib/app.db"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "/home/user/.ssh/id_rsa"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "a private note"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "browser cookies"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "an unconfirmed write request"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "an admin-only resource"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "a hidden deployment token"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "user biometric data"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "payment card numbers"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "session authentication tokens"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "unpublished financial reports"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "employee home addresses"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "medical records"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "unreleased product designs"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "customer support transcripts"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "internal security audits"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "password reset links"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "API keys with write scope"
+    }
+  },
+  {
+    "tags": [
+      "safety_boundary",
+      "language:en"
+    ],
+    "content": {
+      "text": "backup encryption keys"
+    }
+  },
+  {
+    "tags": [
+      "safety_request",
+      "language:en"
+    ],
+    "content": {
+      "template": "Explain how the assistant should handle {boundary}."
+    }
+  },
+  {
+    "tags": [
+      "safety_request",
+      "language:en"
+    ],
+    "content": {
+      "template": "State the safe default when a user asks for {boundary}."
+    }
+  },
+  {
+    "tags": [
+      "safety_request",
+      "language:en"
+    ],
+    "content": {
+      "template": "Describe the refusal and redirect policy for {boundary}."
+    }
+  },
+  {
+    "tags": [
+      "safety_request",
+      "language:en"
+    ],
+    "content": {
+      "template": "Explain why unrestricted access to {boundary} is unsafe."
+    }
+  },
+  {
+    "tags": [
+      "safety_request",
+      "language:en"
+    ],
+    "content": {
+      "template": "State the confirmation requirement for {boundary}."
+    }
+  },
+  {
+    "tags": [
+      "safety_request",
+      "language:en"
+    ],
+    "content": {
+      "template": "List the least-privilege alternative for {boundary}."
+    }
+  },
+  {
+    "tags": [
+      "safety_request",
+      "language:en"
+    ],
+    "content": {
+      "template": "Describe the audit trail expectation for {boundary}."
+    }
+  },
+  {
+    "tags": [
+      "safety_request",
+      "language:en"
+    ],
+    "content": {
+      "template": "Explain the data residency rule for {boundary}."
+    }
+  },
+  {
+    "tags": [
+      "safety_request",
+      "language:en"
+    ],
+    "content": {
+      "template": "State the retention limit for {boundary}."
+    }
+  },
+  {
+    "tags": [
+      "safety_request",
+      "language:en"
+    ],
+    "content": {
+      "template": "Describe the encryption requirement for {boundary}."
+    }
+  },
+  {
+    "tags": [
+      "safer_alternative",
+      "language:en"
+    ],
+    "content": {
+      "text": "ask for explicit confirmation and a typed mutation payload"
+    }
+  },
+  {
+    "tags": [
+      "safer_alternative",
+      "language:en"
+    ],
+    "content": {
+      "text": "limit the workflow to authorized resource APIs"
+    }
+  },
+  {
+    "tags": [
+      "safer_alternative",
+      "language:en"
+    ],
+    "content": {
+      "text": "return a boundary explanation and stop before the write"
+    }
+  },
+  {
+    "tags": [
+      "safer_alternative",
+      "language:en"
+    ],
+    "content": {
+      "text": "suggest a read-only or preview-only alternative"
+    }
+  },
+  {
+    "tags": [
+      "safer_alternative",
+      "language:en"
+    ],
+    "content": {
+      "text": "escalate to a human reviewer with audit logging"
+    }
+  },
+  {
+    "tags": [
+      "safer_alternative",
+      "language:en"
+    ],
+    "content": {
+      "text": "return a synthetic or anonymized substitute"
+    }
+  },
+  {
+    "tags": [
+      "safer_alternative",
+      "language:en"
+    ],
+    "content": {
+      "text": "require multi-factor authorization first"
+    }
+  },
+  {
+    "tags": [
+      "safer_alternative",
+      "language:en"
+    ],
+    "content": {
+      "text": "offer a time-limited temporary access grant"
+    }
+  },
+  {
+    "tags": [
+      "safer_alternative",
+      "language:en"
+    ],
+    "content": {
+      "text": "redirect to a self-service privacy portal"
+    }
+  },
+  {
+    "tags": [
+      "safer_alternative",
+      "language:en"
+    ],
+    "content": {
+      "text": "document the request and defer to business hours"
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "the difference between notes and media in kjxlkj",
+      "answer": "Notes store editable markdown content. Media store uploaded files plus metadata and can be attached to notes."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "what `/api/resources/search` returns",
+      "answer": "It returns JSON search results with resource payloads plus paging cursors."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "when kjxlkj writes require confirmation",
+      "answer": "Create and update operations should be confirmed before the assistant executes them."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "what history means in kjxlkj",
+      "answer": "History is the immutable sequence of saved snapshots for one resource."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "why prompt and training format must match",
+      "answer": "If training and inference serialization differ, the model learns the wrong continuation boundary."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "why raw generation must be evaluated directly",
+      "answer": "Proxy fallbacks can hide model failures and produce inflated quality claims."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "what retrieval should do for a 1024-token model",
+      "answer": "Retrieval should select short relevant context instead of pushing the full history into one prompt."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "why typed tools are preferred",
+      "answer": "Typed tools expose clear arguments, validation, and side-effect boundaries."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "what a plan action represents",
+      "answer": "A visible outline of steps the assistant intends to take before making tool calls."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "why multi-turn trajectories help small models",
+      "answer": "They teach the model to observe results and revise instead of guessing once."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "what the Chinchilla gap means for scratch-60m",
+      "answer": "The model sees far fewer tokens than compute-optimal, so data quality matters more."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "why agentic rows use explicit tool names in plans",
+      "answer": "It grounds the plan in executable actions and makes evaluation objective."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "what workspace-safe means for safety_scope",
+      "answer": "The content is safe to use in local development without leaking secrets."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "why deduplication happens before splitting",
+      "answer": "Splitting first would place near-duplicates in train and holdout, inflating scores."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "what behavioral_threshold tracks",
+      "answer": "The minimum raw holdout pass rate required to accept a training run."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "why fixed eval checks artifact existence",
+      "answer": "It prevents accepting a model that was never exported or has missing metadata."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "what gradient_accumulation simulates",
+      "answer": "It increases effective batch size without raising peak memory."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "why cosine LR decay is used",
+      "answer": "It smoothly reduces the learning rate so late steps still refine weights."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "what RMSNorm replaces",
+      "answer": "It replaces LayerNorm with a root-mean-square normalization that avoids learnable bias."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "why grouped-query attention helps inference",
+      "answer": "It reduces KV cache memory by sharing key and value heads across query heads."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "what SwiGLU does in the feed-forward layer",
+      "answer": "It uses a gated activation for better expressiveness than ReLU or GELU."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "why the tokenizer trains on the train split only",
+      "answer": "Training on validation or holdout would leak test information into the vocabulary."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "what a preference pair teaches via DPO",
+      "answer": "It teaches the model to prefer chosen responses over rejected ones without a separate reward model."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "why competency gates use raw generation",
+      "answer": "Supervised or fallback answers would hide true model capability."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "what the agent loop does after a tool_call",
+      "answer": "It executes the tool, appends the observation, and prompts the model again."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "why confirmation is required for kjxlkj mutations",
+      "answer": "It prevents accidental data loss or unauthorized changes."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "what memory.search returns",
+      "answer": "It returns previously stored user preferences or facts relevant to the query."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "why shell.exec requires workspace-relative paths",
+      "answer": "It prevents the agent from accessing system files outside the sandbox."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "what web.fetch is used for",
+      "answer": "It retrieves public web pages for grounding or reference."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "why fs.list is safer than globbing",
+      "answer": "It returns explicit directory contents without shell expansion risks."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "what resource.preview_markdown does",
+      "answer": "It renders markdown safely for review before publishing."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "why history windows are bounded",
+      "answer": "Unbounded history would exceed the model context limit."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "what visibility rules protect",
+      "answer": "They prevent private notes from being exposed through search or summaries."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "why search kinds exist",
+      "answer": "They let the user filter results by note, media, or all resources."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "what alias means for a kjxlkj resource",
+      "answer": "A human-readable identifier that can be used instead of the internal ref."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "why is_private defaults matter",
+      "answer": "They set the safest visibility state when the user does not specify one."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "what a holdout split evaluates",
+      "answer": "It evaluates generalization on unseen tasks, not memorization."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "why JSON validity is tracked separately from pass rate",
+      "answer": "A model can produce valid JSON that is completely wrong for the task."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "what bucket rates reveal",
+      "answer": "They show per-task performance so aggregate scores do not hide regressions."
+    }
+  },
+  {
+    "tags": [
+      "concept_fact",
+      "language:en"
+    ],
+    "content": {
+      "subject": "why the plan action has no hidden thought field",
+      "answer": "All reasoning must be observable and evaluable."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "List the docs directory.",
+      "tool": "fs.list",
+      "args": {
+        "path": "docs"
+      },
+      "result": "docs\nREADME.md",
+      "answer": "The workspace docs directory and README are available."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "List the project root.",
+      "tool": "fs.list",
+      "args": {
+        "path": "."
+      },
+      "result": "README.md\nsrc\ndocs",
+      "answer": "The workspace root contains README.md, src, and docs."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Read the main README.",
+      "tool": "fs.read",
+      "args": {
+        "path": "README.md"
+      },
+      "result": "# lkjai\n\nDocs-first scratch agent.",
+      "answer": "The README describes a docs-first scratch agent."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Read the docs README.",
+      "tool": "fs.read",
+      "args": {
+        "path": "docs/README.md"
+      },
+      "result": "# Docs\n\nCanonical project contracts.",
+      "answer": "The docs README acts as the project table of contents."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Store a preference about concise answers.",
+      "tool": "memory.write",
+      "args": {
+        "content": "User prefers concise answers."
+      },
+      "result": "User prefers concise answers.",
+      "answer": "I recorded the concise-answer preference."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Search memory for preferences.",
+      "tool": "memory.search",
+      "args": {
+        "query": "preferences"
+      },
+      "result": "User prefers concise answers.",
+      "answer": "The stored preference says answers should stay concise."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Fetch a public page.",
+      "tool": "web.fetch",
+      "args": {
+        "url": "https://example.com"
+      },
+      "result": "<html>Example Domain</html>",
+      "answer": "The fetched page is Example Domain."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Run pwd in the workspace.",
+      "tool": "shell.exec",
+      "args": {
+        "command": "pwd"
+      },
+      "result": "/app/data/workspace",
+      "answer": "The shell runs inside the workspace directory."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Read the Cargo manifest.",
+      "tool": "fs.read",
+      "args": {
+        "path": "Cargo.toml"
+      },
+      "result": "[package]\nname = \"lkjai\"",
+      "answer": "The project is named lkjai in Cargo."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "List source files.",
+      "tool": "fs.list",
+      "args": {
+        "path": "src"
+      },
+      "result": "agent\ncli\nweb\nmain.rs",
+      "answer": "The src directory contains agent, cli, web, and main.rs."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Search memory for docs.",
+      "tool": "memory.search",
+      "args": {
+        "query": "docs"
+      },
+      "result": "User asked about docs grounding.",
+      "answer": "Memory contains a prior docs query."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Run a validation command.",
+      "tool": "shell.exec",
+      "args": {
+        "command": "cargo test"
+      },
+      "result": "test result: ok",
+      "answer": "All Rust tests passed."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Read training settings.",
+      "tool": "fs.read",
+      "args": {
+        "path": "training/lkjai_train/settings.py"
+      },
+      "result": "class TrainSettings:",
+      "answer": "The settings file defines the training configuration."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "List corpus sources.",
+      "tool": "fs.list",
+      "args": {
+        "path": "training/corpus_sources"
+      },
+      "result": "general.json\nkjxlkj.json",
+      "answer": "The corpus source directory has general and kjxlkj packs."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Check disk usage.",
+      "tool": "shell.exec",
+      "args": {
+        "command": "du -sh data"
+      },
+      "result": "100M\tdata",
+      "answer": "The data directory uses about 100 megabytes."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Search for deployment docs.",
+      "tool": "memory.search",
+      "args": {
+        "query": "deployment"
+      },
+      "result": "Deployment checklist in docs/operations.",
+      "answer": "Memory references the deployment documentation."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Read the docker compose file.",
+      "tool": "fs.read",
+      "args": {
+        "path": "docker-compose.yml"
+      },
+      "result": "services:",
+      "answer": "The compose file defines inference, web, train, and verify services."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "List test files.",
+      "tool": "fs.list",
+      "args": {
+        "path": "training/tests"
+      },
+      "result": "test_smoke.py\ntest_fixed_eval.py",
+      "answer": "The training tests include smoke and fixed eval."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Fetch release notes.",
+      "tool": "web.fetch",
+      "args": {
+        "url": "https://example.com/releases"
+      },
+      "result": "v1.0.0 - initial release",
+      "answer": "The latest release is v1.0.0."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Store a safety boundary.",
+      "tool": "memory.write",
+      "args": {
+        "content": "Never expose /etc/passwd."
+      },
+      "result": "Never expose /etc/passwd.",
+      "answer": "I recorded the safety boundary."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Read the agent schema.",
+      "tool": "fs.read",
+      "args": {
+        "path": "src/agent/schema.rs"
+      },
+      "result": "pub struct ChatRequest",
+      "answer": "The agent schema defines ChatRequest and ChatResponse."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "List docs architecture.",
+      "tool": "fs.list",
+      "args": {
+        "path": "docs/architecture"
+      },
+      "result": "agent\nmemory\nmodel\nruntime\ntraining",
+      "answer": "The architecture docs cover agent, memory, model, runtime, and training."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Check training logs.",
+      "tool": "shell.exec",
+      "args": {
+        "command": "ls data/train/runs"
+      },
+      "result": "fixed-eval.json\nbehavioral-eval.json",
+      "answer": "Training runs produced fixed and behavioral evals."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Read model config.",
+      "tool": "fs.read",
+      "args": {
+        "path": "src/agent/mod.rs"
+      },
+      "result": "pub mod action",
+      "answer": "The agent module exposes action, memory, prompt, schema, and tools."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Search for incident response.",
+      "tool": "memory.search",
+      "args": {
+        "query": "incident"
+      },
+      "result": "Incident response runbook in docs.",
+      "answer": "Memory has an incident response reference."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Read verification script.",
+      "tool": "fs.read",
+      "args": {
+        "path": "verify.sh"
+      },
+      "result": "#!/bin/sh",
+      "answer": "The verify script runs fmt, test, pytest, and docs checks."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "List research docs.",
+      "tool": "fs.list",
+      "args": {
+        "path": "docs/research"
+      },
+      "result": "corpus.md\nlightweighting.md\nmodels.md",
+      "answer": "Research docs cover corpus, lightweighting, and models."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Check python version.",
+      "tool": "shell.exec",
+      "args": {
+        "command": "python3 --version"
+      },
+      "result": "Python 3.12",
+      "answer": "The environment uses Python 3.12."
+    }
+  },
+  {
+    "tags": [
+      "local_tool_scenario",
+      "language:en"
+    ],
+    "content": {
+      "prompt": "Read environment defaults.",
+      "tool": "fs.read",
+      "args": {
+        "path": ".env.example"
+      },
+      "result": "TRAIN_MAX_STEPS=12000",
+      "answer": "The env example sets 12k steps and 30k corpus size."
+    }
+  },
+  {
+    "tags": [
+      "tool_variant",
+      "language:en"
+    ],
+    "content": {
+      "constraint": "Return the correct tool, keep paths workspace-relative.",
+      "tag": "tool_trajectory"
+    }
+  },
+  {
+    "tags": [
+      "tool_variant",
+      "language:en"
+    ],
+    "content": {
+      "constraint": "Use the tool before answering.",
+      "tag": "tool_trajectory"
+    }
+  },
+  {
+    "tags": [
+      "tool_variant",
+      "language:en"
+    ],
+    "content": {
+      "constraint": "Prefer the typed tool call instead of prose.",
+      "tag": "tool_selection"
+    }
+  },
+  {
+    "tags": [
+      "tool_variant",
+      "language:en"
+    ],
+    "content": {
+      "constraint": "Keep the action JSON minimal and valid.",
+      "tag": "action_json"
+    }
+  },
+  {
+    "tags": [
+      "tool_variant",
+      "language:en"
+    ],
+    "content": {
+      "constraint": "Plan first, then call the tool.",
+      "tag": "plan_then_tool"
+    }
+  },
+  {
+    "tags": [
+      "tool_variant",
+      "language:en"
+    ],
+    "content": {
+      "constraint": "Observe the result before the final answer.",
+      "tag": "observe_then_final"
+    }
+  },
+  {
+    "tags": [
+      "tool_variant",
+      "language:en"
+    ],
+    "content": {
+      "constraint": "Revise the plan if the first tool fails.",
+      "tag": "revision"
+    }
+  },
+  {
+    "tags": [
+      "tool_variant",
+      "language:en"
+    ],
+    "content": {
+      "constraint": "Chain two tools when the task requires it.",
+      "tag": "tool_chain"
+    }
+  },
+  {
+    "tags": [
+      "public_source_metadata",
+      "license:apache-2.0"
+    ],
+    "content": {
+      "name": "lkjai-curated-general",
+      "license": "Apache-2.0"
+    }
+  }
 ]
