@@ -46,7 +46,7 @@ def preference_rows(limit: int) -> list[dict]:
     for index in range(limit):
         skill, chosen, rejected = PAIRS[index % len(PAIRS)]
         row_id = f"pref-{index + 1:05d}"
-        prompt = xml_prompt(f"Choose the better action for case {index + 1}.", f"<skill>{skill}</skill>", "Return the better JSON action.")
+        prompt = xml_prompt(f"Choose the better action for case {index + 1}.", f"<skill>{skill}</skill>", "Return the better XML action.")
         messages = [
             {"role": "user", "content": prompt},
             action_message(chosen),

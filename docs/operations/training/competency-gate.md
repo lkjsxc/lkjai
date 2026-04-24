@@ -14,7 +14,7 @@ current documented baseline on raw holdout behavior.
 
 ## Thresholds
 
-- JSON validity on holdout: `>= 0.95`
+- XML validity on holdout: `>= 0.95`
 - Holdout read/search/history/preview success: `>= 0.60`
 - Holdout confirmation-planning success: `>= 0.50`
 

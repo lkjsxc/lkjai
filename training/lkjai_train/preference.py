@@ -2,8 +2,9 @@ import json
 import os
 from pathlib import Path
 
-from .dataset import prepare_fixtures
+from .dataset import parse_assistant_xml, prepare_fixtures
 from .formatting import load_rows, prompt_text
+from .rows import xml_action
 
 
 def prepare_preferences(paths) -> Path:
@@ -20,23 +21,22 @@ def prepare_preferences(paths) -> Path:
 
 def row_pair(row: dict) -> dict:
     chosen = row["messages"][-1]["content"]
-    expected = json.loads(chosen)
+    expected = parse_assistant_xml(chosen)
     rejected = rejection_for(expected)
     return {
         "messages": row["messages"][:-1],
         "chosen": chosen,
-        "rejected": json.dumps(rejected, ensure_ascii=False, separators=(",", ":")),
+        "rejected": rejected,
         "source": row["meta"]["id"],
     }
 
 
 def rejection_for(expected: dict) -> dict:
-    if expected.get("kind") == "tool_call":
-        return {"kind": "final", "content": "done"}
-    if expected.get("kind") == "request_confirmation":
-        pending = expected.get("pending_tool_call", {})
-        return {"kind": "tool_call", "tool": pending.get("tool", "resource.update_resource"), "args": pending.get("args", {})}
-    return {"kind": "final", "content": "I cannot help."}
+    if expected.get("tool") == "agent.request_confirmation":
+        return xml_action(expected.get("pending_tool", "resource.update_resource"), expected)
+    if expected.get("tool") != "agent.finish":
+        return xml_action("agent.finish", {"content": "done"})
+    return xml_action("agent.finish", {"content": "I cannot help."})
 
 
 def train_dpo(paths, settings) -> Path:

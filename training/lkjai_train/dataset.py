@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from xml.etree import ElementTree
 
 from .corpus import generate_corpus, source_metadata, split_rows
 from .corpus_source import validate_sources
@@ -8,7 +9,7 @@ from .rows import direct_row, meta, signature, tool_only_row
 
 FIXTURES = [
     direct_row(
-        "<task><request>Say hello.</request><context><mode>smoke</mode></context><constraints>Return one JSON action.</constraints></task>",
+        "<task><request>Say hello.</request><context><mode>smoke</mode></context><constraints>Return one XML action.</constraints></task>",
         "Hello.",
         ["direct_answer", "fixture", "language:en"],
         meta("fixture-0001", "fixtures", "direct-answer", "training/tests", split="train"),
@@ -44,8 +45,15 @@ REQUIRED_META = {
     "source_ref",
 }
 
-DISALLOWED_AUTHOR_PARTS = ("gpt", "kimi", "claude", "llm")
-ALLOWED_PROVENANCE = {"repo-derived", "test-derived", "runtime-schema-derived", "human-seed", "public-import"}
+DISALLOWED_AUTHOR_PARTS = ("gpt", "codex", "claude", "llm")
+ALLOWED_PROVENANCE = {
+    "repo-derived",
+    "test-derived",
+    "runtime-schema-derived",
+    "human-seed",
+    "public-import",
+    "kimi-generated",
+}
 
 
 def prepare_fixtures(paths) -> Path:
@@ -95,7 +103,7 @@ def validate_dataset(path: Path) -> Path:
             if not isinstance(message.get("content"), str):
                 raise ValueError("message content must be string")
             if message.get("role") == "assistant":
-                validate_assistant_json(message["content"])
+                validate_assistant_xml(message["content"])
         signatures.add(signature(row))
         rows += 1
     if rows == 0:
@@ -105,15 +113,32 @@ def validate_dataset(path: Path) -> Path:
     return path
 
 
-def validate_assistant_json(content: str) -> None:
+def validate_assistant_xml(content: str) -> None:
+    parse_assistant_xml(content)
+
+
+def parse_assistant_xml(content: str) -> dict:
+    text = content.strip()
+    if "<action " in text:
+        raise ValueError("assistant XML action must not use attributes")
     try:
-        data = json.loads(content)
-    except json.JSONDecodeError as error:
-        raise ValueError(f"assistant content is not valid JSON: {error}") from error
-    if not isinstance(data, dict):
-        raise ValueError("assistant JSON must be an object")
-    if "kind" not in data:
-        raise ValueError("assistant JSON missing kind field")
+        root = ElementTree.fromstring(text)
+    except ElementTree.ParseError as error:
+        raise ValueError(f"assistant content is not valid XML: {error}") from error
+    if root.tag != "action":
+        raise ValueError("assistant XML root must be action")
+    if root.attrib:
+        raise ValueError("assistant XML action must not use attributes")
+    fields = {}
+    for child in root:
+        if child.attrib or list(child):
+            raise ValueError("assistant XML children must be simple text tags")
+        if child.tag in fields:
+            raise ValueError(f"duplicate assistant XML tag {child.tag}")
+        fields[child.tag] = child.text or ""
+    if not fields.get("tool"):
+        raise ValueError("assistant XML missing tool tag")
+    return fields
 
 
 def validate_provenance(metadata: dict) -> None:

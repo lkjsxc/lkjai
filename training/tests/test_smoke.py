@@ -5,10 +5,10 @@ import pytest
 from lkjai_train.cli import dispatch, train_settings
 from lkjai_train.corpus import generate_corpus
 from lkjai_train.corpus_source import load_entries, tagged_contents, validate_sources
-from lkjai_train.dataset import prepare_fixtures, validate_dataset
+from lkjai_train.dataset import parse_assistant_xml, prepare_fixtures, validate_dataset
 from lkjai_train.behavioral import action_schema_error, bucket, bucket_rates
 from lkjai_train.formatting import prompt_text, supervised_token_ids
-from lkjai_train.generation import agent_context_messages, first_json_object, latest_user_event, normalize_action, normalize_messages
+from lkjai_train.generation import agent_context_messages, first_xml_action, latest_user_event, normalize_action, normalize_messages
 from lkjai_train.paths import Paths
 from lkjai_train.preference import prepare_preferences
 from lkjai_train.public_import import ALLOWED_LICENSES, prepare_public_corpus, validate_public_sources
@@ -90,10 +90,10 @@ def test_fixture_dataset_validates(tmp_path):
     assert validate_dataset(paths.holdout_dataset) == paths.holdout_dataset
 
 
-def test_prompt_text_appends_assistant_json_header():
+def test_prompt_text_appends_assistant_action_header():
     text = prompt_text([{"role": "user", "content": "hello"}])
     assert text.startswith("<bos>")
-    assert text.endswith("<assistant_json>")
+    assert text.endswith("<assistant_action>")
     assert "<dialogue>" in text
 
 
@@ -110,10 +110,11 @@ def test_agent_corpus_default_has_required_mix():
     assert all(row["meta"]["author_model"] == "none" for row in rows)
 
 
-def test_normalize_action_extracts_first_json_object():
-    text = 'noise {"kind":"final","content":"ok"} trailing'
-    assert json.loads(normalize_action(text))["content"] == "ok"
-    assert first_json_object(text) == '{"kind":"final","content":"ok"}'
+def test_normalize_action_extracts_first_xml_action():
+    xml = "<action><tool>agent.finish</tool><content>ok</content></action>"
+    text = f"noise {xml} trailing"
+    assert parse_assistant_xml(normalize_action(text))["content"] == "ok"
+    assert first_xml_action(text) == xml
 
 
 def test_normalize_action_returns_raw_invalid_text():
@@ -121,14 +122,14 @@ def test_normalize_action_returns_raw_invalid_text():
 
 
 def test_behavioral_schema_rejects_invalid_action_shape():
-    assert action_schema_error({"kind": "33"}).startswith("unknown action kind")
-    assert action_schema_error({"kind": "tool_call", "tool": "fs.list", "args": {}}) == ""
+    assert action_schema_error({}) == "action missing tool"
+    assert action_schema_error({"tool": "fs.list", "path": "."}) == ""
 
 
 def test_behavioral_buckets_report_pass_rates():
     cases = [
-        {"bucket": "direct_answer", "passed": True, "valid_json": True},
-        {"bucket": "direct_answer", "passed": False, "valid_json": True},
+        {"bucket": "direct_answer", "passed": True, "valid_xml": True},
+        {"bucket": "direct_answer", "passed": False, "valid_xml": True},
     ]
     assert bucket({"tags": ["kjxlkj", "confirmation"]}) == "kjxlkj_mutation_confirmation"
     assert bucket_rates(cases)["direct_answer"]["pass_rate"] == 0.5
@@ -138,7 +139,7 @@ def test_supervised_labels_mask_non_assistant_tokens():
     row = {
         "messages": [
             {"role": "user", "content": "hello"},
-            {"role": "assistant", "content": '{"kind":"final","content":"hi"}'},
+            {"role": "assistant", "content": "<action><tool>agent.finish</tool><content>hi</content></action>"},
         ]
     }
     ids, labels = supervised_token_ids(DummyTokenizer(), row)
@@ -151,23 +152,23 @@ def test_raw_user_prompt_becomes_default_task():
     messages = normalize_messages([{"role": "user", "content": "What is 2+3?"}])
     assert "<task>" in messages[0]["content"]
     assert "<request>What is 2+3?</request>" in messages[0]["content"]
-    assert "<constraints>Return one valid JSON action.</constraints>" in messages[0]["content"]
+    assert "<constraints>Return one valid XML action.</constraints>" in messages[0]["content"]
 
 
 def test_latest_user_event_extracts_tagged_context():
-    content = '<events><event kind="user">What is lkjai?</event></events>'
+    content = "<events><event><kind>user</kind><content>What is lkjai?</content></event></events>"
     assert latest_user_event(content) == "What is lkjai?"
 
 
 def test_agent_context_messages_include_tool_observation():
-    content = '<events><event kind="user">Search resources.</event><event kind="observation">release-notes</event></events>'
+    content = "<events><event><kind>user</kind><content>Search resources.</content></event><event><kind>observation</kind><content>release-notes</content></event></events>"
     messages = agent_context_messages(content)
     assert messages[-1]["role"] == "tool"
     assert messages[-1]["content"] == "release-notes"
 
 
 def test_agent_context_messages_preserve_empty_observation():
-    content = '<events><event kind="user">Search resources.</event><event kind="observation"></event></events>'
+    content = "<events><event><kind>user</kind><content>Search resources.</content></event><event><kind>observation</kind><content></content></event></events>"
     messages = agent_context_messages(content)
     assert messages[-1]["role"] == "tool"
     assert messages[-1]["content"] == ""

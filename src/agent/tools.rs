@@ -4,41 +4,18 @@ use super::{memory::MemoryStore, tool_local, tool_remote};
 
 #[derive(Clone, Debug)]
 pub enum ToolCall {
-    AgentFinish {
-        content: String,
-    },
-    Shell {
-        command: String,
-    },
-    Fetch {
-        url: String,
-    },
-    Read {
-        path: String,
-    },
-    Write {
-        path: String,
-        content: String,
-    },
-    List {
-        path: String,
-    },
-    MemorySearch {
-        query: String,
-    },
-    MemoryWrite {
-        content: String,
-    },
-    ResourceSearch {
-        query: String,
-        kind: String,
-    },
-    ResourceFetch {
-        reference: String,
-    },
-    ResourceHistory {
-        reference: String,
-    },
+    AgentFinish { content: String },
+    AgentThink { content: String },
+    Shell { command: String },
+    Fetch { url: String },
+    Read { path: String },
+    Write { path: String, content: String },
+    List { path: String },
+    MemorySearch { query: String },
+    MemoryWrite { content: String },
+    ResourceSearch { query: String, kind: String },
+    ResourceFetch { reference: String },
+    ResourceHistory { reference: String },
     ResourcePreview {
         body: String,
         current_resource_id: Option<String>,
@@ -62,6 +39,9 @@ impl ToolCall {
         let tool = action.tool.as_str();
         match tool {
             "agent.finish" => Ok(Self::AgentFinish {
+                content: required(action, "content")?,
+            }),
+            "agent.think" => Ok(Self::AgentThink {
                 content: required(action, "content")?,
             }),
             "shell.exec" => Ok(Self::Shell {
@@ -119,6 +99,7 @@ impl ToolCall {
     pub fn name(&self) -> &'static str {
         match self {
             Self::AgentFinish { .. } => "agent.finish",
+            Self::AgentThink { .. } => "agent.think",
             Self::Shell { .. } => "shell.exec",
             Self::Fetch { .. } => "web.fetch",
             Self::Read { .. } => "fs.read",
@@ -138,6 +119,7 @@ impl ToolCall {
     pub fn summary(&self) -> String {
         match self {
             Self::AgentFinish { content } => content.chars().take(80).collect(),
+            Self::AgentThink { content } => content.chars().take(80).collect(),
             Self::Shell { command } => command.clone(),
             Self::Fetch { url } => url.clone(),
             Self::Read { path } | Self::List { path } => path.clone(),
@@ -165,6 +147,9 @@ pub async fn execute(
     run_id: &str,
 ) -> Result<String, String> {
     if let ToolCall::AgentFinish { content } = call {
+        return Ok(content);
+    }
+    if let ToolCall::AgentThink { content } = call {
         return Ok(content);
     }
     if let Some(value) = tool_local::execute(&call, config, memory, run_id).await? {

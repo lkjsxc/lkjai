@@ -2,7 +2,7 @@
 
 ## Invalid Model Output
 
-- Invalid JSON gets one repair attempt by default.
+- Invalid XML action output gets one repair attempt by default.
 - The repair prompt includes the validation error and required schema.
 - If repair fails, the turn stops with `invalid_action`.
 

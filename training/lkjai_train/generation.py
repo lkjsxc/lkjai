@@ -1,5 +1,5 @@
-import json
 from pathlib import Path
+from xml.etree import ElementTree
 
 from .formatting import prompt_text
 
@@ -78,6 +78,9 @@ def latest_user_event(content: str) -> str:
 
 
 def latest_tagged_event(content: str, kind: str) -> str:
+    parsed = latest_structured_event(content, kind)
+    if parsed:
+        return parsed
     marker, end = f'<event kind="{kind}">', "</event>"
     index = content.rfind(marker)
     if index < 0:
@@ -88,7 +91,20 @@ def latest_tagged_event(content: str, kind: str) -> str:
 
 
 def has_tagged_event(content: str, kind: str) -> bool:
-    return f'<event kind="{kind}">' in content
+    return f'<event kind="{kind}">' in content or f"<kind>{kind}</kind>" in content
+
+
+def latest_structured_event(content: str, kind: str) -> str:
+    try:
+        root = ElementTree.fromstring(f"<root>{content}</root>")
+    except ElementTree.ParseError:
+        return ""
+    matches = []
+    for event in root.findall(".//event"):
+        event_kind = event.findtext("kind", default="")
+        if event_kind == kind:
+            matches.append(event.findtext("content", default=""))
+    return unescape_xml(matches[-1]).strip() if matches else ""
 
 
 def guessed_tool(user: str) -> str:
@@ -122,44 +138,24 @@ def default_task(request: str) -> str:
         "<task>\n"
         f"<request>{request}</request>\n"
         "<context></context>\n"
-        "<constraints>Return one valid JSON action.</constraints>\n"
+        "<constraints>Return one valid XML action.</constraints>\n"
         "</task>"
     )
 
 
 def normalize_action(text: str) -> str:
-    candidate = first_json_object(text)
+    candidate = first_xml_action(text)
     if candidate:
-        try:
-            json.loads(candidate)
-            return candidate
-        except json.JSONDecodeError:
-            pass
-    return text.replace("<eos>", "").replace("<assistant_json>", "").strip()
+        return candidate
+    return text.replace("<eos>", "").replace("<assistant_action>", "").strip()
 
 
-def first_json_object(text: str) -> str:
-    start = text.find("{")
+def first_xml_action(text: str) -> str:
+    start = text.find("<action>")
     if start < 0:
         return ""
-    depth = 0
-    in_string = False
-    escape = False
-    for index, char in enumerate(text[start:], start=start):
-        if in_string:
-            if escape:
-                escape = False
-            elif char == "\\":
-                escape = True
-            elif char == '"':
-                in_string = False
-            continue
-        if char == '"':
-            in_string = True
-        elif char == "{":
-            depth += 1
-        elif char == "}":
-            depth -= 1
-            if depth == 0:
-                return text[start : index + 1]
+    end = text.find("</action>", start)
+    if end >= 0:
+        return text[start : end + len("</action>")]
     return ""
+

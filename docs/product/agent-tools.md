@@ -9,6 +9,8 @@
 - `fs.list`: list a workspace directory.
 - `memory.search`: search durable agent memory.
 - `memory.write`: write durable agent memory.
+- `agent.think`: record a non-terminating private plan.
+- `agent.finish`: terminate successfully with the user-facing answer.
 
 ## Selection
 

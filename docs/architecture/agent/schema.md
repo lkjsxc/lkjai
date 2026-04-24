@@ -19,6 +19,14 @@ The model must return exactly one `<action>` block.
 
 ```xml
 <action>
+<reasoning>Need a visible planning step before tools.</reasoning>
+<tool>agent.think</tool>
+<content>Read docs, inspect code, then verify.</content>
+</action>
+```
+
+```xml
+<action>
 <reasoning>The requested work is complete.</reasoning>
 <tool>agent.finish</tool>
 <content>Done.</content>

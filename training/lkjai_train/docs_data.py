@@ -7,13 +7,14 @@ def doc_records(root: Path) -> list[dict]:
     records = []
     for path in sorted(root.rglob("*.md")):
         text = path.read_text(encoding="utf-8")
+        display_path = path.relative_to(root.parent).as_posix()
         title = first_heading(text) or path.stem.replace("-", " ")
         snippet = compact(text)
         if not snippet:
             continue
         records.append(
             {
-                "path": path.as_posix(),
+                "path": display_path,
                 "title": title,
                 "snippet": snippet,
                 "defaults": defaults_line(text),

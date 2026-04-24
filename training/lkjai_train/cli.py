@@ -127,7 +127,7 @@ def train_pipeline(paths: Paths):
 
 def competency_passes(path: Path, threshold: float) -> bool:
     data = json.loads(path.read_text(encoding="utf-8"))
-    return data.get("json_validity", 0.0) >= 0.95 and data.get("pass_rate", 0.0) >= threshold
+    return data.get("xml_validity", 0.0) >= 0.95 and data.get("pass_rate", 0.0) >= threshold
 
 
 def default_dataset(paths: Paths) -> Path:

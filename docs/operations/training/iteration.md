@@ -13,7 +13,7 @@ behavioral reports.
 - Current behavioral report: `data/train/runs/behavioral-eval.json`.
 - Current pass rate: `0.235` from `47/200` cases.
 - Current issue: malformed or prompt-copy generations were wrapped into valid
-  fallback final actions, inflating JSON validity.
+  fallback final actions, inflating XML validity.
 - Current artifacts were trained on disallowed LLM-authored corpus content and
   are invalid for acceptance after the provenance policy change.
 - New baseline target: 60,000 active rows with ≥57,000 unique and ≤1% duplicates.
@@ -34,7 +34,7 @@ Each accepted run records:
 - checkpoint source,
 - fixed eval pass rate,
 - behavioral pass rate,
-- JSON validity without fallback wrapping,
+- XML validity without fallback wrapping,
 - direct-answer, tool-call, confirmation, safety, and agentic bucket rates,
 - manual inference probes.
 

@@ -6,7 +6,7 @@ SPECIAL_TOKENS = [
     "<unk>",
     "<bos>",
     "<eos>",
-    "<assistant_json>",
+    "<assistant_action>",
 ]
 
 
@@ -14,7 +14,7 @@ def message_text(messages: list[dict]) -> str:
     parts = ["<bos>", "<dialogue>"]
     for message in messages:
         if message["role"] == "assistant":
-            parts.extend(["<assistant_json>", message["content"]])
+            parts.extend(["<assistant_action>", message["content"]])
             continue
         parts.append(open_message(message))
         parts.append(escape_text(message["content"]))
@@ -27,12 +27,12 @@ def prompt_text(messages: list[dict]) -> str:
     parts = ["<bos>", "<dialogue>"]
     for message in messages:
         if message["role"] == "assistant":
-            parts.extend(["<assistant_json>", message["content"]])
+            parts.extend(["<assistant_action>", message["content"]])
             continue
         parts.append(open_message(message))
         parts.append(escape_text(message["content"]))
         parts.append(close_message())
-    parts.extend(["</dialogue>", "<assistant_json>"])
+    parts.extend(["</dialogue>", "<assistant_action>"])
     return "\n".join(parts)
 
 
@@ -54,7 +54,7 @@ def supervised_segments(messages: list[dict]) -> list[tuple[str, bool]]:
     items: list[tuple[str, bool]] = [("<bos>", False), ("<dialogue>", False)]
     for message in messages:
         if message["role"] == "assistant":
-            items.append(("<assistant_json>", False))
+            items.append(("<assistant_action>", False))
             items.append((message["content"], True))
             continue
         items.append((open_message(message), False))

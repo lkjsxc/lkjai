@@ -3,7 +3,7 @@
 `lkjai` is a docs-first from-scratch multi-turn agent research system for RTX
 3070 8GB: train a small dense decoder locally, serve it through a separate
 Python/Torch inference runtime, and orchestrate data-directory tool use,
-memory, summaries, and strict JSON actions in Rust.
+memory, summaries, and XML actions in Rust.
 
 Treat [docs/README.md](docs/README.md) as the only active canon for behavior,
 architecture, operations, and repository policy.
@@ -26,7 +26,7 @@ architecture, operations, and repository policy.
 - Competency acceptance is behavioral eval pass rate `>= 80%`.
 - Runtime data is mounted at `./data` for models, checkpoints, memory, runs, and
   the tool workspace.
-- The mainline agent corpus target is 60,000 active rows before preference optimization.
+- The mainline agent corpus target is 500M active tokens generated outside git.
 
 ## Rule
 

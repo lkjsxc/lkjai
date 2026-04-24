@@ -1,9 +1,50 @@
 import json
+from html import escape
 
 
 def action_message(action: dict) -> dict:
-    text = json.dumps(action, ensure_ascii=False, separators=(",", ":"))
-    return {"role": "assistant", "content": text}
+    return {"role": "assistant", "content": action_xml(action)}
+
+
+def action_xml(action: dict) -> str:
+    kind = action.get("kind")
+    if kind == "final":
+        return xml_action("agent.finish", {"content": action.get("content", "")}, action.get("thought", ""))
+    if kind == "tool_call":
+        return xml_action(action.get("tool", ""), action.get("args", {}), action.get("thought", ""))
+    if kind == "request_confirmation":
+        pending = action.get("pending_tool_call", {})
+        fields = {
+            "summary": action.get("summary", ""),
+            "operation": action.get("operation", ""),
+            "pending_tool": pending.get("tool", ""),
+            **pending.get("args", {}),
+        }
+        return xml_action("agent.request_confirmation", fields, action.get("thought", ""))
+    if kind == "plan":
+        return xml_action("agent.think", {"content": action.get("content", "")}, action.get("thought", ""))
+    return xml_action(str(kind or ""), {}, action.get("thought", ""))
+
+
+def xml_action(tool: str, fields: dict, reasoning: str = "") -> str:
+    lines = ["<action>"]
+    if reasoning:
+        lines.append(tag("reasoning", reasoning))
+    lines.append(tag("tool", tool))
+    for key, value in fields.items():
+        if value is None:
+            continue
+        lines.append(tag(str(key), value))
+    lines.append("</action>")
+    return "\n".join(lines)
+
+
+def tag(name: str, value) -> str:
+    if isinstance(value, bool):
+        text = "true" if value else "false"
+    else:
+        text = str(value)
+    return f"<{name}>{escape(text, quote=False)}</{name}>"
 
 
 def meta(
@@ -121,14 +162,7 @@ def confirm_row(
 
 
 def plan_row(prompt: str, plan: str, tags: list[str], metadata: dict) -> dict:
-    return row(
-        [
-            {"role": "user", "content": prompt},
-            action_message({"kind": "plan", "content": plan}),
-        ],
-        tags,
-        metadata,
-    )
+    return row([{"role": "user", "content": prompt}, action_message({"kind": "plan", "content": plan})], tags, metadata)
 
 
 def multi_turn_row(messages: list[dict], tags: list[str], metadata: dict) -> dict:

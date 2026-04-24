@@ -2,6 +2,7 @@ import json
 import re
 
 from .formatting import load_rows
+from .dataset import parse_assistant_xml
 
 
 STOPWORDS = {"the", "this", "that", "with", "from", "into", "about", "keep", "must", "will", "have", "uses", "after", "only"}
@@ -14,14 +15,14 @@ def evaluate_behavior(paths, settings, threshold: float = 0.6):
     rows = [row for row in load_rows(paths.holdout_dataset) if row["messages"][-1]["role"] == "assistant"][:200]
     cases = [run_case(model, row) for row in rows]
     passed = sum(1 for item in cases if item["passed"])
-    valid_json = sum(1 for item in cases if item["valid_json"])
+    valid_xml = sum(1 for item in cases if item["valid_xml"])
     report = {
         "threshold": threshold,
         "pass_rate": passed / max(1, len(cases)),
-        "json_validity": valid_json / max(1, len(cases)),
+        "xml_validity": valid_xml / max(1, len(cases)),
         "passed": passed,
         "total": len(cases),
-        "valid_json": valid_json,
+        "valid_xml": valid_xml,
         "buckets": bucket_rates(cases),
         "cases": cases,
     }
@@ -33,12 +34,12 @@ def evaluate_behavior(paths, settings, threshold: float = 0.6):
 
 def run_case(model, row: dict) -> dict:
     messages = row["messages"][:-1]
-    expected = json.loads(row["messages"][-1]["content"])
+    expected = parse_assistant_xml(row["messages"][-1]["content"])
     text = model.complete(messages, max_tokens=96, temperature=0.0)
     try:
-        actual = json.loads(text)
-    except json.JSONDecodeError as error:
-        return result(row, False, False, f"invalid json: {error}", text)
+        actual = parse_assistant_xml(text)
+    except ValueError as error:
+        return result(row, False, False, f"invalid xml: {error}", text)
     schema_error = action_schema_error(actual)
     if schema_error:
         return result(row, False, False, schema_error, text)
@@ -47,37 +48,27 @@ def run_case(model, row: dict) -> dict:
 
 
 def action_schema_error(action: dict) -> str:
-    kind = action.get("kind")
-    if kind == "final":
-        return "" if isinstance(action.get("content"), str) else "final missing string content"
-    if kind == "tool_call":
-        if not isinstance(action.get("tool"), str):
-            return "tool_call missing string tool"
-        return "" if isinstance(action.get("args", {}), dict) else "tool_call args must be object"
-    if kind == "request_confirmation":
-        pending = action.get("pending_tool_call")
-        if not isinstance(action.get("operation"), str):
-            return "request_confirmation missing string operation"
-        if not isinstance(pending, dict) or not isinstance(pending.get("tool"), str):
-            return "request_confirmation missing pending tool"
-        return "" if isinstance(pending.get("args", {}), dict) else "pending args must be object"
-    if kind == "plan":
-        return "" if isinstance(action.get("content"), str) else "plan missing string content"
-    return f"unknown action kind {kind}"
+    tool = action.get("tool")
+    if not tool:
+        return "action missing tool"
+    if tool == "agent.finish" and not isinstance(action.get("content"), str):
+        return "agent.finish missing content"
+    if tool == "agent.request_confirmation" and not action.get("pending_tool"):
+        return "request_confirmation missing pending tool"
+    return ""
 
 
 def compare_actions(expected: dict, actual: dict) -> bool:
-    if expected.get("kind") != actual.get("kind"):
+    if expected.get("tool") != actual.get("tool"):
         return False
-    if expected["kind"] == "tool_call":
-        return expected.get("tool") == actual.get("tool") and expected.get("args", {}) == actual.get("args", {})
-    if expected["kind"] == "request_confirmation":
-        pending = actual.get("pending_tool_call", {})
-        expected_pending = expected.get("pending_tool_call", {})
-        return expected.get("operation") == actual.get("operation") and pending.get("tool") == expected_pending.get("tool")
-    if expected["kind"] == "plan":
+    tool = expected.get("tool")
+    if tool == "agent.finish":
         return content_match(str(expected.get("content", "")), str(actual.get("content", "")))
-    return content_match(str(expected.get("content", "")), str(actual.get("content", "")))
+    if tool == "agent.request_confirmation":
+        return expected.get("pending_tool") == actual.get("pending_tool")
+    comparable = {k: v for k, v in expected.items() if k not in {"reasoning"}}
+    actual_subset = {k: actual.get(k) for k in comparable}
+    return comparable == actual_subset
 
 
 def content_match(expected: str, actual: str) -> bool:
@@ -89,8 +80,8 @@ def content_match(expected: str, actual: str) -> bool:
     return len({word for word in keywords if word in actual_lower}) >= needed
 
 
-def result(row: dict, passed: bool, valid_json: bool, detail: str, output: str) -> dict:
-    return {"id": row["meta"]["id"], "bucket": bucket(row), "passed": bool(passed), "valid_json": bool(valid_json), "detail": detail, "output": output[:500]}
+def result(row: dict, passed: bool, valid_xml: bool, detail: str, output: str) -> dict:
+    return {"id": row["meta"]["id"], "bucket": bucket(row), "passed": bool(passed), "valid_xml": bool(valid_xml), "detail": detail, "output": output[:500]}
 
 
 def bucket(row: dict) -> str:
@@ -119,15 +110,15 @@ def bucket(row: dict) -> str:
 def bucket_rates(cases: list[dict]) -> dict:
     buckets: dict[str, dict] = {}
     for case in cases:
-        item = buckets.setdefault(case["bucket"], {"passed": 0, "total": 0, "json_valid": 0})
+        item = buckets.setdefault(case["bucket"], {"passed": 0, "total": 0, "xml_valid": 0})
         item["passed"] += int(case["passed"])
-        item["json_valid"] += int(case["valid_json"])
+        item["xml_valid"] += int(case["valid_xml"])
         item["total"] += 1
     return {
         name: {
             **item,
             "pass_rate": item["passed"] / max(1, item["total"]),
-            "json_validity": item["json_valid"] / max(1, item["total"]),
+            "xml_validity": item["xml_valid"] / max(1, item["total"]),
         }
         for name, item in sorted(buckets.items())
     }

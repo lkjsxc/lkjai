@@ -16,7 +16,7 @@ Define the checks that decide whether a model is better in the real runtime.
 - It writes `data/train/runs/behavioral-eval.json`.
 - It reads cases from the holdout split.
 - There is no supervised action lookup in the accepted path.
-- Invalid JSON, wrong action kind, missing required fields, and wrong tool
+- Invalid XML, wrong action tool, missing required fields, and wrong tool
   arguments fail the case.
 - Eval reports must not wrap malformed generation into a valid fallback action.
 
@@ -24,12 +24,11 @@ Define the checks that decide whether a model is better in the real runtime.
 
 - Baseline artifact: `data/train/runs/behavioral-eval.json`.
 - Baseline pass rate: `0.235` from `47/200` holdout cases.
-- Baseline JSON validity was inflated by fallback wrapping and must not be used
-  as an improvement claim.
+- Baseline XML validity must not be inflated by fallback wrapping.
 
 ## Acceptance Metrics
 
-- JSON validity on holdout: `>= 0.95`
+- XML validity on holdout: `>= 0.95`
 - Holdout read/search/history/preview success: `>= 0.60`
 - Holdout create/update confirmation-planning success: `>= 0.50`
 - Any accepted run must beat the previous shipped model on raw holdout pass

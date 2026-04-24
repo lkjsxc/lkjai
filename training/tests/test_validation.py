@@ -7,7 +7,8 @@ from lkjai_train.dataset import (
     ALLOWED_PROVENANCE,
     DISALLOWED_AUTHOR_PARTS,
     REQUIRED_META,
-    validate_assistant_json,
+    parse_assistant_xml,
+    validate_assistant_xml,
     validate_dataset,
     validate_provenance,
 )
@@ -15,7 +16,7 @@ from lkjai_train.rows import direct_row, meta, row
 
 
 def test_validate_provenance_rejects_disallowed_author_model():
-    for bad in ("gpt-4", "kimi", "claude-3", "llama-llm"):
+    for bad in ("gpt-4", "codex", "claude-3", "llama-llm"):
         with pytest.raises(ValueError, match="disallowed"):
             validate_provenance({"author_model": bad, "author_type": "repo-derived", "provenance": "repo-derived"})
 
@@ -35,24 +36,25 @@ def test_validate_provenance_accepts_allowed():
         validate_provenance({"author_model": "none", "author_type": prov, "provenance": prov})
 
 
-def test_validate_assistant_json_rejects_non_json():
-    with pytest.raises(ValueError, match="not valid JSON"):
-        validate_assistant_json("not json")
+def test_validate_assistant_xml_rejects_non_xml():
+    with pytest.raises(ValueError, match="not valid XML"):
+        validate_assistant_xml("not xml")
 
 
-def test_validate_assistant_json_rejects_non_object():
-    with pytest.raises(ValueError, match="must be an object"):
-        validate_assistant_json('["list"]')
+def test_validate_assistant_xml_rejects_attributes():
+    with pytest.raises(ValueError, match="must not use attributes"):
+        validate_assistant_xml('<action kind="tool"></action>')
 
 
-def test_validate_assistant_json_rejects_missing_kind():
-    with pytest.raises(ValueError, match="missing kind"):
-        validate_assistant_json('{"tool":"fs.read"}')
+def test_validate_assistant_xml_rejects_missing_tool():
+    with pytest.raises(ValueError, match="missing tool"):
+        validate_assistant_xml("<action><content>ok</content></action>")
 
 
-def test_validate_assistant_json_accepts_valid():
-    validate_assistant_json('{"kind":"final","content":"ok"}')
-    validate_assistant_json('{"kind":"tool_call","tool":"fs.read","args":{}}')
+def test_validate_assistant_xml_accepts_valid():
+    validate_assistant_xml("<action><tool>agent.finish</tool><content>ok</content></action>")
+    data = parse_assistant_xml("<action><tool>fs.read</tool><path>README.md</path></action>")
+    assert data["tool"] == "fs.read"
 
 
 def test_validate_dataset_rejects_missing_meta(tmp_path):
@@ -72,7 +74,7 @@ def test_validate_dataset_rejects_disallowed_provenance(tmp_path):
         validate_dataset(path)
 
 
-def test_validate_dataset_rejects_invalid_assistant_json(tmp_path):
+def test_validate_dataset_rejects_invalid_assistant_xml(tmp_path):
     bad = row(
         [{"role": "user", "content": "hello"}, {"role": "assistant", "content": "not json"}],
         [],
@@ -80,7 +82,7 @@ def test_validate_dataset_rejects_invalid_assistant_json(tmp_path):
     )
     path = tmp_path / "bad.jsonl"
     path.write_text(json.dumps(bad) + "\n", encoding="utf-8")
-    with pytest.raises(ValueError, match="not valid JSON"):
+    with pytest.raises(ValueError, match="not valid XML"):
         validate_dataset(path)
 
 
@@ -93,16 +95,15 @@ def test_validate_dataset_rejects_high_duplicate_rate(tmp_path):
         validate_dataset(path)
 
 
-def test_assistant_content_is_valid_json():
+def test_assistant_content_is_valid_xml():
     from lkjai_train.corpus import generate_corpus
 
     rows = generate_corpus(1000)
     for row in rows:
         for message in row.get("messages", []):
             if message.get("role") == "assistant":
-                data = json.loads(message["content"])
-                assert isinstance(data, dict)
-                assert "kind" in data
+                data = parse_assistant_xml(message["content"])
+                assert "tool" in data
 
 
 def test_duplicate_rate_below_threshold():

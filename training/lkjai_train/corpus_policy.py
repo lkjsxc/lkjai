@@ -19,7 +19,7 @@ QUESTIONS = [
     ("artifact-rule", "What is the artifact rule after a provenance policy change?", "State the cleanup requirement."),
     ("confirmation-requirement", "When is explicit confirmation required?", "Connect to mutation safety."),
     ("workspace-safety", "What is the workspace safety scope?", "Name the restriction."),
-    ("json-requirement", "What format must assistant outputs use?", "State the exact requirement."),
+    ("xml-requirement", "What format must assistant outputs use?", "State the exact requirement."),
     ("split-policy", "What are the three splits and their purposes?", "Name train, val, and holdout."),
     ("dedup-limit", "What is the maximum allowed duplicate rate?", "State the percentage."),
     ("corpus-size", "What is the mainline corpus size target?", "State the exact number."),
@@ -37,12 +37,12 @@ ANGLES = [
 
 ANSWERS = {
     "allowed-provenance": "repo-derived, test-derived, runtime-schema-derived, human-seed, public-import.",
-    "disallowed-models": "gpt, kimi, claude, llm.",
+    "disallowed-models": "gpt, codex, claude, llm.",
     "quarantine-action": "Existing LLM-authored packs are inactive and must not be read by prepare-corpus.",
     "artifact-rule": "Remove old data/train* and data/models/* artifacts before retraining.",
     "confirmation-requirement": "Mutations require explicit confirmation before execution.",
     "workspace-safety": "The safety scope is workspace-safe; do not treat host paths as writable.",
-    "json-requirement": "Assistant content must be exactly one valid JSON action.",
+    "xml-requirement": "Assistant content must be exactly one valid XML action.",
     "split-policy": "train for training, val for validation loss, holdout for behavioral eval.",
     "dedup-limit": "Duplicate rows must not exceed 1%.",
     "corpus-size": "The mainline target is 60000 rows with at least 57000 unique.",

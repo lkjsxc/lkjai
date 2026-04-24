@@ -49,7 +49,7 @@ def repo_schema_rows(limit: int) -> list[dict]:
     for index in range(limit):
         kind, request, answer = SCHEMAS[index % len(SCHEMAS)]
         row_id = f"schema-{index + 1:05d}"
-        prompt = xml_prompt(f"{request} (case {row_id})", f"<schema>{kind}</schema><case>{row_id}</case>", "Return one valid JSON action.")
+        prompt = xml_prompt(f"{request} (case {row_id})", f"<schema>{kind}</schema><case>{row_id}</case>", "Return one valid XML action.")
         metadata = meta(row_id, "runtime-schema", kind, "src/agent/schema.rs", split=split_for(row_id))
         if kind == "tool_call":
             rows.append(tool_row(prompt, "fs.read", {"path": "README.md"}, "ok", f"The file read completed for {row_id}.", ["runtime_schema", "tool_trajectory", "language:en"], metadata))

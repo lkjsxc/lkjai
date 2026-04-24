@@ -21,6 +21,8 @@ pub async fn run(
     let content = result.unwrap_or_else(|error| format!("tool failed: {error}"));
     let kind = if tool == "agent.finish" {
         "finish"
+    } else if tool == "agent.think" {
+        "plan"
     } else if tool == "memory.write" {
         "memory_write"
     } else {

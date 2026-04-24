@@ -1,8 +1,7 @@
-import json
-
 from lkjai_train.behavioral import bucket
 from lkjai_train.corpus import generate_corpus
 from lkjai_train.corpus_source import load_entries
+from lkjai_train.dataset import parse_assistant_xml
 
 
 def test_agentic_source_files_are_tagged_json_arrays():
@@ -17,7 +16,7 @@ def test_agentic_rows_have_plan_event():
 
     rows = plan_rows(100)
     assert any(
-        m.get("role") == "assistant" and json.loads(m.get("content", "{}")).get("kind") == "plan"
+        m.get("role") == "assistant" and parse_assistant_xml(m.get("content", "")).get("tool") == "agent.think"
         for row in rows
         for m in row.get("messages", [])
     )
