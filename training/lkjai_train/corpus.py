@@ -1,16 +1,25 @@
 import random
 from collections import Counter
 
+from .corpus_agentic import agentic_rows
 from .corpus_docs import doc_rows
 from .corpus_kjxlkj import kjxlkj_rows
-from .corpus_synthetic import general_rows, local_tool_rows, safety_rows
+from .corpus_safety import safety_rows
+from .corpus_synthetic import general_rows, local_tool_rows
 from .kjxlkj_data import VISIBILITY_RULES
 from .public_data import PUBLIC_SOURCE_METADATA
 from .rows import signature
 
 
-def generate_corpus(size: int = 12000, seed: int = 42) -> list[dict]:
-    rows = doc_rows(1800) + general_rows(8000) + safety_rows(2000, VISIBILITY_RULES) + kjxlkj_rows(1700) + local_tool_rows(1500)
+def generate_corpus(size: int = 30000, seed: int = 42) -> list[dict]:
+    rows = (
+        agentic_rows(10200)
+        + general_rows(7200)
+        + safety_rows(3600, VISIBILITY_RULES)
+        + kjxlkj_rows(4100)
+        + local_tool_rows(3100)
+        + doc_rows(2600)
+    )
     rows = dedupe_rows(rows)
     random.Random(seed).shuffle(rows)
     if len(rows) < size:

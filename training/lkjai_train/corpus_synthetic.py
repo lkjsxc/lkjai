@@ -2,7 +2,7 @@ import itertools
 
 from .corpus_shared import split_for, xml_prompt
 from .corpus_source import tagged_contents
-from .public_data import ANGLES, AUDIENCES, CONSTRAINTS, DELIVERABLES, GENERAL_TOPICS, SAFER_ALTERNATIVES, SAFETY_BOUNDARIES, SAFETY_REQUESTS
+from .public_data import ANGLES, AUDIENCES, CONSTRAINTS, DELIVERABLES, GENERAL_TOPICS
 from .rows import direct_row, meta, tool_row
 
 
@@ -15,7 +15,7 @@ TOOL_VARIANTS = [(item["constraint"], item["tag"]) for item in tagged_contents("
 
 
 def general_rows(limit: int) -> list[dict]:
-    rows = operational_rows(4500) + arithmetic_rows(2500) + concept_rows(1000)
+    rows = operational_rows(4500) + arithmetic_rows(2500) + concept_rows(1500)
     if len(rows) < limit:
         raise RuntimeError(f"general rows under target: {len(rows)}")
     return rows[:limit]
@@ -63,19 +63,6 @@ def concept_rows(limit: int) -> list[dict]:
         context = "" if context_kind == "empty" else f"<subject>{subject}</subject><angle>{angle}</angle>"
         prompt = xml_prompt(prompt_text.format(subject=subject), context, constraint)
         rows.append(direct_row(prompt, answer, ["concept", "direct_answer", "language:en"], meta(row_id, "general-reasoning", "concept-answer", "synthetic/concepts", split=split_for(row_id), license_name="Apache-2.0")))
-        if len(rows) >= limit:
-            return rows
-    return rows
-
-
-def safety_rows(limit: int, rules: list[str]) -> list[dict]:
-    rows = []
-    combos = itertools.product(SAFETY_BOUNDARIES, SAFETY_REQUESTS, rules, SAFER_ALTERNATIVES)
-    for index, (boundary, request, rule, safer) in enumerate(combos, start=1):
-        row_id = f"safety-{index:05d}"
-        prompt = xml_prompt(request.format(boundary=boundary), f"<boundary>{boundary}</boundary><rule>{rule}</rule>", "State the restriction and the safer alternative.")
-        answer = f"Do not treat {boundary} as generally writable or publishable state. Preserve the rule that {rule}, then {safer}."
-        rows.append(direct_row(prompt, answer, ["direct_answer", "language:en", "safety", "visibility_boundary"], meta(row_id, "safety-policy", "boundary-answer", "synthetic/safety", split=split_for(row_id), safety_scope="restricted")))
         if len(rows) >= limit:
             return rows
     return rows
