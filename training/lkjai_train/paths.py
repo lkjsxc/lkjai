@@ -28,6 +28,12 @@ class Paths:
         self.checkpoint_manifest = self.checkpoints / "manifest.json"
         self.export_manifest = self.exports / "manifest.json"
         self.preference_pairs = self.preferences / "pairs.jsonl"
+        self.kimi_corpus = self.root / "kimi-corpus"
+        self.kimi_train = self.kimi_corpus / "train" / "train-0001.jsonl"
+        self.kimi_val = self.kimi_corpus / "val" / "val-0001.jsonl"
+        self.kimi_holdout = self.kimi_corpus / "holdout" / "holdout-0001.jsonl"
+        self.kimi_manifest = self.kimi_corpus / "manifest.json"
+        self.kimi_validation_report = self.kimi_corpus / "validation-report.json"
 
     def ensure(self) -> None:
         for path in [self.datasets, self.tokenizer, self.checkpoints, self.exports, self.runs, self.preferences]:

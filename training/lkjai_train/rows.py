@@ -76,6 +76,35 @@ def meta(
     }
 
 
+def kimi_meta(
+    row_id: str,
+    domain: str,
+    skill: str,
+    source_ref: str,
+    *,
+    split: str,
+    toolset: str = "none",
+    language: str = "en",
+    license_name: str = "project-local",
+    safety_scope: str = "workspace-safe",
+) -> dict:
+    return {
+        "id": row_id,
+        "split": split,
+        "provenance": "kimi-generated",
+        "author_type": "external-agent-generated",
+        "author_model": "kimi-code",
+        "quality_tier": "high",
+        "domain": domain,
+        "skill": skill,
+        "toolset": toolset,
+        "language": language,
+        "safety_scope": safety_scope,
+        "license": license_name,
+        "source_ref": source_ref,
+    }
+
+
 def row(messages: list[dict], tags: list[str], metadata: dict) -> dict:
     return {"messages": messages, "tags": sorted(set(tags)), "meta": metadata}
 
