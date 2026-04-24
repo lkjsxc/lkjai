@@ -34,3 +34,4 @@ before attempting rollout-heavy reinforcement learning.
 - Run behavioral eval again after DPO.
 - Accept DPO only if pass rate improves or stays equal while reducing invalid
   JSON and wrong-tool failures.
+- DPO summaries default to `accepted=false` until that comparison is recorded.

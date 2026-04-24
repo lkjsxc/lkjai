@@ -1,0 +1,29 @@
+[
+  {
+    "tags": ["public_dataset", "instruction"],
+    "content": {
+      "name": "oasst1",
+      "license": "Apache-2.0",
+      "source_url": "https://huggingface.co/datasets/OpenAssistant/oasst1",
+      "revision": "pinned-by-operator",
+      "local_file": "oasst1.jsonl",
+      "row_limit": 1000,
+      "tags": ["public", "instruction", "language:en"],
+      "skill": "instruction"
+    }
+  },
+  {
+    "tags": ["public_dataset", "tool"],
+    "content": {
+      "name": "toolbench",
+      "license": "Apache-2.0",
+      "source_url": "https://github.com/OpenBMB/ToolBench",
+      "revision": "pinned-by-operator",
+      "local_file": "toolbench.jsonl",
+      "row_limit": 1000,
+      "tags": ["public", "tool_use", "language:en"],
+      "skill": "tool-use",
+      "toolset": "external"
+    }
+  }
+]

@@ -12,6 +12,8 @@ class Paths:
         self.preferences = self.root / "preferences"
         self.fixtures = self.datasets / "fixtures.jsonl"
         self.corpus = self.datasets / "corpus.jsonl"
+        self.public_corpus = self.datasets / "public.jsonl"
+        self.public_manifest = self.datasets / "public-sources.json"
         self.train_dataset = self.datasets / "train.jsonl"
         self.val_dataset = self.datasets / "val.jsonl"
         self.holdout_dataset = self.datasets / "holdout.jsonl"

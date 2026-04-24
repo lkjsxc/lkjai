@@ -15,6 +15,8 @@ This directory contains editable corpus source entries.
 - `general.json`: reasoning, safety, local tool, and source metadata entries.
 - `kjxlkj.json`: resource API terms, refs, note bodies, visibility rules, and
   tool-control values.
+- `public.json`: opt-in public dataset allowlist with license, revision, and
+  local-file metadata.
 
 ## Check
 

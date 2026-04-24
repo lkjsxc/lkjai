@@ -11,6 +11,7 @@ from lkjai_train.formatting import prompt_text, supervised_token_ids
 from lkjai_train.generation import agent_context_messages, first_json_object, latest_user_event, normalize_action, normalize_messages
 from lkjai_train.paths import Paths
 from lkjai_train.preference import prepare_preferences
+from lkjai_train.public_import import ALLOWED_LICENSES, prepare_public_corpus, validate_public_sources
 
 
 torch = None
@@ -63,6 +64,21 @@ def test_source_corpus_files_are_tagged_json_arrays():
     validate_sources()
     assert load_entries("general")
     assert tagged_contents("kjxlkj", "search_term")
+    assert tagged_contents("public", "public_dataset")
+
+
+def test_public_sources_are_license_gated(tmp_path):
+    paths = Paths(str(tmp_path))
+    manifest = validate_public_sources(paths)
+    data = json.loads(manifest.read_text(encoding="utf-8"))
+    assert data["sources"]
+    assert {source["license"] for source in data["sources"]}.issubset(ALLOWED_LICENSES)
+
+
+def test_public_corpus_is_opt_in_without_local_files(tmp_path):
+    paths = Paths(str(tmp_path))
+    out = prepare_public_corpus(paths)
+    assert out.read_text(encoding="utf-8") == ""
 
 
 def test_fixture_dataset_validates(tmp_path):

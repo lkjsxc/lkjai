@@ -49,27 +49,46 @@ def train_dpo(paths, settings) -> Path:
     device = "cuda" if torch.cuda.is_available() else "cpu"
     tokenizer = load_tokenizer(paths.tokenizer_json)
     config = ModelConfig(**json.loads((paths.checkpoint_final / "config.json").read_text()))
-    model = ScratchLM(config).to(device)
-    state = torch.load(paths.checkpoint_final / "model.pt", map_location=device, weights_only=True)
-    model.load_state_dict(state)
+    model = load_model(config, paths.checkpoint_final / "model.pt", device)
+    reference = load_model(config, paths.checkpoint_final / "model.pt", device)
+    reference.eval()
+    for parameter in reference.parameters():
+        parameter.requires_grad_(False)
     model.train()
     optimizer = torch.optim.AdamW(model.parameters(), lr=settings.learning_rate * 0.25)
     pairs = read_pairs(paths.preference_pairs)
     steps = int(os.environ.get("TRAIN_DPO_STEPS", str(min(200, max(20, settings.max_steps // 10)))))
     beta = float(os.environ.get("TRAIN_DPO_BETA", "0.1"))
+    losses = run_dpo_steps(model, reference, tokenizer, config, pairs, steps, beta, optimizer, device)
+    save_dpo(paths, config, model, {"dpo_loss": losses[-1], "mean_dpo_loss": sum(losses) / len(losses), "steps": steps, "beta": beta, "reference": str(paths.checkpoint_final)})
+    return paths.dpo_summary
+
+
+def load_model(config: ModelConfig, path: Path, device: str) -> ScratchLM:
+    model = ScratchLM(config).to(device)
+    state = torch.load(path, map_location=device, weights_only=True)
+    model.load_state_dict(state)
+    return model
+
+
+def run_dpo_steps(model, reference, tokenizer, config, pairs, steps, beta, optimizer, device) -> list[float]:
     losses = []
     for step in range(steps):
         item = pairs[step % len(pairs)]
         chosen = sequence_logp(model, tokenizer, config, item["messages"], item["chosen"], device)
         rejected = sequence_logp(model, tokenizer, config, item["messages"], item["rejected"], device)
-        loss = -torch.nn.functional.logsigmoid(beta * (chosen - rejected))
+        with torch.no_grad():
+            ref_chosen = sequence_logp(reference, tokenizer, config, item["messages"], item["chosen"], device)
+            ref_rejected = sequence_logp(reference, tokenizer, config, item["messages"], item["rejected"], device)
+        policy_margin = chosen - rejected
+        reference_margin = ref_chosen - ref_rejected
+        loss = -torch.nn.functional.logsigmoid(beta * (policy_margin - reference_margin))
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         optimizer.step()
         optimizer.zero_grad(set_to_none=True)
         losses.append(float(loss.detach().cpu()))
-    save_dpo(paths, config, model, {"dpo_loss": losses[-1], "mean_dpo_loss": sum(losses) / len(losses), "steps": steps})
-    return paths.dpo_summary
+    return losses
 
 
 def sequence_logp(model, tokenizer, config: ModelConfig, messages, response: str, device: str):
@@ -93,5 +112,5 @@ def save_dpo(paths, config, model, metrics: dict) -> None:
     paths.checkpoint_dpo.mkdir(parents=True, exist_ok=True)
     torch.save(model.state_dict(), paths.checkpoint_dpo / "model.pt")
     save_config(config, paths.checkpoint_dpo / "config.json")
-    summary = {"backend": "dpo-lite", "accepted": True, "metrics": metrics}
+    summary = {"backend": "dpo-lite", "accepted": False, "pending_evaluation": True, "metrics": metrics}
     paths.dpo_summary.write_text(json.dumps(summary, indent=2), encoding="utf-8")

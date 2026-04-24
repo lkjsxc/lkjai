@@ -14,7 +14,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(prog="lkjai-train")
     parser.add_argument("--data-dir", default=os.environ.get("DATA_DIR", "/app/data"))
     sub = parser.add_subparsers(dest="command", required=True)
-    for command in ["validate-sources", "prepare-fixtures", "prepare-corpus", "train-tokenizer", "prepare-preferences", "export-manifest", "smoke", "train"]:
+    for command in ["validate-sources", "validate-public-sources", "prepare-fixtures", "prepare-corpus", "prepare-public-corpus", "train-tokenizer", "prepare-preferences", "export-manifest", "smoke", "train"]:
         sub.add_parser(command)
     validate = sub.add_parser("validate-dataset")
     validate.add_argument("--path", default="")
@@ -36,8 +36,16 @@ def dispatch(args, paths: Paths):
     if args.command == "validate-sources":
         validate_sources()
         return SOURCE_DIR
+    if args.command == "validate-public-sources":
+        from .public_import import validate_public_sources
+
+        return validate_public_sources(paths)
     if args.command == "prepare-corpus":
         return prepare_corpus(paths, train_settings(env_preset()).corpus_size)
+    if args.command == "prepare-public-corpus":
+        from .public_import import prepare_public_corpus
+
+        return prepare_public_corpus(paths)
     if args.command == "train-tokenizer":
         return run_tokenizer(paths, train_settings(env_preset()))
     if args.command == "validate-dataset":
