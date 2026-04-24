@@ -2,12 +2,8 @@ import json
 import os
 from pathlib import Path
 
-import torch
-
 from .dataset import prepare_fixtures
 from .formatting import load_rows, prompt_text
-from .scratch_model import ModelConfig, ScratchLM, save_config
-from .tokenizer import load_tokenizer
 
 
 def prepare_preferences(paths) -> Path:
@@ -44,6 +40,11 @@ def rejection_for(expected: dict) -> dict:
 
 
 def train_dpo(paths, settings) -> Path:
+    import torch
+
+    from .scratch_model import ModelConfig, ScratchLM, save_config
+    from .tokenizer import load_tokenizer
+
     if not paths.preference_pairs.exists():
         prepare_preferences(paths)
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -64,7 +65,11 @@ def train_dpo(paths, settings) -> Path:
     return paths.dpo_summary
 
 
-def load_model(config: ModelConfig, path: Path, device: str) -> ScratchLM:
+def load_model(config, path: Path, device: str):
+    import torch
+
+    from .scratch_model import ScratchLM
+
     model = ScratchLM(config).to(device)
     state = torch.load(path, map_location=device, weights_only=True)
     model.load_state_dict(state)
@@ -72,6 +77,8 @@ def load_model(config: ModelConfig, path: Path, device: str) -> ScratchLM:
 
 
 def run_dpo_steps(model, reference, tokenizer, config, pairs, steps, beta, optimizer, device) -> list[float]:
+    import torch
+
     losses = []
     for step in range(steps):
         item = pairs[step % len(pairs)]
@@ -91,7 +98,9 @@ def run_dpo_steps(model, reference, tokenizer, config, pairs, steps, beta, optim
     return losses
 
 
-def sequence_logp(model, tokenizer, config: ModelConfig, messages, response: str, device: str):
+def sequence_logp(model, tokenizer, config, messages, response: str, device: str):
+    import torch
+
     prompt_ids = tokenizer.encode(prompt_text(messages)).ids
     response_ids = tokenizer.encode(response + "\n<eos>").ids
     ids = (prompt_ids + response_ids)[-config.sequence_len :]
@@ -109,6 +118,10 @@ def read_pairs(path: Path) -> list[dict]:
 
 
 def save_dpo(paths, config, model, metrics: dict) -> None:
+    import torch
+
+    from .scratch_model import save_config
+
     paths.checkpoint_dpo.mkdir(parents=True, exist_ok=True)
     torch.save(model.state_dict(), paths.checkpoint_dpo / "model.pt")
     save_config(config, paths.checkpoint_dpo / "config.json")

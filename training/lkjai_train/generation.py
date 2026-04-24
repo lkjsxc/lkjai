@@ -1,15 +1,25 @@
 import json
 from pathlib import Path
 
-import torch
-
 from .formatting import prompt_text
-from .scratch_model import ModelConfig, ScratchLM
-from .tokenizer import load_tokenizer
+
+
+def choose_token(logits, temperature: float):
+    import torch
+
+    if temperature <= 0.0:
+        return torch.argmax(logits, dim=-1, keepdim=True)
+    probs = torch.softmax(logits / max(temperature, 1e-5), dim=-1)
+    return torch.multinomial(probs, num_samples=1)
 
 
 class LoadedModel:
     def __init__(self, model_dir: Path, device: str = "") -> None:
+        import torch
+
+        from .scratch_model import ModelConfig, ScratchLM
+        from .tokenizer import load_tokenizer
+
         self.model_dir = model_dir
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         self.tokenizer = load_tokenizer(model_dir / "tokenizer.json")
@@ -19,8 +29,9 @@ class LoadedModel:
         self.model.eval()
         self.config = config
 
-    @torch.inference_mode()
     def complete(self, messages: list[dict], max_tokens: int = 128, temperature: float = 0.0) -> str:
+        import torch
+
         normalized = normalize_messages(messages)
         prompt_ids = self.tokenizer.encode(prompt_text(normalized)).ids[-self.config.sequence_len :]
         input_ids = torch.tensor([prompt_ids], device=self.device)
@@ -37,13 +48,6 @@ class LoadedModel:
             logits, _, cache = self.model(next_id, cache=cache, use_cache=True)
             next_logits = logits[:, -1, :]
         return normalize_action(self.tokenizer.decode(generated, skip_special_tokens=False))
-
-
-def choose_token(logits: torch.Tensor, temperature: float) -> torch.Tensor:
-    if temperature <= 0.0:
-        return torch.argmax(logits, dim=-1, keepdim=True)
-    probs = torch.softmax(logits / max(temperature, 1e-5), dim=-1)
-    return torch.multinomial(probs, num_samples=1)
 
 
 def normalize_messages(messages: list[dict]) -> list[dict]:

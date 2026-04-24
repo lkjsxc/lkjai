@@ -16,7 +16,11 @@ def test_agentic_rows_have_plan_event():
     from lkjai_train.corpus_agentic import plan_rows
 
     rows = plan_rows(100)
-    assert any('"kind":"plan"' in json.dumps(row.get("messages", [])) for row in rows)
+    assert any(
+        m.get("role") == "assistant" and json.loads(m.get("content", "{}")).get("kind") == "plan"
+        for row in rows
+        for m in row.get("messages", [])
+    )
 
 
 def test_agentic_rows_have_tool_observation_sequence():
@@ -29,25 +33,39 @@ def test_agentic_rows_have_tool_observation_sequence():
         assert "assistant" in roles
 
 
-def test_corpus_mix_counts_for_30k():
-    rows = generate_corpus(6000)
-    assert len(rows) == 6000
+def test_active_agentic_rows_have_multi_turn_structure():
+    from lkjai_train.corpus_agentic_active import agentic_active_rows
+
+    rows = agentic_active_rows(100)
+    for row in rows:
+        roles = [m["role"] for m in row["messages"]]
+        assert "tool" in roles
+        assert "assistant" in roles
+        assert "user" in roles
+        assert row["meta"]["author_model"] == "none"
+        assert row["meta"]["provenance"] == "repo-derived"
+
+
+def test_corpus_mix_counts_for_60k():
+    rows = generate_corpus(60000)
+    assert len(rows) == 60000
     tags = [tag for row in rows for tag in row.get("tags", [])]
-    assert tags.count("docs_grounding") >= 3500
-    assert tags.count("runtime_schema") >= 900
-    assert tags.count("tool_trajectory") >= 500
-    assert tags.count("agentic") == 0
-    assert tags.count("general_reasoning") == 0
+    assert tags.count("docs_grounding") >= 14000
+    assert tags.count("agentic") >= 10000
+    assert tags.count("runtime_schema") >= 8000
+    assert tags.count("tool_trajectory") >= 5000
+    assert tags.count("safety") >= 5000
+    assert tags.count("preference") >= 3000
 
 
-def test_unique_scenario_ids_for_30k():
-    rows = generate_corpus(6000)
+def test_unique_scenario_ids_for_60k():
+    rows = generate_corpus(60000)
     ids = [row["meta"]["id"] for row in rows]
     assert len(ids) == len(set(ids))
 
 
 def test_default_corpus_has_no_llm_authored_rows():
-    rows = generate_corpus(6000)
+    rows = generate_corpus(60000)
     for row in rows:
         assert row["meta"]["author_model"] == "none"
         assert row["meta"]["author_type"] != "llm-curated"

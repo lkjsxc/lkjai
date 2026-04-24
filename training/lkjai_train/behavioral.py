@@ -2,13 +2,14 @@ import json
 import re
 
 from .formatting import load_rows
-from .generation import LoadedModel
 
 
 STOPWORDS = {"the", "this", "that", "with", "from", "into", "about", "keep", "must", "will", "have", "uses", "after", "only"}
 
 
 def evaluate_behavior(paths, settings, threshold: float = 0.6):
+    from .generation import LoadedModel
+
     model = LoadedModel(paths.root.parent / "models" / settings.model_name, device="cpu")
     rows = [row for row in load_rows(paths.holdout_dataset) if row["messages"][-1]["role"] == "assistant"][:200]
     cases = [run_case(model, row) for row in rows]
@@ -30,7 +31,7 @@ def evaluate_behavior(paths, settings, threshold: float = 0.6):
     return out
 
 
-def run_case(model: LoadedModel, row: dict) -> dict:
+def run_case(model, row: dict) -> dict:
     messages = row["messages"][:-1]
     expected = json.loads(row["messages"][-1]["content"])
     text = model.complete(messages, max_tokens=96, temperature=0.0)

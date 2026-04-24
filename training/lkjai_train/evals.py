@@ -45,7 +45,7 @@ def has_loss_metrics(summary: dict) -> bool:
 def minimums(metadata: dict) -> tuple[int, int, int]:
     if metadata.get("rows", 0) and int(metadata.get("rows", 0)) < 100:
         return 3, 3, 32
-    return 6_000, 5_000, 500_000
+    return 60_000, 57_000, 5_000_000
 
 
 def read_json(path) -> dict:

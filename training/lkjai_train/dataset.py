@@ -73,6 +73,7 @@ def prepare_corpus(paths, size: int = 6000, seed: int = 42) -> Path:
 
 def validate_dataset(path: Path) -> Path:
     rows = 0
+    signatures = set()
     for line in path.read_text(encoding="utf-8").splitlines():
         if not line.strip():
             continue
@@ -93,10 +94,26 @@ def validate_dataset(path: Path) -> Path:
                 raise ValueError("invalid role")
             if not isinstance(message.get("content"), str):
                 raise ValueError("message content must be string")
+            if message.get("role") == "assistant":
+                validate_assistant_json(message["content"])
+        signatures.add(signature(row))
         rows += 1
     if rows == 0:
         raise ValueError("dataset is empty")
+    if rows - len(signatures) > rows * 0.01:
+        raise ValueError(f"duplicate rate exceeds 1%: {rows - len(signatures)} / {rows}")
     return path
+
+
+def validate_assistant_json(content: str) -> None:
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError as error:
+        raise ValueError(f"assistant content is not valid JSON: {error}") from error
+    if not isinstance(data, dict):
+        raise ValueError("assistant JSON must be an object")
+    if "kind" not in data:
+        raise ValueError("assistant JSON missing kind field")
 
 
 def validate_provenance(metadata: dict) -> None:

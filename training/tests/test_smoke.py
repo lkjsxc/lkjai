@@ -49,7 +49,7 @@ def test_agent_settings_defaults(monkeypatch):
     assert settings.layers == 12
     assert settings.kv_heads == 2
     assert settings.batch_size == 1
-    assert settings.corpus_size == 6000
+    assert settings.corpus_size == 60000
     assert settings.behavioral_threshold == 0.35
 
 
@@ -98,12 +98,15 @@ def test_prompt_text_appends_assistant_json_header():
 
 
 def test_agent_corpus_default_has_required_mix():
-    rows = generate_corpus(2000)
-    assert len(rows) == 2000
+    rows = generate_corpus(60000)
+    assert len(rows) == 60000
     tags = [tag for row in rows for tag in row.get("tags", [])]
     assert "direct_answer" in tags
     assert "docs_grounding" in tags
     assert "runtime_schema" in tags or "tool_trajectory" in tags
+    assert tags.count("agentic") >= 10000
+    assert tags.count("safety") >= 5000
+    assert tags.count("preference") >= 3000
     assert all(row["meta"]["author_model"] == "none" for row in rows)
 
 
@@ -168,6 +171,24 @@ def test_agent_context_messages_preserve_empty_observation():
     messages = agent_context_messages(content)
     assert messages[-1]["role"] == "tool"
     assert messages[-1]["content"] == ""
+
+
+def test_assistant_content_is_valid_json():
+    rows = generate_corpus(1000)
+    for row in rows:
+        for message in row.get("messages", []):
+            if message.get("role") == "assistant":
+                data = json.loads(message["content"])
+                assert isinstance(data, dict)
+                assert "kind" in data
+
+
+def test_duplicate_rate_below_threshold():
+    rows = generate_corpus(60000)
+    from lkjai_train.rows import signature
+
+    sigs = {signature(r) for r in rows}
+    assert len(rows) - len(sigs) <= len(rows) * 0.01
 
 
 def test_prepare_preferences_writes_pairs(tmp_path):
