@@ -173,24 +173,6 @@ def test_agent_context_messages_preserve_empty_observation():
     assert messages[-1]["content"] == ""
 
 
-def test_assistant_content_is_valid_json():
-    rows = generate_corpus(1000)
-    for row in rows:
-        for message in row.get("messages", []):
-            if message.get("role") == "assistant":
-                data = json.loads(message["content"])
-                assert isinstance(data, dict)
-                assert "kind" in data
-
-
-def test_duplicate_rate_below_threshold():
-    rows = generate_corpus(60000)
-    from lkjai_train.rows import signature
-
-    sigs = {signature(r) for r in rows}
-    assert len(rows) - len(sigs) <= len(rows) * 0.01
-
-
 def test_prepare_preferences_writes_pairs(tmp_path):
     paths = Paths(str(tmp_path))
     prepare_fixtures(paths)

@@ -91,3 +91,24 @@ def test_validate_dataset_rejects_high_duplicate_rate(tmp_path):
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     with pytest.raises(ValueError, match="duplicate rate exceeds"):
         validate_dataset(path)
+
+
+def test_assistant_content_is_valid_json():
+    from lkjai_train.corpus import generate_corpus
+
+    rows = generate_corpus(1000)
+    for row in rows:
+        for message in row.get("messages", []):
+            if message.get("role") == "assistant":
+                data = json.loads(message["content"])
+                assert isinstance(data, dict)
+                assert "kind" in data
+
+
+def test_duplicate_rate_below_threshold():
+    from lkjai_train.corpus import generate_corpus
+    from lkjai_train.rows import signature
+
+    rows = generate_corpus(60000)
+    sigs = {signature(r) for r in rows}
+    assert len(rows) - len(sigs) <= len(rows) * 0.01
