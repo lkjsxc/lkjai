@@ -11,6 +11,7 @@ AUDIENCES = [
     "a reviewer checking implementation drift",
     "an operator running docker compose",
     "a maintainer updating the training path",
+    "a contributor adding a new feature",
 ]
 
 ANGLES = [
@@ -19,6 +20,7 @@ ANGLES = [
     "identify the verification command",
     "explain the implementation consequence",
     "summarize the source of truth",
+    "map the change to an existing decision",
 ]
 
 
@@ -49,6 +51,9 @@ def file_doc_rows(root: Path, limit: int) -> list[dict]:
         ("active-owner", "Which component owns the contract in {path}?", "Name the owner and one boundary."),
         ("data-risk", "What data risk does {path} prevent?", "Tie the risk to training or runtime behavior."),
         ("acceptance", "What acceptance signal appears in {path}?", "Name a measurable signal."),
+        ("decision-link", "Which decision does {path} implement?", "Name the decision file and rationale."),
+        ("compose-check", "How does {path} affect docker compose behavior?", "Name one profile or service."),
+        ("token-impact", "How does {path} affect tokenizer or model training?", "Name one concrete parameter or budget."),
     ]
     rows = []
     for index, record in enumerate(doc_records(root), start=1):

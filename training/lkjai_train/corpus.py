@@ -1,13 +1,25 @@
 import random
 from collections import Counter
 
+from .corpus_agentic_active import agentic_active_rows
 from .corpus_docs import doc_rows
+from .corpus_policy import policy_rows
+from .corpus_preferences import preference_rows
+from .corpus_sourcecode import sourcecode_rows
 from .corpus_synthetic import fixture_rows, repo_schema_rows
 from .rows import signature
 
 
-def generate_corpus(size: int = 6000, seed: int = 42) -> list[dict]:
-    rows = doc_rows(4200) + repo_schema_rows(1200) + fixture_rows(900)
+def generate_corpus(size: int = 60000, seed: int = 42) -> list[dict]:
+    rows = (
+        doc_rows(16000)
+        + agentic_active_rows(13000)
+        + repo_schema_rows(9500)
+        + fixture_rows(6500)
+        + policy_rows(6500)
+        + sourcecode_rows(5200)
+        + preference_rows(4500)
+    )
     rows = dedupe_rows(rows)
     random.Random(seed).shuffle(rows)
     if len(rows) < size:
