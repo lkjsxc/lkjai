@@ -11,7 +11,7 @@
 - Small models need curated, deduplicated, task-balanced data more than sheer
   row count.
 - Holdout splits must include tool selection, direct answers, confirmations,
-  safety boundaries, and docs grounding.
+  safety boundaries, docs grounding, and agentic multi-turn trajectories.
 - Evaluation must report task buckets so a single aggregate pass rate does not
   hide tool or confirmation regressions.
 
@@ -22,6 +22,11 @@
   optimizer behavior and requires its own acceptance comparison.
 - Any optimizer change must keep the same corpus, seed, and eval cases for an
   apples-to-apples run.
+
+## Token Budget
+
+- See [scaling-laws.md](scaling-laws.md) for Chinchilla-style accounting and
+  the practical gap between our scratch budget and compute-optimal targets.
 
 ## References
 

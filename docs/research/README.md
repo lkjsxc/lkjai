@@ -17,3 +17,5 @@ future baselines.
 - [prompt-format.md](prompt-format.md): XML-style prompt sections and JSON actions
 - [reinforcement-learning.md](reinforcement-learning.md): DPO, GRPO, and RL policy
 - [small-model-training.md](small-model-training.md): data-centric training and optimizer notes
+- [scaling-laws.md](scaling-laws.md): Chinchilla-style token accounting and practical gap
+- [reasoning-models.md](reasoning-models.md): reasoning-budget and RL lessons for scratch models

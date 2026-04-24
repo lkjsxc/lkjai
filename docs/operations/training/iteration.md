@@ -32,7 +32,7 @@ Each accepted run records:
 - fixed eval pass rate,
 - behavioral pass rate,
 - JSON validity without fallback wrapping,
-- direct-answer, tool-call, confirmation, and safety bucket rates,
+- direct-answer, tool-call, confirmation, safety, and agentic bucket rates,
 - manual inference probes.
 
 ## Manual Probe Set
@@ -42,6 +42,8 @@ Each accepted run records:
 - `Remember that I prefer concise plans.`
 - `Search kjxlkj resources for release notes.`
 - `Create a kjxlkj note with body "# Draft".`
+- `Plan how to fix a failing test, then run the fix.`
+- `Search docs for the deployment contract, then summarize it.`
 
 ## Update Rule
 

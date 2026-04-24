@@ -59,12 +59,20 @@ Editable source entries live in JSON array files under
 
 ## Dataset Targets
 
-- Total rows: `12000`
-- Train rows: `9600`
-- Validation rows: `1200`
-- Holdout rows: `1200`
-- Unique normalized rows: at least `8000`
-- Deduplicated tokenizer tokens on the train split: at least `1000000`
+- Total rows: `30000`
+- Train rows: `24000`
+- Validation rows: `3000`
+- Holdout rows: `3000`
+- Unique normalized rows: at least `24000`
+- Deduplicated tokenizer tokens on the train split: at least `3000000`
+
+## Token Budget
+
+- Parameter count: ~55.8M (scratch-60m preset)
+- Chinchilla-optimal tokens: ~1.1T (~20 tokens/parameter)
+- Practical train tokens at 30k rows: ~4.5M (~0.08 tokens/parameter)
+- Gap is intentional: the default path is from-scratch on limited compute.
+- Quality and task diversity matter more than raw token volume for this budget.
 
 ## Sources
 
@@ -73,4 +81,6 @@ Editable source entries live in JSON array files under
 - `kjxlkj` contract and API rows.
 - Synthetic tool and confirmation trajectories tied to the real runtime.
 - Safety, privacy, and boundary rows.
+- Agentic multi-turn rows with observable plans, tool calls, observations,
+  revisions, and finals.
 - Carefully selected permissive public rows with explicit provenance.

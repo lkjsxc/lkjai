@@ -22,6 +22,8 @@ Describe the on-disk dataset artifacts used by training and evaluation.
 - `unique_rows`: normalized unique row count.
 - `duplicate_rows`: normalized duplicate row count.
 - `sources`: ordered source list with license and provenance details.
+- `token_budget`: optional object with `train_tokens`, `parameter_count`,
+  `tokens_per_parameter`, and `chinchilla_gap`.
 
 ## Validation
 

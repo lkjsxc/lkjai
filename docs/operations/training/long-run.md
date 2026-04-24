@@ -19,8 +19,8 @@ Run one measurable long training job for the 3070-first scratch model.
 - `TRAIN_LEARNING_RATE`: default `3e-4`
 - `TRAIN_BATCH_SIZE`: default `1`
 - `TRAIN_GRADIENT_ACCUMULATION`: default `8`
-- `TRAIN_MAX_STEPS`: default `3000`
-- `TRAIN_CORPUS_SIZE`: default `12000`
+- `TRAIN_MAX_STEPS`: default `12000`
+- `TRAIN_CORPUS_SIZE`: default `30000`
 - `TRAIN_FIXED_EVAL_THRESHOLD`: default `0.60` for fixed report metadata
 - `TRAIN_BEHAVIORAL_THRESHOLD`: default `0.35` until the next ladder is passed
 - `TRAIN_ENFORCE_COMPETENCY`: fail command when behavioral gates are missed
