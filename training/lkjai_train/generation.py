@@ -131,8 +131,7 @@ def normalize_action(text: str) -> str:
             return candidate
         except json.JSONDecodeError:
             pass
-    cleaned = text.replace("<eos>", "").replace("<assistant_json>", "").strip()
-    return json.dumps({"kind": "final", "thought": "generated text did not contain valid action json", "content": cleaned})
+    return text.replace("<eos>", "").replace("<assistant_json>", "").strip()
 
 
 def first_json_object(text: str) -> str:

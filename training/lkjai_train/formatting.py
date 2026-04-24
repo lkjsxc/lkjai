@@ -40,6 +40,30 @@ def row_text(row: dict) -> str:
     return message_text(row.get("messages", []))
 
 
+def supervised_token_ids(tokenizer, row: dict) -> tuple[list[int], list[int]]:
+    ids: list[int] = []
+    labels: list[int] = []
+    for text, train in supervised_segments(row.get("messages", [])):
+        encoded = tokenizer.encode(text).ids
+        ids.extend(encoded)
+        labels.extend(encoded if train else [-100] * len(encoded))
+    return ids, labels
+
+
+def supervised_segments(messages: list[dict]) -> list[tuple[str, bool]]:
+    items: list[tuple[str, bool]] = [("<bos>", False), ("<dialogue>", False)]
+    for message in messages:
+        if message["role"] == "assistant":
+            items.append(("<assistant_json>", False))
+            items.append((message["content"], True))
+            continue
+        items.append((open_message(message), False))
+        items.append((escape_text(message["content"]), False))
+        items.append((close_message(), False))
+    items.extend([("</dialogue>", False), ("<eos>", False)])
+    return [(text + ("\n" if index + 1 < len(items) else ""), train) for index, (text, train) in enumerate(items)]
+
+
 def open_message(message: dict) -> str:
     role = message["role"]
     name = message.get("name", "")

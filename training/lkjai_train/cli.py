@@ -51,7 +51,8 @@ def dispatch(args, paths: Paths):
     if args.command == "behavioral-eval":
         from .behavioral import evaluate_behavior
 
-        return evaluate_behavior(paths, train_settings(env_preset()), args.threshold or train_settings(env_preset()).fixed_eval_threshold)
+        settings = train_settings(env_preset())
+        return evaluate_behavior(paths, settings, args.threshold or settings.behavioral_threshold)
     if args.command == "prepare-preferences":
         from .preference import prepare_preferences
 
@@ -108,8 +109,8 @@ def train_pipeline(paths: Paths):
     run_training(paths, settings)
     export_manifest(paths, settings)
     fixed = evaluate_fixed_suite(paths, settings.fixed_eval_threshold)
-    behavioral = evaluate_behavior(paths, settings, settings.fixed_eval_threshold)
-    if settings.enforce_competency and not competency_passes(behavioral, settings.fixed_eval_threshold):
+    behavioral = evaluate_behavior(paths, settings, settings.behavioral_threshold)
+    if settings.enforce_competency and not competency_passes(behavioral, settings.behavioral_threshold):
         raise RuntimeError("agent competency gate failed")
     if pass_rate(fixed) < 1.0:
         raise RuntimeError("fixed artifact gate failed")

@@ -6,7 +6,8 @@ from lkjai_train.cli import dispatch, train_settings
 from lkjai_train.corpus import generate_corpus
 from lkjai_train.corpus_source import load_entries, tagged_contents, validate_sources
 from lkjai_train.dataset import prepare_fixtures, validate_dataset
-from lkjai_train.formatting import prompt_text
+from lkjai_train.behavioral import action_schema_error, bucket, bucket_rates
+from lkjai_train.formatting import prompt_text, supervised_token_ids
 from lkjai_train.generation import agent_context_messages, first_json_object, latest_user_event, normalize_action, normalize_messages
 from lkjai_train.paths import Paths
 from lkjai_train.preference import prepare_preferences
@@ -48,6 +49,7 @@ def test_agent_settings_defaults(monkeypatch):
     assert settings.kv_heads == 2
     assert settings.batch_size == 1
     assert settings.corpus_size == 12000
+    assert settings.behavioral_threshold == 0.35
 
 
 def test_quick_settings_are_tiny():
@@ -96,6 +98,37 @@ def test_normalize_action_extracts_first_json_object():
     assert first_json_object(text) == '{"kind":"final","content":"ok"}'
 
 
+def test_normalize_action_returns_raw_invalid_text():
+    assert normalize_action("not json <eos>").strip() == "not json"
+
+
+def test_behavioral_schema_rejects_invalid_action_shape():
+    assert action_schema_error({"kind": "33"}).startswith("unknown action kind")
+    assert action_schema_error({"kind": "tool_call", "tool": "fs.list", "args": {}}) == ""
+
+
+def test_behavioral_buckets_report_pass_rates():
+    cases = [
+        {"bucket": "direct_answer", "passed": True, "valid_json": True},
+        {"bucket": "direct_answer", "passed": False, "valid_json": True},
+    ]
+    assert bucket({"tags": ["kjxlkj", "confirmation"]}) == "kjxlkj_mutation_confirmation"
+    assert bucket_rates(cases)["direct_answer"]["pass_rate"] == 0.5
+
+
+def test_supervised_labels_mask_non_assistant_tokens():
+    row = {
+        "messages": [
+            {"role": "user", "content": "hello"},
+            {"role": "assistant", "content": '{"kind":"final","content":"hi"}'},
+        ]
+    }
+    ids, labels = supervised_token_ids(DummyTokenizer(), row)
+    assert len(ids) == len(labels)
+    assert any(label == -100 for label in labels)
+    assert any(label != -100 for label in labels)
+
+
 def test_raw_user_prompt_becomes_default_task():
     messages = normalize_messages([{"role": "user", "content": "What is 2+3?"}])
     assert "<task>" in messages[0]["content"]
@@ -129,3 +162,13 @@ def test_prepare_preferences_writes_pairs(tmp_path):
     lines = [json.loads(line) for line in out.read_text(encoding="utf-8").splitlines()]
     assert lines
     assert {"messages", "chosen", "rejected", "source"}.issubset(lines[0])
+
+
+class DummyTokenizer:
+    def encode(self, text):
+        return Encoded([ord(char) for char in text])
+
+
+class Encoded:
+    def __init__(self, ids):
+        self.ids = ids

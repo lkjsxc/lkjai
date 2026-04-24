@@ -20,6 +20,7 @@ class TrainSettings:
     gradient_accumulation: int
     max_steps: int
     fixed_eval_threshold: float
+    behavioral_threshold: float
     enforce_competency: bool
     corpus_size: int
     seed: int
@@ -34,7 +35,7 @@ def train_settings(preset: str) -> TrainSettings:
 
 
 def quick_settings() -> TrainSettings:
-    return TrainSettings("quick", env_str("MODEL_NAME", "lkjai-scratch-60m"), "tiny-scratch", 512, 64, 2, 64, 4, 2, 128, 3e-4, False, 1, 1, 5, 0.0, False, 20, env_int("TRAIN_SEED", 42))
+    return TrainSettings("quick", env_str("MODEL_NAME", "lkjai-scratch-60m"), "tiny-scratch", 512, 64, 2, 64, 4, 2, 128, 3e-4, False, 1, 1, 5, 0.0, 0.0, False, 20, env_int("TRAIN_SEED", 42))
 
 
 def settings(preset, model_preset, vocab, seq, layers, hidden, heads, kv, ffn, steps, rows):
@@ -55,6 +56,7 @@ def settings(preset, model_preset, vocab, seq, layers, hidden, heads, kv, ffn, s
         gradient_accumulation=env_int("TRAIN_GRADIENT_ACCUMULATION", 8),
         max_steps=env_int("TRAIN_MAX_STEPS", steps),
         fixed_eval_threshold=env_float("TRAIN_FIXED_EVAL_THRESHOLD", 0.6),
+        behavioral_threshold=env_float("TRAIN_BEHAVIORAL_THRESHOLD", 0.35),
         enforce_competency=env_bool("TRAIN_ENFORCE_COMPETENCY", False),
         corpus_size=env_int("TRAIN_CORPUS_SIZE", rows),
         seed=env_int("TRAIN_SEED", 42),

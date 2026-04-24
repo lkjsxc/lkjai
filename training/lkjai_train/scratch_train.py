@@ -4,7 +4,7 @@ from contextlib import nullcontext
 import torch
 from torch.utils.data import DataLoader, Dataset
 
-from .formatting import load_rows, row_text
+from .formatting import load_rows, supervised_token_ids
 from .scratch_model import ModelConfig, ScratchLM, parameter_count, save_config
 from .tokenizer import load_tokenizer, train_tokenizer
 
@@ -30,34 +30,39 @@ def train_scratch(paths, settings) -> dict:
     return save_training(paths, settings, config, model, len(train_rows), len(val_rows), metrics)
 
 
-def pack_rows(tokenizer, rows: list[dict], sequence_len: int) -> list[list[int]]:
+def pack_rows(tokenizer, rows: list[dict], sequence_len: int) -> list[tuple[list[int], list[int]]]:
     eos = tokenizer.token_to_id("<eos>") or 0
     pack_len = sequence_len + 1
-    packed, current = [], []
+    packed, current_ids, current_labels = [], [], []
     for row in rows:
-        remaining = tokenizer.encode(row_text(row)).ids + [eos]
-        while remaining:
-            space = pack_len - len(current)
-            current.extend(remaining[:space])
-            remaining = remaining[space:]
-            if len(current) == pack_len:
-                packed.append(current)
-                current = []
-    if len(current) > 1:
-        packed.append(current + [eos] * (pack_len - len(current)))
-    return packed or [[eos] * pack_len]
+        remaining_ids, remaining_labels = supervised_token_ids(tokenizer, row)
+        remaining_ids.append(eos)
+        remaining_labels.append(-100)
+        while remaining_ids:
+            space = pack_len - len(current_ids)
+            current_ids.extend(remaining_ids[:space])
+            current_labels.extend(remaining_labels[:space])
+            remaining_ids = remaining_ids[space:]
+            remaining_labels = remaining_labels[space:]
+            if len(current_ids) == pack_len:
+                packed.append((current_ids, current_labels))
+                current_ids, current_labels = [], []
+    if len(current_ids) > 1:
+        pad = pack_len - len(current_ids)
+        packed.append((current_ids + [eos] * pad, current_labels + [-100] * pad))
+    return packed or [([eos] * pack_len, [-100] * pack_len)]
 
 
 class TokenDataset(Dataset):
-    def __init__(self, windows: list[list[int]]):
-        self.windows = [torch.tensor(window, dtype=torch.long) for window in windows]
+    def __init__(self, windows: list[tuple[list[int], list[int]]]):
+        self.windows = [(torch.tensor(ids, dtype=torch.long), torch.tensor(labels, dtype=torch.long)) for ids, labels in windows]
 
     def __len__(self):
         return len(self.windows)
 
     def __getitem__(self, index):
-        window = self.windows[index]
-        return window[:-1], window[1:]
+        ids, labels = self.windows[index]
+        return ids[:-1], labels[1:]
 
 
 def model_config(settings, vocab_size: int) -> ModelConfig:
