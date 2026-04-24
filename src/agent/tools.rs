@@ -1,11 +1,12 @@
-use serde_json::Value;
-
 use crate::config::Config;
 
 use super::{memory::MemoryStore, tool_local, tool_remote};
 
 #[derive(Clone, Debug)]
 pub enum ToolCall {
+    AgentFinish {
+        content: String,
+    },
     Shell {
         command: String,
     },
@@ -57,55 +58,59 @@ pub enum ToolCall {
 }
 
 impl ToolCall {
-    pub fn from_json(tool: &str, args: &Value) -> Result<Self, String> {
+    pub fn from_fields(action: &super::action::Action) -> Result<Self, String> {
+        let tool = action.tool.as_str();
         match tool {
+            "agent.finish" => Ok(Self::AgentFinish {
+                content: required(action, "content")?,
+            }),
             "shell.exec" => Ok(Self::Shell {
-                command: required(args, "command")?,
+                command: required(action, "command")?,
             }),
             "web.fetch" => Ok(Self::Fetch {
-                url: required(args, "url")?,
+                url: required(action, "url")?,
             }),
             "fs.read" => Ok(Self::Read {
-                path: required(args, "path")?,
+                path: required(action, "path")?,
             }),
             "fs.write" => Ok(Self::Write {
-                path: required(args, "path")?,
-                content: required(args, "content")?,
+                path: required(action, "path")?,
+                content: required(action, "content")?,
             }),
             "fs.list" => Ok(Self::List {
-                path: required(args, "path")?,
+                path: required(action, "path")?,
             }),
             "memory.search" => Ok(Self::MemorySearch {
-                query: required(args, "query")?,
+                query: required(action, "query")?,
             }),
             "memory.write" => Ok(Self::MemoryWrite {
-                content: required(args, "content")?,
+                content: required(action, "content")?,
             }),
             "resource.search" => Ok(Self::ResourceSearch {
-                query: required(args, "query")?,
-                kind: optional(args, "kind").unwrap_or_else(|| "all".into()),
+                query: required(action, "query")?,
+                kind: optional(action, "kind").unwrap_or_else(|| "all".into()),
             }),
             "resource.fetch" => Ok(Self::ResourceFetch {
-                reference: required_any(args, &["ref", "id"])?,
+                reference: required_any(action, &["ref", "id"])?,
             }),
             "resource.history" => Ok(Self::ResourceHistory {
-                reference: required_any(args, &["ref", "id"])?,
+                reference: required_any(action, &["ref", "id"])?,
             }),
             "resource.preview_markdown" => Ok(Self::ResourcePreview {
-                body: required(args, "body")?,
-                current_resource_id: optional(args, "current_resource_id"),
+                body: required(action, "body")?,
+                current_resource_id: optional(action, "current_resource_id"),
             }),
             "resource.create_note" => Ok(Self::ResourceCreateNote {
-                body: required(args, "body")?,
-                alias: optional(args, "alias"),
-                is_private: optional_bool(args, "is_private", false),
+                body: required(action, "body")?,
+                alias: optional(action, "alias"),
+                is_private: action.bool_field("is_private", false),
             }),
             "resource.update_resource" => Ok(Self::ResourceUpdate {
-                reference: required_any(args, &["ref", "id"])?,
-                body: required(args, "body")?,
-                alias: optional(args, "alias"),
-                is_favorite: optional_bool(args, "is_favorite", false),
-                is_private: optional_bool(args, "is_private", false),
+                reference: required_any(action, &["ref", "id"])?,
+                body: required(action, "body")?,
+                alias: optional(action, "alias"),
+                is_favorite: action.bool_field("is_favorite", false),
+                is_private: action.bool_field("is_private", false),
             }),
             other => Err(format!("unknown tool {other}")),
         }
@@ -113,6 +118,7 @@ impl ToolCall {
 
     pub fn name(&self) -> &'static str {
         match self {
+            Self::AgentFinish { .. } => "agent.finish",
             Self::Shell { .. } => "shell.exec",
             Self::Fetch { .. } => "web.fetch",
             Self::Read { .. } => "fs.read",
@@ -131,6 +137,7 @@ impl ToolCall {
 
     pub fn summary(&self) -> String {
         match self {
+            Self::AgentFinish { content } => content.chars().take(80).collect(),
             Self::Shell { command } => command.clone(),
             Self::Fetch { url } => url.clone(),
             Self::Read { path } | Self::List { path } => path.clone(),
@@ -157,6 +164,9 @@ pub async fn execute(
     memory: &MemoryStore,
     run_id: &str,
 ) -> Result<String, String> {
+    if let ToolCall::AgentFinish { content } = call {
+        return Ok(content);
+    }
     if let Some(value) = tool_local::execute(&call, config, memory, run_id).await? {
         return Ok(value);
     }
@@ -166,23 +176,16 @@ pub async fn execute(
     Err(format!("tool not implemented: {}", call.name()))
 }
 
-fn required(args: &Value, key: &str) -> Result<String, String> {
-    optional(args, key).ok_or_else(|| format!("missing string arg {key}"))
+fn required(action: &super::action::Action, key: &str) -> Result<String, String> {
+    optional(action, key).ok_or_else(|| format!("missing string arg {key}"))
 }
 
-fn required_any(args: &Value, keys: &[&str]) -> Result<String, String> {
+fn required_any(action: &super::action::Action, keys: &[&str]) -> Result<String, String> {
     keys.iter()
-        .find_map(|key| optional(args, key))
+        .find_map(|key| optional(action, key))
         .ok_or_else(|| format!("missing one of {}", keys.join(", ")))
 }
 
-fn optional(args: &Value, key: &str) -> Option<String> {
-    args.get(key)
-        .and_then(Value::as_str)
-        .filter(|value| !value.is_empty())
-        .map(str::to_string)
-}
-
-fn optional_bool(args: &Value, key: &str, default: bool) -> bool {
-    args.get(key).and_then(Value::as_bool).unwrap_or(default)
+fn optional(action: &super::action::Action, key: &str) -> Option<String> {
+    action.field(key)
 }

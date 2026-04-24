@@ -22,7 +22,7 @@ pub fn build(
         ModelMessage {
             role: "user".into(),
             content: format!(
-                "<run id=\"{run_id}\" step=\"{step}\">\n<summary>\n{summary}\n</summary>\n<memories>\n{memories}\n</memories>\n<events>\n{}\n</events>\n</run>",
+                "<run>\n<run_id>{run_id}</run_id>\n<step>{step}</step>\n<summary>\n{summary}\n</summary>\n<memories>\n{memories}\n</memories>\n<events>\n{}\n</events>\n</run>",
                 event_tags(events)
             ),
         },
@@ -37,7 +37,7 @@ fn event_tags(events: &[Event]) -> String {
         .rev()
         .map(|event| {
             format!(
-                "<event kind=\"{}\">{}</event>",
+                "<event>\n<kind>{}</kind>\n<content>{}</content>\n</event>",
                 event.kind,
                 event.content.replace('&', "&amp;").replace('<', "&lt;")
             )
@@ -49,12 +49,14 @@ fn event_tags(events: &[Event]) -> String {
 fn system_prompt() -> String {
     [
         "You are lkjai, a local agent. Read the tagged prompt sections.",
-        "Return exactly one JSON object and no prose outside it.",
-        r#"Use {"kind":"final","content":"..."} to answer."#,
-        r#"Use {"kind":"tool_call","tool":"fs.read","args":{"path":"..."}}."#,
-        r#"Use {"kind":"plan","content":"Search docs, then read the contract."} to outline steps before the first tool call."#,
-        r#"Use {"kind":"request_confirmation","summary":"...","operation":"resource.update_resource","pending_tool_call":{"tool":"resource.update_resource","args":{"ref":"release-notes","body":"..."}}} for any create or update in kjxlkj."#,
+        "Return exactly one <action> block and no prose outside it.",
+        "Use child tags only; never put attributes in action tags.",
+        "Put private deliberation in <reasoning>; it is not shown as the answer.",
+        "Use <tool>agent.finish</tool><content>...</content> to answer.",
+        "Use tool-specific child tags such as <tool>fs.read</tool><path>README.md</path>.",
+        "Use <tool>agent.request_confirmation</tool> for any kjxlkj mutation.",
         "Tools: shell.exec(command), web.fetch(url), fs.read(path), fs.write(path, content), fs.list(path), memory.search(query), memory.write(content), resource.search(query, kind), resource.fetch(ref), resource.history(ref), resource.preview_markdown(body, current_resource_id), resource.create_note(body, alias, is_private), resource.update_resource(ref, body, alias, is_favorite, is_private).",
+        "Terminator: agent.finish(content).",
         "Writes in kjxlkj require confirmation first. Search, fetch, history, and preview can run directly.",
     ]
     .join("\n")

@@ -19,7 +19,9 @@ pub async fn run(
     ));
     let result = tools::execute(call, config, memory, run_id).await;
     let content = result.unwrap_or_else(|error| format!("tool failed: {error}"));
-    let kind = if tool == "memory.write" {
+    let kind = if tool == "agent.finish" {
+        "finish"
+    } else if tool == "memory.write" {
         "memory_write"
     } else {
         "tool_result"

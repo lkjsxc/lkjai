@@ -1,21 +1,11 @@
 use serde::{Deserialize, Serialize};
-use std::{
-    collections::VecDeque,
-    sync::{Arc, Mutex},
-    time::Duration,
-};
+use std::time::Duration;
 
 use crate::config::Config;
 
 #[derive(Clone)]
 pub struct ModelClient {
-    mode: Mode,
-}
-
-#[derive(Clone)]
-enum Mode {
-    Http(HttpModel),
-    Fake(Arc<Mutex<VecDeque<String>>>),
+    model: HttpModel,
 }
 
 #[derive(Clone)]
@@ -79,55 +69,31 @@ struct ModelId {
 impl ModelClient {
     pub fn from_config(config: &Config) -> Self {
         Self {
-            mode: Mode::Http(HttpModel {
+            model: HttpModel {
                 client: reqwest::Client::new(),
                 url: config.model_api_url.clone(),
                 name: config.model_name.clone(),
                 max_tokens: config.model_max_new_tokens,
                 temperature: config.model_temperature,
-            }),
-        }
-    }
-
-    pub fn fake(responses: Vec<String>) -> Self {
-        Self {
-            mode: Mode::Fake(Arc::new(Mutex::new(VecDeque::from(responses)))),
+            },
         }
     }
 
     pub async fn chat(&self, messages: &[ModelMessage]) -> Result<String, String> {
-        match &self.mode {
-            Mode::Http(model) => model.chat(messages).await,
-            Mode::Fake(queue) => queue
-                .lock()
-                .map_err(|_| "fake model lock poisoned".to_string())?
-                .pop_front()
-                .ok_or_else(|| "fake model has no response queued".to_string()),
-        }
+        self.model.chat(messages).await
     }
 
     pub async fn status(&self) -> ModelStatus {
-        match &self.mode {
-            Mode::Http(model) => {
-                let reachable = model.health().await;
-                ModelStatus {
-                    model: model.name.clone(),
-                    api_url: model.url.clone(),
-                    loaded: true,
-                    reachable,
-                    message: if reachable {
-                        "model server responding".into()
-                    } else {
-                        "model server unreachable".into()
-                    },
-                }
-            }
-            Mode::Fake(_) => ModelStatus {
-                model: "fake".into(),
-                api_url: "memory://fake".into(),
-                loaded: true,
-                reachable: true,
-                message: "fake model client configured".into(),
+        let reachable = self.model.health().await;
+        ModelStatus {
+            model: self.model.name.clone(),
+            api_url: self.model.url.clone(),
+            loaded: true,
+            reachable,
+            message: if reachable {
+                "model server responding".into()
+            } else {
+                "model server unreachable".into()
             },
         }
     }

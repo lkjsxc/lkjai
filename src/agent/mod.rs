@@ -78,25 +78,29 @@ impl Agent {
                     break;
                 }
             };
-            if let Some(thought) = action.thought.clone().filter(|v| !v.is_empty()) {
-                events.push(event("plan", thought, None, Some(step)));
+            if let Some(reasoning) = action.reasoning.clone().filter(|v| !v.is_empty()) {
+                events.push(event("plan", reasoning, None, Some(step)));
             }
-            match action.kind.as_str() {
-                "final" => {
-                    assistant = action.content.unwrap_or_default();
-                    events.push(event("assistant", assistant.clone(), None, Some(step)));
-                    stop_reason = "final".into();
-                    break;
-                }
-                "tool_call" => {
-                    let result = self.action_tool(action, &run_id, step, &mut events).await;
-                    prior = base_prior.clone();
-                    prior.extend(events.clone());
-                    if result.is_err() {
-                        stop_reason = "tool_error".into();
+            match action.tool.as_str() {
+                "agent.finish" => match self.action_tool(action, &run_id, step, &mut events).await
+                {
+                    Ok(Some(content)) => {
+                        assistant = content.clone();
+                        events.push(event("assistant", content, None, Some(step)));
+                        stop_reason = "finish".into();
+                        break;
                     }
-                }
-                "request_confirmation" => match confirmation::handle(action, step, &mut events) {
+                    Ok(None) => {
+                        stop_reason = "tool_error".into();
+                        break;
+                    }
+                    Err(error) => {
+                        events.push(event("error", error, None, Some(step)));
+                        stop_reason = "invalid_action".into();
+                        break;
+                    }
+                },
+                "agent.request_confirmation" => match confirmation::handle(action, step, &mut events) {
                     Ok(message) => {
                         assistant = message;
                         stop_reason = "confirmation_required".into();
@@ -108,15 +112,18 @@ impl Agent {
                         break;
                     }
                 },
-                other => {
-                    events.push(event(
-                        "error",
-                        format!("unknown action kind {other}"),
-                        None,
-                        Some(step),
-                    ));
-                    stop_reason = "invalid_action".into();
-                    break;
+                _ => {
+                    let result = self.action_tool(action, &run_id, step, &mut events).await;
+                    prior = base_prior.clone();
+                    prior.extend(events.clone());
+                    if let Err(error) = result {
+                        events.push(event("error", error, None, Some(step)));
+                        stop_reason = "invalid_action".into();
+                        break;
+                    }
+                    if step == max_steps {
+                        stop_reason = "max_steps".into();
+                    }
                 }
             }
         }
@@ -145,7 +152,7 @@ impl Agent {
                 let mut repair = messages;
                 repair.push(ModelMessage {
                     role: "user".into(),
-                    content: format!("Repair invalid action JSON. Error: {error}. Text: {text}"),
+                    content: format!("Repair invalid XML action. Error: {error}. Text: {text}"),
                 });
                 action::parse(&self.model.chat(&repair).await?)
             }
@@ -159,15 +166,15 @@ impl Agent {
         run_id: &str,
         step: usize,
         events: &mut Vec<Event>,
-    ) -> Result<(), String> {
-        let tool = action
-            .tool
-            .ok_or_else(|| "tool_call missing tool".to_string())?;
-        let args = action.args.unwrap_or(serde_json::Value::Null);
-        let call = tools::ToolCall::from_json(&tool, &args)?;
+    ) -> Result<Option<String>, String> {
+        let tool = action.tool.clone();
+        let call = tools::ToolCall::from_fields(&action)?;
         let result = tool_runner::run(call, &self.config, &self.memory, run_id, step, events).await;
-        events.push(event("observation", result, Some(tool), Some(step)));
-        Ok(())
+        events.push(event("observation", result.clone(), Some(tool.clone()), Some(step)));
+        if tool == "agent.finish" {
+            return Ok(Some(result));
+        }
+        Ok(None)
     }
 
     fn prompt(&self, run_id: &str, events: &[Event], step: usize) -> Vec<ModelMessage> {
