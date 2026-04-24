@@ -5,6 +5,7 @@ from pathlib import Path
 
 from .corpus_source import SOURCE_DIR, validate_sources
 from .dataset import prepare_corpus, prepare_fixtures, validate_dataset
+from .kimi_dataset import prepare_kimi_corpus, validate_kimi_corpus
 from .manifest import checkpoint_manifest, export_manifest
 from .paths import Paths
 from .settings import train_settings
@@ -41,7 +42,11 @@ def dispatch(args, paths: Paths):
 
         return validate_public_sources(paths)
     if args.command == "prepare-corpus":
-        return prepare_corpus(paths, train_settings(env_preset()).corpus_size)
+        corpus = prepare_corpus(paths, train_settings(env_preset()).corpus_size)
+        settings = train_settings(env_preset())
+        kimi_target = settings.corpus_tokens if settings.corpus_tokens > 0 else 1_000_000
+        prepare_kimi_corpus(paths, target_tokens=kimi_target)
+        return corpus
     if args.command == "prepare-public-corpus":
         from .public_import import prepare_public_corpus
 
@@ -49,7 +54,11 @@ def dispatch(args, paths: Paths):
     if args.command == "train-tokenizer":
         return run_tokenizer(paths, train_settings(env_preset()))
     if args.command == "validate-dataset":
-        return validate_dataset(Path(args.path) if args.path else default_dataset(paths))
+        if args.path:
+            return validate_dataset(Path(args.path))
+        if paths.kimi_corpus.exists() and any(paths.kimi_corpus.rglob("*.jsonl")):
+            return validate_kimi_corpus(paths)
+        return validate_dataset(default_dataset(paths))
     if args.command == "train-scratch":
         return run_training(paths, train_settings(args.preset))
     if args.command == "fixed-eval":
@@ -131,6 +140,8 @@ def competency_passes(path: Path, threshold: float) -> bool:
 
 
 def default_dataset(paths: Paths) -> Path:
+    if paths.kimi_corpus.exists() and any(paths.kimi_corpus.rglob("*.jsonl")):
+        return paths.kimi_corpus
     return paths.corpus if paths.corpus.exists() else paths.fixtures
 
 
