@@ -120,8 +120,8 @@ def train_pipeline(paths: Paths):
     behavioral = evaluate_behavior(paths, settings, settings.behavioral_threshold)
     if settings.enforce_competency and not competency_passes(behavioral, settings.behavioral_threshold):
         raise RuntimeError("agent competency gate failed")
-    if pass_rate(fixed) < 1.0:
-        raise RuntimeError("fixed artifact gate failed")
+    if not fixed_artifact_passes(fixed, settings.fixed_eval_threshold):
+        raise RuntimeError(f"fixed artifact gate failed: {failed_case_ids(fixed)}")
     return behavioral
 
 
@@ -140,6 +140,16 @@ def env_preset() -> str:
 
 def pass_rate(path: Path) -> float:
     return float(json.loads(path.read_text(encoding="utf-8")).get("pass_rate", 0.0))
+
+
+def fixed_artifact_passes(path: Path, threshold: float) -> bool:
+    return pass_rate(path) >= threshold
+
+
+def failed_case_ids(path: Path) -> str:
+    data = json.loads(path.read_text(encoding="utf-8"))
+    failed = [item["id"] for item in data.get("cases", []) if not item.get("passed")]
+    return ", ".join(failed) if failed else "pass_rate below threshold"
 
 
 if __name__ == "__main__":
