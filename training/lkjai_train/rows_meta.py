@@ -1,0 +1,85 @@
+def meta(
+    row_id: str,
+    domain: str,
+    skill: str,
+    source_ref: str,
+    *,
+    split: str,
+    toolset: str = "none",
+    language: str = "en",
+    license_name: str = "project-local",
+    safety_scope: str = "workspace-safe",
+) -> dict:
+    return meta_base(
+        row_id,
+        domain,
+        skill,
+        source_ref,
+        split,
+        toolset,
+        language,
+        license_name,
+        safety_scope,
+        "repo-derived",
+        "repo-derived",
+        "none",
+    )
+
+
+def kimi_meta(
+    row_id: str,
+    domain: str,
+    skill: str,
+    source_ref: str,
+    *,
+    split: str,
+    toolset: str = "none",
+    language: str = "en",
+    license_name: str = "project-local",
+    safety_scope: str = "workspace-safe",
+) -> dict:
+    return meta_base(
+        row_id,
+        domain,
+        skill,
+        source_ref,
+        split,
+        toolset,
+        language,
+        license_name,
+        safety_scope,
+        "kimi-generated",
+        "external-agent-generated",
+        "kimi-code",
+    )
+
+
+def meta_base(
+    row_id,
+    domain,
+    skill,
+    source_ref,
+    split,
+    toolset,
+    language,
+    license_name,
+    safety_scope,
+    provenance,
+    author_type,
+    author_model,
+) -> dict:
+    return {
+        "id": row_id,
+        "split": split,
+        "provenance": provenance,
+        "author_type": author_type,
+        "author_model": author_model,
+        "quality_tier": "high",
+        "domain": domain,
+        "skill": skill,
+        "toolset": toolset,
+        "language": language,
+        "safety_scope": safety_scope,
+        "license": license_name,
+        "source_ref": source_ref,
+    }

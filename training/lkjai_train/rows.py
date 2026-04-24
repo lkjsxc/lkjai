@@ -1,6 +1,8 @@
 import json
 from html import escape
 
+from .rows_meta import kimi_meta, meta
+
 
 def action_message(action: dict) -> dict:
     return {"role": "assistant", "content": action_xml(action)}
@@ -45,64 +47,6 @@ def tag(name: str, value) -> str:
     else:
         text = str(value)
     return f"<{name}>{escape(text, quote=False)}</{name}>"
-
-
-def meta(
-    row_id: str,
-    domain: str,
-    skill: str,
-    source_ref: str,
-    *,
-    split: str,
-    toolset: str = "none",
-    language: str = "en",
-    license_name: str = "project-local",
-    safety_scope: str = "workspace-safe",
-) -> dict:
-    return {
-        "id": row_id,
-        "split": split,
-        "provenance": "repo-derived",
-        "author_type": "repo-derived",
-        "author_model": "none",
-        "quality_tier": "high",
-        "domain": domain,
-        "skill": skill,
-        "toolset": toolset,
-        "language": language,
-        "safety_scope": safety_scope,
-        "license": license_name,
-        "source_ref": source_ref,
-    }
-
-
-def kimi_meta(
-    row_id: str,
-    domain: str,
-    skill: str,
-    source_ref: str,
-    *,
-    split: str,
-    toolset: str = "none",
-    language: str = "en",
-    license_name: str = "project-local",
-    safety_scope: str = "workspace-safe",
-) -> dict:
-    return {
-        "id": row_id,
-        "split": split,
-        "provenance": "kimi-generated",
-        "author_type": "external-agent-generated",
-        "author_model": "kimi-code",
-        "quality_tier": "high",
-        "domain": domain,
-        "skill": skill,
-        "toolset": toolset,
-        "language": language,
-        "safety_scope": safety_scope,
-        "license": license_name,
-        "source_ref": source_ref,
-    }
 
 
 def row(messages: list[dict], tags: list[str], metadata: dict) -> dict:

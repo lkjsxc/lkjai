@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from xml.etree import ElementTree
 
@@ -158,4 +159,3 @@ def first_xml_action(text: str) -> str:
     if end >= 0:
         return text[start : end + len("</action>")]
     return ""
-

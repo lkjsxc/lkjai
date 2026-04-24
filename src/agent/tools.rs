@@ -1,21 +1,46 @@
-use crate::config::Config;
-
 use super::{memory::MemoryStore, tool_local, tool_remote};
+use crate::config::Config;
 
 #[derive(Clone, Debug)]
 pub enum ToolCall {
-    AgentFinish { content: String },
-    AgentThink { content: String },
-    Shell { command: String },
-    Fetch { url: String },
-    Read { path: String },
-    Write { path: String, content: String },
-    List { path: String },
-    MemorySearch { query: String },
-    MemoryWrite { content: String },
-    ResourceSearch { query: String, kind: String },
-    ResourceFetch { reference: String },
-    ResourceHistory { reference: String },
+    AgentFinish {
+        content: String,
+    },
+    AgentThink {
+        content: String,
+    },
+    Shell {
+        command: String,
+    },
+    Fetch {
+        url: String,
+    },
+    Read {
+        path: String,
+    },
+    Write {
+        path: String,
+        content: String,
+    },
+    List {
+        path: String,
+    },
+    MemorySearch {
+        query: String,
+    },
+    MemoryWrite {
+        content: String,
+    },
+    ResourceSearch {
+        query: String,
+        kind: String,
+    },
+    ResourceFetch {
+        reference: String,
+    },
+    ResourceHistory {
+        reference: String,
+    },
     ResourcePreview {
         body: String,
         current_resource_id: Option<String>,
@@ -33,7 +58,6 @@ pub enum ToolCall {
         is_private: bool,
     },
 }
-
 impl ToolCall {
     pub fn from_fields(action: &super::action::Action) -> Result<Self, String> {
         let tool = action.tool.as_str();
@@ -139,7 +163,6 @@ impl ToolCall {
         }
     }
 }
-
 pub async fn execute(
     call: ToolCall,
     config: &Config,

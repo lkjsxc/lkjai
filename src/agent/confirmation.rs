@@ -12,9 +12,7 @@ pub fn handle(action: Action, step: usize, events: &mut Vec<Event>) -> Result<St
         .ok_or_else(|| "request_confirmation missing pending_tool".to_string())?;
     events.push(event(
         "confirmation_request",
-        format!(
-            "{summary}\noperation={operation}\npending_tool={pending_tool}"
-        ),
+        format!("{summary}\noperation={operation}\npending_tool={pending_tool}"),
         Some(pending_tool),
         Some(step),
     ));

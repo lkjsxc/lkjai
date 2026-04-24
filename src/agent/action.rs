@@ -60,7 +60,9 @@ fn child_fields(mut body: &str) -> Result<BTreeMap<String, String>, String> {
         if body.is_empty() {
             return Ok(fields);
         }
-        let close = body.find('>').ok_or_else(|| "malformed child tag".to_string())?;
+        let close = body
+            .find('>')
+            .ok_or_else(|| "malformed child tag".to_string())?;
         let open = &body[..=close];
         if !open.starts_with('<') || open.starts_with("</") || open.contains(' ') {
             return Err("child tags must be simple and attribute-free".into());
@@ -75,7 +77,10 @@ fn child_fields(mut body: &str) -> Result<BTreeMap<String, String>, String> {
             .find(&end_tag)
             .map(|idx| value_start + idx)
             .ok_or_else(|| format!("missing {end_tag}"))?;
-        if fields.insert(key.to_string(), unescape(&body[value_start..value_end])).is_some() {
+        if fields
+            .insert(key.to_string(), unescape(&body[value_start..value_end]))
+            .is_some()
+        {
             return Err(format!("duplicate child tag {key}"));
         }
         body = &body[value_end + end_tag.len()..];

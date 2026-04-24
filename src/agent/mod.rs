@@ -82,36 +82,39 @@ impl Agent {
                 events.push(event("plan", reasoning, None, Some(step)));
             }
             match action.tool.as_str() {
-                "agent.finish" => match self.action_tool(action, &run_id, step, &mut events).await
-                {
-                    Ok(Some(content)) => {
-                        assistant = content.clone();
-                        events.push(event("assistant", content, None, Some(step)));
-                        stop_reason = "finish".into();
-                        break;
+                "agent.finish" => {
+                    match self.action_tool(action, &run_id, step, &mut events).await {
+                        Ok(Some(content)) => {
+                            assistant = content.clone();
+                            events.push(event("assistant", content, None, Some(step)));
+                            stop_reason = "finish".into();
+                            break;
+                        }
+                        Ok(None) => {
+                            stop_reason = "tool_error".into();
+                            break;
+                        }
+                        Err(error) => {
+                            events.push(event("error", error, None, Some(step)));
+                            stop_reason = "invalid_action".into();
+                            break;
+                        }
                     }
-                    Ok(None) => {
-                        stop_reason = "tool_error".into();
-                        break;
+                }
+                "agent.request_confirmation" => {
+                    match confirmation::handle(action, step, &mut events) {
+                        Ok(message) => {
+                            assistant = message;
+                            stop_reason = "confirmation_required".into();
+                            break;
+                        }
+                        Err(error) => {
+                            events.push(event("error", error, None, Some(step)));
+                            stop_reason = "invalid_action".into();
+                            break;
+                        }
                     }
-                    Err(error) => {
-                        events.push(event("error", error, None, Some(step)));
-                        stop_reason = "invalid_action".into();
-                        break;
-                    }
-                },
-                "agent.request_confirmation" => match confirmation::handle(action, step, &mut events) {
-                    Ok(message) => {
-                        assistant = message;
-                        stop_reason = "confirmation_required".into();
-                        break;
-                    }
-                    Err(error) => {
-                        events.push(event("error", error, None, Some(step)));
-                        stop_reason = "invalid_action".into();
-                        break;
-                    }
-                },
+                }
                 _ => {
                     let result = self.action_tool(action, &run_id, step, &mut events).await;
                     prior = base_prior.clone();
@@ -170,7 +173,12 @@ impl Agent {
         let tool = action.tool.clone();
         let call = tools::ToolCall::from_fields(&action)?;
         let result = tool_runner::run(call, &self.config, &self.memory, run_id, step, events).await;
-        events.push(event("observation", result.clone(), Some(tool.clone()), Some(step)));
+        events.push(event(
+            "observation",
+            result.clone(),
+            Some(tool.clone()),
+            Some(step),
+        ));
         if tool == "agent.finish" {
             return Ok(Some(result));
         }
