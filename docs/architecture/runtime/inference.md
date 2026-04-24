@@ -17,7 +17,7 @@ honestly.
 
 - Request fields: `model`, `messages`, `max_tokens`, `temperature`.
 - The Rust client consumes `choices[0].message.content`.
-- Every model step must return one strict JSON action.
+- Every model step must return one XML action.
 - Parse repair is allowed in the agent loop, but there is no non-model fallback.
 
 ## Failure Semantics

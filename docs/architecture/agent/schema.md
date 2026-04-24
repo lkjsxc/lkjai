@@ -1,36 +1,41 @@
 # Agent Schema
 
-## Action JSON
+## XML Action
 
-The model must return one JSON object.
+The model must return exactly one `<action>` block.
 
-```json
-{
-  "kind": "tool_call",
-  "thought": "brief private planning note",
-  "tool": "fs.read",
-  "args": {"path": "README.md"}
-}
+- Tags have no attributes.
+- The `<tool>` child is required.
+- `<reasoning>` is private trace material.
+- `agent.finish` is the only normal successful terminator.
+
+```xml
+<action>
+<reasoning>Need to inspect the workspace before answering.</reasoning>
+<tool>fs.list</tool>
+<path>.</path>
+</action>
 ```
 
-```json
-{
-  "kind": "final",
-  "thought": "brief private planning note",
-  "content": "assistant response"
-}
+```xml
+<action>
+<reasoning>The requested work is complete.</reasoning>
+<tool>agent.finish</tool>
+<content>Done.</content>
+</action>
 ```
 
-```json
-{
-  "kind": "request_confirmation",
-  "summary": "Create a public research note",
-  "operation": "resource.create_note",
-  "pending_tool_call": {
-    "tool": "resource.create_note",
-    "args": {"body": "# Research", "is_private": false}
-  }
-}
+```xml
+<action>
+<reasoning>A kjxlkj mutation needs confirmation.</reasoning>
+<tool>agent.request_confirmation</tool>
+<summary>Update release notes?</summary>
+<operation>resource.update_resource</operation>
+<pending_tool>resource.update_resource</pending_tool>
+<ref>release-notes</ref>
+<body># Updated</body>
+<is_private>false</is_private>
+</action>
 ```
 
 ## Event Kinds
@@ -42,5 +47,6 @@ The model must return one JSON object.
 - `tool_result`
 - `observation`
 - `memory_write`
+- `finish`
 - `confirmation_request`
 - `error`

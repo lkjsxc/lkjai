@@ -32,7 +32,7 @@ Inference API endpoint:
 - `curl --fail http://127.0.0.1:8081/v1/models`
 
 The inference implementation loads exported scratch artifacts and generates
-JSON actions from the trained PyTorch checkpoint.
+XML actions from the trained PyTorch checkpoint.
 
 ## Run Web Runtime
 

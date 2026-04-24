@@ -15,7 +15,7 @@
 - The agent may run several model/tool steps before answering.
 - Non-tool prompts are answered through the same agent loop.
 - Model-status strings are not valid assistant replies.
-- The model response must use validated JSON actions.
+- The model response must use validated XML actions.
 - Tool calls and outputs are displayed in the transcript.
 - Memory writes are displayed in the transcript.
 - Every run is persisted as JSONL under `data/agent/runs/`.

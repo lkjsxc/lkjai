@@ -13,7 +13,7 @@ before attempting rollout-heavy reinforcement learning.
   failures.
 - Each preference row contains prompt messages, chosen assistant action, rejected
   assistant action, source, and reason.
-- Chosen actions must be valid JSON actions.
+- Chosen actions must be valid XML actions.
 - Rejected actions may be invalid JSON, wrong tool selection, wrong final
   answer, or unsafe path usage.
 

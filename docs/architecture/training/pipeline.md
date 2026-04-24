@@ -2,8 +2,8 @@
 
 ## Goal
 
-Train, export, and evaluate the 60M-class scratch model using the same dataset
-and runtime contracts that production will use.
+Train, export, and evaluate the 60M scratch model using XML actions and the
+same real tool loop that production will use.
 
 ## Commands
 
@@ -22,7 +22,7 @@ and runtime contracts that production will use.
 ## Pipeline Order
 
 1. Validate tagged JSON source files in `training/corpus_sources/`.
-2. Build fixtures and the full `60000` row docs-derived corpus.
+2. Build fixtures and the full 500M-token Kimi corpus outside git.
 3. Deduplicate and emit `train`, `val`, and `holdout` split files.
 4. Train the tokenizer on the train split only.
 5. Validate schema and split metadata.
@@ -31,14 +31,15 @@ and runtime contracts that production will use.
 8. Export the accepted checkpoint.
 9. Run fixed eval.
 10. Run raw holdout behavioral eval.
-11. Record pass-rate, invalid-action, and wrong-tool trends before retraining.
+11. Record pass-rate, invalid-XML, wrong-tool, and non-finish trends.
 
 ## Defaults
 
 - `TRAIN_PRESET=agent`
 - `TRAIN_MODEL_PRESET=scratch-60m`
 - `TRAIN_SEQUENCE_LEN=1024`
-- `TRAIN_CORPUS_SIZE=60000`
+- `TRAIN_CORPUS_TOKENS=500000000`
+- `TRAIN_CORPUS_DIR=/app/data/kimi-corpus`
 - `TRAIN_MAX_STEPS=12000`
 - `TRAIN_BEHAVIORAL_THRESHOLD=0.35`
 - `TRAIN_DATA_DIR=/app/data/train`

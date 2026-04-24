@@ -11,11 +11,11 @@ A full agentic trajectory follows this order:
 
 1. `user` — task request with `<task>` sections.
 2. `assistant` — `{"kind":"plan","content":"concise visible plan"}`.
-3. `assistant` — `{"kind":"tool_call","thought":"...","tool":"...","args":{}}`.
+3. `assistant` — one `<action>` with `<tool>...</tool>`.
 4. `tool` — observation result.
 5. `assistant` — optional second `tool_call` or `revise` step.
 6. `tool` — optional second observation.
-7. `assistant` — `{"kind":"final","content":"..."}`.
+7. `assistant` — `<tool>agent.finish</tool>` with `<content>...</content>`.
 
 ## Plan Action Rules
 
@@ -23,7 +23,7 @@ A full agentic trajectory follows this order:
 - Maximum length: 120 characters.
 - Must reference at least one concrete tool by name.
 - Must describe steps in execution order.
-- No prose outside the JSON action.
+- No prose outside the XML action.
 
 ## Row Kinds
 

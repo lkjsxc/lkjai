@@ -4,10 +4,10 @@
 
 ## System Goal
 
-- Train and serve a small commercial-safe scratch model on an RTX 3070 class
-  machine.
-- Keep the runtime LLM-readable: paired XML-like prompt sections, one strict
-  JSON action output, and no hidden compatibility shims.
+- Train and serve a 60M-parameter commercial-safe scratch model.
+- Keep the runtime LLM-readable: paired XML-like prompt sections and one
+  XML-like assistant action with child tags only.
+- End each successful user turn through the real `agent.finish` tool.
 - Judge quality on raw generation only. Exact-match supervised lookup is not an
   accepted runtime or evaluation path.
 - Keep `kjxlkj` integration API-first. `lkjai` should target typed resource
@@ -22,7 +22,7 @@
 5. Prefer exact defaults, commands, paths, and payloads.
 6. Remove conflicting legacy behavior instead of preserving it.
 7. Docs-first workflow is mandatory: change docs, then code, then retrain.
-8. Evaluation claims must match the real runtime path.
+8. Evaluation claims must match the real runtime path and actual tool execution.
 
 ## Top-Level Sections
 

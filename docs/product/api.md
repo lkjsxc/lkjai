@@ -25,7 +25,7 @@
   "run_id": "string",
   "assistant": "string",
   "events": [],
-  "stop_reason": "final"
+  "stop_reason": "finish"
 }
 ```
 

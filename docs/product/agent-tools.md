@@ -12,10 +12,11 @@
 
 ## Selection
 
-- The model selects tools by strict JSON action.
+- The model selects tools by XML action tags.
 - The runtime validates tool names and argument shapes.
 - Slash commands may remain as debug shortcuts.
 - Ambiguous natural-language requests are resolved by the model loop.
+- The model must call `agent.finish` to return the final answer.
 
 ## YOLO Policy
 
@@ -26,6 +27,7 @@
 - Tool calls must be logged before execution.
 - Tool results must be logged after execution.
 - Memory writes must be logged.
+- The runtime must not invent fake tool results.
 
 ## Limits
 

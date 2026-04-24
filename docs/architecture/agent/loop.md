@@ -12,11 +12,11 @@ Execute one user turn as a bounded multi-step loop.
 4. Retrieve relevant durable memories.
 5. Verify the model server is reachable.
 6. Build the model prompt with system policy, tools, memory, and recent context.
-7. Ask the model for one strict JSON action.
-8. Validate the JSON action.
-9. Execute a tool when the action is `tool_call`.
+7. Ask the model for one XML action.
+8. Validate the XML action and tool fields.
+9. Execute the requested tool.
 10. Append the tool result as an observation.
-11. Repeat until the action is `final` or a stop rule fires.
+11. Repeat until the executed tool is `agent.finish` or a stop rule fires.
 
 ## Model Unreachable Guard
 
@@ -31,12 +31,13 @@ Execute one user turn as a bounded multi-step loop.
 - `MODEL_MAX_NEW_TOKENS=512`.
 - `MODEL_TEMPERATURE=0.2`.
 - The agent must never execute an unvalidated tool call.
+- The agent must not synthesize fake tool results.
 
 ## Stop Reasons
 
-- `final`: model produced a valid final answer.
+- `finish`: `agent.finish` produced the final answer.
 - `max_steps`: loop reached `AGENT_MAX_STEPS`.
-- `invalid_action`: model output could not be repaired.
+- `invalid_action`: XML action could not be repaired.
 - `tool_error`: configured fatal tool failure.
 - `model_error`: model server call failed or model server is unreachable.
 
