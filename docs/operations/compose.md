@@ -12,8 +12,9 @@
 - All runtime profiles mount `./data:/app/data`.
 - Inference mounts `./data/models` to `/models`.
 - Inference loads `/models/${MODEL_NAME}`.
-- Inference reads `/app/data/train/datasets/corpus.jsonl` for exact supervised
-  action-index hits.
+- Inference loads exported scratch checkpoints and generates actions directly.
+- Inference must not use exact supervised lookup, prompt matching, or canned
+  response tables.
 - Training writes datasets, tokenizer, checkpoints, exports, and logs under
   `/app/data/train`.
 - Web writes transcripts and memory under `/app/data/agent`.
@@ -41,7 +42,8 @@ docker compose --profile verify up --build --abort-on-container-exit verify
 
 - The `train` service defaults to `TRAIN_PRESET=agent`.
 - `TRAIN_PRESET=quick` runs tiny scratch training with reduced steps.
-- `TRAIN_FIXED_EVAL_THRESHOLD` defaults to `0.80`.
+- `TRAIN_FIXED_EVAL_THRESHOLD` defaults to `0.60` for artifact reporting.
+- `TRAIN_BEHAVIORAL_THRESHOLD` defaults to `0.35` for the next pass-rate ladder.
 - `TRAIN_ENFORCE_COMPETENCY` defaults to disabled unless explicitly enabled.
 - Training writes to `TRAIN_DATA_DIR`, default `/app/data/train`.
 - Behavioral competency requires `data/train/runs/behavioral-eval.json`

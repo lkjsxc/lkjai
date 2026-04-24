@@ -31,6 +31,7 @@ and runtime contracts that production will use.
 8. Export the accepted checkpoint.
 9. Run fixed eval.
 10. Run raw holdout behavioral eval.
+11. Record pass-rate, invalid-action, and wrong-tool trends before retraining.
 
 ## Defaults
 
@@ -39,6 +40,7 @@ and runtime contracts that production will use.
 - `TRAIN_SEQUENCE_LEN=1024`
 - `TRAIN_CORPUS_SIZE=12000`
 - `TRAIN_MAX_STEPS=3000`
+- `TRAIN_BEHAVIORAL_THRESHOLD=0.35`
 - `TRAIN_DATA_DIR=/app/data/train`
 
 ## Artifacts

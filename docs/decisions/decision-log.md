@@ -10,7 +10,7 @@
 - Tokenizer: local byte-level BPE.
 - Memory backend: SQLite plus FTS lexical retrieval.
 - Agent loop limit: `AGENT_MAX_STEPS=6`.
-- Active context default: `4096` tokens.
+- Active context default: `1024` tokens.
 - Runtime default requires a real model API endpoint.
 - Policy-file model mode is removed from the default product path.
 
@@ -33,8 +33,8 @@
 
 - From-scratch training is the research question, even when weaker than
   pretrained workflows.
-- Serving trained checkpoints now is more valuable than preserving a placeholder
-  Rust inference stub.
+- Serving trained checkpoints through Python/Torch is more valuable than
+  preserving a placeholder Rust inference stub.
 - Rust remains the web and agent runtime direction.
 - SQLite keeps memory simple, inspectable, and local.
 - Health probes prevent silent fallback to fake responses.

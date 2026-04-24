@@ -2,8 +2,15 @@
 
 ## Canonical Rule
 
-An accepted model must pass fixed eval and beat the previous shipped model on
-raw holdout behavior.
+An accepted model must pass fixed eval and beat the previous shipped model or
+current documented baseline on raw holdout behavior.
+
+## Current Ladder
+
+- Current baseline: `pass_rate=0.235` from `47/200` raw holdout cases.
+- Next improvement gate: `TRAIN_BEHAVIORAL_THRESHOLD=0.35`.
+- Raise the threshold after each accepted model run.
+- Do not call the assistant competent until the thresholds below are met.
 
 ## Thresholds
 

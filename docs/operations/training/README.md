@@ -13,3 +13,4 @@ gating, and operator-facing acceptance flow.
 
 - [long-run.md](long-run.md): real training runtime contract and environment knobs
 - [competency-gate.md](competency-gate.md): fixed-eval threshold and acceptance policy
+- [iteration.md](iteration.md): baseline, pass-rate ladder, and accepted-run log

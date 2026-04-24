@@ -1,8 +1,8 @@
 [model]
-serving_name = "lkjai-scratch-40m"
+serving_name = "lkjai-scratch-60m"
 serving_family = "local-scratch-dense-decoder"
-model_preset = "scratch-40m"
-context_tokens = 4096
+model_preset = "scratch-60m"
+context_tokens = 1024
 max_new_tokens = 512
 temperature = 0.2
 
@@ -15,7 +15,8 @@ memory_top_k = 5
 method = "scratch-causal-lm"
 tokenizer = "byte-bpe"
 sequence_len = 1024
-layers = 8
-hidden_size = 512
+layers = 12
+hidden_size = 640
 heads = 8
 kv_heads = 2
+ffn_size = 1792
