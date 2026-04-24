@@ -16,6 +16,7 @@ behavioral reports.
   fallback final actions, inflating JSON validity.
 - Current artifacts were trained on disallowed LLM-authored corpus content and
   are invalid for acceptance after the provenance policy change.
+- New baseline target: 60,000 active rows with ≥57,000 unique and ≤1% duplicates.
 
 ## Iteration Command
 

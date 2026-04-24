@@ -22,7 +22,7 @@ and runtime contracts that production will use.
 ## Pipeline Order
 
 1. Validate tagged JSON source files in `training/corpus_sources/`.
-2. Build fixtures and the full `6000` row docs-derived corpus.
+2. Build fixtures and the full `60000` row docs-derived corpus.
 3. Deduplicate and emit `train`, `val`, and `holdout` split files.
 4. Train the tokenizer on the train split only.
 5. Validate schema and split metadata.
@@ -38,7 +38,7 @@ and runtime contracts that production will use.
 - `TRAIN_PRESET=agent`
 - `TRAIN_MODEL_PRESET=scratch-60m`
 - `TRAIN_SEQUENCE_LEN=1024`
-- `TRAIN_CORPUS_SIZE=6000`
+- `TRAIN_CORPUS_SIZE=60000`
 - `TRAIN_MAX_STEPS=12000`
 - `TRAIN_BEHAVIORAL_THRESHOLD=0.35`
 - `TRAIN_DATA_DIR=/app/data/train`

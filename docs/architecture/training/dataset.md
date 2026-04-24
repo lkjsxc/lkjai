@@ -34,6 +34,8 @@ Describe the on-disk dataset artifacts used by training and evaluation.
 - Validation must fail on missing split labels or missing provenance fields.
 - Validation must fail on GPT, Kimi, Claude, or generic LLM-authored default
   rows.
+- Validation must fail when assistant content is not valid JSON.
+- Validation must fail when duplicate rows exceed 1%.
 - Validation proves shape only, not quality.
 
 ## Split Policy

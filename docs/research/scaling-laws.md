@@ -19,11 +19,11 @@ For our scratch-60m preset:
 
 ## Practical Budget
 
-At 6,000 active docs-derived corpus rows and ~150 tokens per row:
+At 60,000 active docs-derived corpus rows and ~150 tokens per row:
 
-- Train tokens: `~900,000`
-- Tokens per parameter: `~0.016`
-- Chinchilla gap: `~1.1T - 0.9M ≈ 99.9% shortfall`
+- Train tokens: `~9,000,000`
+- Tokens per parameter: `~0.16`
+- Chinchilla gap: `~1.1T - 9M ≈ 99.2% shortfall`
 
 This gap is expected and acceptable for the default path:
 
@@ -31,6 +31,8 @@ This gap is expected and acceptable for the default path:
 - We optimize for trusted provenance, task diversity, and format alignment, not
   raw token volume.
 - Longer training steps (12,000) improve utilization of the available corpus.
+- Scaling from 6k to 60k rows increases train tokens 10x while preserving strict
+  provenance and deduplication hygiene.
 
 ## SmolLM2 Guidance
 

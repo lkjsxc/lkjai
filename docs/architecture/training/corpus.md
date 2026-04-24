@@ -62,27 +62,33 @@ Editable source entries live in JSON array files under
 
 ## Dataset Targets
 
-- Total rows: `6000`
-- Train rows: approximately `4800`
-- Validation rows: approximately `600`
-- Holdout rows: approximately `600`
-- Unique normalized rows: at least `5000`
-- Deduplicated tokenizer tokens on the train split: at least `500000`
+- Total rows: `60000`
+- Train rows: approximately `48000`
+- Validation rows: approximately `6000`
+- Holdout rows: approximately `6000`
+- Unique normalized rows: at least `57000`
+- Duplicate rows: at most `1%`
+- Deduplicated tokenizer tokens on the train split: at least `5000000`
 
 ## Token Budget
 
 - Parameter count: ~55.8M (scratch-60m preset)
 - Chinchilla-optimal tokens: ~1.1T (~20 tokens/parameter)
-- Practical train tokens at 6k rows: ~0.9M (~0.016 tokens/parameter)
-- Gap is intentional: the default path is from-scratch on limited compute and
-  excludes unreviewed LLM-authored corpus packs.
+- Practical train tokens at 60k rows: ~9M (~0.16 tokens/parameter)
+- Gap remains intentional: the default path is from-scratch on limited compute
+  and excludes unreviewed LLM-authored corpus packs.
 - Trusted provenance and format alignment matter more than raw token volume for
   this budget.
 
 ## Sources
 
-- Canonical docs-derived grounding rows from `docs/**/*.md`.
-- Runtime schema and route rows derived from repository source and tests.
-- Small deterministic fixtures for tool calls, confirmations, revision, and
-  safety.
-- Carefully selected permissive public rows with explicit provenance.
+- Docs-derived grounding rows from `docs/**/*.md` (~25%).
+- Multi-turn agentic rows derived from docs and source files (~20%).
+- Runtime schema and route rows derived from repository source and tests (~15%).
+- Test-derived fixtures for tool calls, confirmations, failure diagnosis, and
+  revision (~10%).
+- Safety, provenance, and artifact hygiene rows from policy docs (~10%).
+- Codebase navigation and implementation-planning rows from source files (~8%).
+- Preference-style critique/revision rows from deterministic rubrics (~7%).
+- Public-import rows are not available locally; quota redistributed to repo-derived
+  sources (~5%).
