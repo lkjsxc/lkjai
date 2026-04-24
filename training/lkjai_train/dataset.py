@@ -44,6 +44,9 @@ REQUIRED_META = {
     "source_ref",
 }
 
+DISALLOWED_AUTHOR_PARTS = ("gpt", "kimi", "claude", "llm")
+ALLOWED_PROVENANCE = {"repo-derived", "test-derived", "runtime-schema-derived", "human-seed", "public-import"}
+
 
 def prepare_fixtures(paths) -> Path:
     paths.ensure()
@@ -55,7 +58,7 @@ def prepare_fixtures(paths) -> Path:
     return paths.fixtures
 
 
-def prepare_corpus(paths, size: int = 12000, seed: int = 42) -> Path:
+def prepare_corpus(paths, size: int = 6000, seed: int = 42) -> Path:
     validate_sources()
     paths.ensure()
     rows = generate_corpus(size, seed)
@@ -84,6 +87,7 @@ def validate_dataset(path: Path) -> Path:
             raise ValueError("row missing required meta fields")
         if metadata.get("split") not in {"train", "val", "holdout"}:
             raise ValueError("invalid split")
+        validate_provenance(metadata)
         for message in messages:
             if message.get("role") not in {"system", "user", "assistant", "tool"}:
                 raise ValueError("invalid role")
@@ -93,6 +97,16 @@ def validate_dataset(path: Path) -> Path:
     if rows == 0:
         raise ValueError("dataset is empty")
     return path
+
+
+def validate_provenance(metadata: dict) -> None:
+    author = str(metadata.get("author_model", "")).lower()
+    author_type = str(metadata.get("author_type", "")).lower()
+    provenance = metadata.get("provenance")
+    if provenance not in ALLOWED_PROVENANCE:
+        raise ValueError(f"disallowed provenance {provenance}")
+    if author_type == "llm-curated" or any(part in author for part in DISALLOWED_AUTHOR_PARTS):
+        raise ValueError("disallowed llm-authored training row")
 
 
 def write_rows(path: Path, rows: list[dict]) -> None:

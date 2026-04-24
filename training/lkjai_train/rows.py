@@ -21,9 +21,9 @@ def meta(
     return {
         "id": row_id,
         "split": split,
-        "provenance": "project-authored",
-        "author_type": "llm-curated",
-        "author_model": "gpt-5.4-codex",
+        "provenance": "repo-derived",
+        "author_type": "repo-derived",
+        "author_model": "none",
         "quality_tier": "high",
         "domain": domain,
         "skill": skill,

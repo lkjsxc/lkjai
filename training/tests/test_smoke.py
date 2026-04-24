@@ -49,7 +49,7 @@ def test_agent_settings_defaults(monkeypatch):
     assert settings.layers == 12
     assert settings.kv_heads == 2
     assert settings.batch_size == 1
-    assert settings.corpus_size == 30000
+    assert settings.corpus_size == 6000
     assert settings.behavioral_threshold == 0.35
 
 
@@ -101,11 +101,10 @@ def test_agent_corpus_default_has_required_mix():
     rows = generate_corpus(2000)
     assert len(rows) == 2000
     tags = [tag for row in rows for tag in row.get("tags", [])]
-    assert "tool_trajectory" in tags
     assert "direct_answer" in tags
-    assert "kjxlkj" in tags
     assert "docs_grounding" in tags
-    assert "safety" in tags
+    assert "runtime_schema" in tags or "tool_trajectory" in tags
+    assert all(row["meta"]["author_model"] == "none" for row in rows)
 
 
 def test_normalize_action_extracts_first_json_object():

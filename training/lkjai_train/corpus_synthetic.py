@@ -1,81 +1,60 @@
-import itertools
-
 from .corpus_shared import split_for, xml_prompt
-from .corpus_source import tagged_contents
-from .public_data import ANGLES, AUDIENCES, CONSTRAINTS, DELIVERABLES, GENERAL_TOPICS
-from .rows import direct_row, meta, tool_row
+from .rows import confirm_row, direct_row, meta, revise_row, tool_row
 
 
-FACTS = [(item["subject"], item["answer"]) for item in tagged_contents("general", "concept_fact")]
-TOOL_SCENARIOS = [
-    (item["prompt"], item["tool"], item["args"], item["result"], item["answer"])
-    for item in tagged_contents("general", "local_tool_scenario")
+TOOLS = [
+    ("fs.list", {"path": "docs"}, "README.md\narchitecture\noperations", "The docs directory contains README.md and canon subtrees."),
+    ("fs.read", {"path": "docs/README.md"}, "# Documentation Canon\n\n`docs/` is the only active canon.", "The docs README is the active project canon."),
+    ("memory.write", {"content": "User prefers concise plans."}, "User prefers concise plans.", "I recorded the concise-plan preference."),
+    ("memory.search", {"query": "concise plans"}, "User prefers concise plans.", "The stored preference says plans should stay concise."),
 ]
-TOOL_VARIANTS = [(item["constraint"], item["tag"]) for item in tagged_contents("general", "tool_variant")]
+
+SCHEMAS = [
+    ("final", "Return a final answer.", "Done."),
+    ("tool_call", "Read a workspace file.", "fs.read"),
+    ("plan", "Plan before using tools.", "Read docs, then summarize the relevant contract."),
+]
 
 
-def general_rows(limit: int) -> list[dict]:
-    rows = operational_rows(4500) + arithmetic_rows(2500) + concept_rows(1500)
-    if len(rows) < limit:
-        raise RuntimeError(f"general rows under target: {len(rows)}")
+def repo_schema_rows(limit: int) -> list[dict]:
+    rows = []
+    for index in range(limit):
+        kind, request, answer = SCHEMAS[index % len(SCHEMAS)]
+        row_id = f"schema-{index + 1:05d}"
+        prompt = xml_prompt(request, f"<schema>{kind}</schema><case>{row_id}</case>", "Return one valid JSON action.")
+        metadata = meta(row_id, "runtime-schema", kind, "src/agent/schema.rs", split=split_for(row_id))
+        if kind == "tool_call":
+            rows.append(tool_row(prompt, "fs.read", {"path": "README.md"}, "ok", "The file read completed.", ["runtime_schema", "tool_trajectory", "language:en"], metadata))
+        else:
+            rows.append(direct_row(prompt, answer, ["runtime_schema", "direct_answer", "language:en"], metadata))
+    return rows
+
+
+def fixture_rows(limit: int) -> list[dict]:
+    rows = []
+    for index in range(limit):
+        row_id = f"fixture-extra-{index + 1:05d}"
+        tool, args, result, answer = TOOLS[index % len(TOOLS)]
+        prompt = xml_prompt(f"Use {tool} for repository task {index + 1}.", f"<tool>{tool}</tool><case>{row_id}</case>", "Use the tool before answering.")
+        rows.append(tool_row(prompt, tool, args, result, answer, ["fixture", "tool_trajectory", "language:en"], meta(row_id, "fixtures", tool.replace(".", "-"), "training/tests", split=split_for(row_id), toolset="local")))
+    rows += confirmation_rows(max(1, limit // 10))
+    rows += revision_rows(max(1, limit // 10))
     return rows[:limit]
 
 
-def operational_rows(limit: int) -> list[dict]:
+def confirmation_rows(limit: int) -> list[dict]:
     rows = []
-    combos = itertools.product(GENERAL_TOPICS, AUDIENCES, DELIVERABLES, CONSTRAINTS, ANGLES)
-    for index, ((topic, practice, failure), audience, deliverable, constraint, angle) in enumerate(combos, start=1):
-        row_id = f"ops-{index:05d}"
-        prompt = xml_prompt(f"Explain {topic} for {audience} as {deliverable}.", f"<topic>{topic}</topic><audience>{audience}</audience><angle>{angle}</angle>", f"{constraint}; {angle}.")
-        answer = f"For {audience}, {topic} should center on {practice}. Keep attention on {failure}, {angle}, and end with one concrete verification step."
-        tags = ["direct_answer", "general_reasoning", "language:en", deliverable.replace(" ", "_"), "operations"]
-        rows.append(direct_row(prompt, answer, tags, meta(row_id, "general-reasoning", deliverable.replace(" ", "-"), "synthetic/general", split=split_for(row_id), license_name="Apache-2.0")))
-        if len(rows) >= limit:
-            return rows
+    for index in range(limit):
+        row_id = f"confirm-extra-{index + 1:05d}"
+        prompt = xml_prompt(f"Create a note from draft {index + 1}.", f"<draft># Status\n\n- Verified docs.</draft><case>{row_id}</case>", "Request confirmation before mutation.")
+        rows.append(confirm_row(prompt, "resource.create_note", "resource.create_note", {"body": "# Status\n\n- Verified docs.", "is_private": False}, "Create the note after explicit confirmation.", ["fixture", "confirmation", "kjxlkj"], meta(row_id, "fixtures", "confirmation", "training/tests", split=split_for(row_id), toolset="kjxlkj")))
     return rows
 
 
-def arithmetic_rows(limit: int) -> list[dict]:
+def revision_rows(limit: int) -> list[dict]:
     rows = []
-    operations = [("+", lambda a, b: a + b), ("-", lambda a, b: a - b), ("*", lambda a, b: a * b)]
-    for index, (a, b, (symbol, op)) in enumerate(itertools.product(range(1, 46), range(1, 28), operations), start=1):
-        row_id = f"math-{index:05d}"
-        prompt = xml_prompt(f"What is {a} {symbol} {b}?", f"<domain>arithmetic</domain><operation>{symbol}</operation>", "Return the exact result.")
-        rows.append(direct_row(prompt, str(op(a, b)), ["arithmetic", "direct_answer", "language:en"], meta(row_id, "general-reasoning", "arithmetic", "synthetic/math", split=split_for(row_id), license_name="Apache-2.0")))
-        if len(rows) >= limit:
-            return rows
-    return rows
-
-
-def concept_rows(limit: int) -> list[dict]:
-    rows = []
-    prompts = [
-        "Explain {subject}.",
-        "Summarize {subject}.",
-        "State the default for {subject}.",
-        "Why does {subject} matter?",
-        "What is {subject}?",
-    ]
-    constraints = ["Return one valid JSON action.", *CONSTRAINTS]
-    combos = itertools.product(FACTS, prompts, constraints, ["empty", "tagged"], ANGLES)
-    for index, ((subject, answer), prompt_text, constraint, context_kind, angle) in enumerate(combos, start=1):
-        row_id = f"concept-{index:05d}"
-        context = "" if context_kind == "empty" else f"<subject>{subject}</subject><angle>{angle}</angle>"
-        prompt = xml_prompt(prompt_text.format(subject=subject), context, constraint)
-        rows.append(direct_row(prompt, answer, ["concept", "direct_answer", "language:en"], meta(row_id, "general-reasoning", "concept-answer", "synthetic/concepts", split=split_for(row_id), license_name="Apache-2.0")))
-        if len(rows) >= limit:
-            return rows
-    return rows
-
-
-def local_tool_rows(limit: int) -> list[dict]:
-    rows = []
-    combos = itertools.product(TOOL_SCENARIOS, TOOL_VARIANTS, ANGLES, AUDIENCES)
-    for index, ((prompt_text, tool, args, result, answer), (constraint, tag), angle, audience) in enumerate(combos, start=1):
-        row_id = f"tool-{index:05d}"
-        prompt = xml_prompt(prompt_text, f"<tool>{tool}</tool><audience>{audience}</audience><angle>{angle}</angle>", f"{constraint} {angle}.")
-        tags = ["language:en", tag, tool, "workspace_tool" if tool.startswith("fs.") else "runtime_tool"]
-        rows.append(tool_row(prompt, tool, args, result, answer, tags, meta(row_id, "runtime-tools", tool.replace(".", "-"), "synthetic/tools", split=split_for(row_id), toolset="local")))
-        if len(rows) >= limit:
-            return rows
+    for index in range(limit):
+        row_id = f"revision-extra-{index + 1:05d}"
+        prompt = xml_prompt(f"Read missing policy file case {index + 1}, then recover.", f"<path>docs/policy.md</path><case>{row_id}</case>", "Revise after a failed read.")
+        rows.append(revise_row(prompt, "Try the requested path, then fall back to docs README.", "fs.read", {"path": "docs/policy.md"}, "not found", "fs.read", {"path": "docs/README.md"}, "# Documentation Canon", "The fallback docs README contains the project canon.", ["fixture", "revision", "multi_turn"], meta(row_id, "fixtures", "revision", "training/tests", split=split_for(row_id), toolset="local")))
     return rows

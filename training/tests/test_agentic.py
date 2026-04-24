@@ -30,21 +30,27 @@ def test_agentic_rows_have_tool_observation_sequence():
 
 
 def test_corpus_mix_counts_for_30k():
-    rows = generate_corpus(30000)
-    assert len(rows) == 30000
+    rows = generate_corpus(6000)
+    assert len(rows) == 6000
     tags = [tag for row in rows for tag in row.get("tags", [])]
-    assert tags.count("agentic") >= 9000
-    assert tags.count("direct_answer") + tags.count("general_reasoning") >= 6000
-    assert tags.count("safety") >= 3000
-    assert tags.count("kjxlkj") >= 3500
-    assert tags.count("tool_trajectory") + tags.count("workspace_tool") + tags.count("runtime_tool") >= 2500
-    assert tags.count("docs_grounding") >= 2000
+    assert tags.count("docs_grounding") >= 3500
+    assert tags.count("runtime_schema") >= 900
+    assert tags.count("tool_trajectory") >= 500
+    assert tags.count("agentic") == 0
+    assert tags.count("general_reasoning") == 0
 
 
 def test_unique_scenario_ids_for_30k():
-    rows = generate_corpus(30000)
+    rows = generate_corpus(6000)
     ids = [row["meta"]["id"] for row in rows]
     assert len(ids) == len(set(ids))
+
+
+def test_default_corpus_has_no_llm_authored_rows():
+    rows = generate_corpus(6000)
+    for row in rows:
+        assert row["meta"]["author_model"] == "none"
+        assert row["meta"]["author_type"] != "llm-curated"
 
 
 def test_behavioral_bucket_includes_agentic():

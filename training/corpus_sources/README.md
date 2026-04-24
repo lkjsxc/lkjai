@@ -10,13 +10,22 @@ This directory contains editable corpus source entries.
 - `content` is a JSON object.
 - Python code may expand these entries, but large authored lists belong here.
 
-## Files
+## Active Files
 
-- `general.json`: reasoning, safety, local tool, and source metadata entries.
-- `kjxlkj.json`: resource API terms, refs, note bodies, visibility rules, and
-  tool-control values.
 - `public.json`: opt-in public dataset allowlist with license, revision, and
   local-file metadata.
+
+## Quarantined Files
+
+- `agentic_plan.json`
+- `agentic_tools.json`
+- `agentic_revision.json`
+- `docs_grounding.json`
+- `general.json`
+- `kjxlkj.json`
+
+These files contain LLM-authored corpus content and are not consumed by the
+default training corpus.
 
 ## Check
 
