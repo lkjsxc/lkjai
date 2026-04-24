@@ -118,3 +118,46 @@ def confirm_row(
         tags,
         metadata,
     )
+
+
+def plan_row(prompt: str, plan: str, tags: list[str], metadata: dict) -> dict:
+    return row(
+        [
+            {"role": "user", "content": prompt},
+            action_message({"kind": "plan", "content": plan}),
+        ],
+        tags,
+        metadata,
+    )
+
+
+def multi_turn_row(messages: list[dict], tags: list[str], metadata: dict) -> dict:
+    return row(messages, tags, metadata)
+
+
+def revise_row(
+    prompt: str,
+    plan: str,
+    first_tool: str,
+    first_args: dict,
+    first_result: str,
+    second_tool: str,
+    second_args: dict,
+    second_result: str,
+    final_answer: str,
+    tags: list[str],
+    metadata: dict,
+) -> dict:
+    return row(
+        [
+            {"role": "user", "content": prompt},
+            action_message({"kind": "plan", "content": plan}),
+            action_message({"kind": "tool_call", "tool": first_tool, "args": first_args}),
+            {"role": "tool", "name": first_tool, "content": first_result},
+            action_message({"kind": "tool_call", "tool": second_tool, "args": second_args}),
+            {"role": "tool", "name": second_tool, "content": second_result},
+            action_message({"kind": "final", "content": final_answer}),
+        ],
+        tags,
+        metadata,
+    )

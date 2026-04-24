@@ -60,6 +60,8 @@ def action_schema_error(action: dict) -> str:
         if not isinstance(pending, dict) or not isinstance(pending.get("tool"), str):
             return "request_confirmation missing pending tool"
         return "" if isinstance(pending.get("args", {}), dict) else "pending args must be object"
+    if kind == "plan":
+        return "" if isinstance(action.get("content"), str) else "plan missing string content"
     return f"unknown action kind {kind}"
 
 
@@ -72,6 +74,8 @@ def compare_actions(expected: dict, actual: dict) -> bool:
         pending = actual.get("pending_tool_call", {})
         expected_pending = expected.get("pending_tool_call", {})
         return expected.get("operation") == actual.get("operation") and pending.get("tool") == expected_pending.get("tool")
+    if expected["kind"] == "plan":
+        return content_match(str(expected.get("content", "")), str(actual.get("content", "")))
     return content_match(str(expected.get("content", "")), str(actual.get("content", "")))
 
 
@@ -90,6 +94,14 @@ def result(row: dict, passed: bool, valid_json: bool, detail: str, output: str) 
 
 def bucket(row: dict) -> str:
     tags = set(row.get("tags", []))
+    if "agentic" in tags:
+        if "revision" in tags:
+            return "agentic_revision"
+        if "tool_chain" in tags:
+            return "agentic_tool_chain"
+        if "planning" in tags:
+            return "agentic_planning"
+        return "agentic_multi_turn"
     if "confirmation" in tags:
         return "kjxlkj_mutation_confirmation"
     if "kjxlkj" in tags:
