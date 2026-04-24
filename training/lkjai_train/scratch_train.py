@@ -122,6 +122,27 @@ def save_training(paths, settings, config, model, train_rows: int, val_rows: int
     torch.save(model.state_dict(), paths.checkpoint_best / "model.pt")
     save_config(config, paths.checkpoint_final / "config.json")
     save_config(config, paths.checkpoint_best / "config.json")
-    summary = {"backend": "tiny-pytorch-scratch-v2", "checkpoint_dir": str(paths.checkpoint_final), "train_rows": train_rows, "val_rows": val_rows, "parameter_count": parameter_count(model), "settings": settings.model_preset, "metrics": metrics}
+    params = parameter_count(model)
+    train_tokens = read_train_tokens(paths)
+    tpp = train_tokens / max(1, params)
+    summary = {
+        "backend": "tiny-pytorch-scratch-v2",
+        "checkpoint_dir": str(paths.checkpoint_final),
+        "train_rows": train_rows,
+        "val_rows": val_rows,
+        "parameter_count": params,
+        "train_tokens": train_tokens,
+        "tokens_per_parameter": round(tpp, 6),
+        "chinchilla_gap": round(max(0.0, 1.0 - tpp / 20.0), 6),
+        "settings": settings.model_preset,
+        "metrics": metrics,
+    }
     paths.training_summary.write_text(json.dumps(summary, indent=2), encoding="utf-8")
     return summary
+
+
+def read_train_tokens(paths) -> int:
+    if paths.tokenizer_manifest.exists():
+        data = json.loads(paths.tokenizer_manifest.read_text(encoding="utf-8"))
+        return int(data.get("train_tokens", 0))
+    return 0
