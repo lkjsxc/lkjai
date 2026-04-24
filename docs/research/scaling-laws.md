@@ -19,16 +19,17 @@ For our scratch-60m preset:
 
 ## Practical Budget
 
-At 30,000 corpus rows and ~150 tokens per row:
+At 6,000 active docs-derived corpus rows and ~150 tokens per row:
 
-- Train tokens: `~4,500,000`
-- Tokens per parameter: `~0.08`
-- Chinchilla gap: `~1.1T - 4.5M ≈ 99.6% shortfall`
+- Train tokens: `~900,000`
+- Tokens per parameter: `~0.016`
+- Chinchilla gap: `~1.1T - 0.9M ≈ 99.9% shortfall`
 
 This gap is expected and acceptable for the default path:
 
 - The target hardware is a single RTX 3070 8GB.
-- We optimize for task diversity and format alignment, not raw token volume.
+- We optimize for trusted provenance, task diversity, and format alignment, not
+  raw token volume.
 - Longer training steps (12,000) improve utilization of the available corpus.
 
 ## SmolLM2 Guidance

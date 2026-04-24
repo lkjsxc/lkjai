@@ -22,9 +22,9 @@ Editable source entries live in JSON array files under
   "meta": {
     "id": "docs-lkjai-000001",
     "split": "train",
-    "provenance": "project-authored",
-    "author_type": "llm-curated",
-    "author_model": "gpt-5.4-codex",
+    "provenance": "repo-derived",
+    "author_type": "repo-derived",
+    "author_model": "none",
     "quality_tier": "high",
     "domain": "lkjai-docs",
     "skill": "grounding",
@@ -45,6 +45,9 @@ Editable source entries live in JSON array files under
 - `meta.split` is one of `train`, `val`, or `holdout`.
 - Public rows must use explicit permissive licenses only.
 - The mainline corpus must stay commercial-safe.
+- Default rows must not contain GPT, Kimi, Claude, or other LLM-authored corpus
+  text.
+- Quarantined source packs must not be consumed by `prepare-corpus`.
 
 ## Model-Facing Serialization
 
@@ -59,28 +62,27 @@ Editable source entries live in JSON array files under
 
 ## Dataset Targets
 
-- Total rows: `30000`
-- Train rows: `24000`
-- Validation rows: `3000`
-- Holdout rows: `3000`
-- Unique normalized rows: at least `24000`
-- Deduplicated tokenizer tokens on the train split: at least `3000000`
+- Total rows: `6000`
+- Train rows: approximately `4800`
+- Validation rows: approximately `600`
+- Holdout rows: approximately `600`
+- Unique normalized rows: at least `5000`
+- Deduplicated tokenizer tokens on the train split: at least `500000`
 
 ## Token Budget
 
 - Parameter count: ~55.8M (scratch-60m preset)
 - Chinchilla-optimal tokens: ~1.1T (~20 tokens/parameter)
-- Practical train tokens at 30k rows: ~4.5M (~0.08 tokens/parameter)
-- Gap is intentional: the default path is from-scratch on limited compute.
-- Quality and task diversity matter more than raw token volume for this budget.
+- Practical train tokens at 6k rows: ~0.9M (~0.016 tokens/parameter)
+- Gap is intentional: the default path is from-scratch on limited compute and
+  excludes unreviewed LLM-authored corpus packs.
+- Trusted provenance and format alignment matter more than raw token volume for
+  this budget.
 
 ## Sources
 
-- Tagged JSON source arrays under `training/corpus_sources/`.
-- `lkjai` docs-derived grounding rows.
-- `kjxlkj` contract and API rows.
-- Synthetic tool and confirmation trajectories tied to the real runtime.
-- Safety, privacy, and boundary rows.
-- Agentic multi-turn rows with observable plans, tool calls, observations,
-  revisions, and finals.
+- Canonical docs-derived grounding rows from `docs/**/*.md`.
+- Runtime schema and route rows derived from repository source and tests.
+- Small deterministic fixtures for tool calls, confirmations, revision, and
+  safety.
 - Carefully selected permissive public rows with explicit provenance.

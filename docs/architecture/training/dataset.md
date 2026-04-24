@@ -32,6 +32,8 @@ Describe the on-disk dataset artifacts used by training and evaluation.
 - Validation requires at least one row in every emitted split file.
 - Each row must contain valid `messages`, `tags`, and `meta`.
 - Validation must fail on missing split labels or missing provenance fields.
+- Validation must fail on GPT, Kimi, Claude, or generic LLM-authored default
+  rows.
 - Validation proves shape only, not quality.
 
 ## Split Policy

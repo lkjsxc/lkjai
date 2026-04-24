@@ -14,6 +14,8 @@ behavioral reports.
 - Current pass rate: `0.235` from `47/200` cases.
 - Current issue: malformed or prompt-copy generations were wrapped into valid
   fallback final actions, inflating JSON validity.
+- Current artifacts were trained on disallowed LLM-authored corpus content and
+  are invalid for acceptance after the provenance policy change.
 
 ## Iteration Command
 

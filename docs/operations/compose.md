@@ -48,7 +48,7 @@ docker compose --profile verify up --build --abort-on-container-exit verify
 - Training writes to `TRAIN_DATA_DIR`, default `/app/data/train`.
 - Behavioral competency requires `data/train/runs/behavioral-eval.json`
   `pass_rate >= 0.80`.
-- Default `TRAIN_CORPUS_SIZE` is `30000` and `TRAIN_MAX_STEPS` is `12000`.
+- Default `TRAIN_CORPUS_SIZE` is `6000` and `TRAIN_MAX_STEPS` is `12000`.
 
 ## Presets
 

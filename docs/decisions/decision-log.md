@@ -18,16 +18,18 @@
 
 - Model health probe uses `GET /v1/models` with 5-second timeout.
 - `Fake` model mode is test-only; production `ModelClient` always uses HTTP.
-- Synthetic corpus generator produces the 12,000-row default agent corpus.
+- Default corpus generation uses approved docs-derived rows only.
 - Scratch chat formatting is owned by this repository.
 - Fixed eval checks tokenizer, checkpoint, dataset, and loss artifacts.
 - Behavioral eval checks real generated responses and owns competency.
 - Immediate Compose verify is docs/test focused; training smoke is optional.
-- Agent corpus default is 12,000 rows.
+- Agent corpus default is 6,000 rows until reviewed non-LLM data exists.
 - DPO is the first preference optimization phase.
 - Runtime tool access is bounded to `TOOL_WORKSPACE_DIR`.
 - kjxlkj integration starts as lkjai docs, corpus, and eval coverage before
   kjxlkj runtime routes.
+- GPT/LLM-authored corpus packs are quarantined from default training.
+- Default corpus generation is docs-derived until reviewed non-LLM data exists.
 
 ## Rationale
 

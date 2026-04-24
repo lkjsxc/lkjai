@@ -19,6 +19,7 @@ trajectory supervision, CUDA behavior, and export behavior.
 - [evaluation.md](evaluation.md): fixed eval and competency gate contract
 - [preference.md](preference.md): preference-pair and DPO post-training rules
 - [agentic-corpus.md](agentic-corpus.md): multi-turn agentic trajectory schema and bucket targets
+- [provenance.md](provenance.md): allowed training-data provenance and GPT-data quarantine
 
 Operational runbooks for six-hour defaults and competency gates are owned by
 [operations/training/README.md](../../operations/training/README.md).

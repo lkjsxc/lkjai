@@ -39,14 +39,23 @@ Each source file is one JSON array. Each element has tags and content:
   states otherwise.
 - Public-source entries must include license and source metadata.
 
-## Current Source Files
+## Active Source Files
 
-- `general.json`: reasoning topics, prompt variants, safety boundaries, local
-  tool scenarios, and source metadata.
-- `kjxlkj.json`: resource terms, refs, note bodies, update bodies, preview
-  bodies, visibility rules, search kinds, and history windows.
 - `public.json`: opt-in permissive public dataset allowlist with license,
   revision, source URL, local file, and row limit.
+
+## Quarantined Source Files
+
+- `agentic_plan.json`
+- `agentic_tools.json`
+- `agentic_revision.json`
+- `docs_grounding.json`
+- `general.json`
+- `kjxlkj.json`
+
+These packs are not active training data because they are LLM-authored corpus
+content. They may remain as reference material, but `prepare-corpus` must not
+consume them by default.
 
 ## Rationale
 
