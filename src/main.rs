@@ -13,7 +13,6 @@ struct Args {
 
 #[derive(Subcommand)]
 enum Command {
-    Inference,
     Docs {
         #[command(subcommand)]
         action: DocsCommand,
@@ -40,7 +39,6 @@ enum QualityCommand {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     init_tracing();
     match Args::parse().command {
-        Some(Command::Inference) => inference().await?,
         Some(Command::Docs { action }) => match action {
             DocsCommand::ValidateTopology => cli::docs::validate_topology()?,
             DocsCommand::ValidateLinks => cli::docs::validate_links()?,
@@ -56,11 +54,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
     Ok(())
-}
-
-async fn inference() -> Result<(), Box<dyn std::error::Error>> {
-    info!("starting lkjai inference runtime");
-    lkjai::inference::serve().await
 }
 
 fn init_tracing() {

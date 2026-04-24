@@ -8,7 +8,7 @@ COPY training ./training
 
 ENV PYTHONPATH=/workspace/training
 ENV MODEL_ROOT=/models
-ENV MODEL_NAME=lkjai-scratch-40m
+ENV MODEL_NAME=lkjai-scratch-60m
 ENV INFERENCE_HOST=0.0.0.0
 ENV INFERENCE_PORT=8081
 
