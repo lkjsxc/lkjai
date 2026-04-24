@@ -1,0 +1,590 @@
+[
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "architecture",
+      "question": "What does the agent loop do?",
+      "grounded_answer": "The agent loop executes tools, appends observations, and re-prompts the model.",
+      "source_path_pattern": "docs/architecture/agent/loop.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "architecture",
+      "question": "How is memory stored?",
+      "grounded_answer": "Memory uses a search and summary store with retrieval before each prompt.",
+      "source_path_pattern": "docs/architecture/memory/store.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "architecture",
+      "question": "What is the model preset?",
+      "grounded_answer": "The default preset is scratch-60m with 12 layers, 640 hidden size, and 8 heads.",
+      "source_path_pattern": "docs/architecture/model/config.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "architecture",
+      "question": "What does the runtime support?",
+      "grounded_answer": "The runtime supports inference, web serving, and workspace tool execution.",
+      "source_path_pattern": "docs/architecture/runtime/inference.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "architecture",
+      "question": "How is the corpus structured?",
+      "grounded_answer": "The corpus uses JSONL with messages, tags, and meta fields.",
+      "source_path_pattern": "docs/architecture/training/corpus.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "operations",
+      "question": "How do you run training?",
+      "grounded_answer": "Use docker compose --profile train up --build train.",
+      "source_path_pattern": "docs/operations/training/long-run.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "operations",
+      "question": "What are the quality gates?",
+      "grounded_answer": "Gates include cargo fmt, cargo test, pytest, docs topology, links, line limits, and no-node.",
+      "source_path_pattern": "docs/operations/quality.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "operations",
+      "question": "How do you verify the repository?",
+      "grounded_answer": "Run docker compose --profile verify up --build --abort-on-container-exit verify.",
+      "source_path_pattern": "docs/operations/compose.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "operations",
+      "question": "What is the competency gate?",
+      "grounded_answer": "The competency gate requires pass_rate >= 0.80 and json_validity >= 0.95.",
+      "source_path_pattern": "docs/operations/training/competency-gate.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "operations",
+      "question": "How do you iterate on training?",
+      "grounded_answer": "Record commands, checkpoints, fixed eval, behavioral eval, and manual probes.",
+      "source_path_pattern": "docs/operations/training/iteration.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "research",
+      "question": "What is the Chinchilla gap?",
+      "grounded_answer": "The gap is the shortfall from compute-optimal tokens; scratch-60m sees ~0.08 tokens/parameter.",
+      "source_path_pattern": "docs/research/scaling-laws.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "research",
+      "question": "What do reasoning models teach us?",
+      "grounded_answer": "Visible planning beats hidden CoT; trajectory correctness matters more than length.",
+      "source_path_pattern": "docs/research/reasoning-models.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "research",
+      "question": "What is the prompt format?",
+      "grounded_answer": "XML-style sections with JSON actions; ends with <assistant_json>.",
+      "source_path_pattern": "docs/research/prompt-format.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "research",
+      "question": "How does DPO work here?",
+      "grounded_answer": "DPO trains preference pairs derived from holdout rows without a separate reward model.",
+      "source_path_pattern": "docs/research/reinforcement-learning.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "research",
+      "question": "What is the small model policy?",
+      "grounded_answer": "Use recent work as guidance, not pretrained weights; keep from-scratch as default.",
+      "source_path_pattern": "docs/research/small-model-training.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "product",
+      "question": "What tools does the agent have?",
+      "grounded_answer": "shell.exec, web.fetch, fs.read, memory.search, resource.search, resource.fetch, and more.",
+      "source_path_pattern": "docs/product/agent-tools.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "product",
+      "question": "What is the kjxlkj integration?",
+      "grounded_answer": "kjxlkj provides resource search, fetch, history, preview, and mutation with confirmation.",
+      "source_path_pattern": "docs/product/kjxlkj-integration.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "product",
+      "question": "How does chat work?",
+      "grounded_answer": "Chat uses the agent loop with tool execution and memory retrieval.",
+      "source_path_pattern": "docs/product/chat.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "product",
+      "question": "What does the API expose?",
+      "grounded_answer": "The API exposes chat completions with model messages and JSON actions.",
+      "source_path_pattern": "docs/product/api.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "getting-started",
+      "question": "How do you verify setup?",
+      "grounded_answer": "Run cargo test and python3 -m pytest -m 'not slow' training/tests.",
+      "source_path_pattern": "docs/getting-started/verification.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "getting-started",
+      "question": "What is the quickstart?",
+      "grounded_answer": "Clone, cp .env.example .env, mkdir data dirs, docker compose up.",
+      "source_path_pattern": "docs/getting-started/quickstart.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "getting-started",
+      "question": "How do you troubleshoot?",
+      "grounded_answer": "Check docker logs, verify .env, and run the verify profile.",
+      "source_path_pattern": "docs/getting-started/troubleshooting.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "vision",
+      "question": "What is the project purpose?",
+      "grounded_answer": "Build a docs-first scratch agent that runs locally on modest hardware.",
+      "source_path_pattern": "docs/vision/purpose.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "vision",
+      "question": "What are the principles?",
+      "grounded_answer": "Explicit contracts, observable behavior, raw generation eval, and no hidden fallbacks.",
+      "source_path_pattern": "docs/vision/principles.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "vision",
+      "question": "What is LLM optimization?",
+      "grounded_answer": "Optimize for LLM readability, editability, and deterministic verification.",
+      "source_path_pattern": "docs/vision/llm-optimization.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "repository",
+      "question": "What is the layout?",
+      "grounded_answer": "src for Rust, training for Python, docs for contracts, data for artifacts.",
+      "source_path_pattern": "docs/repository/layout.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "repository",
+      "question": "What are the workflow rules?",
+      "grounded_answer": "Commit frequently, use docker compose for verification, no backward compatibility required.",
+      "source_path_pattern": "docs/repository/workflow.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "repository",
+      "question": "How are decisions tracked?",
+      "grounded_answer": "Decisions live in docs/decisions with keep-remove and rejected alternatives.",
+      "source_path_pattern": "docs/decisions/decision-log.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "decisions",
+      "question": "What is the keep-remove policy?",
+      "grounded_answer": "Document why features are kept or removed before acting.",
+      "source_path_pattern": "docs/decisions/keep-remove.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "architecture",
+      "question": "What is the agent schema?",
+      "grounded_answer": "The schema defines ChatRequest, ChatResponse, Event, and Action.",
+      "source_path_pattern": "docs/architecture/agent/schema.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "architecture",
+      "question": "How do failures work?",
+      "grounded_answer": "Failures are captured as events with kind, content, and step for debugging.",
+      "source_path_pattern": "docs/architecture/agent/failures.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "architecture",
+      "question": "What is the lightweighting strategy?",
+      "grounded_answer": "Use GQA, SwiGLU, and RMSNorm to keep inference efficient.",
+      "source_path_pattern": "docs/architecture/model/lightweighting.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "architecture",
+      "question": "How is the model served?",
+      "grounded_answer": "The inference container loads exported PyTorch checkpoints and serves OpenAI-compatible chat.",
+      "source_path_pattern": "docs/architecture/model/serving.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "architecture",
+      "question": "What is the dataset schema?",
+      "grounded_answer": "JSONL with messages, tags, and meta; split into train, val, and holdout.",
+      "source_path_pattern": "docs/architecture/training/dataset.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "architecture",
+      "question": "How does evaluation work?",
+      "grounded_answer": "Fixed eval checks artifacts; behavioral eval runs raw generation on holdout.",
+      "source_path_pattern": "docs/architecture/training/evaluation.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "architecture",
+      "question": "What is the preference pipeline?",
+      "grounded_answer": "Prepare preference pairs from holdout, then run DPO on the final checkpoint.",
+      "source_path_pattern": "docs/architecture/training/preference.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "architecture",
+      "question": "How does CUDA behavior work?",
+      "grounded_answer": "Training uses bf16 when available, gradient checkpointing, and GPU reservations.",
+      "source_path_pattern": "docs/architecture/training/cuda.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "architecture",
+      "question": "What is the source corpus?",
+      "grounded_answer": "Editable JSON arrays in training/corpus_sources with tags and content objects.",
+      "source_path_pattern": "docs/architecture/training/source-corpus.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "architecture",
+      "question": "What is the agentic corpus?",
+      "grounded_answer": "Multi-turn trajectories with plan, tool_call, observation, revise, and final.",
+      "source_path_pattern": "docs/architecture/training/agentic-corpus.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "operations",
+      "question": "What is the training preset?",
+      "grounded_answer": "agent preset uses scratch-60m, 1024 seq len, 12k steps, and 30k corpus.",
+      "source_path_pattern": "docs/operations/training/long-run.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "operations",
+      "question": "What are the compose profiles?",
+      "grounded_answer": "inference, web, train, and verify.",
+      "source_path_pattern": "docs/operations/compose.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "operations",
+      "question": "How is deployment managed?",
+      "grounded_answer": "Use docker compose with explicit env files and health checks.",
+      "source_path_pattern": "docs/operations/deployment.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "operations",
+      "question": "What is monitored?",
+      "grounded_answer": "Training loss, eval pass rates, JSON validity, and per-bucket behavioral rates.",
+      "source_path_pattern": "docs/operations/monitoring.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "research",
+      "question": "What corpus references exist?",
+      "grounded_answer": "Corpus references cover schema, fixtures, and public data import rules.",
+      "source_path_pattern": "docs/research/corpus.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "research",
+      "question": "What models are referenced?",
+      "grounded_answer": "Referenced models include SmolLM2, DeepSeek-R1, and Qwen3 as guidance.",
+      "source_path_pattern": "docs/research/models.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "research",
+      "question": "What is lightweighting?",
+      "grounded_answer": "Optional compression references for future model size reduction.",
+      "source_path_pattern": "docs/research/lightweighting.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "getting-started",
+      "question": "What is the first step?",
+      "grounded_answer": "Verify docker and docker compose are installed, then cp .env.example .env.",
+      "source_path_pattern": "docs/getting-started/quickstart.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "product",
+      "question": "What is the workspace?",
+      "grounded_answer": "The workspace is /app/data/workspace and is the only filesystem root for tools.",
+      "source_path_pattern": "docs/product/agent-tools.md"
+    }
+  },
+  {
+    "tags": [
+      "docs_scenario",
+      "language:en"
+    ],
+    "content": {
+      "doc_topic": "repository",
+      "question": "What are the rules?",
+      "grounded_answer": "Files under 200/300 lines, docs topology, frequent commits, docker compose verification.",
+      "source_path_pattern": "docs/repository/rules.md"
+    }
+  }
+]

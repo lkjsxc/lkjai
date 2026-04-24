@@ -1,0 +1,6482 @@
+[
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run cargo test, then report the result.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list routes.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run cargo test, then report the result.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list requirements.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run cargo test, then report the result.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list sections.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run cargo test, then report the result.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list rules.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run cargo test, then report the result.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list checklist items.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run git status, then report the result.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list routes.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run git status, then report the result.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list requirements.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run git status, then report the result.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list sections.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run git status, then report the result.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list rules.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run git status, then report the result.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list checklist items.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run python3 -m pytest, then report the result.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list routes.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run python3 -m pytest, then report the result.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list requirements.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run python3 -m pytest, then report the result.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list sections.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run python3 -m pytest, then report the result.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list rules.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run python3 -m pytest, then report the result.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list checklist items.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run du -sh data, then report the result.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list routes.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run du -sh data, then report the result.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list requirements.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run du -sh data, then report the result.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list sections.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run du -sh data, then report the result.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list rules.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run du -sh data, then report the result.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list checklist items.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run ls training/tests, then report the result.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list routes.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run ls training/tests, then report the result.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list requirements.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run ls training/tests, then report the result.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list sections.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run ls training/tests, then report the result.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list rules.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run ls training/tests, then report the result.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list checklist items.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run cat .env.example, then report the result.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list routes.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run cat .env.example, then report the result.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list requirements.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run cat .env.example, then report the result.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list sections.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run cat .env.example, then report the result.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list rules.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run cat .env.example, then report the result.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for preferences, then answer directly.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list checklist items.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run cargo test, then report the result.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for docs queries, then answer directly.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list routes.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run cargo test, then report the result.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for docs queries, then answer directly.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list requirements.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run cargo test, then report the result.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for docs queries, then answer directly.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list sections.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run cargo test, then report the result.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for docs queries, then answer directly.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list rules.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run cargo test, then report the result.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for docs queries, then answer directly.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list checklist items.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run git status, then report the result.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for docs queries, then answer directly.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list routes.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run git status, then report the result.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for docs queries, then answer directly.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list requirements.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run git status, then report the result.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for docs queries, then answer directly.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list sections.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run git status, then report the result.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for docs queries, then answer directly.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list rules.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run git status, then report the result.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for docs queries, then answer directly.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list checklist items.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run python3 -m pytest, then report the result.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for docs queries, then answer directly.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list routes.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run python3 -m pytest, then report the result.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for docs queries, then answer directly.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list requirements.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run python3 -m pytest, then report the result.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for docs queries, then answer directly.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list sections.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run python3 -m pytest, then report the result.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for docs queries, then answer directly.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list rules.",
+      "tools": [
+        "resource.search",
+        "resource.fetch"
+      ],
+      "observations": [
+        "found",
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "fs.list",
+        "fs.read"
+      ],
+      "observations": [
+        "files",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search for deployment, then read the relevant document.",
+      "tools": [
+        "memory.search"
+      ],
+      "observations": [
+        "memory result"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "List src, then read README.md.",
+      "tools": [
+        "resource.fetch"
+      ],
+      "observations": [
+        "content"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Run python3 -m pytest, then report the result.",
+      "tools": [
+        "shell.exec",
+        "fs.read"
+      ],
+      "observations": [
+        "output",
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Fetch release-notes, then extract the retention rule.",
+      "tools": [
+        "fs.read"
+      ],
+      "observations": [
+        "text"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Search memory for docs queries, then answer directly.",
+      "tools": [
+        "resource.search",
+        "resource.preview_markdown"
+      ],
+      "observations": [
+        "found",
+        "rendered"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Read README.md, then summarize max steps.",
+      "tools": [
+        "web.fetch"
+      ],
+      "observations": [
+        "html"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Find deployment contract, then list checklist items.",
+      "tools": [
+        "shell.exec"
+      ],
+      "observations": [
+        "output"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  },
+  {
+    "tags": [
+      "agentic_scenario",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the deployment contract and summarize it.",
+      "plan": "Check git status, then read README.md.",
+      "tools": [
+        "memory.search",
+        "memory.write"
+      ],
+      "observations": [
+        "prior",
+        "stored"
+      ],
+      "final_answer": "After reviewing, the answer relates to deployment."
+    }
+  }
+]

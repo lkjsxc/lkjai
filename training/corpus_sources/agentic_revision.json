@@ -1,0 +1,1115 @@
+[
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Find the latest release notes.",
+      "initial_plan": "Search for release.",
+      "failed_tool": "resource.search",
+      "failed_args": {
+        "query": "release",
+        "kind": "all"
+      },
+      "error_observation": "No results.",
+      "revised_plan": "Search with kind note.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "release",
+        "kind": "note"
+      },
+      "final_answer": "Found release notes."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Read the agent module.",
+      "initial_plan": "Read agent.rs.",
+      "failed_tool": "fs.read",
+      "failed_args": {
+        "path": "src/agent.rs"
+      },
+      "error_observation": "File not found.",
+      "revised_plan": "Read mod.rs instead.",
+      "correct_tool": "fs.read",
+      "correct_args": {
+        "path": "src/agent/mod.rs"
+      },
+      "final_answer": "The agent module is at mod.rs."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Search memory for prefs.",
+      "initial_plan": "Search prefs.",
+      "failed_tool": "memory.search",
+      "failed_args": {
+        "query": "prefs"
+      },
+      "error_observation": "No match.",
+      "revised_plan": "Search preferences.",
+      "correct_tool": "memory.search",
+      "correct_args": {
+        "query": "preferences"
+      },
+      "final_answer": "Found preference."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Fetch the ops runbook.",
+      "initial_plan": "Fetch ops.",
+      "failed_tool": "resource.fetch",
+      "failed_args": {
+        "ref": "ops"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Fetch ops-runbook.",
+      "correct_tool": "resource.fetch",
+      "correct_args": {
+        "ref": "ops-runbook"
+      },
+      "final_answer": "Found the runbook."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Run tests.",
+      "initial_plan": "Run pytest.",
+      "failed_tool": "shell.exec",
+      "failed_args": {
+        "command": "pytest"
+      },
+      "error_observation": "Command not found.",
+      "revised_plan": "Run python3 -m pytest.",
+      "correct_tool": "shell.exec",
+      "correct_args": {
+        "command": "python3 -m pytest"
+      },
+      "final_answer": "Tests passed."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Read the env file.",
+      "initial_plan": "Read .env.",
+      "failed_tool": "fs.read",
+      "failed_args": {
+        "path": ".env"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Read .env.example.",
+      "correct_tool": "fs.read",
+      "correct_args": {
+        "path": ".env.example"
+      },
+      "final_answer": "Found defaults."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Search for API docs.",
+      "initial_plan": "Search API.",
+      "failed_tool": "resource.search",
+      "failed_args": {
+        "query": "API",
+        "kind": "media"
+      },
+      "error_observation": "No results.",
+      "revised_plan": "Search with kind all.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "API",
+        "kind": "all"
+      },
+      "final_answer": "Found API contract."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Fetch the public page.",
+      "initial_plan": "Fetch public.",
+      "failed_tool": "resource.fetch",
+      "failed_args": {
+        "ref": "public"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Fetch public-home.",
+      "correct_tool": "resource.fetch",
+      "correct_args": {
+        "ref": "public-home"
+      },
+      "final_answer": "Found public home."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "List test files.",
+      "initial_plan": "List tests.",
+      "failed_tool": "fs.list",
+      "failed_args": {
+        "path": "test"
+      },
+      "error_observation": "No such directory.",
+      "revised_plan": "List training/tests.",
+      "correct_tool": "fs.list",
+      "correct_args": {
+        "path": "training/tests"
+      },
+      "final_answer": "Found tests."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Search for cost docs.",
+      "initial_plan": "Search cost.",
+      "failed_tool": "resource.search",
+      "failed_args": {
+        "query": "cost",
+        "kind": "note"
+      },
+      "error_observation": "No results.",
+      "revised_plan": "Search dashboard.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "dashboard",
+        "kind": "all"
+      },
+      "final_answer": "Found cost dashboard."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Read the backup policy.",
+      "initial_plan": "Read backup.",
+      "failed_tool": "fs.read",
+      "failed_args": {
+        "path": "backup-policy.md"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Search docs for backup.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "backup",
+        "kind": "all"
+      },
+      "final_answer": "Found backup policy."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Fetch the feature spec.",
+      "initial_plan": "Fetch feature.",
+      "failed_tool": "resource.fetch",
+      "failed_args": {
+        "ref": "feature"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Fetch feature-spec.",
+      "correct_tool": "resource.fetch",
+      "correct_args": {
+        "ref": "feature-spec"
+      },
+      "final_answer": "Found feature spec."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Check git log.",
+      "initial_plan": "Run git log.",
+      "failed_tool": "shell.exec",
+      "failed_args": {
+        "command": "git log"
+      },
+      "error_observation": "Not a git repo.",
+      "revised_plan": "Run git status.",
+      "correct_tool": "shell.exec",
+      "correct_args": {
+        "command": "git status"
+      },
+      "final_answer": "Found uncommitted changes."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Search for monitoring.",
+      "initial_plan": "Search monitoring.",
+      "failed_tool": "resource.search",
+      "failed_args": {
+        "query": "monitoring",
+        "kind": "media"
+      },
+      "error_observation": "No results.",
+      "revised_plan": "Search SLO.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "SLO",
+        "kind": "all"
+      },
+      "final_answer": "Found monitoring docs."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Read the retention rules.",
+      "initial_plan": "Read retention.md.",
+      "failed_tool": "fs.read",
+      "failed_args": {
+        "path": "retention.md"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Search for retention.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "retention",
+        "kind": "all"
+      },
+      "final_answer": "Found retention rules."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Fetch the user guide.",
+      "initial_plan": "Fetch user.",
+      "failed_tool": "resource.fetch",
+      "failed_args": {
+        "ref": "user"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Fetch user-guide.",
+      "correct_tool": "resource.fetch",
+      "correct_args": {
+        "ref": "user-guide"
+      },
+      "final_answer": "Found user guide."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Search for security.",
+      "initial_plan": "Search security.",
+      "failed_tool": "resource.search",
+      "failed_args": {
+        "query": "security",
+        "kind": "note"
+      },
+      "error_observation": "No results.",
+      "revised_plan": "Search policy.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "policy",
+        "kind": "all"
+      },
+      "final_answer": "Found security policy."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Read the on-call rotation.",
+      "initial_plan": "Read oncall.md.",
+      "failed_tool": "fs.read",
+      "failed_args": {
+        "path": "oncall.md"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Search for on-call.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "on-call",
+        "kind": "all"
+      },
+      "final_answer": "Found on-call info."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Check model config.",
+      "initial_plan": "Read config.json.",
+      "failed_tool": "fs.read",
+      "failed_args": {
+        "path": "config.json"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Read src/agent/mod.rs.",
+      "correct_tool": "fs.read",
+      "correct_args": {
+        "path": "src/agent/mod.rs"
+      },
+      "final_answer": "Found agent config."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Search for analytics.",
+      "initial_plan": "Search analytics.",
+      "failed_tool": "resource.search",
+      "failed_args": {
+        "query": "analytics",
+        "kind": "media"
+      },
+      "error_observation": "No results.",
+      "revised_plan": "Search metrics.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "metrics",
+        "kind": "all"
+      },
+      "final_answer": "Found analytics."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Fetch the release checklist.",
+      "initial_plan": "Fetch checklist.",
+      "failed_tool": "resource.fetch",
+      "failed_args": {
+        "ref": "checklist"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Fetch ops-checklist.",
+      "correct_tool": "resource.fetch",
+      "correct_args": {
+        "ref": "ops-checklist"
+      },
+      "final_answer": "Found release checklist."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Read the dependency audit.",
+      "initial_plan": "Read deps.md.",
+      "failed_tool": "fs.read",
+      "failed_args": {
+        "path": "deps.md"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Search for dependency.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "dependency",
+        "kind": "all"
+      },
+      "final_answer": "Found dependency info."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Fetch API routes.",
+      "initial_plan": "Fetch routes.",
+      "failed_tool": "resource.fetch",
+      "failed_args": {
+        "ref": "routes"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Fetch api-contract.",
+      "correct_tool": "resource.fetch",
+      "correct_args": {
+        "ref": "api-contract"
+      },
+      "final_answer": "Found API routes."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Search for performance.",
+      "initial_plan": "Search performance.",
+      "failed_tool": "resource.search",
+      "failed_args": {
+        "query": "performance",
+        "kind": "note"
+      },
+      "error_observation": "No results.",
+      "revised_plan": "Search budget.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "budget",
+        "kind": "all"
+      },
+      "final_answer": "Found performance budget."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Check token count.",
+      "initial_plan": "Read summary.json.",
+      "failed_tool": "fs.read",
+      "failed_args": {
+        "path": "summary.json"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Read training-summary.json.",
+      "correct_tool": "fs.read",
+      "correct_args": {
+        "path": "data/train/checkpoints/training-summary.json"
+      },
+      "final_answer": "Found token count."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Fetch user guide features.",
+      "initial_plan": "Fetch guide.",
+      "failed_tool": "resource.fetch",
+      "failed_args": {
+        "ref": "guide"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Fetch user-guide.",
+      "correct_tool": "resource.fetch",
+      "correct_args": {
+        "ref": "user-guide"
+      },
+      "final_answer": "Found user guide."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Search for monitoring SLO.",
+      "initial_plan": "Search SLO.",
+      "failed_tool": "resource.search",
+      "failed_args": {
+        "query": "SLO",
+        "kind": "media"
+      },
+      "error_observation": "No results.",
+      "revised_plan": "Search verification.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "verification",
+        "kind": "all"
+      },
+      "final_answer": "Found SLO docs."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Read access matrix.",
+      "initial_plan": "Read access.md.",
+      "failed_tool": "fs.read",
+      "failed_args": {
+        "path": "access.md"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Search for access.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "access",
+        "kind": "all"
+      },
+      "final_answer": "Found access matrix."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Fetch incident log.",
+      "initial_plan": "Fetch incident.",
+      "failed_tool": "resource.fetch",
+      "failed_args": {
+        "ref": "incident"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Fetch incident-log.",
+      "correct_tool": "resource.fetch",
+      "correct_args": {
+        "ref": "incident-log"
+      },
+      "final_answer": "Found incident log."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Search release checklist.",
+      "initial_plan": "Search release.",
+      "failed_tool": "resource.search",
+      "failed_args": {
+        "query": "release",
+        "kind": "note"
+      },
+      "error_observation": "No results.",
+      "revised_plan": "Search checklist.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "checklist",
+        "kind": "all"
+      },
+      "final_answer": "Found checklist."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Read dependency audit.",
+      "initial_plan": "Read audit.md.",
+      "failed_tool": "fs.read",
+      "failed_args": {
+        "path": "audit.md"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Search audit.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "audit",
+        "kind": "all"
+      },
+      "final_answer": "Found audit."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Fetch API methods.",
+      "initial_plan": "Fetch methods.",
+      "failed_tool": "resource.fetch",
+      "failed_args": {
+        "ref": "methods"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Fetch api-contract.",
+      "correct_tool": "resource.fetch",
+      "correct_args": {
+        "ref": "api-contract"
+      },
+      "final_answer": "Found API methods."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Search performance budget.",
+      "initial_plan": "Search budget.",
+      "failed_tool": "resource.search",
+      "failed_args": {
+        "query": "budget",
+        "kind": "media"
+      },
+      "error_observation": "No results.",
+      "revised_plan": "Search performance.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "performance",
+        "kind": "all"
+      },
+      "final_answer": "Found performance docs."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Check tokens per parameter.",
+      "initial_plan": "Read metadata.json.",
+      "failed_tool": "fs.read",
+      "failed_args": {
+        "path": "metadata.json"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Read dataset metadata.",
+      "correct_tool": "fs.read",
+      "correct_args": {
+        "path": "data/train/datasets/metadata.json"
+      },
+      "final_answer": "Found metadata."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Fetch user features.",
+      "initial_plan": "Fetch features.",
+      "failed_tool": "resource.fetch",
+      "failed_args": {
+        "ref": "features"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Fetch user-guide.",
+      "correct_tool": "resource.fetch",
+      "correct_args": {
+        "ref": "user-guide"
+      },
+      "final_answer": "Found features."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Search monitoring docs.",
+      "initial_plan": "Search monitoring.",
+      "failed_tool": "resource.search",
+      "failed_args": {
+        "query": "monitoring",
+        "kind": "note"
+      },
+      "error_observation": "No results.",
+      "revised_plan": "Search alerts.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "alerts",
+        "kind": "all"
+      },
+      "final_answer": "Found monitoring docs."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Read access permissions.",
+      "initial_plan": "Read permissions.md.",
+      "failed_tool": "fs.read",
+      "failed_args": {
+        "path": "permissions.md"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Search permissions.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "permissions",
+        "kind": "all"
+      },
+      "final_answer": "Found permissions."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Fetch latest incident.",
+      "initial_plan": "Fetch latest.",
+      "failed_tool": "resource.fetch",
+      "failed_args": {
+        "ref": "latest"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Fetch incident-log.",
+      "correct_tool": "resource.fetch",
+      "correct_args": {
+        "ref": "incident-log"
+      },
+      "final_answer": "Found latest incident."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Search checklist.",
+      "initial_plan": "Search checklist.",
+      "failed_tool": "resource.search",
+      "failed_args": {
+        "query": "checklist",
+        "kind": "note"
+      },
+      "error_observation": "No results.",
+      "revised_plan": "Search release.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "release",
+        "kind": "all"
+      },
+      "final_answer": "Found checklist."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Read audit issues.",
+      "initial_plan": "Read issues.md.",
+      "failed_tool": "fs.read",
+      "failed_args": {
+        "path": "issues.md"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Search issues.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "issues",
+        "kind": "all"
+      },
+      "final_answer": "Found audit issues."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Fetch API GET.",
+      "initial_plan": "Fetch GET.",
+      "failed_tool": "resource.fetch",
+      "failed_args": {
+        "ref": "GET"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Fetch api-contract.",
+      "correct_tool": "resource.fetch",
+      "correct_args": {
+        "ref": "api-contract"
+      },
+      "final_answer": "Found API GET methods."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Search performance p99.",
+      "initial_plan": "Search p99.",
+      "failed_tool": "resource.search",
+      "failed_args": {
+        "query": "p99",
+        "kind": "media"
+      },
+      "error_observation": "No results.",
+      "revised_plan": "Search latency.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "latency",
+        "kind": "all"
+      },
+      "final_answer": "Found performance docs."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Check unique rows.",
+      "initial_plan": "Read rows.json.",
+      "failed_tool": "fs.read",
+      "failed_args": {
+        "path": "rows.json"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Read metadata.",
+      "correct_tool": "fs.read",
+      "correct_args": {
+        "path": "data/train/datasets/metadata.json"
+      },
+      "final_answer": "Found unique row count."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Fetch user preview.",
+      "initial_plan": "Fetch preview.",
+      "failed_tool": "resource.fetch",
+      "failed_args": {
+        "ref": "preview"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Fetch user-guide.",
+      "correct_tool": "resource.fetch",
+      "correct_args": {
+        "ref": "user-guide"
+      },
+      "final_answer": "Found user preview info."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Search alert noise.",
+      "initial_plan": "Search noise.",
+      "failed_tool": "resource.search",
+      "failed_args": {
+        "query": "noise",
+        "kind": "note"
+      },
+      "error_observation": "No results.",
+      "revised_plan": "Search alerts.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "alerts",
+        "kind": "all"
+      },
+      "final_answer": "Found alert config."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Read guest access.",
+      "initial_plan": "Read guest.md.",
+      "failed_tool": "fs.read",
+      "failed_args": {
+        "path": "guest.md"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Search guest.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "guest",
+        "kind": "all"
+      },
+      "final_answer": "Found guest access rules."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Fetch resolved incident.",
+      "initial_plan": "Fetch resolved.",
+      "failed_tool": "resource.fetch",
+      "failed_args": {
+        "ref": "resolved"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Fetch incident-log.",
+      "correct_tool": "resource.fetch",
+      "correct_args": {
+        "ref": "incident-log"
+      },
+      "final_answer": "Found resolved incident."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Search ops checklist.",
+      "initial_plan": "Search ops.",
+      "failed_tool": "resource.search",
+      "failed_args": {
+        "query": "ops",
+        "kind": "media"
+      },
+      "error_observation": "No results.",
+      "revised_plan": "Search checklist.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "checklist",
+        "kind": "all"
+      },
+      "final_answer": "Found ops checklist."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Read audit results.",
+      "initial_plan": "Read results.md.",
+      "failed_tool": "fs.read",
+      "failed_args": {
+        "path": "results.md"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Search results.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "results",
+        "kind": "all"
+      },
+      "final_answer": "Found audit results."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Fetch API history.",
+      "initial_plan": "Fetch history.",
+      "failed_tool": "resource.fetch",
+      "failed_args": {
+        "ref": "history"
+      },
+      "error_observation": "Not found.",
+      "revised_plan": "Fetch api-contract.",
+      "correct_tool": "resource.fetch",
+      "correct_args": {
+        "ref": "api-contract"
+      },
+      "final_answer": "Found API history."
+    }
+  },
+  {
+    "tags": [
+      "agentic_revision",
+      "language:en"
+    ],
+    "content": {
+      "task": "Search latency p99.",
+      "initial_plan": "Search p99.",
+      "failed_tool": "resource.search",
+      "failed_args": {
+        "query": "p99",
+        "kind": "note"
+      },
+      "error_observation": "No results.",
+      "revised_plan": "Search performance.",
+      "correct_tool": "resource.search",
+      "correct_args": {
+        "query": "performance",
+        "kind": "all"
+      },
+      "final_answer": "Found latency docs."
+    }
+  }
+]
