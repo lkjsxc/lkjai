@@ -17,6 +17,10 @@ impl Action {
             .map(|v| matches!(v.as_str(), "1" | "true" | "yes" | "on"))
             .unwrap_or(default)
     }
+
+    pub fn signature(&self) -> String {
+        format!("{}:{:?}", self.tool, self.fields)
+    }
 }
 
 pub fn parse(text: &str) -> Result<Action, String> {

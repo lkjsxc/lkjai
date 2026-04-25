@@ -30,7 +30,7 @@ pub fn build(
 }
 
 fn event_tags(events: &[Event]) -> String {
-    events
+    compact_events(events)
         .iter()
         .rev()
         .take(20)
@@ -44,6 +44,21 @@ fn event_tags(events: &[Event]) -> String {
         })
         .collect::<Vec<_>>()
         .join("\n")
+}
+
+fn compact_events(events: &[Event]) -> Vec<Event> {
+    let mut compacted = Vec::new();
+    let mut last_tool_result = "";
+    for event in events {
+        if event.kind == "observation" && event.content == last_tool_result {
+            continue;
+        }
+        if event.kind == "tool_result" {
+            last_tool_result = &event.content;
+        }
+        compacted.push(event.clone());
+    }
+    compacted
 }
 
 fn system_prompt() -> String {

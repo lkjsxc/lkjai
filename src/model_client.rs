@@ -24,6 +24,10 @@ pub struct ModelStatus {
     pub loaded: bool,
     pub reachable: bool,
     pub message: String,
+    pub device: String,
+    pub cuda_available: bool,
+    pub gpu_name: String,
+    pub warning: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -58,6 +62,14 @@ struct AssistantMessage {
 #[derive(Deserialize)]
 struct ModelsResponse {
     data: Vec<ModelId>,
+    #[serde(default)]
+    device: String,
+    #[serde(default)]
+    cuda_available: bool,
+    #[serde(default)]
+    gpu_name: String,
+    #[serde(default)]
+    warning: String,
 }
 
 #[derive(Deserialize)]
@@ -84,14 +96,20 @@ impl ModelClient {
     }
 
     pub async fn status(&self) -> ModelStatus {
-        let health = self.model.health().await;
-        let reachable = health.is_ok();
+        let (reachable, health) = match self.model.health().await {
+            Ok(health) => (true, health),
+            Err(error) => (false, HealthStatus::error(error)),
+        };
         ModelStatus {
             model: self.model.name.clone(),
             api_url: self.model.url.clone(),
             loaded: true,
             reachable,
-            message: health.unwrap_or_else(|error| error),
+            message: health.message,
+            device: health.device,
+            cuda_available: health.cuda_available,
+            gpu_name: health.gpu_name,
+            warning: health.warning,
         }
     }
 
@@ -131,7 +149,7 @@ impl HttpModel {
             .ok_or_else(|| "model response had no choices".into())
     }
 
-    async fn health(&self) -> Result<String, String> {
+    async fn health(&self) -> Result<HealthStatus, String> {
         let base = self
             .url
             .strip_suffix("/chat/completions")
@@ -156,6 +174,26 @@ impl HttpModel {
         if data.data.is_empty() {
             return Err("model health returned no models".into());
         }
-        Ok("model server responding".into())
+        Ok(HealthStatus {
+            message: "model server responding".into(),
+            device: data.device,
+            cuda_available: data.cuda_available,
+            gpu_name: data.gpu_name,
+            warning: data.warning,
+        })
+    }
+}
+
+struct HealthStatus { message: String, device: String, cuda_available: bool, gpu_name: String, warning: String }
+
+impl HealthStatus {
+    fn error(message: String) -> Self {
+        Self {
+            message,
+            device: String::new(),
+            cuda_available: false,
+            gpu_name: String::new(),
+            warning: String::new(),
+        }
     }
 }

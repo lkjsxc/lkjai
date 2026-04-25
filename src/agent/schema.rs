@@ -6,6 +6,7 @@ pub struct ChatRequest {
     pub message: String,
     pub run_id: Option<String>,
     pub max_steps: Option<usize>,
+    pub visible_event_kinds: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize)]
@@ -42,4 +43,15 @@ pub fn response(run_id: String, assistant: String, events: Vec<Event>, stop: &st
         events,
         stop_reason: stop.into(),
     }
+}
+
+pub fn filter_events(events: &[Event], visible: &Option<Vec<String>>) -> Vec<Event> {
+    let Some(kinds) = visible else {
+        return events.to_vec();
+    };
+    events
+        .iter()
+        .filter(|event| kinds.iter().any(|kind| kind == &event.kind))
+        .cloned()
+        .collect()
 }

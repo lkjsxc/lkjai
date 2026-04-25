@@ -4,11 +4,12 @@ use crate::{
     model_client::ModelClient,
 };
 use axum::{
-    extract::{Path, State},
+    extract::{Path, Query, State},
     response::{Html, IntoResponse},
     routing::{get, post},
     Json, Router,
 };
+use serde::Deserialize;
 use std::{net::SocketAddr, sync::Arc};
 use tower_http::trace::TraceLayer;
 
@@ -16,6 +17,11 @@ use tower_http::trace::TraceLayer;
 struct AppState {
     agent: Agent,
     model: ModelClient,
+}
+
+#[derive(Deserialize)]
+struct RunQuery {
+    visible_event_kinds: Option<String>,
 }
 
 pub async fn serve(config: Config) -> Result<(), Box<dyn std::error::Error>> {
@@ -58,9 +64,18 @@ async fn chat(
     Json(state.agent.chat(request).await)
 }
 
-async fn run(State(state): State<Arc<AppState>>, Path(id): Path<String>) -> impl IntoResponse {
+async fn run(
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<String>,
+    Query(query): Query<RunQuery>,
+) -> impl IntoResponse {
     match state.agent.transcript(&id) {
-        Ok(events) => Json(events).into_response(),
+        Ok(events) => {
+            let visible = query
+                .visible_event_kinds
+                .map(|value| value.split(',').map(str::to_string).collect());
+            Json(crate::agent::filter_events(&events, &visible)).into_response()
+        }
         Err(_) => (axum::http::StatusCode::NOT_FOUND, "run not found").into_response(),
     }
 }

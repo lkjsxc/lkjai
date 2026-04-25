@@ -36,6 +36,7 @@ async fn agent_runs_real_tool_then_finishes() {
             message: "remember this".into(),
             run_id: Some("run-1".into()),
             max_steps: Some(3),
+            visible_event_kinds: None,
         })
         .await;
     assert_eq!(response.stop_reason, "finish");
@@ -147,5 +148,39 @@ async fn model_unreachable_turn_is_persisted() {
         .unwrap()
         .iter()
         .any(|event| event.kind == "error"));
+    std::fs::remove_dir_all(root).unwrap();
+}
+
+#[tokio::test]
+async fn chat_response_can_filter_visible_events() {
+    let root = temp_root();
+    let (url, server) = model_server(vec![finish("Hello.")]).await;
+    let config = test_config(&root, &url);
+    let agent = Agent::new(config.clone(), ModelClient::from_config(&config));
+    let response = agent
+        .chat(ChatRequest {
+            message: "hello".into(),
+            run_id: Some("run-1".into()),
+            max_steps: Some(1),
+            visible_event_kinds: Some(vec!["assistant".into()]),
+        })
+        .await;
+    assert!(response.events.iter().all(|event| event.kind == "assistant"));
+    assert!(agent.transcript("run-1").unwrap().iter().any(|event| event.kind == "user"));
+    server.abort();
+    std::fs::remove_dir_all(root).unwrap();
+}
+
+#[tokio::test]
+async fn repeated_non_terminal_action_stops_before_second_tool_run() {
+    let root = temp_root();
+    let repeated = action("fs.read", &[("path", "docs/README.md")]);
+    let (url, server) = model_server(vec![repeated.clone(), repeated]).await;
+    let config = test_config(&root, &url);
+    let agent = Agent::new(config.clone(), ModelClient::from_config(&config));
+    let response = agent.chat(request("hello", 2)).await;
+    assert_eq!(response.stop_reason, "repeat_action");
+    assert_eq!(response.events.iter().filter(|event| event.kind == "tool_call").count(), 1);
+    server.abort();
     std::fs::remove_dir_all(root).unwrap();
 }

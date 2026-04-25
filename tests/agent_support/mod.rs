@@ -11,6 +11,7 @@ pub fn request(message: &str, max_steps: usize) -> ChatRequest {
         message: message.into(),
         run_id: Some("run-1".into()),
         max_steps: Some(max_steps),
+        visible_event_kinds: None,
     }
 }
 

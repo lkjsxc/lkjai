@@ -13,6 +13,8 @@
     h1 { font-size: 28px; margin: 0; letter-spacing: 0; }
     #status { color: var(--muted); font-size: 13px; text-align: right; overflow-wrap: anywhere; }
     #log { display: flex; flex-direction: column; gap: 10px; overflow: auto; padding: 4px 0; }
+    #filters { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px; color: var(--muted); }
+    #filters label { display: inline-flex; gap: 4px; align-items: center; }
     .msg { max-width: 82%; padding: 12px; border: 1px solid var(--line); background: var(--panel); border-radius: 6px; white-space: pre-wrap; overflow-wrap: anywhere; }
     .user { align-self: flex-end; background: #e6fffb; border-color: #7dd3c7; }
     .assistant { align-self: flex-start; }
@@ -40,6 +42,7 @@
       <div id="status">starting</div>
     </header>
     <section id="log" aria-live="polite"></section>
+    <section id="filters" aria-label="Visible transcript events"></section>
     <form id="chat">
       <textarea id="message" autofocus placeholder="Message lkjai"></textarea>
       <button id="send">Send</button>
@@ -53,6 +56,10 @@
     const status = document.getElementById("status");
     let runId = null;
     let modelReachable = false;
+    const eventKinds = ["user", "assistant", "error", "reasoning", "plan", "tool_call", "tool_result", "observation", "memory_write", "finish", "confirmation_request"];
+    const defaultVisible = new Set(["user", "assistant", "error"]);
+    const savedVisible = JSON.parse(localStorage.getItem("lkjai.visibleEvents") || "null");
+    let visibleEvents = new Set(savedVisible || [...defaultVisible]);
 
     function label(kind, tool) {
       const names = {
@@ -71,6 +78,7 @@
     }
 
     function add(kind, content, tool) {
+      if (!visibleEvents.has(kind)) return;
       const node = document.createElement("article");
       node.className = `msg ${kind}`;
       const prefix = label(kind, tool);
@@ -79,14 +87,32 @@
       log.scrollTop = log.scrollHeight;
     }
 
+    function renderFilters() {
+      const filters = document.getElementById("filters");
+      for (const kind of eventKinds) {
+        const label = document.createElement("label");
+        const box = document.createElement("input");
+        box.type = "checkbox";
+        box.checked = visibleEvents.has(kind);
+        box.addEventListener("change", () => {
+          box.checked ? visibleEvents.add(kind) : visibleEvents.delete(kind);
+          localStorage.setItem("lkjai.visibleEvents", JSON.stringify([...visibleEvents]));
+        });
+        label.append(box, kind);
+        filters.appendChild(label);
+      }
+    }
+
     async function refreshStatus() {
       try {
         const response = await fetch("/api/model");
         const model = await response.json();
         modelReachable = model.reachable;
         const state = model.reachable ? "model ready" : "model unavailable";
+        const device = model.device ? ` · ${model.device}${model.gpu_name ? ` · ${model.gpu_name}` : ""}` : "";
+        const warning = model.warning ? ` · ${model.warning}` : "";
         const detail = model.reachable ? model.api_url : model.message;
-        status.textContent = `${state} · ${model.model} · ${detail}`;
+        status.textContent = `${state} · ${model.model}${device}${warning} · ${detail}`;
         send.disabled = !model.reachable;
       } catch (error) {
         modelReachable = false;
@@ -106,7 +132,7 @@
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: {"content-type": "application/json"},
-          body: JSON.stringify({message, run_id: runId})
+          body: JSON.stringify({message, run_id: runId, visible_event_kinds: [...visibleEvents]})
         });
         const data = await response.json();
         runId = data.run_id;
@@ -126,6 +152,7 @@
       if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) form.requestSubmit();
     });
 
+    renderFilters();
     refreshStatus().catch((error) => { status.textContent = String(error); });
     setInterval(refreshStatus, 10000);
   </script>

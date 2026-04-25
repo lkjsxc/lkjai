@@ -18,7 +18,7 @@ use uuid::Uuid;
 
 use action::Action;
 use memory::MemoryStore;
-pub use schema::{event, response, ChatRequest, ChatResponse, Event};
+pub use schema::{event, filter_events, response, ChatRequest, ChatResponse, Event};
 pub use transcript::TranscriptStore;
 
 #[derive(Clone)]
@@ -39,24 +39,22 @@ impl Agent {
             model,
         }
     }
-
     pub async fn chat(&self, request: ChatRequest) -> ChatResponse {
         let run_id = request.run_id.unwrap_or_else(|| Uuid::new_v4().to_string());
         let max_steps = request.max_steps.unwrap_or(self.config.agent_max_steps);
+        let visible = request.visible_event_kinds.clone();
         let mut events = vec![event("user", request.message.clone(), None, None)];
-
         if !self.model.is_reachable().await {
             events.push(event("error", "model server unreachable".into(), None, None));
             self.persist(&run_id, &events);
-            return response(run_id, "model unavailable".into(), events, "model_error");
+            return response(run_id, "model unavailable".into(), filter_events(&events, &visible), "model_error");
         }
-
         let base_prior = self.transcript(&run_id).unwrap_or_default();
         let mut prior = base_prior.clone();
         prior.extend(events.clone());
-
         let mut assistant = String::new();
         let mut stop_reason = "max_steps".to_string();
+        let mut last_action = String::new();
         for step in 1..=max_steps {
             let action = match self.next_action(&run_id, &prior, step).await {
                 Ok(action) => action,
@@ -73,6 +71,13 @@ impl Agent {
                     break;
                 }
             };
+            let signature = action.signature();
+            if action.tool != "agent.finish" && signature == last_action {
+                events.push(event("error", "repeated identical non-terminal action".into(), None, Some(step)));
+                stop_reason = "repeat_action".into();
+                break;
+            }
+            last_action = signature;
             if let Some(reasoning) = action.reasoning.clone().filter(|v| !v.is_empty()) {
                 events.push(event("reasoning", reasoning, None, Some(step)));
             }
@@ -145,13 +150,9 @@ impl Agent {
             assistant = format!("agent stopped: {stop_reason}");
         }
         self.persist(&run_id, &events);
-        response(run_id, assistant, events, &stop_reason)
+        response(run_id, assistant, filter_events(&events, &visible), &stop_reason)
     }
-
-    pub fn transcript(&self, run_id: &str) -> Result<Vec<Event>, std::io::Error> {
-        self.store.read(run_id)
-    }
-
+    pub fn transcript(&self, run_id: &str) -> Result<Vec<Event>, std::io::Error> { self.store.read(run_id) }
     async fn next_action(
         &self,
         run_id: &str,
