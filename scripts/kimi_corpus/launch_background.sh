@@ -72,7 +72,11 @@ cat > "$RUN_JSON" <<JSON
 JSON
 
 rm -f "$STOP_FILE"
-nohup "${CMD[@]}" >> "$LOG_FILE" 2>&1 &
+if command -v setsid >/dev/null 2>&1; then
+  setsid "${CMD[@]}" >> "$LOG_FILE" 2>&1 &
+else
+  nohup "${CMD[@]}" >> "$LOG_FILE" 2>&1 &
+fi
 PID="$!"
 echo "$PID" > "$PID_FILE"
 python3 - "$RUN_JSON" "$PID" <<'PY'
