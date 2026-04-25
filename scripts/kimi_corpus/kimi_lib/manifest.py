@@ -47,7 +47,7 @@ class Manifest:
     def mode_counts(self) -> dict[str, int]:
         counts = {"pretrain": 0, "sft": 0}
         for row in self.rows():
-            if row.get("validation_status") == "valid" and row.get("mode") in counts:
+            if row.get("mode") in counts:
                 counts[row["mode"]] += 1
         return counts
 
