@@ -46,12 +46,7 @@ impl Agent {
         let mut events = vec![event("user", request.message.clone(), None, None)];
 
         if !self.model.is_reachable().await {
-            events.push(event(
-                "error",
-                "model server unreachable".into(),
-                None,
-                None,
-            ));
+            events.push(event("error", "model server unreachable".into(), None, None));
             self.persist(&run_id, &events);
             return response(run_id, "model unavailable".into(), events, "model_error");
         }
@@ -79,19 +74,16 @@ impl Agent {
                 }
             };
             if let Some(reasoning) = action.reasoning.clone().filter(|v| !v.is_empty()) {
-                events.push(event("plan", reasoning, None, Some(step)));
+                events.push(event("reasoning", reasoning, None, Some(step)));
             }
             match action.tool.as_str() {
                 "agent.finish" => {
-                    match self.action_tool(action, &run_id, step, &mut events).await {
-                        Ok(Some(content)) => {
+                    match tools::ToolCall::from_fields(&action) {
+                        Ok(tools::ToolCall::AgentFinish { content }) => {
+                            events.push(event("finish", content.clone(), Some("agent.finish".into()), Some(step)));
                             assistant = content.clone();
                             events.push(event("assistant", content, None, Some(step)));
                             stop_reason = "finish".into();
-                            break;
-                        }
-                        Ok(None) => {
-                            stop_reason = "tool_error".into();
                             break;
                         }
                         Err(error) => {
@@ -99,6 +91,25 @@ impl Agent {
                             stop_reason = "invalid_action".into();
                             break;
                         }
+                        _ => unreachable!(),
+                    }
+                }
+                "agent.think" => {
+                    match tools::ToolCall::from_fields(&action) {
+                        Ok(tools::ToolCall::AgentThink { content }) => {
+                            events.push(event("plan", content, Some("agent.think".into()), Some(step)));
+                            prior = base_prior.clone();
+                            prior.extend(events.clone());
+                            if step == max_steps {
+                                stop_reason = "max_steps".into();
+                            }
+                        }
+                        Err(error) => {
+                            events.push(event("error", error, None, Some(step)));
+                            stop_reason = "invalid_action".into();
+                            break;
+                        }
+                        _ => unreachable!(),
                     }
                 }
                 "agent.request_confirmation" => {
@@ -169,20 +180,12 @@ impl Agent {
         run_id: &str,
         step: usize,
         events: &mut Vec<Event>,
-    ) -> Result<Option<String>, String> {
+    ) -> Result<(), String> {
         let tool = action.tool.clone();
         let call = tools::ToolCall::from_fields(&action)?;
         let result = tool_runner::run(call, &self.config, &self.memory, run_id, step, events).await;
-        events.push(event(
-            "observation",
-            result.clone(),
-            Some(tool.clone()),
-            Some(step),
-        ));
-        if tool == "agent.finish" {
-            return Ok(Some(result));
-        }
-        Ok(None)
+        events.push(event("observation", result, Some(tool), Some(step)));
+        Ok(())
     }
 
     fn prompt(&self, run_id: &str, events: &[Event], step: usize) -> Vec<ModelMessage> {

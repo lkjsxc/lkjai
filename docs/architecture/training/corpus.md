@@ -62,7 +62,9 @@ Editable source entries live in JSON array files under
 ## Dataset Targets
 
 - Target tokens: `500000000`
-- Full corpus artifacts live outside git under ignored `data/kimi-corpus/`.
+- The full Kimi corpus is committed in chunked JSONL under
+  `training/corpus/kimi-full-v1/`.
+- Runtime and training copies may be staged under ignored `data/kimi-corpus/`.
 - A small smoke corpus may exist for quick local checks.
 - Duplicate rows: at most `1%`
 - Deduplicated tokenizer tokens on the train split: at least `450000000`
@@ -77,19 +79,36 @@ Editable source entries live in JSON array files under
 
 ## Kimi Corpus Layout
 
-Generated artifacts live under `data/kimi-corpus/` (gitignored):
+Committed generated corpus chunks live under:
+
+```
+training/corpus/kimi-full-v1/
+  README.md
+  manifest.json
+  validation-report.json
+  train/train-000001.jsonl
+  val/val-000001.jsonl
+  holdout/holdout-000001.jsonl
+```
+
+Each JSONL chunk should contain about `1000` rows. The final chunk in each split
+may contain fewer rows.
+
+Generated runtime copies may also live under:
 
 ```
 data/kimi-corpus/
-  train/train-0001.jsonl
-  val/val-0001.jsonl
-  holdout/holdout-0001.jsonl
+  train/*.jsonl
+  val/*.jsonl
+  holdout/*.jsonl
   manifest.json
   validation-report.json
 ```
 
 - `manifest.json` records schema, row counts, split counts, token counts, and sources.
-- `validation-report.json` records total rows, duplicate rate, XML validity rate, `agent.finish` termination rate, tool distribution, and provenance distribution.
+- `validation-report.json` records total rows, duplicate rate, XML validity
+  rate, `agent.finish` termination rate, tool distribution, chunk sizes,
+  everyday-chat coverage, and provenance distribution.
 
 ## Kimi-Generated Provenance
 
@@ -106,6 +125,7 @@ but the trace assembly and multi-turn structure are Kimi-authored.
 ## Sources
 
 - Kimi-generated active XML action traces.
+- Everyday conversation and follow-up traces.
 - Docs-grounded and source-grounded tasks.
 - Runtime tool traces with real observations and explicit `agent.finish`.
 - Safety, confirmation, failure recovery, and revision traces.

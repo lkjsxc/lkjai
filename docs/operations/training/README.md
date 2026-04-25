@@ -14,3 +14,10 @@ gating, and operator-facing acceptance flow.
 - [long-run.md](long-run.md): real training runtime contract and environment knobs
 - [competency-gate.md](competency-gate.md): fixed-eval threshold and acceptance policy
 - [iteration.md](iteration.md): baseline, pass-rate ladder, and accepted-run log
+- [kimi-corpus-smoke.md](kimi-corpus-smoke.md): latest Kimi smoke report
+- [kimi-corpus-generation.md](kimi-corpus-generation.md): KimiCode full-corpus
+  generation prompt and quality contract
+- [agent-assessment.md](agent-assessment.md): current observed agent behavior and
+  improvement priorities
+- [full-corpus-status.md](full-corpus-status.md): generated chunk status and
+  remaining token gap

@@ -14,9 +14,10 @@ Execute one user turn as a bounded multi-step loop.
 6. Build the model prompt with system policy, tools, memory, and recent context.
 7. Ask the model for one XML action.
 8. Validate the XML action and tool fields.
-9. Execute the requested tool.
-10. Append the tool result as an observation.
-11. Repeat until the executed tool is `agent.finish` or a stop rule fires.
+9. Append a visible `reasoning` event when `<reasoning>` is present.
+10. Execute the requested tool.
+11. Append the tool result as an observation when the tool is external.
+12. Repeat until the executed tool is `agent.finish` or a stop rule fires.
 
 ## Model Unreachable Guard
 
@@ -32,6 +33,8 @@ Execute one user turn as a bounded multi-step loop.
 - `MODEL_TEMPERATURE=0.2`.
 - The agent must never execute an unvalidated tool call.
 - The agent must not synthesize fake tool results.
+- `<reasoning>` is visible and brief.
+- `agent.think` emits a `plan` event and does not emit duplicate tool events.
 
 ## Stop Reasons
 

@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader, Dataset
 
 from .formatting import load_rows, supervised_token_ids
 from .scratch_model import ModelConfig, ScratchLM, parameter_count, save_config
-from .tokenizer import load_tokenizer, train_tokenizer
+from .tokenizer import load_tokenizer, train_source, train_tokenizer
 
 
 def train_scratch(paths, settings) -> dict:
@@ -14,8 +14,8 @@ def train_scratch(paths, settings) -> dict:
     if not paths.tokenizer_json.exists():
         train_tokenizer(paths, settings)
     tokenizer = load_tokenizer(paths.tokenizer_json)
-    train_rows = load_rows(paths.train_dataset if paths.train_dataset.exists() else paths.fixtures)
-    val_rows = load_rows(paths.val_dataset if paths.val_dataset.exists() else paths.fixtures)
+    train_rows = load_rows(train_source(paths))
+    val_rows = load_rows(val_source(paths))
     train_windows = pack_rows(tokenizer, train_rows, settings.sequence_len)
     val_windows = pack_rows(tokenizer, val_rows or train_rows[:8], settings.sequence_len)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -51,6 +51,12 @@ def pack_rows(tokenizer, rows: list[dict], sequence_len: int) -> list[tuple[list
         pad = pack_len - len(current_ids)
         packed.append((current_ids + [eos] * pad, current_labels + [-100] * pad))
     return packed or [([eos] * pack_len, [-100] * pack_len)]
+
+
+def val_source(paths):
+    if paths.committed_val.exists() and any(paths.committed_val.rglob("*.jsonl")):
+        return paths.committed_val
+    return paths.val_dataset if paths.val_dataset.exists() else paths.fixtures
 
 
 class TokenDataset(Dataset):

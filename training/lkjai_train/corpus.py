@@ -12,13 +12,13 @@ from .rows import signature
 
 def generate_corpus(size: int = 60000, seed: int = 42) -> list[dict]:
     rows = (
-        doc_rows(16000)
-        + agentic_active_rows(13000)
-        + repo_schema_rows(9500)
-        + fixture_rows(6500)
-        + policy_rows(6500)
-        + sourcecode_rows(5200)
-        + preference_rows(4500)
+        doc_rows(32000)
+        + agentic_active_rows(26000)
+        + repo_schema_rows(19000)
+        + fixture_rows(13000)
+        + policy_rows(13000)
+        + sourcecode_rows(10400)
+        + preference_rows(9000)
     )
     rows = dedupe_rows(rows)
     random.Random(seed).shuffle(rows)

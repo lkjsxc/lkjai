@@ -17,7 +17,8 @@
 - Inference loads exported scratch checkpoints and generates actions directly.
 - Inference must not use exact supervised lookup, prompt matching, or canned
   response tables.
-- Training writes datasets, tokenizer, checkpoints, exports, and logs under
+- Training reads committed full corpus chunks from `/workspace/training/corpus`
+  and writes datasets, tokenizer, checkpoints, exports, and logs under
   `/app/data/train`.
 - Web writes transcripts and memory under `/app/data/agent`.
 - Web uses `/app/data/workspace` as the only filesystem root for tools.
@@ -37,8 +38,17 @@ mkdir -p data/models/lkjai-scratch-60m data/train data/agent data/workspace
 docker compose --profile inference up --build inference
 docker compose --profile web up --build web
 docker compose --profile train up --build train
-docker compose --profile verify up --build --abort-on-container-exit verify
+docker compose --progress quiet --profile verify up --build --abort-on-container-exit verify
 ```
+
+## Compact Output
+
+- Prefer `--progress quiet` for Compose builds when an LLM agent is reading the
+  result.
+- For long-running services, inspect bounded logs with
+  `docker compose logs --tail=120 SERVICE`.
+- `verify.sh` stores full check logs under `/tmp/lkjai-verify-logs` and prints a
+  compact pass/fail summary.
 
 ## Training Defaults
 
@@ -50,7 +60,7 @@ docker compose --profile verify up --build --abort-on-container-exit verify
 - Training writes to `TRAIN_DATA_DIR`, default `/app/data/train`.
 - Behavioral competency requires `data/train/runs/behavioral-eval.json`
   `pass_rate >= 0.80`.
-- Default `TRAIN_CORPUS_SIZE` is `60000` and `TRAIN_MAX_STEPS` is `12000`.
+- Default `TRAIN_CORPUS_SIZE` is `120000` and `TRAIN_MAX_STEPS` is `120000`.
 
 ## Presets
 

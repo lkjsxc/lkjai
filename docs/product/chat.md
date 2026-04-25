@@ -5,7 +5,8 @@
 - `GET /` serves the first-screen chat application.
 - The UI exposes a chat transcript, prompt box, run id, model state, and tool
   results.
-- The UI displays plan, tool, observation, memory, assistant, and error events.
+- The UI displays reasoning, plan, tool, observation, memory, assistant, and
+  error events.
 - The app is local-only by default.
 - There is no login in v1.
 
@@ -17,6 +18,7 @@
 - Model-status strings are not valid assistant replies.
 - The model response must use validated XML actions.
 - Tool calls and outputs are displayed in the transcript.
+- `<reasoning>` appears as a visible rationale event before the related action.
 - Memory writes are displayed in the transcript.
 - Every run is persisted as JSONL under `data/agent/runs/`.
 - The runtime must use a real model endpoint; policy-file dummy responses are not

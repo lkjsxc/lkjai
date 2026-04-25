@@ -9,7 +9,7 @@
 - `fs.list`: list a workspace directory.
 - `memory.search`: search durable agent memory.
 - `memory.write`: write durable agent memory.
-- `agent.think`: record a non-terminating private plan.
+- `agent.think`: record a non-terminating visible plan.
 - `agent.finish`: terminate successfully with the user-facing answer.
 
 ## Selection
@@ -19,6 +19,7 @@
 - Slash commands may remain as debug shortcuts.
 - Ambiguous natural-language requests are resolved by the model loop.
 - The model must call `agent.finish` to return the final answer.
+- Everyday chat should normally call `agent.finish` directly without tools.
 
 ## YOLO Policy
 

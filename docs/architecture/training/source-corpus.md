@@ -9,6 +9,7 @@ inside Python constants.
 
 - Source directory: `training/corpus_sources/`
 - Source files: `*.json`
+- Committed generated corpus: `training/corpus/kimi-full-v1/`
 - Python loader: `training/lkjai_train/corpus_source.py`
 - Generated dataset: `data/train/datasets/corpus.jsonl`
 

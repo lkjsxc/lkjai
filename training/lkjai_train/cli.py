@@ -123,6 +123,8 @@ def train_pipeline(paths: Paths):
     run_tokenizer(paths, settings)
     for path in [dataset_path, paths.train_dataset, paths.val_dataset, paths.holdout_dataset]:
         validate_dataset(path)
+    if paths.committed_kimi_corpus.exists() and any(paths.committed_kimi_corpus.rglob("*.jsonl")):
+        validate_dataset(paths.committed_kimi_corpus)
     run_training(paths, settings)
     export_manifest(paths, settings)
     fixed = evaluate_fixed_suite(paths, settings.fixed_eval_threshold)
@@ -140,6 +142,8 @@ def competency_passes(path: Path, threshold: float) -> bool:
 
 
 def default_dataset(paths: Paths) -> Path:
+    if paths.committed_kimi_corpus.exists() and any(paths.committed_kimi_corpus.rglob("*.jsonl")):
+        return paths.committed_kimi_corpus
     if paths.kimi_corpus.exists() and any(paths.kimi_corpus.rglob("*.jsonl")):
         return paths.kimi_corpus
     return paths.corpus if paths.corpus.exists() else paths.fixtures

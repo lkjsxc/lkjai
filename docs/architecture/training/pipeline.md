@@ -23,7 +23,8 @@ same real tool loop that production will use.
 
 1. Validate tagged JSON source files in `training/corpus_sources/`.
 2. Build fixtures and the mainline 60K corpus.
-3. Build the full 500M-token Kimi corpus under `data/kimi-corpus/` outside git.
+3. Build the full 500M-token Kimi corpus under
+   `training/corpus/kimi-full-v1/` in roughly 1000-row JSONL chunks.
 4. Deduplicate and emit `train`, `val`, and `holdout` split files.
 5. Train the tokenizer on the train split only.
 6. Validate schema, split metadata, and write `validation-report.json`.
@@ -41,13 +42,14 @@ same real tool loop that production will use.
 - `TRAIN_SEQUENCE_LEN=1024`
 - `TRAIN_CORPUS_TOKENS=500000000`
 - `TRAIN_CORPUS_DIR=/app/data/kimi-corpus`
-- `TRAIN_MAX_STEPS=12000`
+- `TRAIN_MAX_STEPS=120000`
 - `TRAIN_BEHAVIORAL_THRESHOLD=0.35`
 - `TRAIN_DATA_DIR=/app/data/train`
 
 ## Artifacts
 
 - Datasets: `data/train/datasets`
+- Committed full corpus: `training/corpus/kimi-full-v1`
 - Tokenizer: `data/train/tokenizer`
 - Checkpoints: `data/train/checkpoints`
 - Exports: `data/train/exports`

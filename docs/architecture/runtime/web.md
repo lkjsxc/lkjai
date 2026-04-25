@@ -8,6 +8,8 @@
 - Server-rendered HTML for `GET /`.
 - JSON APIs for chat and transcripts.
 - OpenAI-compatible model endpoint for generation.
+- The transcript UI labels reasoning, plan, tool call, tool result, memory,
+  finish, assistant, and error events.
 
 ## Bind Defaults
 

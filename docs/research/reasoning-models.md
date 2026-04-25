@@ -14,6 +14,8 @@ reasoning models can learn to plan before acting. For small scratch models:
 - Visible `plan` actions in the message stream are easier to evaluate and
   correct.
 - The plan becomes part of the supervised target, not an auxiliary loss.
+- A short visible `<reasoning>` field may explain the next action, but it must
+  not become a long private deliberation transcript.
 
 ## Trajectory Correctness
 

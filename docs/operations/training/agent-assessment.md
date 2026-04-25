@@ -1,0 +1,41 @@
+# Agent Assessment
+
+## Current Artifact State
+
+- Latest behavioral report: `data/train/runs/behavioral-eval.json`.
+- Pass rate: `0.025` from `5/200` cases.
+- XML validity: `0.205` from `41/200` cases.
+- Current fixed eval: `12/13` artifact checks passed.
+- Missing fixed eval target: tokenizer train tokens `>= 450000000`.
+
+## Observed Chat Behavior
+
+Recent transcripts under `data/agent/runs/` show:
+
+- simple greetings can trigger repeated unrelated `fs.read` calls,
+- failed reads target repository docs that are not mounted in the tool
+  workspace,
+- the model often repeats the same failed action,
+- some final answers are generic task-completion text,
+- older runs include non-XML or JSON-shaped assistant output.
+
+## Improvement Priorities
+
+1. Teach everyday conversation to finish directly with `agent.finish`.
+2. Make brief `<reasoning>` visible so operators can inspect why a tool was
+   chosen.
+3. Align runtime tool workspace contents with corpus paths.
+4. Expand valid XML action rows before increasing advanced tool complexity.
+5. Report everyday-chat pass rate separately from repository tool tasks.
+
+## Manual Probe Set
+
+- `Hello`
+- `What can you help me with?`
+- `Please keep answers concise.`
+- `Explain lkjai in one sentence.`
+- `Thanks`
+- `Remember that I prefer short answers.`
+- `What do I prefer?`
+- `List files in the workspace.`
+- `Read docs/README.md and summarize the canon.`

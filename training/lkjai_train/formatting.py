@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 
 SPECIAL_TOKENS = [
@@ -81,4 +82,15 @@ def escape_text(text: str) -> str:
 
 
 def load_rows(path) -> list[dict]:
-    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    return list(iter_rows(path))
+
+
+def iter_rows(path):
+    path = Path(path)
+    files = sorted(path.rglob("*.jsonl")) if path.is_dir() else [path]
+    for file in files:
+        if not file.exists():
+            continue
+        for line in file.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                yield json.loads(line)

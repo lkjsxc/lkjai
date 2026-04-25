@@ -8,7 +8,7 @@ from .formatting import SPECIAL_TOKENS, load_rows, row_text
 
 def train_tokenizer(paths, settings) -> Path:
     paths.ensure()
-    dataset = paths.train_dataset if paths.train_dataset.exists() else paths.corpus if paths.corpus.exists() else paths.fixtures
+    dataset = train_source(paths)
     texts = [row_text(row) for row in load_rows(dataset)]
     if not texts:
         raise RuntimeError("tokenizer training requires at least one row")
@@ -30,6 +30,14 @@ def train_tokenizer(paths, settings) -> Path:
     }
     paths.tokenizer_manifest.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     return paths.tokenizer_json
+
+
+def train_source(paths) -> Path:
+    if paths.committed_train.exists() and any(paths.committed_train.rglob("*.jsonl")):
+        return paths.committed_train
+    if paths.train_dataset.exists():
+        return paths.train_dataset
+    return paths.corpus if paths.corpus.exists() else paths.fixtures
 
 
 def load_tokenizer(path: Path) -> Tokenizer:

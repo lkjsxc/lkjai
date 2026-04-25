@@ -13,8 +13,11 @@
 ## Compose Gate
 
 ```bash
-docker compose --profile verify up --build --abort-on-container-exit verify
+docker compose --progress quiet --profile verify up --build --abort-on-container-exit verify
 ```
+
+`verify.sh` keeps full logs in `/tmp/lkjai-verify-logs` and tails only failing
+checks by default. Set `VERIFY_TAIL_LINES` to tune failure output size.
 
 ## Training Gate
 
@@ -23,6 +26,8 @@ docker compose --profile verify up --build --abort-on-container-exit verify
 - Fixed eval acceptance requires XML-action artifacts to pass configured gates.
 - Current behavioral baseline is raw holdout `pass_rate=0.235`.
 - The next improvement gate is `TRAIN_BEHAVIORAL_THRESHOLD`, default `0.35`.
+- Everyday-chat holdout pass rate must be reported for runs that change corpus
+  generation.
 - Agent competency acceptance remains behavioral `pass_rate >= 0.80`.
 - For strict enforcement, keep `TRAIN_ENFORCE_COMPETENCY=1`.
 - For exploratory runs, override with `TRAIN_ENFORCE_COMPETENCY=0`.

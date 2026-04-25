@@ -32,7 +32,7 @@ def train_settings(preset: str) -> TrainSettings:
     if preset == "quick":
         return quick_settings()
     if preset in {"agent", "custom"}:
-        return settings(preset, env_str("TRAIN_MODEL_PRESET", "scratch-60m"), 8192, 1024, 12, 640, 8, 2, 1792, 12000, 60000)
+        return settings(preset, env_str("TRAIN_MODEL_PRESET", "scratch-60m"), 8192, 1024, 12, 640, 8, 2, 1792, 120000, 120000)
     raise ValueError(f"unknown TRAIN_PRESET={preset}")
 
 

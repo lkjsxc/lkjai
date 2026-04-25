@@ -7,6 +7,7 @@ Describe the on-disk dataset artifacts used by training and evaluation.
 ## Layout
 
 - Editable source corpus: `training/corpus_sources/*.json`
+- Committed Kimi corpus: `training/corpus/kimi-full-v1/{split}/*.jsonl`
 - Canonical combined corpus: `data/train/datasets/corpus.jsonl`
 - Canonical train split: `data/train/datasets/train.jsonl`
 - Canonical validation split: `data/train/datasets/val.jsonl`
@@ -30,6 +31,8 @@ Describe the on-disk dataset artifacts used by training and evaluation.
 - Source validation requires each JSON source entry to contain `tags` and
   object-shaped `content`.
 - Validation requires at least one row in every emitted split file.
+- Chunked corpus validation requires each non-final chunk to contain roughly
+  `1000` lines.
 - Each row must contain valid `messages`, `tags`, and `meta`.
 - Validation must fail on missing split labels or missing provenance fields.
 - Validation must fail on GPT, Kimi, Claude, or generic LLM-authored default
@@ -44,3 +47,4 @@ Describe the on-disk dataset artifacts used by training and evaluation.
 - Training uses `train.jsonl`.
 - Validation loss uses `val.jsonl`.
 - Behavioral evaluation uses `holdout.jsonl`.
+- Chunked corpus readers must preserve row-based split boundaries.

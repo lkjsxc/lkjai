@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 
@@ -34,6 +35,11 @@ class Paths:
         self.kimi_holdout = self.kimi_corpus / "holdout" / "holdout-0001.jsonl"
         self.kimi_manifest = self.kimi_corpus / "manifest.json"
         self.kimi_validation_report = self.kimi_corpus / "validation-report.json"
+        default_committed = "/workspace/training/corpus/kimi-full-v1"
+        self.committed_kimi_corpus = Path(os.environ.get("TRAIN_COMMITTED_CORPUS_DIR", default_committed))
+        self.committed_train = self.committed_kimi_corpus / "train"
+        self.committed_val = self.committed_kimi_corpus / "val"
+        self.committed_holdout = self.committed_kimi_corpus / "holdout"
 
     def ensure(self) -> None:
         for path in [self.datasets, self.tokenizer, self.checkpoints, self.exports, self.runs, self.preferences]:

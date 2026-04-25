@@ -53,6 +53,12 @@ services:
       KJXLKJ_SESSION_COOKIE: ${KJXLKJ_SESSION_COOKIE:-}
     volumes:
       - ./data:/app/data
+      - ./docs:/app/data/workspace/docs:ro
+      - ./src:/app/data/workspace/src:ro
+      - ./training:/app/data/workspace/training:ro
+      - ./README.md:/app/data/workspace/README.md:ro
+      - ./Cargo.toml:/app/data/workspace/Cargo.toml:ro
+      - ./docker-compose.yml:/app/data/workspace/docker-compose.yml:ro
     depends_on:
       inference:
         condition: service_healthy
@@ -78,16 +84,18 @@ services:
       TRAIN_GRADIENT_CHECKPOINTING: ${TRAIN_GRADIENT_CHECKPOINTING:-1}
       TRAIN_BATCH_SIZE: ${TRAIN_BATCH_SIZE:-1}
       TRAIN_GRADIENT_ACCUMULATION: ${TRAIN_GRADIENT_ACCUMULATION:-8}
-      TRAIN_MAX_STEPS: ${TRAIN_MAX_STEPS:-12000}
+      TRAIN_MAX_STEPS: ${TRAIN_MAX_STEPS:-120000}
       TRAIN_FIXED_EVAL_THRESHOLD: ${TRAIN_FIXED_EVAL_THRESHOLD:-0.6}
       TRAIN_ENFORCE_COMPETENCY: ${TRAIN_ENFORCE_COMPETENCY:-0}
-      TRAIN_CORPUS_SIZE: ${TRAIN_CORPUS_SIZE:-60000}
+      TRAIN_CORPUS_SIZE: ${TRAIN_CORPUS_SIZE:-120000}
       TRAIN_CORPUS_TOKENS: ${TRAIN_CORPUS_TOKENS:-500000000}
       TRAIN_CORPUS_DIR: ${TRAIN_CORPUS_DIR:-/app/data/kimi-corpus}
+      TRAIN_COMMITTED_CORPUS_DIR: ${TRAIN_COMMITTED_CORPUS_DIR:-/workspace/training/corpus/kimi-full-v1}
       TRAIN_DPO_STEPS: ${TRAIN_DPO_STEPS:-200}
       TRAIN_DPO_BETA: ${TRAIN_DPO_BETA:-0.1}
     volumes:
       - ./data:/app/data
+      - ./training/corpus:/workspace/training/corpus:ro
     deploy:
       resources:
         reservations:

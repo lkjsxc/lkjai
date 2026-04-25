@@ -12,7 +12,8 @@ def evaluate_behavior(paths, settings, threshold: float = 0.6):
     from .generation import LoadedModel
 
     model = LoadedModel(paths.root.parent / "models" / settings.model_name, device="cpu")
-    rows = [row for row in load_rows(paths.holdout_dataset) if row["messages"][-1]["role"] == "assistant"][:200]
+    holdout = paths.committed_holdout if paths.committed_holdout.exists() else paths.holdout_dataset
+    rows = [row for row in load_rows(holdout) if row["messages"][-1]["role"] == "assistant"][:200]
     cases = [run_case(model, row) for row in rows]
     passed = sum(1 for item in cases if item["passed"])
     valid_xml = sum(1 for item in cases if item["valid_xml"])
@@ -104,6 +105,8 @@ def bucket(row: dict) -> str:
         return "safety"
     if "docs_grounding" in tags:
         return "docs_grounding"
+    if "everyday_chat" in tags:
+        return "everyday_chat"
     return "direct_answer"
 
 

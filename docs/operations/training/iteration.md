@@ -16,7 +16,9 @@ behavioral reports.
   fallback final actions, inflating XML validity.
 - Current artifacts were trained on disallowed LLM-authored corpus content and
   are invalid for acceptance after the provenance policy change.
-- New baseline target: 60,000 active rows with ≥57,000 unique and ≤1% duplicates.
+- New baseline target: full Kimi corpus chunks committed under
+  `training/corpus/kimi-full-v1/` with at least `450000000` deduplicated train
+  tokenizer tokens.
 
 ## Iteration Command
 

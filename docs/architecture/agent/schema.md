@@ -6,7 +6,9 @@ The model must return exactly one `<action>` block.
 
 - Tags have no attributes.
 - The `<tool>` child is required.
-- `<reasoning>` is private trace material.
+- `<reasoning>` is a brief visible rationale event, not a hidden chain of
+  thought store.
+- `<reasoning>` should be one short sentence that explains the next action.
 - `agent.finish` is the only normal successful terminator.
 
 ```xml
@@ -50,6 +52,7 @@ The model must return exactly one `<action>` block.
 
 - `user`
 - `assistant`
+- `reasoning`
 - `plan`
 - `tool_call`
 - `tool_result`

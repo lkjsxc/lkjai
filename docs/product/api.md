@@ -46,12 +46,16 @@
 
 ## Event Shape
 
-- `kind`: `user`, `assistant`, `plan`, `tool_call`, `tool_result`,
-  `observation`, `memory_write`, or `error`.
+- `kind`: `user`, `assistant`, `reasoning`, `plan`, `tool_call`,
+  `tool_result`, `observation`, `memory_write`, `finish`,
+  `confirmation_request`, or `error`.
 - `content`: human-readable content.
 - `tool`: optional tool name.
 - `timestamp`: RFC 3339 timestamp.
 - `step`: optional agent loop step.
+
+`reasoning` events come from the model's `<reasoning>` child tag. They are
+visible brief rationales and must not contain hidden chain-of-thought detail.
 
 ## Error Contract
 

@@ -30,8 +30,7 @@ def action_xml(action: dict) -> str:
 
 def xml_action(tool: str, fields: dict, reasoning: str = "") -> str:
     lines = ["<action>"]
-    if reasoning:
-        lines.append(tag("reasoning", reasoning))
+    lines.append(tag("reasoning", reasoning or default_reasoning(tool)))
     lines.append(tag("tool", tool))
     for key, value in fields.items():
         if value is None:
@@ -39,6 +38,14 @@ def xml_action(tool: str, fields: dict, reasoning: str = "") -> str:
         lines.append(tag(str(key), value))
     lines.append("</action>")
     return "\n".join(lines)
+
+
+def default_reasoning(tool: str) -> str:
+    if tool == "agent.finish":
+        return "Answer the user directly."
+    if tool == "agent.think":
+        return "Create a brief visible plan."
+    return f"Use {tool} for the requested information."
 
 
 def tag(name: str, value) -> str:

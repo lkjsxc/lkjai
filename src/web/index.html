@@ -16,7 +16,9 @@
     .msg { max-width: 82%; padding: 12px; border: 1px solid var(--line); background: var(--panel); border-radius: 6px; white-space: pre-wrap; overflow-wrap: anywhere; }
     .user { align-self: flex-end; background: #e6fffb; border-color: #7dd3c7; }
     .assistant { align-self: flex-start; }
-    .tool_call, .tool_result { align-self: stretch; max-width: 100%; background: var(--tool); color: #e6edf5; border-color: var(--tool); font-family: ui-monospace, monospace; font-size: 13px; }
+    .reasoning, .plan { align-self: stretch; max-width: 100%; background: #fff7ed; border-color: #fdba74; font-size: 13px; }
+    .tool_call, .tool_result, .observation { align-self: stretch; max-width: 100%; background: var(--tool); color: #e6edf5; border-color: var(--tool); font-family: ui-monospace, monospace; font-size: 13px; }
+    .memory_write, .finish { align-self: stretch; max-width: 100%; background: #ecfdf5; border-color: #6ee7b7; font-size: 13px; }
     .error { align-self: stretch; max-width: 100%; background: #fff1f2; border-color: #fb7185; }
     form { display: grid; grid-template-columns: 1fr auto; gap: 10px; border-top: 1px solid var(--line); padding-top: 12px; }
     textarea { resize: vertical; min-height: 70px; max-height: 220px; padding: 12px; font: inherit; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); }
@@ -52,10 +54,27 @@
     let runId = null;
     let modelReachable = false;
 
+    function label(kind, tool) {
+      const names = {
+        reasoning: "Reasoning",
+        plan: "Plan",
+        tool_call: "Tool call",
+        tool_result: "Tool result",
+        observation: "Observation",
+        memory_write: "Memory",
+        finish: "Finish",
+        error: "Error"
+      };
+      const name = names[kind];
+      if (!name) return tool || "";
+      return tool ? `${name} · ${tool}` : name;
+    }
+
     function add(kind, content, tool) {
       const node = document.createElement("article");
       node.className = `msg ${kind}`;
-      node.textContent = tool ? `${tool}\n${content}` : content;
+      const prefix = label(kind, tool);
+      node.textContent = prefix ? `${prefix}\n${content}` : content;
       log.appendChild(node);
       log.scrollTop = log.scrollHeight;
     }

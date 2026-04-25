@@ -44,6 +44,31 @@ async fn agent_runs_real_tool_then_finishes() {
         .events
         .iter()
         .any(|event| event.kind == "memory_write"));
+    assert!(response
+        .events
+        .iter()
+        .any(|event| event.kind == "reasoning" && event.content == "use tool"));
+    server.abort();
+    std::fs::remove_dir_all(root).unwrap();
+}
+
+#[tokio::test]
+async fn agent_think_is_plan_without_tool_noise() {
+    let root = temp_root();
+    let (url, server) = model_server(vec![
+        action("agent.think", &[("content", "Read docs, then answer.")]),
+        finish("done"),
+    ])
+    .await;
+    let config = test_config(&root, &url);
+    let agent = Agent::new(config.clone(), ModelClient::from_config(&config));
+    let response = agent.chat(request("plan first", 2)).await;
+    assert_eq!(response.stop_reason, "finish");
+    assert!(response.events.iter().any(|event| event.kind == "plan"));
+    assert!(!response
+        .events
+        .iter()
+        .any(|event| event.kind == "tool_call" && event.tool.as_deref() == Some("agent.think")));
     server.abort();
     std::fs::remove_dir_all(root).unwrap();
 }

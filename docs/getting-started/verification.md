@@ -11,7 +11,7 @@ Verification proves:
 ## Mandatory Command
 
 ```bash
-docker compose --profile verify up --build --abort-on-container-exit verify
+docker compose --progress quiet --profile verify up --build --abort-on-container-exit verify
 ```
 
 ## Mandatory Checks in `verify.sh`
@@ -23,6 +23,18 @@ docker compose --profile verify up --build --abort-on-container-exit verify
 5. `cargo run --bin lkjai -- docs validate-links`
 6. `cargo run --bin lkjai -- quality check-lines`
 7. `cargo run --bin lkjai -- quality no-node`
+
+## Compact Logs
+
+`verify.sh` writes full command logs under `/tmp/lkjai-verify-logs` inside the
+container and prints only one pass line per check. On failure it prints the last
+`VERIFY_TAIL_LINES`, default `120`, from the failing log.
+
+Use this when an agent needs the failure without reading full Docker logs:
+
+```bash
+VERIFY_TAIL_LINES=80 docker compose --progress quiet --profile verify up --build --abort-on-container-exit verify
+```
 
 ## Scope Boundary
 

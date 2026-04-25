@@ -4,6 +4,7 @@ from xml.etree import ElementTree
 
 from .corpus import generate_corpus, source_metadata, split_rows
 from .corpus_source import validate_sources
+from .formatting import iter_rows
 from .rows import direct_row, meta, signature, tool_only_row
 
 
@@ -82,10 +83,7 @@ def prepare_corpus(paths, size: int = 6000, seed: int = 42) -> Path:
 def validate_dataset(path: Path) -> Path:
     rows = 0
     signatures = set()
-    for line in path.read_text(encoding="utf-8").splitlines():
-        if not line.strip():
-            continue
-        row = json.loads(line)
+    for row in iter_rows(path):
         messages = row.get("messages")
         if not isinstance(messages, list) or not messages:
             raise ValueError("row missing messages")

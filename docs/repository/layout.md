@@ -20,6 +20,7 @@
 
 - `src/`: Rust web, model client, agent, memory, docs, and quality commands.
 - `training/`: Python tokenizer, scratch training, eval, manifest, and tests.
+- `training/corpus/`: committed chunked generated corpus artifacts.
 - `training/corpus_sources/`: tagged JSON source entries expanded into rows.
 - `docs/`: canonical documentation.
 - `data/`: local untracked runtime and training artifacts.
