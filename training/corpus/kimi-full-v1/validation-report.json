@@ -204,6 +204,7 @@
     "val/val-000018.jsonl": 539
   },
   "everyday_chat_rows": 125001,
+  "everyday_chat_generic_finals": 0,
   "generic_final_rate": 1.1341404632963793e-05,
   "provenance_distribution": {
     "kimi-generated": 176345
