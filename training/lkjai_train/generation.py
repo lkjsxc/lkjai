@@ -155,7 +155,12 @@ def normalize_action(text: str) -> str:
     candidate = first_xml_action(text)
     if candidate:
         return candidate
-    return text.replace("<eos>", "").replace("<assistant_action>", "").strip()
+    text = text.replace("<eos>", "").replace("<assistant_action>", "").strip()
+    if text.startswith("action>"):
+        return f"<{text}"
+    if text.startswith(("reasoning>", "tool>")):
+        return f"<action>\n<{text}"
+    return text
 
 
 def first_xml_action(text: str) -> str:
