@@ -102,11 +102,11 @@ class CorpusGenerator:
         for attempt in range(int(self.config.get("max_retries", 2)) + 1):
             retries = attempt
             result = self.kimi.invoke(prompt, f"{mode}-{shard_id:06d}-try{attempt}", int(self.config.get("timeout_seconds", 240)), 0)
-            if is_transient_result(result):
-                time.sleep(2**attempt); continue
             rows = parse_jsonl_payload(result.stdout_path.read_text(encoding="utf-8", errors="replace"))
             rows = [normalize_record(row, mode, i, str(self.config.get("prompt_version")), split) for i, row in enumerate(rows, 1)]
             if not rows:
+                if is_transient_result(result):
+                    time.sleep(2**attempt); continue
                 self.quarantine_payload(mode, shard_id, result, "no_jsonl_records"); continue
             write_jsonl_atomic(path, rows)
             score = score_paths([path], self.tokenizer)
