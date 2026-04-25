@@ -2,7 +2,7 @@ name: lkjai
 
 services:
   inference:
-    profiles: ["inference"]
+    profiles: ["inference", "web"]
     build:
       context: .
       dockerfile: Dockerfile.inference
@@ -16,6 +16,18 @@ services:
     volumes:
       - ./data/models:/models
       - ./data:/app/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8081/v1/models', timeout=5).read()",
+        ]
+      interval: 10s
+      timeout: 6s
+      retries: 12
+      start_period: 20s
 
   web:
     profiles: ["web"]
@@ -41,6 +53,9 @@ services:
       KJXLKJ_SESSION_COOKIE: ${KJXLKJ_SESSION_COOKIE:-}
     volumes:
       - ./data:/app/data
+    depends_on:
+      inference:
+        condition: service_healthy
 
   train:
     profiles: ["train"]

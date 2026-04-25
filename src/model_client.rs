@@ -84,17 +84,14 @@ impl ModelClient {
     }
 
     pub async fn status(&self) -> ModelStatus {
-        let reachable = self.model.health().await;
+        let health = self.model.health().await;
+        let reachable = health.is_ok();
         ModelStatus {
             model: self.model.name.clone(),
             api_url: self.model.url.clone(),
             loaded: true,
             reachable,
-            message: if reachable {
-                "model server responding".into()
-            } else {
-                "model server unreachable".into()
-            },
+            message: health.unwrap_or_else(|error| error),
         }
     }
 
@@ -134,29 +131,31 @@ impl HttpModel {
             .ok_or_else(|| "model response had no choices".into())
     }
 
-    async fn health(&self) -> bool {
+    async fn health(&self) -> Result<String, String> {
         let base = self
             .url
             .strip_suffix("/chat/completions")
             .unwrap_or(self.url.as_str());
         let url = format!("{base}/models");
-        match self
+        let response = self
             .client
             .get(&url)
             .timeout(Duration::from_secs(5))
             .send()
             .await
-        {
-            Ok(response) => {
-                if !response.status().is_success() {
-                    return false;
-                }
-                match response.json::<ModelsResponse>().await {
-                    Ok(data) => !data.data.is_empty(),
-                    Err(_) => false,
-                }
-            }
-            Err(_) => false,
+            .map_err(|error| format!("model health request failed: {error}"))?;
+        let status = response.status();
+        if !status.is_success() {
+            let text = response.text().await.unwrap_or_default();
+            return Err(format!("model health returned {status}: {text}"));
         }
+        let data = response
+            .json::<ModelsResponse>()
+            .await
+            .map_err(|error| format!("model health parse failed: {error}"))?;
+        if data.data.is_empty() {
+            return Err("model health returned no models".into());
+        }
+        Ok("model server responding".into())
     }
 }

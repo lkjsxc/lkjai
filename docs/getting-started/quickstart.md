@@ -20,11 +20,20 @@ cp .env.example .env
 mkdir -p data/models/lkjai-scratch-60m data/train data/agent data/workspace
 ```
 
-## Run Inference Service
+## Run Web Runtime
 
 ```bash
-docker compose --profile inference up --build inference
+docker compose --profile web up --build web
 ```
+
+This starts both containers:
+
+- `inference`: scratch OpenAI-compatible model server.
+- `web`: Rust agent and browser UI.
+
+Web app endpoint:
+
+- `http://127.0.0.1:8080`
 
 Inference API endpoint:
 
@@ -34,15 +43,13 @@ Inference API endpoint:
 The inference implementation loads exported scratch artifacts and generates
 XML actions from the trained PyTorch checkpoint.
 
-## Run Web Runtime
+## Run Inference Alone
 
 ```bash
-docker compose --profile web up --build web
+docker compose --profile inference up --build inference
 ```
 
-Web app endpoint:
-
-- `http://127.0.0.1:8080`
+Use this only when probing the model server without the web UI.
 
 ## Run Scratch Training
 

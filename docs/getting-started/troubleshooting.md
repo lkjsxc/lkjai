@@ -18,7 +18,9 @@ curl -v http://127.0.0.1:8081/v1/models
 Fix:
 - Ensure `MODEL_NAME=lkjai-scratch-60m` unless testing another artifact.
 - Ensure `data/models/${MODEL_NAME}` exists or run training/export first.
-- Run `docker compose --profile inference up --build inference`.
+- Run `docker compose --profile web up --build web` for the browser app.
+- Run `docker compose --profile inference up --build inference` only for
+  model-server-only checks.
 
 ## Web Runtime Cannot Reach Inference
 
@@ -29,9 +31,10 @@ Check:
 - Inside the web container: `curl http://inference:8081/v1/models`.
 
 Fix:
-- If using host networking, use host IP.
-- If using Docker Compose, use
+- If using Docker Compose, start with `--profile web`; it starts inference too.
+- Use
   `http://inference:8081/v1/chat/completions`.
+- If using host networking outside Compose, use the host IP instead.
 
 ## Training Finishes Instantly
 

@@ -3,7 +3,7 @@
 ## Profiles
 
 - `inference`: Python/Torch OpenAI-compatible scratch inference service.
-- `web`: Rust axum agent orchestrator.
+- `web`: Rust axum agent orchestrator plus its inference dependency.
 - `train`: PyTorch scratch training container.
 - `verify`: repository verification container.
 
@@ -12,6 +12,8 @@
 - All runtime profiles mount `./data:/app/data`.
 - Inference mounts `./data/models` to `/models`.
 - Inference loads `/models/${MODEL_NAME}`.
+- The `web` profile also activates `inference`.
+- Web waits for inference health before serving traffic.
 - Inference loads exported scratch checkpoints and generates actions directly.
 - Inference must not use exact supervised lookup, prompt matching, or canned
   response tables.
