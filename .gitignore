@@ -9,6 +9,8 @@ __pycache__/
 /tmp/
 /data/*
 !/data/.gitkeep
+/runs/*
+!/runs/.gitkeep
 
 /training/.venv/
 /training/build/

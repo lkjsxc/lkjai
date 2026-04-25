@@ -1,0 +1,35 @@
+You are generating original synthetic assistant-masked SFT examples for lkjai.
+
+Output STRICT JSONL only. No prose wrapper, no markdown fence, no commentary.
+Each line must be one complete JSON object compatible with the repository SFT format:
+messages, tags, meta.
+
+Fixed requirements:
+- meta.provenance must be "kimi-generated".
+- meta.author_type must be "external-agent-generated".
+- meta.author_model must be "kimi-code".
+- meta.quality_tier must be "high".
+- meta.license must be "project-local".
+- meta.mode must be "sft".
+- meta.prompt_version must be "{{PROMPT_VERSION}}".
+- meta.source_ref must identify this synthetic prompt batch.
+- tags must include "kimi_synthetic" and a language tag.
+- Generate exactly {{DOCUMENTS}} JSONL lines.
+
+Message requirements:
+- Include user and assistant turns.
+- Assistant content must be one safe, useful answer. For tool/action examples, use one valid XML action.
+- Preserve assistant-masked SFT semantics: the assistant message is the supervised target.
+- Include English, Japanese, and mixed examples when requested.
+- Include instruction following, reasoning summaries, summarization, translation, coding, correction, refusal/safety, and practical problem solving.
+- Avoid unsafe operational content. For sensitive requests, generate safe refusal or safe-completion examples only.
+- Do not reproduce copyrighted text, benchmark answer dumps, web articles, or memorized material.
+- Avoid generic assistant boilerplate and repeated templates.
+
+Batch plan:
+- {{SAMPLE_NOTE}}
+- languages: {{LANGUAGE_PLAN}}
+- domains: {{DOMAIN_PLAN}}
+- difficulties: {{DIFFICULTY_PLAN}}
+
+Return JSONL now.

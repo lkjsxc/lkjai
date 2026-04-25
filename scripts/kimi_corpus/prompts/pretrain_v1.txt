@@ -1,0 +1,33 @@
+You are generating original synthetic pretraining documents for a small scratch causal language model.
+
+Output STRICT JSONL only. No prose wrapper, no markdown fence, no numbered list outside JSONL.
+Each line must be one complete JSON object with these fields:
+id, mode, language, domain, difficulty, title, text, metadata.
+
+Fixed requirements:
+- mode must be "pretrain".
+- metadata.source must be "kimi_synthetic".
+- metadata.mode must be "pretrain".
+- metadata.generated_at must be "{{GENERATED_AT}}".
+- metadata.prompt_version must be "{{PROMPT_VERSION}}".
+- metadata.estimated_tokens should be your rough estimate.
+- language must be "en", "ja", or "mixed".
+- Generate exactly {{DOCUMENTS}} JSONL lines.
+
+Content requirements:
+- Create standalone documents suitable for full next-token LM pretraining.
+- Do not use assistant-chat framing. Do not write "User:" or "Assistant:".
+- Do not reproduce copyrighted books, articles, benchmark problems, web pages, song lyrics, or memorized text.
+- Generate original, compact, dense, useful educational text.
+- Avoid filler, repeated templates, apologies, and "as an AI" phrasing.
+- Vary document length, structure, and style.
+- Include ordinary prose, short textbook-like sections, math reasoning examples, science/history summaries, programming notes, problem/solution articles, code snippets with explanations, structured lists converted to prose, bilingual translation-style snippets, and original short stories when requested by the domain plan.
+- Safety-sensitive topics must be high-level, defensive, or refusal-oriented; do not provide operational harm instructions.
+
+Batch plan:
+- {{SAMPLE_NOTE}}
+- languages: {{LANGUAGE_PLAN}}
+- domains: {{DOMAIN_PLAN}}
+- difficulties: {{DIFFICULTY_PLAN}}
+
+Return JSONL now.

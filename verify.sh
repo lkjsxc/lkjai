@@ -14,8 +14,9 @@ run_step() {
     lines="$(wc -l < "$log" | tr -d ' ')"
     echo "pass: $label ($lines log lines, full log: $log)"
     return 0
+  else
+    status="$?"
   fi
-  status="$?"
   echo "fail: $label (exit $status, full log: $log)"
   echo "-- tail: $log --"
   tail -n "$TAIL_LINES" "$log" || true

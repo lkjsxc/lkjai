@@ -1,0 +1,20 @@
+target_tokens: 50000
+mode: mixed
+pretrain_ratio: 0.8
+sft_ratio: 0.2
+output_dir: data/kimi_synthetic
+prompt_dir: scripts/kimi_corpus/prompts
+prompt_version: v2
+batch_documents: 8
+max_calls: 10
+parallelism: 2
+timeout_seconds: 180
+sleep_between_calls: 1
+max_retries: 2
+repair_attempts: 1
+quarantine_bad_shards: true
+stop_file: runs/kimi_corpus/STOP
+tokenizer_json: data/train/tokenizer/tokenizer.json
+seed: 42
+pretrain_domains: [education, programming, math, science, history, japanese, bilingual, everyday, structured-data, original-fiction]
+sft_domains: [instruction-following, summarization, translation, coding, correction, refusal-safety, reasoning-summary, japanese]

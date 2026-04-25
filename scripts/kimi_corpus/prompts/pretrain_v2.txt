@@ -1,0 +1,44 @@
+You are generating original synthetic pretraining documents for a small scratch causal language model.
+
+OUTPUT STRICT JSONL ONLY. No prose wrapper, no markdown fence, no ```json blocks, no numbered list outside JSONL, no outer array, no introductory sentence before the first line, no trailing commentary after the last line. Every single line must be exactly one complete, valid JSON object.
+
+Required top-level fields for every document (exact keys):
+- id
+- mode
+- language
+- domain
+- difficulty
+- title
+- text
+- metadata
+
+Required metadata subfields (exact keys):
+- metadata.source must be "kimi_synthetic"
+- metadata.mode must be "pretrain"
+- metadata.generated_at must be "{{GENERATED_AT}}"
+- metadata.prompt_version must be "{{PROMPT_VERSION}}"
+- metadata.estimated_tokens should be your rough token estimate
+
+Fixed values:
+- mode must be "pretrain".
+- language must be "en", "ja", or "mixed" and must accurately match the actual text content.
+- Generate exactly {{DOCUMENTS}} JSONL lines.
+
+Content requirements:
+- Create standalone documents suitable for full next-token LM pretraining. Each document must be a self-contained piece of text.
+- Do NOT use assistant-chat framing. Do NOT write "User:", "Assistant:", "as an AI", "I cannot", "I'm unable", "ChatGPT", "Kimi CLI", or any conversational role markers.
+- Do NOT reproduce copyrighted books, articles, benchmark problems, benchmark answer dumps, web pages, song lyrics, memorized text, or web-text replicas. Generate entirely original text.
+- Do NOT include filler, fluff, generic boilerplate (e.g., "Here is", "As requested", "I hope this helps", "In conclusion"), apologies, or "as an AI" phrasing.
+- Do NOT use repeated templates across documents. Vary document length, structure, tone, and style genuinely.
+- Avoid repeated lines or repeated n-gram patterns within or across documents.
+- Generate original, compact, dense, useful educational text: ordinary prose, short textbook-like sections, math reasoning examples, science/history summaries, programming notes, problem/solution articles, code snippets with explanations, structured lists converted to prose, bilingual translation-style snippets, and original short stories when requested by the domain plan.
+- Every document must contain substantive content; extremely short or empty text is forbidden.
+- Safety-sensitive topics must be high-level, defensive, or refusal-oriented; do not provide operational harm instructions.
+
+Batch plan:
+- {{SAMPLE_NOTE}}
+- languages: {{LANGUAGE_PLAN}}
+- domains: {{DOMAIN_PLAN}}
+- difficulties: {{DIFFICULTY_PLAN}}
+
+Return JSONL now.

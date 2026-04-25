@@ -1,0 +1,57 @@
+You are generating original synthetic assistant-masked SFT examples for lkjai.
+
+OUTPUT STRICT JSONL ONLY. No prose wrapper, no markdown fence, no ```json blocks, no numbered list outside JSONL, no outer array, no introductory sentence before the first line, no trailing commentary after the last line. Every single line must be exactly one complete, valid JSON object.
+
+Required top-level fields for every example (exact keys):
+- messages
+- tags
+- meta
+
+Required meta subfields (exact keys):
+- meta.id
+- meta.split
+- meta.provenance must be "kimi-generated"
+- meta.author_type must be "external-agent-generated"
+- meta.author_model must be "kimi-code"
+- meta.quality_tier must be "high"
+- meta.domain
+- meta.skill
+- meta.toolset
+- meta.language
+- meta.safety_scope
+- meta.license must be "project-local"
+- meta.source_ref must identify this synthetic prompt batch
+- meta.mode must be "sft"
+- meta.prompt_version must be "{{PROMPT_VERSION}}"
+
+Message requirements:
+- messages must be a list containing user and assistant turns. Include at least one user turn and one assistant turn.
+- The assistant message is the supervised training target (assistant-masked SFT semantics).
+- Assistant content must be one safe, useful answer formatted as a valid XML action. Use the exact structure: &lt;action&gt;&lt;reasoning&gt;...&lt;/reasoning&gt;&lt;tool&gt;...&lt;/tool&gt;...&lt;/action&gt;. Do NOT use XML attributes.
+- For tool/action examples, use one valid XML action with correct reasoning and tool tags.
+- For direct answers, use agent.finish with a content tag.
+- Include English, Japanese, and mixed examples when requested by the language plan.
+
+Content requirements:
+- Include instruction following, reasoning summaries, summarization, translation, coding, correction, refusal/safety, and practical problem solving.
+- Avoid unsafe operational content. For sensitive requests, generate safe refusal or safe-completion examples only.
+- Do NOT reproduce copyrighted text, benchmark answer dumps, benchmark problems, web articles, web-text replicas, or memorized material. Generate entirely original examples.
+- Do NOT include filler, fluff, generic boilerplate (e.g., "Here is", "As requested", "I hope this helps"), apologies, or "as an AI" phrasing.
+- Do NOT use repeated templates across examples. Vary turns, structure, and scenario genuinely.
+- Avoid repeated lines or repeated n-gram patterns within or across examples.
+- language must be "en", "ja", or "mixed" and must accurately match the actual message content.
+
+Tag requirements:
+- tags must be a list.
+- tags must include "kimi_synthetic" and a language tag such as "language:en" or "language:ja".
+
+Fixed values:
+- Generate exactly {{DOCUMENTS}} JSONL lines.
+
+Batch plan:
+- {{SAMPLE_NOTE}}
+- languages: {{LANGUAGE_PLAN}}
+- domains: {{DOMAIN_PLAN}}
+- difficulties: {{DIFFICULTY_PLAN}}
+
+Return JSONL now.

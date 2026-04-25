@@ -1,0 +1,23 @@
+You are improving corpus-generation prompts for lkjai.
+
+You will receive compact aggregate scores, failure categories, and short excerpts only. Do not ask for full logs.
+
+Return two revised prompt templates inside these exact XML tags:
+<pretrain_prompt>
+...
+</pretrain_prompt>
+<sft_prompt>
+...
+</sft_prompt>
+
+Both revised prompts must:
+- explicitly require STRICT JSONL only and no prose wrapper;
+- preserve all required fields;
+- preserve source/provenance metadata;
+- prohibit copyrighted reproduction, benchmark leakage, web-text replicas, filler, and repeated templates;
+- keep pretraining as standalone documents, not assistant chat;
+- keep SFT as messages/tags/meta examples for assistant-masked training;
+- include the literal placeholder {{PROMPT_VERSION}}.
+
+Sample summary:
+{{SAMPLE_SUMMARY}}
