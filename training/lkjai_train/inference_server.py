@@ -38,7 +38,7 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/v1/models":
             if not State.loaded:
                 return self.send_json(503, {"error": State.error})
-            body = {"data": [{"id": State.model_name, "object": "model"}]}
+            body = {"data": [{"id": State.model_name, "object": "model"}], **device_status()}
             return self.send_json(200, body)
         self.send_json(404, {"error": "not found"})
 
@@ -74,6 +74,19 @@ class Handler(BaseHTTPRequestHandler):
 
     def log_message(self, format: str, *args) -> None:
         return
+
+
+def device_status() -> dict:
+    try:
+        import torch
+
+        cuda = torch.cuda.is_available()
+        gpu = torch.cuda.get_device_name(0) if cuda else ""
+    except Exception:
+        cuda, gpu = False, ""
+    device = State.loaded.device if State.loaded else ""
+    warning = "" if cuda else "CUDA unavailable; serving on CPU fallback"
+    return {"device": device, "cuda_available": cuda, "gpu_name": gpu, "warning": warning}
 
 
 if __name__ == "__main__":

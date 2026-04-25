@@ -16,6 +16,13 @@ services:
     volumes:
       - ./data/models:/models
       - ./data:/app/data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     healthcheck:
       test:
         [
