@@ -2,7 +2,7 @@
 
 ## Generated Chunks
 
-- Path: `training/corpus/kimi-full-v1/`.
+- Path: `training/corpus/kimi-synthetic-v1/`.
 - Rows: `176345`.
 - Train rows: `141258`.
 - Validation rows: `17539`.
@@ -12,7 +12,7 @@
 
 ## Validation Report
 
-- Report: `training/corpus/kimi-full-v1/validation-report.json`.
+- Report: `training/corpus/kimi-synthetic-v1/validation-report.json`.
 - Token count reported by local validator: `25962822`.
 - Duplicate rate: `0.0`.
 - XML validity rate: `1.0`.

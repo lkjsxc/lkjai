@@ -63,7 +63,7 @@ Editable source entries live in JSON array files under
 
 - Target tokens: `500000000`
 - The full Kimi corpus is committed in chunked JSONL under
-  `training/corpus/kimi-full-v1/`.
+  `training/corpus/kimi-synthetic-v1/`.
 - Runtime and training copies may be staged under ignored `data/kimi-corpus/`.
 - A small smoke corpus may exist for quick local checks.
 - Duplicate rows: at most `1%`
@@ -82,13 +82,13 @@ Editable source entries live in JSON array files under
 Committed generated corpus chunks live under:
 
 ```
-training/corpus/kimi-full-v1/
+training/corpus/kimi-synthetic-v1/
   README.md
   manifest.json
   validation-report.json
-  train/train-000001.jsonl
-  val/val-000001.jsonl
-  holdout/holdout-000001.jsonl
+  pretrain/train/shard_000001.jsonl
+  pretrain/val/shard_000010.jsonl
+  sft/train/shard_000001.jsonl
 ```
 
 Each JSONL chunk should contain about `1000` rows. The final chunk in each split
@@ -124,6 +124,7 @@ but the trace assembly and multi-turn structure are Kimi-authored.
 
 ## Sources
 
+- Kimi-generated standalone pretraining documents.
 - Kimi-generated active XML action traces.
 - Everyday conversation and follow-up traces.
 - Docs-grounded and source-grounded tasks.

@@ -7,7 +7,8 @@ Describe the on-disk dataset artifacts used by training and evaluation.
 ## Layout
 
 - Editable source corpus: `training/corpus_sources/*.json`
-- Committed Kimi corpus: `training/corpus/kimi-full-v1/{split}/*.jsonl`
+- Committed Kimi corpus:
+  `training/corpus/kimi-synthetic-v1/{pretrain,sft}/{split}/*.jsonl`
 - Canonical combined corpus: `data/train/datasets/corpus.jsonl`
 - Canonical train split: `data/train/datasets/train.jsonl`
 - Canonical validation split: `data/train/datasets/val.jsonl`

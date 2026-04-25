@@ -14,6 +14,9 @@ Keep one coherent contract for training, export, and serving on a local RTX
 - Default training starts from random initialization.
 - Default tokenizer is a local byte-level BPE tokenizer trained on the train
   split only.
+- Default training objective is `causal_lm_full`.
+- XML-action SFT is available as `assistant_masked_sft`; it masks non-assistant
+  labels and preserves the message serialization used by the runtime.
 
 ## Context Contract
 
@@ -27,6 +30,9 @@ Keep one coherent contract for training, export, and serving on a local RTX
 
 - Training default: BF16 when the local CUDA stack supports it.
 - Training fallback: FP16 only when BF16 is unavailable or unstable.
+- FP16 training uses AMP gradient scaling.
+- Activation checkpointing is enabled by serious training presets and disabled
+  for tiny smoke/debug runs unless explicitly requested.
 - Serving default: Python/Torch OpenAI-compatible runtime with KV-cache decode.
 - Runtime quality must come from real generation. No supervised exact-match
   lookup is allowed in the default path.
@@ -37,3 +43,5 @@ Keep one coherent contract for training, export, and serving on a local RTX
 - `MODEL_CONTEXT_TOKENS=1024`
 - `MODEL_MAX_NEW_TOKENS=512`
 - `MODEL_TEMPERATURE=0.2`
+- `TRAIN_OBJECTIVE=causal_lm_full`
+- `TRAIN_EXPORT_CHECKPOINT=best`

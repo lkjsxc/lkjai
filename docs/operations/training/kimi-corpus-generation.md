@@ -5,12 +5,18 @@
 Generate and commit the full Kimi-authored XML action corpus for the scratch
 agent, with enough everyday conversation coverage to make basic chat usable.
 
+For the current non-interactive Kimi CLI pipeline, use
+[kimi-corpus/README.md](kimi-corpus/README.md). The older prompt below
+describes the committed XML-action corpus target and remains useful background
+for SFT data, but the new pipeline also generates standalone pretraining
+documents.
+
 ## Target
 
 - Train tokenizer tokens: `500000000`.
 - Train tokenizer tokens after dedupe: at least `450000000`.
 - Chunk size: about `1000` JSONL rows.
-- Committed location: `training/corpus/kimi-full-v1/`.
+- Committed location: `training/corpus/kimi-synthetic-v1/`.
 - Runtime staging location: `data/kimi-corpus/`.
 
 ## Mix
@@ -48,7 +54,7 @@ corpus and dataset modules before changing anything.
 
 Generate the active balanced training corpus for lkjai:
 - target 500000000 train tokenizer tokens,
-- commit chunked JSONL under training/corpus/kimi-full-v1,
+- commit chunked JSONL under training/corpus/kimi-synthetic-v1,
 - use about 1000 rows per chunk,
 - use train, val, and holdout split directories,
 - write manifest.json and validation-report.json,

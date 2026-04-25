@@ -58,13 +58,16 @@ docker compose --progress quiet --profile verify up --build --abort-on-container
 
 - The `train` service defaults to `TRAIN_PRESET=agent`.
 - `TRAIN_PRESET=quick` runs tiny scratch training with reduced steps.
+- `TRAIN_OBJECTIVE` defaults to `causal_lm_full`; use
+  `assistant_masked_sft` for XML-action SFT.
 - `TRAIN_FIXED_EVAL_THRESHOLD` defaults to `0.60` for artifact reporting.
 - `TRAIN_BEHAVIORAL_THRESHOLD` defaults to `0.35` for the next pass-rate ladder.
 - `TRAIN_ENFORCE_COMPETENCY` defaults to disabled unless explicitly enabled.
 - Training writes to `TRAIN_DATA_DIR`, default `/app/data/train`.
 - Behavioral competency requires `data/train/runs/behavioral-eval.json`
   `pass_rate >= 0.80`.
-- Default `TRAIN_CORPUS_SIZE` is `120000` and `TRAIN_MAX_STEPS` is `120000`.
+- Default `TRAIN_CORPUS_SIZE` is `120000` and `TRAIN_MAX_STEPS` is `120000`
+  optimizer steps.
 
 ## Presets
 

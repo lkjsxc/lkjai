@@ -15,8 +15,10 @@ gating, and operator-facing acceptance flow.
 - [competency-gate.md](competency-gate.md): fixed-eval threshold and acceptance policy
 - [iteration.md](iteration.md): baseline, pass-rate ladder, and accepted-run log
 - [kimi-corpus-smoke.md](kimi-corpus-smoke.md): latest Kimi smoke report
+- [kimi-corpus/README.md](kimi-corpus/README.md): Kimi synthetic corpus workflow,
+  schema, quality gates, and long-run commands
 - [kimi-corpus-generation.md](kimi-corpus-generation.md): KimiCode full-corpus
-  generation prompt and quality contract
+  generation prompt background
 - [agent-assessment.md](agent-assessment.md): current observed agent behavior and
   improvement priorities
 - [full-corpus-status.md](full-corpus-status.md): generated chunk status and
