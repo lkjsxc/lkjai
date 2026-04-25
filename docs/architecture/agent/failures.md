@@ -19,6 +19,9 @@
 - Tool results are logged after execution.
 - Failed tool calls become `tool_result` and `observation` events.
 - Tool errors do not panic the web process.
+- Repeating the same failed non-terminal action stops with `repeat_action`.
+- The runtime should prefer stopping over replaying identical expensive tool
+  calls.
 
 ## Limits
 
@@ -27,3 +30,5 @@
 - The agent loop stops at `AGENT_MAX_STEPS`.
 - The model prompt must favor recent context, summaries, and retrieved memory
   over full transcript replay.
+- Prompt compaction must avoid feeding duplicate `tool_result` and
+  `observation` content for the same action.

@@ -15,9 +15,10 @@ Execute one user turn as a bounded multi-step loop.
 7. Ask the model for one XML action.
 8. Validate the XML action and tool fields.
 9. Append a visible `reasoning` event when `<reasoning>` is present.
-10. Execute the requested tool.
-11. Append the tool result as an observation when the tool is external.
-12. Repeat until the executed tool is `agent.finish` or a stop rule fires.
+10. Stop as `repeat_action` if the same non-terminal action repeats.
+11. Execute the requested tool.
+12. Append the tool result as an observation when the tool is external.
+13. Repeat until the executed tool is `agent.finish` or a stop rule fires.
 
 ## Model Unreachable Guard
 
@@ -35,6 +36,8 @@ Execute one user turn as a bounded multi-step loop.
 - The agent must not synthesize fake tool results.
 - `<reasoning>` is visible and brief.
 - `agent.think` emits a `plan` event and does not emit duplicate tool events.
+- Prompt context is compact and should avoid replaying duplicate tool output.
+- Simple everyday chat should use `agent.finish` directly.
 
 ## Stop Reasons
 
@@ -43,6 +46,7 @@ Execute one user turn as a bounded multi-step loop.
 - `invalid_action`: XML action could not be repaired.
 - `tool_error`: configured fatal tool failure.
 - `model_error`: model server call failed or model server is unreachable.
+- `repeat_action`: repeated identical non-terminal action was blocked.
 
 ## Verification
 

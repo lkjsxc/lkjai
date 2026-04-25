@@ -22,11 +22,14 @@ Recent transcripts under `data/agent/runs/` show:
 ## Improvement Priorities
 
 1. Teach everyday conversation to finish directly with `agent.finish`.
-2. Make brief `<reasoning>` visible so operators can inspect why a tool was
+2. Remove generic final answers such as `Completed task for ...` from accepted
+   conversational behavior.
+3. Make brief `<reasoning>` visible so operators can inspect why a tool was
    chosen.
-3. Align runtime tool workspace contents with corpus paths.
-4. Expand valid XML action rows before increasing advanced tool complexity.
-5. Report everyday-chat pass rate separately from repository tool tasks.
+4. Align runtime tool workspace contents with corpus paths.
+5. Expand valid XML action rows before increasing advanced tool complexity.
+6. Report everyday-chat pass rate separately from repository tool tasks.
+7. Block repeated identical non-terminal actions during runtime probes.
 
 ## Manual Probe Set
 

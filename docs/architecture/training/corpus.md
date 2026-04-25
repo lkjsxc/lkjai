@@ -129,3 +129,11 @@ but the trace assembly and multi-turn structure are Kimi-authored.
 - Docs-grounded and source-grounded tasks.
 - Runtime tool traces with real observations and explicit `agent.finish`.
 - Safety, confirmation, failure recovery, and revision traces.
+
+## Rejection Patterns
+
+- Everyday-chat rows must not finish with `Completed task for ...`.
+- Greetings, thanks, and capability questions must not call filesystem tools.
+- Repeated failed tool calls must be represented as failures to avoid, not as
+  successful target behavior.
+- Generic final answers are allowed only in explicit negative preference rows.

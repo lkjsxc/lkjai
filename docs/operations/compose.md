@@ -27,7 +27,11 @@
 ## GPU
 
 - `train` requests NVIDIA GPU access for scratch training.
-- `inference` loads exported PyTorch scratch checkpoints and tokenizers.
+- `inference` requests NVIDIA GPU access for scratch serving.
+- `inference` falls back to CPU only as a visible degraded mode.
+- `/api/model` and the web UI must show CUDA availability and active device.
+- CPU fallback is acceptable for development but is not an acceptable quality or
+  latency baseline.
 - `web` does not load model weights and does not require CUDA.
 
 ## Commands

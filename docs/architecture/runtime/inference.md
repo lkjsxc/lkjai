@@ -11,6 +11,8 @@ honestly.
 - The runtime must verify inference health before serving chat requests.
 - Health probe uses `GET /v1/models` with a `5` second timeout.
 - `GET /api/model` reports the last known probe result.
+- The inference server reports its active device, CUDA availability, GPU name,
+  and degradation warning.
 - The accepted runtime path is the same path used for quality gates.
 
 ## Request And Response
@@ -26,6 +28,15 @@ honestly.
   `model_error`.
 - Non-success status includes the status code and body text in the transcript.
 - Invalid model JSON stops the loop after repair attempts are exhausted.
+- CPU inference is allowed only as a visible degraded mode.
+- CUDA-unavailable CPU fallback must be reported in `/api/model` and the web UI.
+
+## Performance Policy
+
+- Prefer CUDA when `torch.cuda.is_available()` is true.
+- Use `torch.inference_mode()` during generation.
+- Stop generation as soon as one complete `</action>` is produced.
+- Do not use exact prompt lookup, supervised lookup, or canned response tables.
 
 ## Defaults
 

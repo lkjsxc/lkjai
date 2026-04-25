@@ -7,6 +7,9 @@
   results.
 - The UI displays reasoning, plan, tool, observation, memory, assistant, and
   error events.
+- The client can show or hide every event kind that is visible in the
+  transcript.
+- Visibility settings are client-side preferences sent with chat requests.
 - The app is local-only by default.
 - There is no login in v1.
 
@@ -17,6 +20,9 @@
 - Non-tool prompts are answered through the same agent loop.
 - Model-status strings are not valid assistant replies.
 - The model response must use validated XML actions.
+- Simple everyday chat should finish directly with `agent.finish`.
+- The runtime must not use canned conversational replies as the default.
+- Repeated identical non-terminal model actions stop as `repeat_action`.
 - Tool calls and outputs are displayed in the transcript.
 - `<reasoning>` appears as a visible rationale event before the related action.
 - Memory writes are displayed in the transcript.

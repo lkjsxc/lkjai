@@ -15,11 +15,11 @@ agent, with enough everyday conversation coverage to make basic chat usable.
 
 ## Mix
 
-- Everyday conversation: `50%`.
-- Reasoning, planning, and clarification: `20%`.
-- Local tool use and recovery: `15%`.
-- Docs and source grounding: `10%`.
-- kjxlkj read and confirmation flows: `5%`.
+- Everyday conversation and clarification: `30%`.
+- Runtime schema, XML validity, and direct-answer control: `20%`.
+- Local tool use, observation handling, and recovery: `20%`.
+- Docs and source grounding: `15%`.
+- Memory, preference, and kjxlkj read/confirmation flows: `15%`.
 
 ## Quality Gates
 
@@ -27,7 +27,9 @@ agent, with enough everyday conversation coverage to make basic chat usable.
 - Last assistant action is `agent.finish`: `1.0`.
 - Duplicate rate: `<= 0.01`.
 - Generic final-answer rate: `<= 0.005`.
+- `Completed task for ...` rate in everyday-chat rows: `0`.
 - Each split has everyday conversation rows.
+- Everyday-chat holdout pass rate is reported separately.
 - Non-final chunks have roughly `1000` rows.
 - Every active row has `kimi-generated` provenance.
 
@@ -44,15 +46,17 @@ docs/architecture/training/provenance.md, docs/architecture/training/pipeline.md
 docs/operations/training/agent-assessment.md, and the training/lkjai_train
 corpus and dataset modules before changing anything.
 
-Generate the active full training corpus for lkjai:
+Generate the active balanced training corpus for lkjai:
 - target 500000000 train tokenizer tokens,
 - commit chunked JSONL under training/corpus/kimi-full-v1,
 - use about 1000 rows per chunk,
 - use train, val, and holdout split directories,
 - write manifest.json and validation-report.json,
-- prioritize everyday conversation in 50% of rows,
-- include reasoning/planning, local tools, docs/source grounding, and kjxlkj
-  confirmation flows in the remaining rows.
+- prioritize a balanced agent: everyday conversation, XML validity, local tools,
+  observation handling, docs/source grounding, memory, preferences, and kjxlkj
+  confirmation flows.
+- include direct negative pressure against generic finals like
+  "Completed task for docs/architecture/training/provenance.md."
 
 Every assistant message must be exactly one XML action:
 <action>
@@ -65,6 +69,7 @@ Use <reasoning> as a short visible rationale only. Do not write long hidden
 chain-of-thought. Use agent.finish directly for simple greetings, thanks,
 clarifications, concise answers, and normal everyday chat. Use agent.think only
 for explicit non-terminating planning. Never emit JSON assistant actions.
+Never answer ordinary chat with repository task-completion text.
 
 Rows must use:
 - provenance: kimi-generated

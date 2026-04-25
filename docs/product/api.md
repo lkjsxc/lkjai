@@ -14,9 +14,15 @@
 {
   "message": "string",
   "run_id": "optional-string",
-  "max_steps": 6
+  "max_steps": 6,
+  "visible_event_kinds": ["user", "assistant", "error"]
 }
 ```
+
+- `visible_event_kinds` is optional.
+- When omitted, the server returns all events for API clients.
+- When present, the response `events` array contains only matching event kinds.
+- Filtering never changes what is persisted to the run transcript.
 
 ## `POST /api/chat` Response
 
@@ -37,12 +43,20 @@
   "api_url": "http://127.0.0.1:8081/v1/chat/completions",
   "loaded": true,
   "reachable": true,
-  "message": "model server responding"
+  "message": "model server responding",
+  "device": "cuda",
+  "cuda_available": true,
+  "gpu_name": "NVIDIA GeForce RTX 3070",
+  "warning": ""
 }
 ```
 
 - `loaded`: client is configured.
 - `reachable`: last health probe succeeded.
+- `device`: inference device reported by the model server.
+- `cuda_available`: whether the inference server can use CUDA.
+- `gpu_name`: CUDA device name when available.
+- `warning`: non-empty when serving is degraded, such as CPU fallback.
 
 ## Event Shape
 
@@ -64,6 +78,8 @@ visible brief rationales and must not contain hidden chain-of-thought detail.
 - If no final assistant action is produced, `stop_reason` must indicate failure.
 - `GET /api/model` reflects runtime model client configuration and reachability,
   not benchmarked quality.
+- `repeat_action` means the model repeated the same non-terminal action and the
+  runtime stopped before wasting more tool calls.
 
 ## Verification
 
