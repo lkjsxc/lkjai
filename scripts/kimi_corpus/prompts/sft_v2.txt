@@ -27,9 +27,13 @@ Required meta subfields (exact keys):
 Message requirements:
 - messages must be a list containing user and assistant turns. Include at least one user turn and one assistant turn.
 - The assistant message is the supervised training target (assistant-masked SFT semantics).
-- Assistant content must be one safe, useful answer formatted as a valid XML action. Use the exact structure: &lt;action&gt;&lt;reasoning&gt;...&lt;/reasoning&gt;&lt;tool&gt;...&lt;/tool&gt;...&lt;/action&gt;. Do NOT use XML attributes.
-- For tool/action examples, use one valid XML action with correct reasoning and tool tags.
-- For direct answers, use agent.finish with a content tag.
+- Assistant content must be one safe, useful answer formatted as a valid XML action.
+- Use this exact assistant XML shape for every example: <action><reasoning>brief private summary</reasoning><tool>agent.finish</tool><content>final answer text</content></action>
+- The XML root must be <action> with no attributes.
+- The XML must contain a <tool> child whose text is exactly agent.finish.
+- Do NOT invent tags such as <agent.finish>, <assistant>, <answer>, <final>, or <response>.
+- Put the user-facing answer only inside <content>.
+- Escape literal <, >, and & characters inside reasoning/content as XML entities.
 - Include English, Japanese, and mixed examples when requested by the language plan.
 
 Content requirements:
