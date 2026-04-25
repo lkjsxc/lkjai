@@ -24,7 +24,7 @@ class KimiResult:
 class KimiRunner:
     def __init__(self, logs_dir: Path, fake_kimi: str = ""):
         self.logs_dir = logs_dir
-        self.executable = fake_kimi or discover_kimi()
+        self.executable = str(Path(fake_kimi).resolve()) if fake_kimi else discover_kimi()
         self.help_text = kimi_help(self.executable)
         self.variant = choose_variant(self.help_text)
 
@@ -40,7 +40,7 @@ class KimiRunner:
             with stdout_path.open("w", encoding="utf-8") as out, stderr_path.open("w", encoding="utf-8") as err:
                 proc = None
                 try:
-                    proc = subprocess.Popen(command, stdin=subprocess.PIPE if stdin is not None else None, text=True, stdout=out, stderr=err, start_new_session=True)
+                    proc = subprocess.Popen(command, cwd=self.logs_dir, stdin=subprocess.PIPE if stdin is not None else None, text=True, stdout=out, stderr=err, start_new_session=True)
                     proc.communicate(input=stdin, timeout=timeout_seconds)
                     returncode = proc.returncode
                 except subprocess.TimeoutExpired:
