@@ -21,6 +21,7 @@ def evaluate_behavior(paths, settings, threshold: float = 0.6):
         "threshold": threshold,
         "pass_rate": passed / max(1, len(cases)),
         "xml_validity": valid_xml / max(1, len(cases)),
+        "everyday_chat_pass_rate": bucket_pass_rate(cases, "everyday_chat"),
         "passed": passed,
         "total": len(cases),
         "valid_xml": valid_xml,
@@ -125,3 +126,8 @@ def bucket_rates(cases: list[dict]) -> dict:
         }
         for name, item in sorted(buckets.items())
     }
+
+
+def bucket_pass_rate(cases: list[dict], name: str) -> float:
+    bucket_cases = [case for case in cases if case["bucket"] == name]
+    return sum(1 for case in bucket_cases if case["passed"]) / max(1, len(bucket_cases))

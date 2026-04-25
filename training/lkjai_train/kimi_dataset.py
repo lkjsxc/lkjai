@@ -63,6 +63,7 @@ def validate_dataset_directory(directory: Path) -> dict:
     source_license_counts = Counter()
     trace_finish = 0
     everyday = 0
+    everyday_generic = 0
     generic = 0
     xml_valid = 0
     xml_total = 0
@@ -77,7 +78,8 @@ def validate_dataset_directory(directory: Path) -> dict:
             signatures.add(signature(row))
             meta = row.get("meta", {})
             tags = set(row.get("tags", []))
-            everyday += int("everyday_chat" in tags)
+            is_everyday = "everyday_chat" in tags
+            everyday += int(is_everyday)
             split_counts[meta.get("split", "unknown")] += 1
             provenance_counts[meta.get("provenance", "unknown")] += 1
             source_license_counts[(meta.get("domain", "unknown"), meta.get("license", "unknown"))] += 1
@@ -99,7 +101,9 @@ def validate_dataset_directory(directory: Path) -> dict:
                     final_action = parse_assistant_xml(last_assistant)
                     if final_action.get("tool") == "agent.finish":
                         trace_finish += 1
-                    generic += int(_is_generic_final(final_action))
+                    is_generic = _is_generic_final(final_action)
+                    generic += int(is_generic)
+                    everyday_generic += int(is_everyday and is_generic)
                 except ValueError:
                     pass
     duplicate_rate = (total_rows - len(signatures)) / max(1, total_rows)
@@ -114,6 +118,7 @@ def validate_dataset_directory(directory: Path) -> dict:
         "tool_distribution": dict(tool_counts),
         "chunk_sizes": chunk_sizes,
         "everyday_chat_rows": everyday,
+        "everyday_chat_generic_finals": everyday_generic,
         "generic_final_rate": generic / max(1, total_rows),
         "provenance_distribution": dict(provenance_counts),
         "source_license_distribution": [{"domain": d, "license": l, "rows": c} for (d, l), c in sorted(source_license_counts.items())],
@@ -135,6 +140,8 @@ def enforce_kimi_report(report: dict) -> None:
         raise ValueError("Kimi corpus duplicate rate exceeds 1%")
     if report["generic_final_rate"] > 0.005:
         raise ValueError("Kimi corpus generic final-answer rate exceeds 0.5%")
+    if report["everyday_chat_generic_finals"] != 0:
+        raise ValueError("Kimi corpus everyday chat contains generic final answers")
     if report["everyday_chat_rows"] == 0:
         raise ValueError("Kimi corpus missing everyday_chat rows")
     bad_chunks = [path for path, size in report["chunk_sizes"].items() if size > 1000]
