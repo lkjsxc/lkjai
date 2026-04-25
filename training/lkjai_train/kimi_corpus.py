@@ -39,6 +39,8 @@ def generate_kimi_corpus(row_target: int = 5000, seed: int = 42) -> list[dict]:
     else:
         rows += kimi_doc_rows(int(row_target * MIX["public"]) + 1)
     rows = dedupe_rows(rows)
+    if len(rows) < row_target:
+        rows = dedupe_rows(rows + kimi_everyday_rows(row_target * 2))
     random.Random(seed).shuffle(rows)
     if len(rows) > row_target:
         rows = rows[:row_target]

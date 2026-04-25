@@ -61,7 +61,7 @@ struct AssistantMessage {
 
 #[derive(Deserialize)]
 struct ModelsResponse {
-    data: Vec<ModelId>,
+    data: Vec<serde_json::Value>,
     #[serde(default)]
     device: String,
     #[serde(default)]
@@ -70,12 +70,6 @@ struct ModelsResponse {
     gpu_name: String,
     #[serde(default)]
     warning: String,
-}
-
-#[derive(Deserialize)]
-struct ModelId {
-    #[allow(dead_code)]
-    id: String,
 }
 
 impl ModelClient {
@@ -184,7 +178,13 @@ impl HttpModel {
     }
 }
 
-struct HealthStatus { message: String, device: String, cuda_available: bool, gpu_name: String, warning: String }
+struct HealthStatus {
+    message: String,
+    device: String,
+    cuda_available: bool,
+    gpu_name: String,
+    warning: String,
+}
 
 impl HealthStatus {
     fn error(message: String) -> Self {

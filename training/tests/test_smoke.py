@@ -49,7 +49,7 @@ def test_agent_settings_defaults(monkeypatch):
     assert settings.layers == 12
     assert settings.kv_heads == 2
     assert settings.batch_size == 1
-    assert settings.corpus_size == 60000
+    assert settings.corpus_size == 120000
     assert settings.behavioral_threshold == 0.35
 
 

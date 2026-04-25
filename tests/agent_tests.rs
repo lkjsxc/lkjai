@@ -165,8 +165,15 @@ async fn chat_response_can_filter_visible_events() {
             visible_event_kinds: Some(vec!["assistant".into()]),
         })
         .await;
-    assert!(response.events.iter().all(|event| event.kind == "assistant"));
-    assert!(agent.transcript("run-1").unwrap().iter().any(|event| event.kind == "user"));
+    assert!(response
+        .events
+        .iter()
+        .all(|event| event.kind == "assistant"));
+    assert!(agent
+        .transcript("run-1")
+        .unwrap()
+        .iter()
+        .any(|event| event.kind == "user"));
     server.abort();
     std::fs::remove_dir_all(root).unwrap();
 }
@@ -180,7 +187,14 @@ async fn repeated_non_terminal_action_stops_before_second_tool_run() {
     let agent = Agent::new(config.clone(), ModelClient::from_config(&config));
     let response = agent.chat(request("hello", 2)).await;
     assert_eq!(response.stop_reason, "repeat_action");
-    assert_eq!(response.events.iter().filter(|event| event.kind == "tool_call").count(), 1);
+    assert_eq!(
+        response
+            .events
+            .iter()
+            .filter(|event| event.kind == "tool_call")
+            .count(),
+        1
+    );
     server.abort();
     std::fs::remove_dir_all(root).unwrap();
 }
