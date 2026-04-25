@@ -12,7 +12,7 @@ repair_attempts = 1
 memory_top_k = 5
 
 [training]
-method = "scratch-causal-lm"
+objective = "causal_lm_full"
 tokenizer = "byte-bpe"
 sequence_len = 1024
 layers = 12
@@ -20,3 +20,9 @@ hidden_size = 640
 heads = 8
 kv_heads = 2
 ffn_size = 1792
+gradient_accumulation = 8
+max_steps = 120000 # optimizer steps
+validate_every_optimizer_steps = 250
+save_every_optimizer_steps = 1000
+resume = "auto"
+export_checkpoint = "best"

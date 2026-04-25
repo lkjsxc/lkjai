@@ -8,10 +8,11 @@ from .dataset import parse_assistant_xml
 STOPWORDS = {"the", "this", "that", "with", "from", "into", "about", "keep", "must", "will", "have", "uses", "after", "only"}
 
 
-def evaluate_behavior(paths, settings, threshold: float = 0.6):
+def evaluate_behavior(paths, settings, threshold: float = 0.6, checkpoint: str = "export"):
     from .generation import LoadedModel
 
-    model = LoadedModel(paths.root.parent / "models" / settings.model_name, device="cpu")
+    model_dir, tokenizer_path = behavioral_model_source(paths, settings, checkpoint)
+    model = LoadedModel(model_dir, tokenizer_path=tokenizer_path)
     holdout = paths.committed_holdout if paths.committed_holdout.exists() else paths.holdout_dataset
     rows = [row for row in load_rows(holdout) if row["messages"][-1]["role"] == "assistant"][:200]
     cases = [run_case(model, row) for row in rows]
@@ -32,6 +33,14 @@ def evaluate_behavior(paths, settings, threshold: float = 0.6):
     out = paths.runs / "behavioral-eval.json"
     out.write_text(json.dumps(report, indent=2), encoding="utf-8")
     return out
+
+
+def behavioral_model_source(paths, settings, checkpoint: str):
+    if checkpoint == "best":
+        return paths.checkpoint_best, paths.tokenizer_json
+    if checkpoint == "final":
+        return paths.checkpoint_final, paths.tokenizer_json
+    return paths.root.parent / "models" / settings.model_name, None
 
 
 def run_case(model, row: dict) -> dict:

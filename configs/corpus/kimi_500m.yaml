@@ -14,7 +14,6 @@ max_retries: 3
 repair_attempts: 1
 quarantine_bad_shards: true
 stop_file: runs/kimi_corpus/STOP
-tokenizer_json: data/train/tokenizer/tokenizer.json
 seed: 42
 pretrain_domains: [education, programming, math, science, history, japanese, bilingual, everyday, structured-data, original-fiction, problem-solution, code-explanation]
 sft_domains: [instruction-following, summarization, translation, coding, correction, refusal-safety, reasoning-summary, japanese, xml-action]

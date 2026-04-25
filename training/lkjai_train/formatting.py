@@ -38,6 +38,8 @@ def prompt_text(messages: list[dict]) -> str:
 
 
 def row_text(row: dict) -> str:
+    if isinstance(row.get("text"), str):
+        return row["text"]
     return message_text(row.get("messages", []))
 
 
@@ -91,6 +93,7 @@ def iter_rows(path):
     for file in files:
         if not file.exists():
             continue
-        for line in file.read_text(encoding="utf-8").splitlines():
-            if line.strip():
-                yield json.loads(line)
+        with file.open("r", encoding="utf-8") as handle:
+            for line in handle:
+                if line.strip():
+                    yield json.loads(line)

@@ -44,6 +44,7 @@ def test_agent_settings_defaults(monkeypatch):
     monkeypatch.delenv("TRAIN_BATCH_SIZE", raising=False)
     settings = train_settings("agent")
     assert settings.model_preset == "scratch-60m"
+    assert settings.objective == "causal_lm_full"
     assert settings.sequence_len == 1024
     assert settings.hidden_size == 640
     assert settings.layers == 12
@@ -58,6 +59,7 @@ def test_quick_settings_are_tiny():
     assert settings.sequence_len == 64
     assert settings.hidden_size == 64
     assert settings.max_steps == 5
+    assert settings.max_optimizer_steps == 5
 
 
 def test_source_corpus_files_are_tagged_json_arrays():
@@ -148,11 +150,9 @@ def test_supervised_labels_mask_non_assistant_tokens():
     assert any(label != -100 for label in labels)
 
 
-def test_raw_user_prompt_becomes_default_task():
+def test_raw_user_prompt_stays_raw():
     messages = normalize_messages([{"role": "user", "content": "What is 2+3?"}])
-    assert "<task>" in messages[0]["content"]
-    assert "<request>What is 2+3?</request>" in messages[0]["content"]
-    assert "<constraints>Return one valid XML action.</constraints>" in messages[0]["content"]
+    assert messages == [{"role": "user", "content": "What is 2+3?"}]
 
 
 def test_latest_user_event_extracts_tagged_context():

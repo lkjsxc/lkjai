@@ -16,7 +16,7 @@ def choose_token(logits, temperature: float):
 
 
 class LoadedModel:
-    def __init__(self, model_dir: Path, device: str = "") -> None:
+    def __init__(self, model_dir: Path, device: str = "", tokenizer_path: Path | None = None) -> None:
         import torch
 
         from .scratch_model import ModelConfig, ScratchLM
@@ -24,7 +24,7 @@ class LoadedModel:
 
         self.model_dir = model_dir
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
-        self.tokenizer = load_tokenizer(model_dir / "tokenizer.json")
+        self.tokenizer = load_tokenizer(tokenizer_path or model_dir / "tokenizer.json")
         config = ModelConfig(**json.loads((model_dir / "config.json").read_text()))
         self.model = ScratchLM(config).to(self.device)
         self.model.load_state_dict(torch.load(model_dir / "model.pt", map_location=self.device, weights_only=True))
@@ -136,19 +136,7 @@ def normalize_message(message: dict) -> dict:
     if message.get("role") != "user":
         return message
     content = message.get("content", "")
-    if "<task>" in content:
-        return message
-    return {"role": "user", "content": default_task(content)}
-
-
-def default_task(request: str) -> str:
-    return (
-        "<task>\n"
-        f"<request>{request}</request>\n"
-        "<context></context>\n"
-        "<constraints>Return one valid XML action.</constraints>\n"
-        "</task>"
-    )
+    return message if "<task>" in content else {"role": "user", "content": content}
 
 
 def normalize_action(text: str) -> str:

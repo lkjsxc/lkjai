@@ -5,6 +5,7 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.utils.checkpoint import checkpoint
 
 
 @dataclass
@@ -35,9 +36,10 @@ class SwiGLU(nn.Module):
         self.gate = nn.Linear(config.hidden_size, config.ffn_size, bias=False)
         self.up = nn.Linear(config.hidden_size, config.ffn_size, bias=False)
         self.down = nn.Linear(config.ffn_size, config.hidden_size, bias=False)
+        self.dropout = nn.Dropout(config.dropout)
 
     def forward(self, x):
-        return self.down(F.silu(self.gate(x)) * self.up(x))
+        return self.dropout(self.down(F.silu(self.gate(x)) * self.up(x)))
 
 
 class Attention(nn.Module):
@@ -52,6 +54,7 @@ class Attention(nn.Module):
         self.k = nn.Linear(config.hidden_size, kv_dim, bias=False)
         self.v = nn.Linear(config.hidden_size, kv_dim, bias=False)
         self.o = nn.Linear(config.hidden_size, config.hidden_size, bias=False)
+        self.dropout = config.dropout
 
     def forward(self, x, layer_cache=None, use_cache: bool = False):
         batch, seq, _ = x.shape
@@ -64,12 +67,17 @@ class Attention(nn.Module):
         if layer_cache is not None:
             k_base = torch.cat([layer_cache["k"], k_base], dim=2)[:, :, -self.max_len :]
             v_base = torch.cat([layer_cache["v"], v_base], dim=2)[:, :, -self.max_len :]
-        k, v = k_base, v_base
+        dropout_p = self.dropout if self.training else 0.0
         if self.heads != self.kv_heads:
-            repeats = self.heads // self.kv_heads
-            k = k_base.repeat_interleave(repeats, dim=1)
-            v = v_base.repeat_interleave(repeats, dim=1)
-        attn = F.scaled_dot_product_attention(q, k, v, is_causal=layer_cache is None)
+            try:
+                attn = F.scaled_dot_product_attention(q, k_base, v_base, dropout_p=dropout_p, is_causal=layer_cache is None, enable_gqa=True)
+            except TypeError:
+                repeats = self.heads // self.kv_heads
+                k = k_base.repeat_interleave(repeats, dim=1)
+                v = v_base.repeat_interleave(repeats, dim=1)
+                attn = F.scaled_dot_product_attention(q, k, v, dropout_p=dropout_p, is_causal=layer_cache is None)
+        else:
+            attn = F.scaled_dot_product_attention(q, k_base, v_base, dropout_p=dropout_p, is_causal=layer_cache is None)
         output = self.o(attn.transpose(1, 2).contiguous().view(batch, seq, -1))
         next_cache = {"k": k_base.detach(), "v": v_base.detach()} if use_cache else None
         return output, next_cache
@@ -98,14 +106,22 @@ class ScratchLM(nn.Module):
         self.norm = RMSNorm(config.hidden_size)
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
         self.lm_head.weight = self.tok.weight
+        self.gradient_checkpointing = False
         self.apply(init_weights)
+
+    def enable_gradient_checkpointing(self, enabled: bool = True) -> None:
+        self.gradient_checkpointing = enabled
 
     def forward(self, idx, labels=None, cache=None, use_cache: bool = False):
         x = self.tok(idx)
         next_cache = [] if use_cache else None
         for index, block in enumerate(self.blocks):
             layer_cache = None if cache is None else cache[index]
-            x, cached = block(x, layer_cache, use_cache)
+            if self.gradient_checkpointing and self.training and layer_cache is None and not use_cache:
+                x = checkpoint(lambda value: block(value, None, False)[0], x, use_reentrant=False)
+                cached = None
+            else:
+                x, cached = block(x, layer_cache, use_cache)
             if use_cache:
                 next_cache.append(cached)
         logits = self.lm_head(self.norm(x))

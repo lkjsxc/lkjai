@@ -24,6 +24,10 @@ def main() -> None:
     for name in ["fixed-eval", "behavioral-eval"]:
         parser_eval = sub.add_parser(name)
         parser_eval.add_argument("--threshold", type=float, default=0.0)
+        if name == "behavioral-eval":
+            parser_eval.add_argument("--checkpoint", choices=["export", "best", "final"], default=os.environ.get("TRAIN_BEHAVIORAL_CHECKPOINT", "export"))
+    sanity = sub.add_parser("generation-sanity")
+    sanity.add_argument("--checkpoint", choices=["export", "best", "final"], default=os.environ.get("TRAIN_BEHAVIORAL_CHECKPOINT", "export"))
     dpo = sub.add_parser("train-dpo")
     dpo.add_argument("--preset", default=os.environ.get("TRAIN_PRESET", "quick"))
     args = parser.parse_args()
@@ -69,7 +73,11 @@ def dispatch(args, paths: Paths):
         from .behavioral import evaluate_behavior
 
         settings = train_settings(env_preset())
-        return evaluate_behavior(paths, settings, args.threshold or settings.behavioral_threshold)
+        return evaluate_behavior(paths, settings, args.threshold or settings.behavioral_threshold, args.checkpoint)
+    if args.command == "generation-sanity":
+        from .evals import evaluate_generation_sanity
+
+        return evaluate_generation_sanity(paths, train_settings(env_preset()), args.checkpoint)
     if args.command == "prepare-preferences":
         from .preference import prepare_preferences
 
@@ -128,7 +136,7 @@ def train_pipeline(paths: Paths):
     run_training(paths, settings)
     export_manifest(paths, settings)
     fixed = evaluate_fixed_suite(paths, settings.fixed_eval_threshold)
-    behavioral = evaluate_behavior(paths, settings, settings.behavioral_threshold)
+    behavioral = evaluate_behavior(paths, settings, settings.behavioral_threshold, os.environ.get("TRAIN_BEHAVIORAL_CHECKPOINT", "export"))
     if settings.enforce_competency and not competency_passes(behavioral, settings.behavioral_threshold):
         raise RuntimeError("agent competency gate failed")
     if not fixed_artifact_passes(fixed, settings.fixed_eval_threshold):

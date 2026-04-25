@@ -19,6 +19,8 @@ class CorpusGenerator:
         self.config, self.args = config, args
         self.output_dir = Path(config.get("output_dir", "data/kimi_synthetic"))
         self.run_dir = Path(args.run_dir)
+        if getattr(args, "stop_file", None) is None and str(config.get("stop_file", "")) == "runs/kimi_corpus/STOP":
+            self.config["stop_file"] = str(self.run_dir / "STOP")
         self.logs_dir = self.run_dir / "logs"
         self.prompt_dir = Path(config.get("prompt_dir", "scripts/kimi_corpus/prompts"))
         self.kimi = KimiRunner(self.logs_dir, args.fake_kimi)
@@ -182,6 +184,8 @@ class CorpusGenerator:
         print(json.dumps(payload), flush=True)
 
     def load_optional_tokenizer(self):
+        if self.args.fake_kimi:
+            return None
         candidates = [Path(str(self.config["tokenizer_json"]))] if self.config.get("tokenizer_json") else []
         candidates += [Path("data/train/tokenizer/tokenizer.json"), Path("/app/data/tokenizer/tokenizer.json")]
         for path in candidates:

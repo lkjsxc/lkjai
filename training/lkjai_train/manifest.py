@@ -17,6 +17,9 @@ def checkpoint_manifest(paths, settings) -> Path:
         "dataset": str(dataset),
         "dataset_sha256": file_sha256(dataset) if dataset.exists() else "",
         "checkpoint_dir": summary.get("checkpoint_dir", ""),
+        "final_checkpoint_dir": summary.get("final_checkpoint_dir", ""),
+        "best_checkpoint_dir": summary.get("best_checkpoint_dir", ""),
+        "objective": summary.get("objective", getattr(settings, "objective", "")),
         "train_rows": summary.get("train_rows", 0),
         "metrics": summary.get("metrics", {}),
     }
@@ -29,7 +32,7 @@ def export_manifest(paths, settings) -> Path:
     model_dir = paths.root.parent / "models" / settings.model_name
     model_dir.mkdir(parents=True, exist_ok=True)
     copy_if_exists(paths.tokenizer_json, model_dir / "tokenizer.json")
-    checkpoint_dir = serving_checkpoint_dir(paths)
+    checkpoint_dir = serving_checkpoint_dir(paths, settings)
     copy_if_exists(checkpoint_dir / "config.json", model_dir / "config.json")
     copy_if_exists(checkpoint_dir / "model.pt", model_dir / "model.pt")
     manifest = {
@@ -51,13 +54,20 @@ def copy_if_exists(src: Path, dst: Path) -> None:
         shutil.copyfile(src, dst)
 
 
-def serving_checkpoint_dir(paths) -> Path:
+def serving_checkpoint_dir(paths, settings=None) -> Path:
     dpo_model = paths.checkpoint_dpo / "model.pt"
     final_model = paths.checkpoint_final / "model.pt"
     if dpo_model.exists() and paths.dpo_summary.exists():
         summary = read_json(paths.dpo_summary)
         if summary.get("accepted") is False:
-            return paths.checkpoint_final
+            return preferred_sft_checkpoint(paths, settings)
         if not final_model.exists() or paths.dpo_summary.stat().st_mtime >= final_model.stat().st_mtime:
             return paths.checkpoint_dpo
+    return preferred_sft_checkpoint(paths, settings)
+
+
+def preferred_sft_checkpoint(paths, settings=None) -> Path:
+    export_checkpoint = getattr(settings, "export_checkpoint", "best")
+    if export_checkpoint == "best" and (paths.checkpoint_best / "model.pt").exists():
+        return paths.checkpoint_best
     return paths.checkpoint_final

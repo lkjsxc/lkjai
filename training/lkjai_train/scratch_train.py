@@ -1,56 +1,64 @@
-import json
-from contextlib import nullcontext
-
 import torch
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 
-from .formatting import load_rows, supervised_token_ids
-from .scratch_model import ModelConfig, ScratchLM, parameter_count, save_config
+from .objectives import normalize_objective
+from .packed_data import PackedDataset, build_or_load_packed_cache
+from .checkpointing import save_checkpoint
+from .scratch_eval import evaluate_loss, save_training
+from .scratch_loop import run_loop
+from .scratch_model import ModelConfig, ScratchLM
+from .scratch_optim import create_optimizer, create_scaler, lr_lambda, maybe_resume
 from .tokenizer import load_tokenizer, train_source, train_tokenizer
 
 
 def train_scratch(paths, settings) -> dict:
     paths.ensure()
+    validate_settings(settings)
     if not paths.tokenizer_json.exists():
         train_tokenizer(paths, settings)
     tokenizer = load_tokenizer(paths.tokenizer_json)
-    train_rows = load_rows(train_source(paths))
-    val_rows = load_rows(val_source(paths))
-    train_windows = pack_rows(tokenizer, train_rows, settings.sequence_len)
-    val_windows = pack_rows(tokenizer, val_rows or train_rows[:8], settings.sequence_len)
+    train_src, val_src = train_source(paths), val_source(paths)
+    train_cache = build_or_load_packed_cache(paths, tokenizer, train_src, "train", settings)
+    val_cache = build_or_load_packed_cache(paths, tokenizer, val_src, "val", settings)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    torch.manual_seed(settings.seed)
+    seed_torch(device, settings.seed)
     config = model_config(settings, tokenizer.get_vocab_size())
     model = ScratchLM(config).to(device)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=settings.learning_rate)
-    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda(settings.max_steps))
-    loader = DataLoader(TokenDataset(train_windows), batch_size=settings.batch_size, shuffle=True)
-    val_loader = DataLoader(TokenDataset(val_windows), batch_size=settings.batch_size, shuffle=False)
-    metrics = run_loop(model, optimizer, scheduler, loader, val_loader, settings, device)
-    return save_training(paths, settings, config, model, len(train_rows), len(val_rows), metrics)
+    model.enable_gradient_checkpointing(settings.gradient_checkpointing)
+    optimizer = create_optimizer(model, settings, device)
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda(settings.max_optimizer_steps))
+    scaler = create_scaler(device, settings.amp)
+    pad_id = tokenizer.token_to_id("<eos>") or tokenizer.token_to_id("<pad>") or 0
+    train_loader = loader(train_cache, settings, pad_id, shuffle=True, device=device)
+    val_loader = loader(val_cache, settings, pad_id, shuffle=False, device=device)
+    state = maybe_resume(paths, settings, model, optimizer, scheduler, scaler, device)
+    if settings.torch_compile:
+        model = torch.compile(model)
+    metrics = run_loop(model, optimizer, scheduler, scaler, train_loader, val_loader, settings, device, config, paths, state)
+    return save_training(paths, settings, config, model, train_cache, val_cache, metrics)
 
 
-def pack_rows(tokenizer, rows: list[dict], sequence_len: int) -> list[tuple[list[int], list[int]]]:
-    eos = tokenizer.token_to_id("<eos>") or 0
-    pack_len = sequence_len + 1
-    packed, current_ids, current_labels = [], [], []
-    for row in rows:
-        remaining_ids, remaining_labels = supervised_token_ids(tokenizer, row)
-        remaining_ids.append(eos)
-        remaining_labels.append(-100)
-        while remaining_ids:
-            space = pack_len - len(current_ids)
-            current_ids.extend(remaining_ids[:space])
-            current_labels.extend(remaining_labels[:space])
-            remaining_ids = remaining_ids[space:]
-            remaining_labels = remaining_labels[space:]
-            if len(current_ids) == pack_len:
-                packed.append((current_ids, current_labels))
-                current_ids, current_labels = [], []
-    if len(current_ids) > 1:
-        pad = pack_len - len(current_ids)
-        packed.append((current_ids + [eos] * pad, current_labels + [-100] * pad))
-    return packed or [([eos] * pack_len, [-100] * pack_len)]
+def validate_settings(settings) -> None:
+    settings.objective = normalize_objective(settings.objective)
+    if settings.export_checkpoint not in {"best", "final"}:
+        raise ValueError("TRAIN_EXPORT_CHECKPOINT must be best or final")
+    if settings.amp not in {"auto", "bf16", "fp16"}:
+        raise ValueError("TRAIN_AMP must be auto, bf16, or fp16")
+
+
+def seed_torch(device, seed: int) -> None:
+    torch.manual_seed(seed)
+    if device.type == "cuda":
+        torch.cuda.manual_seed_all(seed)
+
+
+def loader(cache, settings, pad_id: int, shuffle: bool, device):
+    return DataLoader(
+        PackedDataset(cache, settings.sequence_len, pad_id),
+        batch_size=settings.batch_size,
+        shuffle=shuffle,
+        pin_memory=device.type == "cuda",
+    )
 
 
 def val_source(paths):
@@ -59,96 +67,23 @@ def val_source(paths):
     return paths.val_dataset if paths.val_dataset.exists() else paths.fixtures
 
 
-class TokenDataset(Dataset):
-    def __init__(self, windows: list[tuple[list[int], list[int]]]):
-        self.windows = [(torch.tensor(ids, dtype=torch.long), torch.tensor(labels, dtype=torch.long)) for ids, labels in windows]
-
-    def __len__(self):
-        return len(self.windows)
-
-    def __getitem__(self, index):
-        ids, labels = self.windows[index]
-        return ids[:-1], labels[1:]
-
-
 def model_config(settings, vocab_size: int) -> ModelConfig:
-    return ModelConfig(vocab_size, settings.sequence_len, settings.layers, settings.hidden_size, settings.heads, settings.kv_heads, settings.ffn_size, 0.0)
+    return ModelConfig(
+        vocab_size,
+        settings.sequence_len,
+        settings.layers,
+        settings.hidden_size,
+        settings.heads,
+        settings.kv_heads,
+        settings.ffn_size,
+        settings.dropout,
+    )
 
 
-def lr_lambda(max_steps: int):
-    warmup = min(100, max(1, max_steps // 10))
-    return lambda step: max(0.1, (step + 1) / warmup) if step < warmup else max(0.1, 0.5 * (1.0 + __import__("math").cos(__import__("math").pi * (step - warmup) / max(1, max_steps - warmup))))
-
-
-def run_loop(model, optimizer, scheduler, loader, val_loader, settings, device: torch.device) -> dict:
-    dtype = torch.bfloat16 if device.type == "cuda" and torch.cuda.is_bf16_supported() else torch.float16
-    context = torch.autocast(device_type="cuda", dtype=dtype) if device.type == "cuda" else nullcontext()
-    model.train()
-    losses, best = [], float("inf")
-    optimizer.zero_grad(set_to_none=True)
-    step = 0
-    while step < settings.max_steps:
-        for input_ids, labels in loader:
-            with context:
-                _, loss, _ = model(input_ids.to(device), labels.to(device))
-            (loss / settings.gradient_accumulation).backward()
-            if (step + 1) % settings.gradient_accumulation == 0:
-                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-                optimizer.step()
-                scheduler.step()
-                optimizer.zero_grad(set_to_none=True)
-            losses.append(float(loss.detach().cpu()))
-            best = min(best, losses[-1])
-            step += 1
-            if step == 1 or step % 250 == 0:
-                print(json.dumps({"event": "train_step", "step": step, "loss": losses[-1]}), flush=True)
-            if step >= settings.max_steps:
-                break
-    val_loss = evaluate_loss(model, val_loader, device)
-    return {"train_loss": losses[-1], "mean_loss": sum(losses) / len(losses), "best_train_loss": best, "val_loss": val_loss, "steps": step}
-
-
-@torch.inference_mode()
-def evaluate_loss(model, loader, device: torch.device) -> float:
-    model.eval()
-    losses = []
-    for index, (input_ids, labels) in enumerate(loader):
-        if index >= 8:
-            break
-        _, loss, _ = model(input_ids.to(device), labels.to(device))
-        losses.append(float(loss.detach().cpu()))
-    model.train()
-    return sum(losses) / max(1, len(losses))
-
-
-def save_training(paths, settings, config, model, train_rows: int, val_rows: int, metrics: dict) -> dict:
-    paths.checkpoint_final.mkdir(parents=True, exist_ok=True)
-    paths.checkpoint_best.mkdir(parents=True, exist_ok=True)
-    torch.save(model.state_dict(), paths.checkpoint_final / "model.pt")
-    torch.save(model.state_dict(), paths.checkpoint_best / "model.pt")
-    save_config(config, paths.checkpoint_final / "config.json")
-    save_config(config, paths.checkpoint_best / "config.json")
-    params = parameter_count(model)
-    train_tokens = read_train_tokens(paths)
-    tpp = train_tokens / max(1, params)
-    summary = {
-        "backend": "tiny-pytorch-scratch-v2",
-        "checkpoint_dir": str(paths.checkpoint_final),
-        "train_rows": train_rows,
-        "val_rows": val_rows,
-        "parameter_count": params,
-        "train_tokens": train_tokens,
-        "tokens_per_parameter": round(tpp, 6),
-        "chinchilla_gap": round(max(0.0, 1.0 - tpp / 20.0), 6),
-        "settings": settings.model_preset,
-        "metrics": metrics,
-    }
-    paths.training_summary.write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    return summary
-
-
-def read_train_tokens(paths) -> int:
-    if paths.tokenizer_manifest.exists():
-        data = json.loads(paths.tokenizer_manifest.read_text(encoding="utf-8"))
-        return int(data.get("train_tokens", 0))
-    return 0
+def validate_and_maybe_save(model, loader, device, settings, config, paths, optimizer, scheduler, scaler, counters, history, best_metric: float) -> dict:
+    metric = evaluate_loss(model, loader, device, settings)
+    metric["optimizer_steps"] = counters["optimizer_steps"]
+    history.append(metric)
+    if metric["loss"] < best_metric:
+        save_checkpoint(paths.checkpoint_best, config, model, optimizer, scheduler, scaler, counters, settings, metric["loss"], history)
+    return metric
