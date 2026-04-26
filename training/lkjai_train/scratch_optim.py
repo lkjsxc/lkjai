@@ -1,8 +1,10 @@
+import json
 from contextlib import nullcontext
 
 import torch
 
-from .checkpointing import latest_complete_checkpoint, load_checkpoint
+from .checkpoint_files import checkpoint_candidates, checkpoint_exists
+from .checkpointing import load_checkpoint
 from .scratch_model import RMSNorm
 
 
@@ -98,11 +100,34 @@ def maybe_resume(paths, settings, model, optimizer, scheduler, scaler, device) -
     # The dataloader position is not tracked; resume restores optimizer,
     # scheduler, scaler, RNG, counters, and metrics exactly, then starts a fresh
     # loader iterator.
-    checkpoint_dir = latest_complete_checkpoint(paths, settings.checkpoint_resume_source)
-    if checkpoint_dir is None:
-        if mode == "required":
-            raise RuntimeError(f"resume required but no complete {settings.checkpoint_resume_source} checkpoint exists")
-        return {}
-    state = load_checkpoint(checkpoint_dir, model, optimizer, scheduler, scaler, device)
-    state["checkpoint_dir"] = str(checkpoint_dir)
-    return state
+    found_checkpoint = False
+    for checkpoint_dir in checkpoint_candidates(paths, settings.checkpoint_resume_source):
+        if not checkpoint_exists(checkpoint_dir):
+            continue
+        found_checkpoint = True
+        try:
+            state = load_checkpoint(checkpoint_dir, model, optimizer, scheduler, scaler, device)
+        except (RuntimeError, ValueError) as error:
+            if mode == "required":
+                raise RuntimeError(f"resume checkpoint is incompatible: {checkpoint_dir}") from error
+            log_resume_skip(checkpoint_dir, error)
+            continue
+        state["checkpoint_dir"] = str(checkpoint_dir)
+        return state
+    if not found_checkpoint and mode == "required":
+        raise RuntimeError(f"resume required but no complete {settings.checkpoint_resume_source} checkpoint exists")
+    return {}
+
+
+def log_resume_skip(checkpoint_dir, error: Exception) -> None:
+    print(
+        json.dumps(
+            {
+                "event": "resume_skip",
+                "checkpoint_dir": str(checkpoint_dir),
+                "reason": "incompatible_checkpoint",
+                "error": str(error).splitlines()[0],
+            }
+        ),
+        flush=True,
+    )

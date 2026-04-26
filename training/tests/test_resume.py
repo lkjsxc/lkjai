@@ -59,3 +59,29 @@ def test_resume_prefers_latest_complete_checkpoint(tmp_path):
 
     assert state["counters"]["optimizer_steps"] == 3
     assert state["best_metric"] == 2.0
+
+
+@pytest.mark.skipif(torch is None, reason="torch not installed")
+def test_auto_resume_skips_incompatible_checkpoint(tmp_path):
+    from lkjai_train.checkpointing import save_checkpoint_atomic
+    from lkjai_train.paths import Paths
+    from lkjai_train.scratch_model import ModelConfig, ScratchLM
+    from lkjai_train.scratch_optim import maybe_resume
+
+    paths = Paths(str(tmp_path))
+    paths.ensure()
+    old_config = ModelConfig(32, 8, 2, 16, 4, 2, 32, 0.0)
+    old_model = ScratchLM(old_config)
+    optimizer = torch.optim.AdamW(old_model.parameters(), lr=0.01)
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lambda step: 1.0)
+    settings = SimpleNamespace(objective="causal_lm_full", resume="auto", checkpoint_resume_source="latest")
+    counters = {"microsteps": 1, "optimizer_steps": 1, "input_tokens": 8, "loss_tokens": 8}
+
+    save_checkpoint_atomic(paths.checkpoint_latest, old_config, old_model, optimizer, scheduler, None, counters, settings, 2.0, [], source_type="latest")
+
+    new_config = ModelConfig(32, 8, 1, 16, 4, 2, 32, 0.0)
+    new_model = ScratchLM(new_config)
+    new_optim = torch.optim.AdamW(new_model.parameters(), lr=0.01)
+    new_sched = torch.optim.lr_scheduler.LambdaLR(new_optim, lambda step: 1.0)
+
+    assert maybe_resume(paths, settings, new_model, new_optim, new_sched, None, "cpu") == {}
