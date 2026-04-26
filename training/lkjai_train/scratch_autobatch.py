@@ -32,7 +32,8 @@ def maybe_auto_batch(model, settings, device: torch.device, config) -> None:
 def probe_largest_batch(model, settings, device: torch.device, config) -> int:
     saved_rng = rng_state()
     was_training = model.training
-    low, high, best = 1, max(1, settings.auto_batch_max), 1
+    target_limit = max(1, settings.target_effective_batch_tokens // max(1, settings.sequence_len))
+    low, high, best = 1, max(1, min(settings.auto_batch_max, target_limit)), 1
     try:
         if device.type == "cuda":
             torch.cuda.empty_cache()

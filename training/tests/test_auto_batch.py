@@ -55,6 +55,19 @@ def test_probe_largest_batch_uses_binary_search(monkeypatch):
     assert tried
 
 
+@pytest.mark.skipif(torch is None, reason="torch not installed")
+def test_probe_largest_batch_respects_effective_token_target(monkeypatch):
+    import lkjai_train.scratch_autobatch as scratch_autobatch
+    from lkjai_train.scratch_model import ModelConfig, ScratchLM
+
+    model = ScratchLM(ModelConfig(32, 8, 1, 16, 4, 2, 32, 0.0))
+    monkeypatch.setattr(scratch_autobatch, "probe_batch_fits", lambda *args: True)
+
+    current = settings(auto_batch_max=8, target_effective_batch_tokens=32, sequence_len=8)
+
+    assert scratch_autobatch.probe_largest_batch(model, current, torch.device("cpu"), model.config) == 4
+
+
 @pytest.mark.skipif(torch is None or not torch.cuda.is_available(), reason="cuda not available")
 def test_cuda_auto_batch_probe_selects_at_least_one():
     from lkjai_train.scratch_model import ModelConfig, ScratchLM
