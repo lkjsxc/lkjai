@@ -37,6 +37,18 @@ class TrainSettings:
     corpus_tokens: int
     corpus_dir: str
     seed: int
+    data_mode: str
+    dataloader_impl: str
+    num_workers: int
+    pin_memory: bool
+    prefetch_factor: int
+    persistent_workers: bool
+    torch_compile_mode: str
+    allow_tf32: bool
+    matmul_precision: str
+    clip_grad_norm: float
+    profile_steps: int
+    benchmark_warmup_microsteps: int
 
 
 def train_settings(preset: str) -> TrainSettings:
@@ -84,6 +96,18 @@ def quick_settings() -> TrainSettings:
         0,
         "",
         env_int("TRAIN_SEED", 42),
+        env_str("TRAIN_DATA_MODE", "real"),
+        env_str("TRAIN_DATALOADER_IMPL", "legacy"),
+        env_int("TRAIN_NUM_WORKERS", 0),
+        env_bool("TRAIN_PIN_MEMORY", True),
+        env_int("TRAIN_PREFETCH_FACTOR", 2),
+        env_bool("TRAIN_PERSISTENT_WORKERS", False),
+        env_str("TRAIN_TORCH_COMPILE_MODE", "default"),
+        env_bool("TRAIN_ALLOW_TF32", True),
+        env_str("TRAIN_MATMUL_PRECISION", "high"),
+        env_float("TRAIN_CLIP_GRAD_NORM", 1.0),
+        env_int("TRAIN_PROFILE_STEPS", 0),
+        env_int("TRAIN_BENCHMARK_WARMUP_MICROSTEPS", 0),
     )
 
 
@@ -123,6 +147,18 @@ def settings(preset, model_preset, vocab, seq, layers, hidden, heads, kv, ffn, s
         corpus_tokens=env_int("TRAIN_CORPUS_TOKENS", 500_000_000),
         corpus_dir=env_str("TRAIN_CORPUS_DIR", "/app/data/kimi-corpus"),
         seed=env_int("TRAIN_SEED", 42),
+        data_mode=env_str("TRAIN_DATA_MODE", "real"),
+        dataloader_impl=env_str("TRAIN_DATALOADER_IMPL", "legacy"),
+        num_workers=env_int("TRAIN_NUM_WORKERS", 0),
+        pin_memory=env_bool("TRAIN_PIN_MEMORY", True),
+        prefetch_factor=env_int("TRAIN_PREFETCH_FACTOR", 2),
+        persistent_workers=env_bool("TRAIN_PERSISTENT_WORKERS", False),
+        torch_compile_mode=env_str("TRAIN_TORCH_COMPILE_MODE", "default"),
+        allow_tf32=env_bool("TRAIN_ALLOW_TF32", True),
+        matmul_precision=env_str("TRAIN_MATMUL_PRECISION", "high"),
+        clip_grad_norm=env_float("TRAIN_CLIP_GRAD_NORM", 1.0),
+        profile_steps=env_int("TRAIN_PROFILE_STEPS", 0),
+        benchmark_warmup_microsteps=env_int("TRAIN_BENCHMARK_WARMUP_MICROSTEPS", 0),
     )
 
 

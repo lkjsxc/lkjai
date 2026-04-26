@@ -25,6 +25,8 @@ def create_scaler(device: torch.device, amp: str):
 def autocast_context(device: torch.device, amp: str):
     if device.type != "cuda":
         return nullcontext()
+    if amp == "off":
+        return nullcontext()
     if amp == "bf16" or (amp == "auto" and torch.cuda.is_bf16_supported()):
         return torch.autocast(device_type="cuda", dtype=torch.bfloat16)
     return torch.autocast(device_type="cuda", dtype=torch.float16)
