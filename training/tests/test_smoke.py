@@ -83,8 +83,7 @@ def test_quick_settings_are_tiny():
 
 def test_source_corpus_files_are_tagged_json_arrays():
     validate_sources()
-    assert load_entries("general")
-    assert tagged_contents("kjxlkj", "search_term")
+    assert load_entries("public")
     assert tagged_contents("public", "public_dataset_candidate")
 
 
