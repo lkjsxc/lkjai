@@ -13,7 +13,9 @@
 - Inference mounts `./data/models` to `/models`.
 - Inference loads `/models/${MODEL_NAME}`.
 - The `web` profile also activates `inference`.
-- Web waits for inference health before serving traffic.
+- Web waits for inference process health before serving traffic.
+- Model readiness is reported separately through `/api/model` and
+  `GET /v1/models`.
 - Inference loads exported scratch checkpoints and generates actions directly.
 - Inference must not use exact supervised lookup, prompt matching, or canned
   response tables.

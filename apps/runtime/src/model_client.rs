@@ -97,7 +97,7 @@ impl ModelClient {
         ModelStatus {
             model: self.model.name.clone(),
             api_url: self.model.url.clone(),
-            loaded: true,
+            loaded: reachable,
             reachable,
             message: health.message,
             device: health.device,

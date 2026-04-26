@@ -8,8 +8,10 @@ Observe runtime health without adding heavy telemetry dependencies.
 
 - The web runtime must verify inference is reachable before claiming a model is
   loaded.
-- The inference health probe must use the OpenAI-compatible models endpoint.
-- Health failures must be exposed through `GET /api/model` and the web UI.
+- Compose inference health uses `/healthz` so the web UI can start even before
+  a model export exists.
+- Model readiness failures must be exposed through `GET /api/model` and the
+  web UI.
 - The runtime must never silently fall back to canned or fake responses when
   inference is unreachable.
 

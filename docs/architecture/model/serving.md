@@ -32,7 +32,8 @@ evaluation.
 
 ## Health
 
-- The web runtime probes `GET /v1/models`.
+- Compose probes `GET /healthz` for process health.
+- The web runtime probes `GET /v1/models` for model readiness.
 - If the model is unreachable, chat stops with `model_error`.
 
 ## Verification

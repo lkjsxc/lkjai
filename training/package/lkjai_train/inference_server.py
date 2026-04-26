@@ -35,6 +35,8 @@ def load_model() -> None:
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
+        if self.path == "/healthz":
+            return self.send_json(200, {"status": "ok", "loaded": State.loaded is not None, "error": State.error})
         if self.path == "/v1/models":
             if not State.loaded:
                 return self.send_json(503, {"error": State.error})

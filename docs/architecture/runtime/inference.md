@@ -8,8 +8,10 @@ honestly.
 ## Contract
 
 - The web runtime must call a separate inference endpoint.
-- The runtime must verify inference health before serving chat requests.
-- Health probe uses `GET /v1/models` with a `5` second timeout.
+- The runtime must verify model readiness before serving chat requests.
+- Model readiness uses `GET /v1/models` with a `5` second timeout.
+- Compose process health uses `GET /healthz` so the web UI can report missing
+  model artifacts instead of being blocked by dependency startup.
 - `GET /api/model` reports the last known probe result.
 - The inference server reports its active device, CUDA availability, GPU name,
   and degradation warning.
