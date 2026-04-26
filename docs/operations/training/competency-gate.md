@@ -7,7 +7,10 @@ current documented baseline on raw holdout behavior.
 
 ## Current Ladder
 
-- Current baseline: `pass_rate=0.235` from `47/200` raw holdout cases.
+- Current accepted baseline: none. The current artifact reports
+  `pass_rate=0.0` from `0/200` raw holdout cases.
+- Historical `pass_rate=0.235` was inflated by fallback wrapping and is not an
+  acceptance baseline.
 - Next improvement gate: `TRAIN_BEHAVIORAL_THRESHOLD=0.35`.
 - Raise the threshold after each accepted model run.
 - Do not call the assistant competent until the thresholds below are met.

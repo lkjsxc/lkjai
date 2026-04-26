@@ -14,6 +14,8 @@
   safety boundaries, docs grounding, and agentic multi-turn trajectories.
 - Evaluation must report task buckets so a single aggregate pass rate does not
   hide tool or confirmation regressions.
+- Use the 20M preset while the committed corpus is far below the 60M token
+  target. Move back to 60M only after data volume and behavior justify it.
 
 ## Optimizer Lessons
 
@@ -36,5 +38,7 @@
   <https://arxiv.org/abs/2502.16982>
 - Grouped-query attention:
   <https://arxiv.org/abs/2305.13245>
+- SimPO:
+  <https://arxiv.org/abs/2405.14734>
 - Direct Preference Optimization:
   <https://arxiv.org/abs/2305.18290>

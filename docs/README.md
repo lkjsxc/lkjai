@@ -4,7 +4,8 @@
 
 ## System Goal
 
-- Train and serve a 60M-parameter commercial-safe scratch model.
+- Train and serve a commercial-safe scratch model. The active default is about
+  `20M` parameters for the current corpus; `60M` remains the long-term target.
 - Keep the runtime LLM-readable: paired XML-like prompt sections and one
   XML-like assistant action with child tags only.
 - End each successful user turn through the real `agent.finish` tool.

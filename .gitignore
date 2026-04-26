@@ -1,18 +1,88 @@
-target/
-.env
-__pycache__/
-.pytest_cache/
-.ruff_cache/
-.mypy_cache/
-*.pyc
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
 
+# Env / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+.secret/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.tox/
+.nox/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+
+# Rust
+target/
+**/*.rs.bk
+
+# Local runtime state
 /tmp/
 /data/*
 !/data/.gitkeep
 /runs/*
 !/runs/.gitkeep
+artifacts/*
+!artifacts/.gitignore
+!artifacts/README.md
+logs/
+profiling/
+profiler/
+trace/
+traces/
 
+# Model / training artifacts
+*.pt
+*.pth
+*.safetensors
+*.ckpt
+*.onnx
+*.msgpack
+*.npz
+*.npy
+*.bin
+*.jsonl.tmp
+*.tmp
+
+# Benchmark / profiler outputs
+*.nsys-rep
+*.qdrep
+*.sqlite
+*.trace.json
+*.chrome.json
+perf-steps.jsonl
+benchmark-*.json
+benchmark-*.csv
+
+# Docker / compose noise
+docker-data/
+.compose-cache/
+
+# Coverage / test outputs
+.coverage
+coverage.xml
+htmlcov/
+junit.xml
+
+# Training package build state
 /training/.venv/
 /training/build/
 /training/dist/
-*.egg-info/

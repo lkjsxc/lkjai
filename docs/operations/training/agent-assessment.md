@@ -3,8 +3,8 @@
 ## Current Artifact State
 
 - Latest behavioral report: `data/train/runs/behavioral-eval.json`.
-- Pass rate: `0.025` from `5/200` cases.
-- XML validity: `0.205` from `41/200` cases.
+- Current artifact pass rate: `0.0` from `0/200` cases.
+- Current artifact XML validity: `0.02` from `4/200` cases.
 - Current fixed eval: `12/13` artifact checks passed.
 - Missing fixed eval target: tokenizer train tokens `>= 450000000`.
 

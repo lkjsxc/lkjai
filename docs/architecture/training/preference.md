@@ -7,7 +7,9 @@ before attempting rollout-heavy reinforcement learning.
 
 ## Contract
 
-- DPO is the first preference optimization method.
+- SimPO is the first preference optimization method because it avoids a
+  reference model on 8 GiB hardware.
+- DPO remains a comparison baseline only.
 - GRPO/RLVR is a future phase after supervised and DPO evals are meaningful.
 - Preference data is generated from behavioral eval cases and sampled model
   failures.
@@ -20,18 +22,20 @@ before attempting rollout-heavy reinforcement learning.
 ## Commands
 
 - `python -m lkjai_train.cli prepare-preferences`
+- `python -m lkjai_train.cli train-simpo`
 - `python -m lkjai_train.cli train-dpo`
 
 ## Artifacts
 
 - Preference pairs: `data/train/preferences/pairs.jsonl`
-- DPO summary: `data/train/checkpoints/dpo-summary.json`
-- DPO checkpoint: `data/train/checkpoints/dpo/`
+- SimPO summary: `data/train/checkpoints/simpo-summary.json`
+- SimPO checkpoint: `data/train/checkpoints/simpo/`
+- DPO comparison summary: `data/train/checkpoints/dpo-summary.json`
 
 ## Acceptance
 
-- Run SFT behavioral eval before DPO.
-- Run behavioral eval again after DPO.
-- Accept DPO only if pass rate improves or stays equal while reducing invalid
-  JSON and wrong-tool failures.
-- DPO summaries default to `accepted=false` until that comparison is recorded.
+- Run SFT behavioral eval before preference training.
+- Run behavioral eval again after SimPO.
+- Accept SimPO only if pass rate improves or stays equal while reducing invalid
+  XML and wrong-tool failures.
+- Preference summaries default to `accepted=false` until comparison is recorded.

@@ -7,11 +7,11 @@ behavioral reports.
 
 ## Baseline
 
-- Artifact root: `data/models/lkjai-scratch-60m/`.
+- Artifact root: `data/models/lkjai-scratch-20m/`.
 - Training summary: `data/train/checkpoints/training-summary.json`.
-- Current parameter count: `55,866,240`.
+- Active default parameter target: about `20M`.
 - Current behavioral report: `data/train/runs/behavioral-eval.json`.
-- Current pass rate: `0.235` from `47/200` cases.
+- Current pass rate: `0.0` from `0/200` cases.
 - Current issue: malformed or prompt-copy generations were wrapped into valid
   fallback final actions, inflating XML validity.
 - Current artifacts were trained on disallowed LLM-authored corpus content and
@@ -23,7 +23,9 @@ behavioral reports.
 ## Iteration Command
 
 ```bash
+MODEL_NAME=lkjai-scratch-20m \
 TRAIN_PRESET=agent \
+TRAIN_MODEL_PRESET=scratch-20m \
 TRAIN_BEHAVIORAL_THRESHOLD=0.35 \
 docker compose --profile train up --build --abort-on-container-exit train
 ```
