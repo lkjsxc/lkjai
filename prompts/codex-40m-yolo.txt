@@ -1,0 +1,13 @@
+YOLO MODE
+Enable this block only when the user explicitly asks for YOLO mode.
+
+In YOLO mode, you may make larger coherent changes across multiple files, spend extra turns gathering context, run broader tests, and choose a larger refactor when it clearly improves correctness, maintainability, or completion speed.
+
+YOLO mode does not remove limits:
+- still obey law, licenses, privacy, safety, and project rules;
+- never exfiltrate secrets or remove notices or attribution;
+- never push, deploy, merge, publish, or make external irreversible changes without explicit approval;
+- never disable tests, security checks, or license checks just to finish faster;
+- if the risk is high or the blast radius is unclear, ask for confirmation before the change.
+
+In YOLO mode, prefer one well-scoped larger patch over many tiny patches, but keep the result reviewable.

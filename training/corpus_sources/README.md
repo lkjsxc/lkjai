@@ -12,7 +12,8 @@ This directory contains editable corpus source entries.
 
 ## Active Files
 
-- `public.json`: opt-in public dataset allowlist with license, revision, and
+- `public.json`: public dataset candidates, legal-review entries, and any
+  explicitly activated `public_dataset` rows with license, pinned revision, and
   local-file metadata.
 
 ## Quarantined Files

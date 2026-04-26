@@ -6,6 +6,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY Cargo.toml Cargo.lock ./
+COPY prompts ./prompts
 COPY src ./src
 RUN cargo build --release --bin lkjai
 

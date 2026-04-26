@@ -7,6 +7,7 @@ from .rows import row
 
 
 ALLOWED_LICENSES = {"Apache-2.0", "MIT", "BSD-2-Clause", "BSD-3-Clause"}
+UNPINNED_REVISIONS = {"", "latest", "main", "master", "pinned-by-operator", "review-required"}
 
 
 def public_sources() -> list[dict]:
@@ -17,12 +18,14 @@ def validate_public_sources(paths) -> Path:
     paths.ensure()
     sources = public_sources()
     for source in sources:
-        license_name = source.get("license", "")
-        if license_name not in ALLOWED_LICENSES:
-            raise ValueError(f"public source {source.get('name')} has disallowed license {license_name}")
         for key in ["name", "license", "source_url", "revision", "local_file"]:
             if not source.get(key):
                 raise ValueError(f"public source missing {key}")
+        license_name = source.get("license", "")
+        if license_name not in ALLOWED_LICENSES:
+            raise ValueError(f"public source {source.get('name')} has disallowed license {license_name}")
+        if str(source.get("revision", "")).strip().lower() in UNPINNED_REVISIONS:
+            raise ValueError(f"public source {source.get('name')} must pin an immutable revision")
     paths.public_manifest.write_text(json.dumps({"sources": sources}, indent=2), encoding="utf-8")
     return paths.public_manifest
 

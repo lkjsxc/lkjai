@@ -24,7 +24,7 @@ QUESTIONS = [
     ("dedup-limit", "What is the maximum allowed duplicate rate?", "State the percentage."),
     ("corpus-size", "What is the mainline corpus size target?", "State the exact number."),
     ("license-rule", "What licenses are required for public-import rows?", "Name permissive licenses."),
-    ("chinchilla-gap", "What is the Chinchilla token gap for scratch-20m?", "Explain the shortfall."),
+    ("chinchilla-gap", "What is the Chinchilla token gap for scratch-40m?", "Explain the shortfall."),
 ]
 
 ANGLES = [

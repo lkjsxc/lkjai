@@ -1,29 +1,98 @@
 [
   {
-    "tags": ["public_dataset", "instruction"],
+    "tags": ["public_dataset_candidate", "instruction", "language:en"],
     "content": {
-      "name": "oasst1",
+      "name": "oasst1-en",
       "license": "Apache-2.0",
       "source_url": "https://huggingface.co/datasets/OpenAssistant/oasst1",
-      "revision": "pinned-by-operator",
-      "local_file": "oasst1.jsonl",
-      "row_limit": 1000,
+      "revision": "review-required",
+      "local_file": "oasst1-en.normalized.jsonl",
+      "row_limit": 0,
       "tags": ["public", "instruction", "language:en"],
-      "skill": "instruction"
+      "skill": "instruction",
+      "toolset": "none",
+      "approval_status": "candidate",
+      "review_note": "Activate only after pinning an immutable revision and storing normalized local JSONL."
     }
   },
   {
-    "tags": ["public_dataset", "tool"],
+    "tags": ["public_dataset_candidate", "instruction", "language:en"],
     "content": {
-      "name": "toolbench",
+      "name": "oasst2-en",
       "license": "Apache-2.0",
-      "source_url": "https://github.com/OpenBMB/ToolBench",
-      "revision": "pinned-by-operator",
-      "local_file": "toolbench.jsonl",
-      "row_limit": 1000,
+      "source_url": "https://huggingface.co/datasets/OpenAssistant/oasst2",
+      "revision": "review-required",
+      "local_file": "oasst2-en.normalized.jsonl",
+      "row_limit": 0,
+      "tags": ["public", "instruction", "language:en"],
+      "skill": "instruction",
+      "toolset": "none",
+      "approval_status": "candidate",
+      "review_note": "Activate only after pinning an immutable revision and storing normalized local JSONL."
+    }
+  },
+  {
+    "tags": ["public_dataset_candidate", "conversation", "language:en"],
+    "content": {
+      "name": "smol-smoltalk",
+      "license": "Apache-2.0",
+      "source_url": "https://huggingface.co/datasets/HuggingFaceTB/smol-smoltalk",
+      "revision": "review-required",
+      "local_file": "smol-smoltalk.normalized.jsonl",
+      "row_limit": 0,
+      "tags": ["public", "conversation", "language:en"],
+      "skill": "conversation",
+      "toolset": "none",
+      "approval_status": "candidate",
+      "review_note": "Activate only after subset choice, revision pinning, and normalized local JSONL are reviewed."
+    }
+  },
+  {
+    "tags": ["public_dataset_candidate", "tool", "language:en"],
+    "content": {
+      "name": "hermes-function-calling-v1",
+      "license": "Apache-2.0",
+      "source_url": "https://huggingface.co/datasets/NousResearch/Hermes-Function-Calling-V1",
+      "revision": "review-required",
+      "local_file": "hermes-function-calling-v1.normalized.jsonl",
+      "row_limit": 0,
       "tags": ["public", "tool_use", "language:en"],
       "skill": "tool-use",
-      "toolset": "external"
+      "toolset": "external",
+      "approval_status": "candidate",
+      "review_note": "Activate only after schema normalization to the existing XML action contract."
+    }
+  },
+  {
+    "tags": ["public_dataset_review_only", "instruction", "language:en"],
+    "content": {
+      "name": "databricks-dolly-15k",
+      "license": "CC-BY-SA-3.0",
+      "source_url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k",
+      "revision": "review-required",
+      "local_file": "databricks-dolly-15k.normalized.jsonl",
+      "row_limit": 0,
+      "tags": ["public", "instruction", "language:en"],
+      "skill": "instruction",
+      "toolset": "none",
+      "approval_status": "legal-review",
+      "review_note": "Share-alike license is not active under the conservative mainline policy."
+    }
+  },
+  {
+    "tags": ["public_dataset_review_only", "tool", "language:en"],
+    "content": {
+      "name": "xlam-function-calling-60k",
+      "license": "CC-BY-4.0",
+      "source_url": "https://huggingface.co/datasets/Salesforce/xlam-function-calling-60k",
+      "revision": "review-required",
+      "local_file": "xlam-function-calling-60k.normalized.jsonl",
+      "row_limit": 0,
+      "tags": ["public", "tool_use", "language:en"],
+      "skill": "tool-use",
+      "toolset": "external",
+      "approval_status": "legal-review",
+      "review_note": "CC BY and access/research wording require review before mainline use."
     }
   }
 ]

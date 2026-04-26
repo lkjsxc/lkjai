@@ -13,7 +13,7 @@ from .settings import train_settings
 
 def main() -> None:
     parser = argparse.ArgumentParser(prog="lkjai-train")
-    parser.add_argument("--data-dir", default=os.environ.get("DATA_DIR", "/app/data"))
+    parser.add_argument("--data-dir", default=os.environ.get("TRAIN_DATA_DIR", os.environ.get("DATA_DIR", "/app/data")))
     sub = parser.add_subparsers(dest="command", required=True)
     for command in ["validate-sources", "validate-public-sources", "prepare-fixtures", "prepare-corpus", "prepare-public-corpus", "train-tokenizer", "prepare-preferences", "export-manifest", "smoke", "train"]:
         sub.add_parser(command)

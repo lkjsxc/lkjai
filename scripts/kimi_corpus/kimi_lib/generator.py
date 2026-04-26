@@ -11,6 +11,7 @@ from .kimi_cli import KimiRunner, is_transient_result
 from .manifest import Manifest, split_for_shard
 from .prompts import extract_prompt_candidates, next_prompt_version, prompt_candidate_valid, render_prompt
 from .records import normalize_record, parse_jsonl_payload, sample_excerpts, write_jsonl_atomic
+from .sample_report import sample_section
 from .score import load_tokenizer, score_paths
 
 
@@ -193,10 +194,3 @@ class CorpusGenerator:
             if tokenizer is not None:
                 return tokenizer
         return None
-
-
-def sample_section(version: str, summary: dict) -> str:
-    keys = ["documents", "valid_documents", "approx_tokens", "duplicate_rate", "near_duplicate_rate", "mean_score", "flag_counts"]
-    lines = [f"## Prompt {version}", ""]
-    lines += [f"- {key}: `{summary.get(key, 0)}`" for key in keys]
-    return "\n".join(lines + [""])

@@ -44,24 +44,29 @@ def test_smoke_pipeline(tmp_path, monkeypatch):
 
 
 def test_agent_settings_defaults(monkeypatch):
+    monkeypatch.delenv("TRAIN_CONFIG", raising=False)
     monkeypatch.delenv("TRAIN_MODEL_PRESET", raising=False)
     monkeypatch.delenv("TRAIN_BATCH_SIZE", raising=False)
+    monkeypatch.delenv("MODEL_NAME", raising=False)
     settings = train_settings("agent")
-    assert settings.model_preset == "scratch-20m"
-    assert settings.model_name == "lkjai-scratch-20m"
+    assert settings.model_preset == "scratch-40m"
+    assert settings.model_name == "lkjai-scratch-40m"
     assert settings.objective == "causal_lm_full"
     assert settings.sequence_len == 1024
-    assert settings.hidden_size == 448
-    assert settings.layers == 8
+    assert settings.hidden_size == 576
+    assert settings.layers == 10
     assert settings.kv_heads == 2
     assert settings.batch_size == 2
     assert settings.gradient_accumulation == 4
     assert settings.dataloader_impl == "mapped"
-    assert settings.batch_policy == "fixed"
-    assert settings.activation_checkpoint == "off"
+    assert settings.batch_policy == "oom_fallback"
+    assert settings.activation_checkpoint == "every_n"
     assert settings.compile == "auto"
-    assert settings.save_latest_every_optimizer_steps == 250
-    assert settings.intermediate_save_every_optimizer_steps == 1000
+    assert settings.auto_batch is True
+    assert settings.max_optimizer_steps == 400000
+    assert settings.save_latest_every_optimizer_steps == 3000
+    assert settings.intermediate_save_every_optimizer_steps == 18000
+    assert settings.keep_last_checkpoints == 8
     assert settings.corpus_size == 120000
     assert settings.behavioral_threshold == 0.35
 
@@ -80,14 +85,14 @@ def test_source_corpus_files_are_tagged_json_arrays():
     validate_sources()
     assert load_entries("general")
     assert tagged_contents("kjxlkj", "search_term")
-    assert tagged_contents("public", "public_dataset")
+    assert tagged_contents("public", "public_dataset_candidate")
 
 
 def test_public_sources_are_license_gated(tmp_path):
     paths = Paths(str(tmp_path))
     manifest = validate_public_sources(paths)
     data = json.loads(manifest.read_text(encoding="utf-8"))
-    assert data["sources"]
+    assert data["sources"] == []
     assert {source["license"] for source in data["sources"]}.issubset(ALLOWED_LICENSES)
 
 

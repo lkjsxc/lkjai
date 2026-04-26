@@ -74,7 +74,7 @@ pub async fn model_server(responses: Vec<String>) -> (String, tokio::task::JoinH
     let handle = tokio::spawn(async move {
         loop {
             let (mut stream, _) = listener.accept().await.unwrap();
-            let mut buf = [0_u8; 8192];
+            let mut buf = [0_u8; 65536];
             let size = stream.read(&mut buf).await.unwrap();
             let request = String::from_utf8_lossy(&buf[..size]);
             let body = if request.starts_with("GET /v1/models") {

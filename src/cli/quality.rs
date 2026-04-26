@@ -14,10 +14,18 @@ struct QualityResult {
 
 pub fn check_lines() -> Result<(), Box<dyn std::error::Error>> {
     let mut violations = Vec::new();
-    check_path(Path::new("docs"), DOC_LIMIT, &mut violations)?;
-    check_path(Path::new("src"), SRC_LIMIT, &mut violations)?;
-    check_path(Path::new("training"), SRC_LIMIT, &mut violations)?;
-    check_path(Path::new("configs"), SRC_LIMIT, &mut violations)?;
+    check_path(Path::new("docs"), DOC_LIMIT, true, &mut violations)?;
+    for root in [
+        "src",
+        "training",
+        "configs",
+        "benchmarks",
+        "reports",
+        "scripts",
+        "rust",
+    ] {
+        check_path(Path::new(root), SRC_LIMIT, false, &mut violations)?;
+    }
     finish("check-lines", violations)
 }
 
@@ -46,6 +54,7 @@ pub fn no_node() -> Result<(), Box<dyn std::error::Error>> {
 fn check_path(
     root: &Path,
     limit: usize,
+    include_markdown: bool,
     violations: &mut Vec<String>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     if !root.exists() {
@@ -53,7 +62,7 @@ fn check_path(
     }
     for entry in WalkDir::new(root).into_iter().filter_map(Result::ok) {
         let path = entry.path();
-        if !path.is_file() || !checked_extension(path) {
+        if !path.is_file() || !checked_extension(path, include_markdown) {
             continue;
         }
         let lines = fs::read_to_string(path)?.lines().count();
@@ -64,11 +73,10 @@ fn check_path(
     Ok(())
 }
 
-fn checked_extension(path: &Path) -> bool {
-    matches!(
-        path.extension().and_then(|ext| ext.to_str()),
-        Some("md" | "rs" | "py" | "sh" | "toml" | "css" | "js")
-    )
+fn checked_extension(path: &Path, include_markdown: bool) -> bool {
+    let ext = path.extension().and_then(|ext| ext.to_str());
+    matches!(ext, Some("rs" | "py" | "sh" | "toml" | "css" | "js"))
+        || (include_markdown && ext == Some("md"))
 }
 
 fn node_mentioned(path: &Path) -> Result<bool, std::io::Error> {
