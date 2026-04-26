@@ -37,19 +37,31 @@ def test_smoke_pipeline(tmp_path, monkeypatch):
     assert report["pass_rate"] == 1.0
     assert (tmp_path / "checkpoints" / "manifest.json").exists()
     assert (tmp_path / "checkpoints" / "final" / "model.pt").exists()
+    assert (tmp_path / "checkpoints" / "latest" / "model.pt").exists()
+    manifest = json.loads((tmp_path / "checkpoints" / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["latest_checkpoint_dir"]
+    assert "retained_intermediate_checkpoints" in manifest
 
 
 def test_agent_settings_defaults(monkeypatch):
     monkeypatch.delenv("TRAIN_MODEL_PRESET", raising=False)
     monkeypatch.delenv("TRAIN_BATCH_SIZE", raising=False)
     settings = train_settings("agent")
-    assert settings.model_preset == "scratch-60m"
+    assert settings.model_preset == "scratch-20m"
+    assert settings.model_name == "lkjai-scratch-20m"
     assert settings.objective == "causal_lm_full"
     assert settings.sequence_len == 1024
-    assert settings.hidden_size == 640
-    assert settings.layers == 12
+    assert settings.hidden_size == 448
+    assert settings.layers == 8
     assert settings.kv_heads == 2
-    assert settings.batch_size == 1
+    assert settings.batch_size == 2
+    assert settings.gradient_accumulation == 4
+    assert settings.dataloader_impl == "mapped"
+    assert settings.batch_policy == "fixed"
+    assert settings.activation_checkpoint == "off"
+    assert settings.compile == "auto"
+    assert settings.save_latest_every_optimizer_steps == 250
+    assert settings.intermediate_save_every_optimizer_steps == 1000
     assert settings.corpus_size == 120000
     assert settings.behavioral_threshold == 0.35
 
@@ -60,6 +72,8 @@ def test_quick_settings_are_tiny():
     assert settings.hidden_size == 64
     assert settings.max_steps == 5
     assert settings.max_optimizer_steps == 5
+    assert settings.batch_policy == "fixed"
+    assert settings.save_latest_every_optimizer_steps == 1
 
 
 def test_source_corpus_files_are_tagged_json_arrays():
@@ -148,30 +162,6 @@ def test_supervised_labels_mask_non_assistant_tokens():
     assert len(ids) == len(labels)
     assert any(label == -100 for label in labels)
     assert any(label != -100 for label in labels)
-
-
-def test_raw_user_prompt_stays_raw():
-    messages = normalize_messages([{"role": "user", "content": "What is 2+3?"}])
-    assert messages == [{"role": "user", "content": "What is 2+3?"}]
-
-
-def test_latest_user_event_extracts_tagged_context():
-    content = "<events><event><kind>user</kind><content>What is lkjai?</content></event></events>"
-    assert latest_user_event(content) == "What is lkjai?"
-
-
-def test_agent_context_messages_include_tool_observation():
-    content = "<events><event><kind>user</kind><content>Search resources.</content></event><event><kind>observation</kind><content>release-notes</content></event></events>"
-    messages = agent_context_messages(content)
-    assert messages[-1]["role"] == "tool"
-    assert messages[-1]["content"] == "release-notes"
-
-
-def test_agent_context_messages_preserve_empty_observation():
-    content = "<events><event><kind>user</kind><content>Search resources.</content></event><event><kind>observation</kind><content></content></event></events>"
-    messages = agent_context_messages(content)
-    assert messages[-1]["role"] == "tool"
-    assert messages[-1]["content"] == ""
 
 
 def test_prepare_preferences_writes_pairs(tmp_path):

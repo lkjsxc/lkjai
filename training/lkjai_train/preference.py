@@ -65,6 +65,12 @@ def train_dpo(paths, settings) -> Path:
     return paths.dpo_summary
 
 
+def train_simpo(paths, settings) -> Path:
+    from .preference_simpo import train_simpo as run
+
+    return run(paths, settings)
+
+
 def load_model(config, path: Path, device: str):
     import torch
 
@@ -98,7 +104,7 @@ def run_dpo_steps(model, reference, tokenizer, config, pairs, steps, beta, optim
     return losses
 
 
-def sequence_logp(model, tokenizer, config, messages, response: str, device: str):
+def sequence_logp(model, tokenizer, config, messages, response: str, device: str, average: bool = False):
     import torch
 
     prompt_ids = tokenizer.encode(prompt_text(messages)).ids
@@ -110,7 +116,8 @@ def sequence_logp(model, tokenizer, config, messages, response: str, device: str
     logits, _, _ = model(input_ids)
     logp = torch.log_softmax(logits, dim=-1)
     token_logp = logp.gather(-1, targets.unsqueeze(-1)).squeeze(-1)
-    return token_logp[:, prompt_len - 1 :].sum()
+    selected = token_logp[:, prompt_len - 1 :]
+    return selected.mean() if average else selected.sum()
 
 
 def read_pairs(path: Path) -> list[dict]:

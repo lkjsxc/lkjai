@@ -31,15 +31,15 @@ CASES = {
     "compile_mapped": {
         "TRAIN_DATA_MODE": "real",
         "TRAIN_DATALOADER_IMPL": "mapped",
-        "TRAIN_TORCH_COMPILE": "1",
-        "TRAIN_TORCH_COMPILE_MODE": "reduce-overhead",
+        "TRAIN_COMPILE": "reduce-overhead",
+        "TRAIN_COMPILE_WARMUP_MICROSTEPS": "2",
     },
     "batch2_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "mapped", "TRAIN_BATCH_SIZE": "2"},
     "batch4_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "mapped", "TRAIN_BATCH_SIZE": "4"},
     "no_checkpoint_mapped": {
         "TRAIN_DATA_MODE": "real",
         "TRAIN_DATALOADER_IMPL": "mapped",
-        "TRAIN_GRADIENT_CHECKPOINTING": "0",
+        "TRAIN_ACTIVATION_CHECKPOINT": "off",
     },
 }
 

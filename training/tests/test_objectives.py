@@ -1,8 +1,6 @@
 import json
 from types import SimpleNamespace
 
-import pytest
-
 from lkjai_train.objectives import ASSISTANT_MASKED_SFT, CAUSAL_LM_FULL, objective_tokens
 from lkjai_train.packed_data import build_or_load_packed_cache, read_ids, read_mask, start_count
 from lkjai_train.paths import Paths
@@ -39,22 +37,6 @@ def test_packed_cache_writes_lazy_window_inputs_and_masks(tmp_path):
     assert read_mask(cache / "loss_mask.bin", 1, 4) == [1, 1, 1, 1]
 
 
-torch = None
-try:
-    import torch
-except ImportError:
-    pass
-
-
-@pytest.mark.skipif(torch is None, reason="torch not installed")
-def test_scheduler_is_keyed_to_optimizer_steps():
-    from lkjai_train.scratch_train import lr_lambda
-
-    schedule = lr_lambda(10)
-    assert schedule(0) == 1.0
-    assert schedule(9) >= 0.1
-
-
 class DummyTokenizer:
     def encode(self, text):
         return Encoded([ord(char) for char in text])
@@ -69,4 +51,3 @@ class DummyTokenizer:
 class Encoded:
     def __init__(self, ids):
         self.ids = ids
-

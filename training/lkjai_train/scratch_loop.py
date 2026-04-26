@@ -1,107 +1,143 @@
-import json
-import math
 import time
-from pathlib import Path
 
 import torch
 
-from .checkpointing import save_checkpoint
-from .scratch_eval import fresh_counters, log_train_event, optimizer_step, should_save, should_stop, should_validate, validate_and_maybe_save
+from .checkpointing import prune_old_checkpoints, save_checkpoint_atomic, write_checkpoint_manifest
+from .scratch_accounting import boundary_needs_accounting, due, flush_accounting, new_accounting, record_loss
+from .scratch_eval import (
+    fresh_counters,
+    log_train_event,
+    optimizer_step,
+    should_log,
+    should_stop,
+    should_validate,
+    validate_and_maybe_save,
+)
 from .scratch_optim import autocast_context
+from .scratch_profile import StepProfiler
 
 
 def run_loop(model, optimizer, scheduler, scaler, loader, val_loader, settings, device: torch.device, config, paths, state: dict) -> dict:
     counters = state.get("counters", fresh_counters())
     prior_elapsed = float(counters.get("elapsed_seconds", 0.0))
     best_metric = float(state.get("best_metric", float("inf")))
-    validation_history = list(state.get("validation_history", []))
-    train_losses, start_time, stop = [], time.perf_counter(), False
-    profile = StepProfiler(paths.runs / "perf-steps.jsonl", settings.profile_steps, settings.benchmark_warmup_microsteps)
+    history = list(state.get("validation_history", []))
+    losses = {"last": 0.0, "sum": 0.0, "count": 0}
+    accounting = new_accounting(device)
+    start_time, stop = time.perf_counter(), False
+    profile_steps = settings.profile_steps or (100 if getattr(settings, "dataloader_benchmark", False) else 0)
+    profile = StepProfiler(paths.runs / "perf-steps.jsonl", profile_steps, settings.benchmark_warmup_microsteps)
     optimizer.zero_grad(set_to_none=True)
     model.train()
     while counters["optimizer_steps"] < settings.max_optimizer_steps and not stop:
         iterator = iter(loader)
         while True:
-            wait_start = time.perf_counter()
-            try:
-                input_ids, labels = next(iterator)
-            except StopIteration:
+            input_ids, labels, wait_seconds = next_batch(iterator)
+            if input_ids is None:
                 break
-            wait_seconds = time.perf_counter() - wait_start
-            loss, event = train_batch(model, input_ids, labels, optimizer, scheduler, scaler, settings, device, counters)
-            if loss is None:
-                continue
+            loss, loss_tokens, event = train_batch(model, input_ids, labels, scaler, settings, device, counters, profile.enabled)
             event["loader_wait_seconds"] = wait_seconds
-            train_losses.append(loss)
+            record_loss(accounting, loss, loss_tokens)
             if counters["microsteps"] % settings.gradient_accumulation == 0:
-                opt_start = time.perf_counter()
-                optimizer_step(model, optimizer, scheduler, scaler)
-                if device.type == "cuda" and settings.profile_steps:
-                    torch.cuda.synchronize()
-                event["optimizer_seconds"] = time.perf_counter() - opt_start
-                counters["optimizer_steps"] += 1
-                log_train_event(counters, loss, start_time, settings, prior_elapsed)
-                best_metric = maybe_validate(model, val_loader, device, settings, config, paths, optimizer, scheduler, scaler, counters, validation_history, best_metric, prior_elapsed, start_time)
+                best_metric = optimizer_boundary(model, optimizer, scheduler, scaler, val_loader, settings, device, config, paths, counters, history, best_metric, prior_elapsed, start_time, accounting, losses, event)
             profile.write(counters, settings, event)
             stop = should_stop(counters, settings)
             if stop:
                 break
-    return finish_loop(model, val_loader, device, settings, config, paths, optimizer, scheduler, scaler, counters, validation_history, best_metric, train_losses, prior_elapsed, start_time)
+    return finish_loop(model, val_loader, device, settings, config, paths, optimizer, scheduler, scaler, counters, history, best_metric, losses, accounting, prior_elapsed, start_time)
 
 
-def train_batch(model, input_ids, labels, optimizer, scheduler, scaler, settings, device, counters):
+def next_batch(iterator):
+    wait_start = time.perf_counter()
+    try:
+        input_ids, labels = next(iterator)
+    except StopIteration:
+        return None, None, time.perf_counter() - wait_start
+    return input_ids, labels, time.perf_counter() - wait_start
+
+
+def train_batch(model, input_ids, labels, scaler, settings, device, counters, profile_enabled: bool):
     event = {"microstep_seconds": 0.0, "h2d_seconds": 0.0, "forward_seconds": 0.0, "backward_seconds": 0.0}
-    sync_for_profile = bool(settings.profile_steps)
     step_start = time.perf_counter()
     h2d_start = time.perf_counter()
     input_ids, labels = input_ids.to(device, non_blocking=True), labels.to(device, non_blocking=True)
-    if device.type == "cuda" and sync_for_profile:
-        torch.cuda.synchronize()
+    sync_profile(device, profile_enabled)
     event["h2d_seconds"] = time.perf_counter() - h2d_start
-    loss_tokens = int((labels != -100).sum().item())
-    if loss_tokens == 0:
-        return None, event
     forward_start = time.perf_counter()
     with autocast_context(device, settings.amp):
         _, loss, _ = model(input_ids, labels)
-    if device.type == "cuda" and sync_for_profile:
-        torch.cuda.synchronize()
+    sync_profile(device, profile_enabled)
     event["forward_seconds"] = time.perf_counter() - forward_start
     scaled_loss = loss / settings.gradient_accumulation
     backward_start = time.perf_counter()
     scaler.scale(scaled_loss).backward() if scaler is not None else scaled_loss.backward()
-    if device.type == "cuda" and sync_for_profile:
-        torch.cuda.synchronize()
+    sync_profile(device, profile_enabled)
     event["backward_seconds"] = time.perf_counter() - backward_start
     counters["microsteps"] += 1
-    counters["input_tokens"] += int(input_ids.numel())
-    counters["loss_tokens"] += loss_tokens
+    counters["input_tokens"] += input_ids.numel()
     event["microstep_seconds"] = time.perf_counter() - step_start
-    event["loss"] = float(loss.detach().cpu())
-    event["loss_tokens"] = loss_tokens
-    event["input_tokens"] = int(input_ids.numel())
-    return event["loss"], event
+    loss_tokens = (labels != -100).sum()
+    if profile_enabled:
+        event.update({"loss": float(loss.detach().cpu()), "loss_tokens": int(loss_tokens.detach().cpu()), "input_tokens": input_ids.numel()})
+    return loss.detach(), loss_tokens.detach(), event
 
 
-def maybe_validate(model, val_loader, device, settings, config, paths, optimizer, scheduler, scaler, counters, history, best, prior, start):
-    if should_validate(counters["optimizer_steps"], settings):
-        counters["elapsed_seconds"] = prior + (time.perf_counter() - start)
-        metric = validate_and_maybe_save(model, val_loader, device, settings, config, paths, optimizer, scheduler, scaler, counters, history, best)
-        return min(best, metric["loss"])
-    if should_save(counters["optimizer_steps"], settings):
-        counters["elapsed_seconds"] = prior + (time.perf_counter() - start)
-        save_checkpoint(paths.checkpoint_final, config, model, optimizer, scheduler, scaler, counters, settings, best, history)
+def optimizer_boundary(model, optimizer, scheduler, scaler, val_loader, settings, device, config, paths, counters, history, best, prior, start, accounting, losses, event):
+    opt_start = time.perf_counter()
+    optimizer_step(model, optimizer, scheduler, scaler)
+    sync_profile(device, bool(settings.profile_steps))
+    event["optimizer_seconds"] = time.perf_counter() - opt_start
+    counters["optimizer_steps"] += 1
+    if boundary_needs_accounting(counters["optimizer_steps"], settings):
+        flush_accounting(counters, accounting, losses)
+    if should_log(counters["optimizer_steps"], settings):
+        log_train_event(counters, losses["last"], start, settings, optimizer, device, prior)
+    best = maybe_validate(model, val_loader, device, settings, config, paths, optimizer, scheduler, scaler, counters, history, best, prior, start, accounting, losses)
+    maybe_save_snapshots(model, optimizer, scheduler, scaler, settings, config, paths, counters, history, best, prior, start, accounting, losses)
     return best
 
 
-def finish_loop(model, val_loader, device, settings, config, paths, optimizer, scheduler, scaler, counters, history, best, losses, prior, start):
+def maybe_validate(model, val_loader, device, settings, config, paths, optimizer, scheduler, scaler, counters, history, best, prior, start, accounting, losses):
+    if should_validate(counters["optimizer_steps"], settings):
+        flush_accounting(counters, accounting, losses)
+        counters["elapsed_seconds"] = prior + (time.perf_counter() - start)
+        metric = validate_and_maybe_save(model, val_loader, device, settings, config, paths, optimizer, scheduler, scaler, counters, history, best)
+        return min(best, metric["loss"])
+    return best
+
+
+def maybe_save_snapshots(model, optimizer, scheduler, scaler, settings, config, paths, counters, history, best, prior, start, accounting, losses) -> None:
+    step = counters["optimizer_steps"]
+    save_latest = due(step, getattr(settings, "save_latest_every_optimizer_steps", 0))
+    save_intermediate = due(step, getattr(settings, "intermediate_save_every_optimizer_steps", 0))
+    if not save_latest and not save_intermediate:
+        return
+    flush_accounting(counters, accounting, losses)
+    counters["elapsed_seconds"] = prior + (time.perf_counter() - start)
+    if save_latest:
+        save_checkpoint_atomic(paths.checkpoint_latest, config, model, optimizer, scheduler, scaler, counters, settings, best, history, source_type="latest")
+    if save_intermediate:
+        path = paths.checkpoint_steps / f"step-{step:06d}"
+        save_checkpoint_atomic(path, config, model, optimizer, scheduler, scaler, counters, settings, best, history, source_type="intermediate")
+        prune_old_checkpoints(paths, settings.keep_last_checkpoints)
+    write_checkpoint_manifest(paths, settings)
+
+
+def finish_loop(model, val_loader, device, settings, config, paths, optimizer, scheduler, scaler, counters, history, best, losses, accounting, prior, start):
+    flush_accounting(counters, accounting, losses)
     counters["elapsed_seconds"] = prior + (time.perf_counter() - start)
     final = validate_and_maybe_save(model, val_loader, device, settings, config, paths, optimizer, scheduler, scaler, counters, history, best)
     best, elapsed = min(best, final["loss"]), max(1e-9, counters["elapsed_seconds"])
-    save_checkpoint(paths.checkpoint_final, config, model, optimizer, scheduler, scaler, counters, settings, best, history)
+    save_checkpoint_atomic(paths.checkpoint_final, config, model, optimizer, scheduler, scaler, counters, settings, best, history, source_type="final", validation_loss=final["loss"])
+    save_checkpoint_atomic(paths.checkpoint_latest, config, model, optimizer, scheduler, scaler, counters, settings, best, history, source_type="latest", validation_loss=final["loss"])
+    write_checkpoint_manifest(paths, settings)
+    return summary_metrics(counters, settings, losses, final, best, elapsed, history)
+
+
+def summary_metrics(counters, settings, losses, final, best, elapsed, history) -> dict:
     return {
-        "train_loss": losses[-1] if losses else 0.0,
-        "mean_train_loss": sum(losses) / max(1, len(losses)),
+        "train_loss": losses["last"],
+        "mean_train_loss": losses["sum"] / max(1, losses["count"]),
         "validation_loss": final["loss"],
         "validation_perplexity": final.get("perplexity"),
         "best_validation_loss": best,
@@ -119,34 +155,6 @@ def finish_loop(model, val_loader, device, settings, config, paths, optimizer, s
     }
 
 
-class StepProfiler:
-    def __init__(self, path: Path, max_steps: int, warmup_microsteps: int):
-        self.path = path
-        self.max_steps = max_steps
-        self.warmup_microsteps = warmup_microsteps
-        self.written = 0
-        if max_steps:
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text("", encoding="utf-8")
-
-    def write(self, counters: dict, settings, event: dict) -> None:
-        if not self.max_steps:
-            return
-        if counters["microsteps"] <= self.warmup_microsteps:
-            return
-        if self.written >= self.max_steps:
-            return
-        record = {
-            "microsteps": counters["microsteps"],
-            "optimizer_steps": counters["optimizer_steps"],
-            "data_mode": settings.data_mode,
-            "dataloader_impl": settings.dataloader_impl,
-            "batch_size": settings.batch_size,
-            "sequence_len": settings.sequence_len,
-            "amp": settings.amp,
-            "torch_compile": settings.torch_compile,
-            **event,
-        }
-        with self.path.open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(record) + "\n")
-        self.written += 1
+def sync_profile(device, enabled: bool) -> None:
+    if device.type == "cuda" and enabled:
+        torch.cuda.synchronize()

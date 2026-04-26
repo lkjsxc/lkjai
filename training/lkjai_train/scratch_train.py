@@ -1,15 +1,16 @@
+import json
+
 import torch
-from torch.utils.data import DataLoader
 
 from .objectives import normalize_objective
-from .packed_data import PackedDataset, build_or_load_packed_cache
-from .packed_datasets import MappedPackedDataset, SyntheticPackedDataset
-from .checkpointing import save_checkpoint
-from .scratch_eval import evaluate_loss, save_training
+from .scratch_autobatch import maybe_auto_batch, probe_batch_fits, probe_largest_batch
+from .scratch_compile import compile_model, warmup_compiled_model
+from .scratch_eval import save_training
+from .scratch_loaders import cache_paths, loader, val_source
 from .scratch_loop import run_loop
 from .scratch_model import ModelConfig, ScratchLM
-from .scratch_optim import create_optimizer, create_scaler, lr_lambda, maybe_resume
-from .tokenizer import load_tokenizer, train_source, train_tokenizer
+from .scratch_optim import create_optimizer, create_scaler, create_scheduler, maybe_resume
+from .tokenizer import load_tokenizer, train_tokenizer
 
 
 def train_scratch(paths, settings) -> dict:
@@ -23,9 +24,10 @@ def train_scratch(paths, settings) -> dict:
     seed_torch(device, settings.seed)
     config = model_config(settings, tokenizer.get_vocab_size())
     model = ScratchLM(config).to(device)
-    model.enable_gradient_checkpointing(settings.gradient_checkpointing)
+    model.configure_runtime(settings)
+    maybe_auto_batch(model, settings, device, config)
     optimizer = create_optimizer(model, settings, device)
-    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda(settings.max_optimizer_steps))
+    scheduler = create_scheduler(optimizer, settings)
     scheduler._lkjai_clip_grad_norm = settings.clip_grad_norm
     scaler = create_scaler(device, settings.amp)
     pad_id = tokenizer.token_to_id("<eos>") or tokenizer.token_to_id("<pad>") or 0
@@ -33,26 +35,45 @@ def train_scratch(paths, settings) -> dict:
     train_loader = loader(train_cache, settings, pad_id, True, device, config.vocab_size, "train")
     val_loader = loader(val_cache, settings, pad_id, False, device, config.vocab_size, "val")
     state = maybe_resume(paths, settings, model, optimizer, scheduler, scaler, device)
-    if settings.torch_compile:
-        model = torch.compile(model, mode=settings.torch_compile_mode)
+    model = compile_model(model, settings, device)
+    warmup_compiled_model(model, settings, device, config)
     metrics = run_loop(model, optimizer, scheduler, scaler, train_loader, val_loader, settings, device, config, paths, state)
     return save_training(paths, settings, config, model, train_cache, val_cache, metrics)
 
 
 def validate_settings(settings) -> None:
     settings.objective = normalize_objective(settings.objective)
-    if settings.export_checkpoint not in {"best", "final"}:
-        raise ValueError("TRAIN_EXPORT_CHECKPOINT must be best or final")
-    if settings.amp not in {"auto", "bf16", "fp16", "off"}:
-        raise ValueError("TRAIN_AMP must be auto, bf16, fp16, or off")
-    if settings.data_mode not in {"real", "synthetic_cpu", "synthetic_gpu"}:
-        raise ValueError("TRAIN_DATA_MODE must be real, synthetic_cpu, or synthetic_gpu")
-    if settings.dataloader_impl not in {"legacy", "mapped"}:
-        raise ValueError("TRAIN_DATALOADER_IMPL must be legacy or mapped")
-    if settings.num_workers < 0:
-        raise ValueError("TRAIN_NUM_WORKERS must be >= 0")
-    if settings.clip_grad_norm < 0:
-        raise ValueError("TRAIN_CLIP_GRAD_NORM must be >= 0")
+    choices = {
+        "TRAIN_EXPORT_CHECKPOINT": (settings.export_checkpoint, {"best", "final"}),
+        "TRAIN_AMP": (settings.amp, {"auto", "bf16", "fp16", "off"}),
+        "TRAIN_DATA_MODE": (settings.data_mode, {"real", "synthetic_cpu", "synthetic_gpu"}),
+        "TRAIN_DATALOADER_IMPL": (settings.dataloader_impl, {"legacy", "mapped"}),
+        "TRAIN_LR_SCHEDULE": (settings.lr_schedule, {"cosine", "constant", "linear_warmup_cosine"}),
+        "TRAIN_CHECKPOINT_RESUME_SOURCE": (settings.checkpoint_resume_source, {"latest", "final", "best"}),
+        "TRAIN_BATCH_POLICY": (settings.batch_policy, {"fixed", "oom_fallback", "sweep"}),
+        "TRAIN_ACTIVATION_CHECKPOINT": (settings.activation_checkpoint, {"off", "all", "every_n"}),
+        "TRAIN_ATTENTION_BACKEND": (settings.attention_backend, {"auto", "sdpa", "flash2"}),
+    }
+    for name, (value, allowed) in choices.items():
+        if value not in allowed:
+            raise ValueError(f"{name} must be one of {sorted(allowed)}")
+    validate_non_negative(settings)
+
+
+def validate_non_negative(settings) -> None:
+    minimums = {
+        "TRAIN_NUM_WORKERS": settings.num_workers,
+        "TRAIN_CLIP_GRAD_NORM": settings.clip_grad_norm,
+        "TRAIN_KEEP_LAST_CHECKPOINTS": settings.keep_last_checkpoints,
+        "TRAIN_LOG_EVERY_OPTIMIZER_STEPS": settings.log_every_optimizer_steps,
+    }
+    for name, value in minimums.items():
+        if value < 0:
+            raise ValueError(f"{name} must be >= 0")
+    if settings.auto_batch_max < 1:
+        raise ValueError("TRAIN_AUTO_BATCH_MAX must be >= 1")
+    if settings.activation_checkpoint_every_n < 1:
+        raise ValueError("TRAIN_ACTIVATION_CHECKPOINT_EVERY_N must be >= 1")
 
 
 def configure_torch(settings) -> None:
@@ -60,76 +81,13 @@ def configure_torch(settings) -> None:
     torch.backends.cudnn.allow_tf32 = settings.allow_tf32
     if settings.matmul_precision:
         torch.set_float32_matmul_precision(settings.matmul_precision)
+    print(json.dumps({"event": "training_config", "model_preset": settings.model_preset, "batch_size": settings.batch_size, "compile": settings.compile}), flush=True)
 
 
 def seed_torch(device, seed: int) -> None:
     torch.manual_seed(seed)
     if device.type == "cuda":
         torch.cuda.manual_seed_all(seed)
-
-
-def cache_paths(paths, tokenizer, settings):
-    if settings.data_mode != "real":
-        return None, None
-    train_src, val_src = train_source(paths), val_source(paths)
-    train_cache = build_or_load_packed_cache(paths, tokenizer, train_src, "train", settings)
-    val_cache = build_or_load_packed_cache(paths, tokenizer, val_src, "val", settings)
-    return train_cache, val_cache
-
-
-def loader(cache, settings, pad_id: int, shuffle: bool, device, vocab_size: int, split: str):
-    if settings.data_mode == "synthetic_gpu" and device.type == "cuda":
-        return SyntheticGpuLoader(settings, vocab_size, split, device)
-    if settings.data_mode == "synthetic_cpu":
-        dataset = SyntheticPackedDataset(synthetic_windows(settings, split), settings.sequence_len, vocab_size, settings.seed)
-        return DataLoader(dataset, batch_size=settings.batch_size, shuffle=shuffle, pin_memory=device.type == "cuda")
-    dataset_cls = MappedPackedDataset if settings.dataloader_impl == "mapped" else PackedDataset
-    kwargs = {
-        "batch_size": settings.batch_size,
-        "shuffle": shuffle,
-        "pin_memory": device.type == "cuda" and settings.pin_memory,
-        "num_workers": settings.num_workers,
-    }
-    if settings.num_workers > 0:
-        kwargs["prefetch_factor"] = settings.prefetch_factor
-        kwargs["persistent_workers"] = settings.persistent_workers
-    return DataLoader(
-        dataset_cls(cache, settings.sequence_len, pad_id),
-        **kwargs,
-    )
-
-
-def synthetic_windows(settings, split: str) -> int:
-    steps = max(settings.max_microsteps, settings.max_optimizer_steps * settings.gradient_accumulation)
-    multiplier = 2 if split == "train" else 1
-    return max(settings.validation_batches + 1, steps * settings.batch_size * multiplier)
-
-
-class SyntheticGpuLoader:
-    def __init__(self, settings, vocab_size: int, split: str, device: torch.device):
-        self.settings = settings
-        self.vocab_size = vocab_size
-        self.split = split
-        self.device = device
-        self.windows = synthetic_windows(settings, split)
-
-    def __len__(self):
-        return self.windows
-
-    def __iter__(self):
-        generator = torch.Generator(device=self.device)
-        offset = 0 if self.split == "train" else 10_000_000
-        generator.manual_seed(self.settings.seed + offset)
-        shape = (self.settings.batch_size, self.settings.sequence_len + 1)
-        for _ in range(self.windows):
-            ids = torch.randint(5, self.vocab_size, shape, device=self.device, dtype=torch.long, generator=generator)
-            yield ids[:, :-1].contiguous(), ids[:, 1:].contiguous()
-
-
-def val_source(paths):
-    if paths.committed_val.exists() and any(paths.committed_val.rglob("*.jsonl")):
-        return paths.committed_val
-    return paths.val_dataset if paths.val_dataset.exists() else paths.fixtures
 
 
 def model_config(settings, vocab_size: int) -> ModelConfig:
@@ -143,12 +101,3 @@ def model_config(settings, vocab_size: int) -> ModelConfig:
         settings.ffn_size,
         settings.dropout,
     )
-
-
-def validate_and_maybe_save(model, loader, device, settings, config, paths, optimizer, scheduler, scaler, counters, history, best_metric: float) -> dict:
-    metric = evaluate_loss(model, loader, device, settings)
-    metric["optimizer_steps"] = counters["optimizer_steps"]
-    history.append(metric)
-    if metric["loss"] < best_metric:
-        save_checkpoint(paths.checkpoint_best, config, model, optimizer, scheduler, scaler, counters, settings, metric["loss"], history)
-    return metric

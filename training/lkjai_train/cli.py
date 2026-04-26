@@ -30,6 +30,8 @@ def main() -> None:
     sanity.add_argument("--checkpoint", choices=["export", "best", "final"], default=os.environ.get("TRAIN_BEHAVIORAL_CHECKPOINT", "export"))
     dpo = sub.add_parser("train-dpo")
     dpo.add_argument("--preset", default=os.environ.get("TRAIN_PRESET", "quick"))
+    simpo = sub.add_parser("train-simpo")
+    simpo.add_argument("--preset", default=os.environ.get("TRAIN_PRESET", "quick"))
     args = parser.parse_args()
     result = dispatch(args, Paths(args.data_dir))
     print(json.dumps({"command": args.command, "status": "pass", "result": str(result)}))
@@ -86,6 +88,10 @@ def dispatch(args, paths: Paths):
         from .preference import train_dpo
 
         return train_dpo(paths, train_settings(args.preset))
+    if args.command == "train-simpo":
+        from .preference import train_simpo
+
+        return train_simpo(paths, train_settings(args.preset))
     if args.command == "export-manifest":
         return export_manifest(paths, train_settings(env_preset()))
     if args.command == "smoke":

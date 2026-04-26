@@ -4,7 +4,7 @@ import time
 
 import torch
 
-from .checkpointing import save_checkpoint, unwrap_model
+from .checkpointing import save_checkpoint_atomic, unwrap_model, write_checkpoint_manifest
 from .scratch_model import parameter_count
 from .scratch_optim import autocast_context
 
@@ -32,8 +32,13 @@ def should_validate(optimizer_steps: int, settings) -> bool:
 
 
 def should_save(optimizer_steps: int, settings) -> bool:
-    interval = settings.save_every_optimizer_steps
+    interval = getattr(settings, "save_every_optimizer_steps", 0)
     return interval > 0 and optimizer_steps > 0 and optimizer_steps % interval == 0
+
+
+def should_log(optimizer_steps: int, settings) -> bool:
+    interval = getattr(settings, "log_every_optimizer_steps", 250)
+    return optimizer_steps == 1 or (interval > 0 and optimizer_steps > 0 and optimizer_steps % interval == 0)
 
 
 def should_stop(counters: dict, settings) -> bool:
@@ -47,7 +52,35 @@ def validate_and_maybe_save(model, loader, device, settings, config, paths, opti
     metric["optimizer_steps"] = counters["optimizer_steps"]
     history.append(metric)
     if metric["loss"] < best:
-        save_checkpoint(paths.checkpoint_best, config, model, optimizer, scheduler, scaler, counters, settings, metric["loss"], history)
+        save_checkpoint_atomic(
+            paths.checkpoint_best,
+            config,
+            model,
+            optimizer,
+            scheduler,
+            scaler,
+            counters,
+            settings,
+            metric["loss"],
+            history,
+            source_type="best",
+            validation_loss=metric["loss"],
+        )
+        save_checkpoint_atomic(
+            paths.checkpoint_latest,
+            config,
+            model,
+            optimizer,
+            scheduler,
+            scaler,
+            counters,
+            settings,
+            metric["loss"],
+            history,
+            source_type="latest",
+            validation_loss=metric["loss"],
+        )
+        write_checkpoint_manifest(paths, settings)
     return metric
 
 
@@ -73,18 +106,33 @@ def evaluate_loss(model, loader, device: torch.device, settings) -> dict:
     return metric
 
 
-def log_train_event(counters: dict, loss: float, start_time: float, settings, prior_elapsed: float = 0.0) -> None:
+def log_train_event(counters: dict, loss: float, start_time: float, settings, optimizer, device, prior_elapsed: float = 0.0) -> None:
     step = counters["optimizer_steps"]
-    if step == 1 or step % 250 == 0:
+    if should_log(step, settings):
         elapsed = max(1e-9, prior_elapsed + (time.perf_counter() - start_time))
-        print(json.dumps({"event": "train_step", "optimizer_step": step, "microsteps": counters["microsteps"], "loss": loss, "objective": settings.objective, "input_tokens_seen": counters["input_tokens"], "loss_tokens_seen": counters["loss_tokens"], "tokens_per_second": counters["input_tokens"] / elapsed, "loss_tokens_per_second": counters["loss_tokens"] / elapsed}), flush=True)
+        record = {
+            "event": "train_step",
+            "optimizer_step": step,
+            "microsteps": counters["microsteps"],
+            "loss": loss,
+            "objective": settings.objective,
+            "learning_rate": optimizer.param_groups[0]["lr"],
+            "input_tokens_seen": counters["input_tokens"],
+            "loss_tokens_seen": counters["loss_tokens"],
+            "optimizer_steps_per_second": step / elapsed,
+            "tokens_per_second": counters["input_tokens"] / elapsed,
+            "loss_tokens_per_second": counters["loss_tokens"] / elapsed,
+        }
+        if device.type == "cuda":
+            record["max_cuda_memory_allocated"] = torch.cuda.max_memory_allocated(device)
+        print(json.dumps(record), flush=True)
 
 
 def save_training(paths, settings, config, model, train_cache, val_cache, metrics: dict) -> dict:
     params = parameter_count(unwrap_model(model))
     corpus_train_tokens = read_train_tokens(paths)
     tpp = corpus_train_tokens / max(1, params)
-    summary = {"backend": "tiny-pytorch-scratch-v3", "checkpoint_dir": str(paths.checkpoint_best if settings.export_checkpoint == "best" else paths.checkpoint_final), "final_checkpoint_dir": str(paths.checkpoint_final), "best_checkpoint_dir": str(paths.checkpoint_best), "objective": settings.objective, "max_steps_semantics": "optimizer_steps", "parameter_count": params, "corpus_train_tokens": corpus_train_tokens, "tokens_per_parameter": round(tpp, 6), "chinchilla_gap": round(max(0.0, 1.0 - tpp / 20.0), 6), "train_cache": str(train_cache), "val_cache": str(val_cache), "settings": settings.__dict__, "metrics": metrics}
+    summary = {"backend": "tiny-pytorch-scratch-v3", "checkpoint_dir": str(paths.checkpoint_best if settings.export_checkpoint == "best" else paths.checkpoint_final), "latest_checkpoint_dir": str(paths.checkpoint_latest), "final_checkpoint_dir": str(paths.checkpoint_final), "best_checkpoint_dir": str(paths.checkpoint_best), "objective": settings.objective, "max_steps_semantics": "optimizer_steps", "parameter_count": params, "corpus_train_tokens": corpus_train_tokens, "tokens_per_parameter": round(tpp, 6), "chinchilla_gap": round(max(0.0, 1.0 - tpp / 20.0), 6), "train_cache": str(train_cache), "val_cache": str(val_cache), "settings": settings.__dict__, "metrics": metrics}
     paths.training_summary.write_text(json.dumps(summary, indent=2), encoding="utf-8")
     return summary
 

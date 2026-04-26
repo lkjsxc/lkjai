@@ -55,6 +55,7 @@ class Attention(nn.Module):
         self.v = nn.Linear(config.hidden_size, kv_dim, bias=False)
         self.o = nn.Linear(config.hidden_size, config.hidden_size, bias=False)
         self.dropout = config.dropout
+        self.backend = "auto"
 
     def forward(self, x, layer_cache=None, use_cache: bool = False):
         batch, seq, _ = x.shape
@@ -68,7 +69,10 @@ class Attention(nn.Module):
             k_base = torch.cat([layer_cache["k"], k_base], dim=2)[:, :, -self.max_len :]
             v_base = torch.cat([layer_cache["v"], v_base], dim=2)[:, :, -self.max_len :]
         dropout_p = self.dropout if self.training else 0.0
-        if self.heads != self.kv_heads:
+        attn = flash_attention(q, k_base, v_base, dropout_p, layer_cache is None, self.backend)
+        if attn is not None:
+            pass
+        elif self.heads != self.kv_heads:
             try:
                 attn = F.scaled_dot_product_attention(q, k_base, v_base, dropout_p=dropout_p, is_causal=layer_cache is None, enable_gqa=True)
             except TypeError:
@@ -106,19 +110,33 @@ class ScratchLM(nn.Module):
         self.norm = RMSNorm(config.hidden_size)
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
         self.lm_head.weight = self.tok.weight
-        self.gradient_checkpointing = False
+        self.activation_checkpoint = "off"
+        self.activation_checkpoint_every_n = 2
+        self.checkpoint_preserve_rng = False
         self.apply(init_weights)
 
     def enable_gradient_checkpointing(self, enabled: bool = True) -> None:
-        self.gradient_checkpointing = enabled
+        self.activation_checkpoint = "all" if enabled else "off"
+
+    def configure_runtime(self, settings) -> None:
+        self.activation_checkpoint = settings.activation_checkpoint
+        self.activation_checkpoint_every_n = settings.activation_checkpoint_every_n
+        self.checkpoint_preserve_rng = settings.checkpoint_preserve_rng
+        for block in self.blocks:
+            block.attn.backend = settings.attention_backend
 
     def forward(self, idx, labels=None, cache=None, use_cache: bool = False):
         x = self.tok(idx)
         next_cache = [] if use_cache else None
         for index, block in enumerate(self.blocks):
             layer_cache = None if cache is None else cache[index]
-            if self.gradient_checkpointing and self.training and layer_cache is None and not use_cache:
-                x = checkpoint(lambda value: block(value, None, False)[0], x, use_reentrant=False)
+            if self.should_checkpoint(index, layer_cache, use_cache):
+                x = checkpoint(
+                    lambda value: block(value, None, False)[0],
+                    x,
+                    use_reentrant=False,
+                    preserve_rng_state=self.checkpoint_preserve_rng,
+                )
                 cached = None
             else:
                 x, cached = block(x, layer_cache, use_cache)
@@ -129,6 +147,15 @@ class ScratchLM(nn.Module):
         if labels is not None:
             loss = F.cross_entropy(logits.reshape(-1, logits.size(-1)), labels.reshape(-1))
         return logits, loss, next_cache
+
+    def should_checkpoint(self, index: int, layer_cache, use_cache: bool) -> bool:
+        if not self.training or layer_cache is not None or use_cache:
+            return False
+        if self.activation_checkpoint == "all":
+            return True
+        if self.activation_checkpoint == "every_n":
+            return index % self.activation_checkpoint_every_n == 0
+        return False
 
 
 def init_weights(module):
@@ -146,6 +173,22 @@ def rope_cache(seq: int, dim: int, device, offset: int = 0):
 def apply_rope(x, cos, sin):
     even, odd = x[..., 0::2], x[..., 1::2]
     return torch.stack((even * cos - odd * sin, even * sin + odd * cos), dim=-1).flatten(-2)
+
+
+def flash_attention(q, k, v, dropout_p: float, is_causal: bool, backend: str):
+    if backend == "sdpa" or (backend == "auto" and not torch.cuda.is_available()):
+        return None
+    try:
+        from flash_attn import flash_attn_func
+    except Exception:
+        if backend == "flash2":
+            raise RuntimeError("TRAIN_ATTENTION_BACKEND=flash2 requires flash-attn")
+        return None
+    q_t = q.transpose(1, 2).contiguous()
+    k_t = k.transpose(1, 2).contiguous()
+    v_t = v.transpose(1, 2).contiguous()
+    out = flash_attn_func(q_t, k_t, v_t, dropout_p=dropout_p, causal=is_causal)
+    return out.transpose(1, 2).contiguous()
 
 
 def save_config(config: ModelConfig, path: Path) -> None:

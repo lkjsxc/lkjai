@@ -17,6 +17,8 @@ def checkpoint_manifest(paths, settings) -> Path:
         "dataset": str(dataset),
         "dataset_sha256": file_sha256(dataset) if dataset.exists() else "",
         "checkpoint_dir": summary.get("checkpoint_dir", ""),
+        "latest_checkpoint_dir": summary.get("latest_checkpoint_dir", str(paths.checkpoint_latest) if checkpoint_exists(paths.checkpoint_latest) else ""),
+        "retained_intermediate_checkpoints": [str(path) for path in retained_intermediate_checkpoints(paths)],
         "final_checkpoint_dir": summary.get("final_checkpoint_dir", ""),
         "best_checkpoint_dir": summary.get("best_checkpoint_dir", ""),
         "objective": summary.get("objective", getattr(settings, "objective", "")),
@@ -54,9 +56,29 @@ def copy_if_exists(src: Path, dst: Path) -> None:
         shutil.copyfile(src, dst)
 
 
+def checkpoint_exists(checkpoint_dir: Path) -> bool:
+    return (
+        (checkpoint_dir / "model.pt").exists()
+        and (checkpoint_dir / "config.json").exists()
+        and (checkpoint_dir / "training-state.pt").exists()
+    )
+
+
+def retained_intermediate_checkpoints(paths) -> list[Path]:
+    steps = getattr(paths, "checkpoint_steps", paths.checkpoints / "steps")
+    if not steps.exists():
+        return []
+    return sorted(path for path in steps.iterdir() if path.is_dir() and not path.name.startswith(".") and checkpoint_exists(path))
+
+
 def serving_checkpoint_dir(paths, settings=None) -> Path:
+    simpo_model = paths.checkpoint_simpo / "model.pt"
     dpo_model = paths.checkpoint_dpo / "model.pt"
     final_model = paths.checkpoint_final / "model.pt"
+    if simpo_model.exists() and paths.simpo_summary.exists():
+        summary = read_json(paths.simpo_summary)
+        if summary.get("accepted") is not False:
+            return paths.checkpoint_simpo
     if dpo_model.exists() and paths.dpo_summary.exists():
         summary = read_json(paths.dpo_summary)
         if summary.get("accepted") is False:

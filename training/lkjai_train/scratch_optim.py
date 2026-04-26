@@ -1,19 +1,76 @@
-import math
 from contextlib import nullcontext
 
 import torch
 
-from .checkpointing import checkpoint_exists, load_checkpoint
+from .checkpointing import latest_complete_checkpoint, load_checkpoint
+from .scratch_model import RMSNorm
 
 
 def create_optimizer(model, settings, device: torch.device):
-    kwargs = {"lr": settings.learning_rate}
+    kwargs = {
+        "lr": settings.learning_rate,
+        "betas": (settings.beta1, settings.beta2),
+        "eps": settings.eps,
+        "weight_decay": settings.weight_decay,
+    }
+    param_groups = parameter_groups(model)
     if device.type == "cuda":
         try:
-            return torch.optim.AdamW(model.parameters(), fused=True, **kwargs)
+            return torch.optim.AdamW(param_groups, fused=True, **kwargs)
         except (TypeError, RuntimeError):
             pass
-    return torch.optim.AdamW(model.parameters(), **kwargs)
+    return torch.optim.AdamW(param_groups, **kwargs)
+
+
+def parameter_groups(model):
+    decay, no_decay, seen = [], [], set()
+    norm_types = (torch.nn.LayerNorm, RMSNorm)
+    for module_name, module in model.named_modules():
+        for param_name, param in module.named_parameters(recurse=False):
+            if not param.requires_grad or id(param) in seen:
+                continue
+            seen.add(id(param))
+            full_name = f"{module_name}.{param_name}" if module_name else param_name
+            if param_name == "bias" or param.ndim == 1 or isinstance(module, norm_types):
+                no_decay.append(param)
+            else:
+                decay.append(param)
+    return [
+        {"params": decay, "name": "decay"},
+        {"params": no_decay, "weight_decay": 0.0, "name": "no_decay"},
+    ]
+
+
+def create_scheduler(optimizer, settings):
+    schedule = settings.lr_schedule
+    if schedule == "constant":
+        return torch.optim.lr_scheduler.LambdaLR(optimizer, lambda step: 1.0)
+    if schedule == "cosine":
+        return torch.optim.lr_scheduler.CosineAnnealingLR(
+            optimizer,
+            T_max=max(1, settings.max_optimizer_steps),
+            eta_min=settings.learning_rate * settings.lr_min_factor,
+        )
+    if schedule == "linear_warmup_cosine":
+        warmup_steps = max(1, settings.warmup_steps)
+        cosine_steps = max(1, settings.max_optimizer_steps - warmup_steps)
+        warmup = torch.optim.lr_scheduler.LinearLR(
+            optimizer,
+            start_factor=1.0 / max(10, warmup_steps),
+            end_factor=1.0,
+            total_iters=warmup_steps,
+        )
+        cosine = torch.optim.lr_scheduler.CosineAnnealingLR(
+            optimizer,
+            T_max=cosine_steps,
+            eta_min=settings.learning_rate * settings.lr_min_factor,
+        )
+        return torch.optim.lr_scheduler.SequentialLR(
+            optimizer,
+            schedulers=[warmup, cosine],
+            milestones=[warmup_steps],
+        )
+    raise ValueError("TRAIN_LR_SCHEDULE must be cosine, constant, or linear_warmup_cosine")
 
 
 def create_scaler(device: torch.device, amp: str):
@@ -32,25 +89,20 @@ def autocast_context(device: torch.device, amp: str):
     return torch.autocast(device_type="cuda", dtype=torch.float16)
 
 
-def lr_lambda(max_optimizer_steps: int):
-    warmup = min(100, max(1, max_optimizer_steps // 10))
-
-    def schedule(step: int):
-        if step < warmup:
-            return max(0.1, (step + 1) / warmup)
-        progress = (step - warmup) / max(1, max_optimizer_steps - warmup)
-        return max(0.1, 0.5 * (1.0 + math.cos(math.pi * progress)))
-
-    return schedule
-
-
 def maybe_resume(paths, settings, model, optimizer, scheduler, scaler, device) -> dict:
     mode = settings.resume
     if mode not in {"auto", "never", "required"}:
         raise ValueError("TRAIN_RESUME must be auto, never, or required")
-    exists = checkpoint_exists(paths.checkpoint_final)
-    if mode == "required" and not exists:
-        raise RuntimeError(f"resume required but no checkpoint exists at {paths.checkpoint_final}")
-    if mode == "never" or not exists:
+    if mode == "never":
         return {}
-    return load_checkpoint(paths.checkpoint_final, model, optimizer, scheduler, scaler, device)
+    # The dataloader position is not tracked; resume restores optimizer,
+    # scheduler, scaler, RNG, counters, and metrics exactly, then starts a fresh
+    # loader iterator.
+    checkpoint_dir = latest_complete_checkpoint(paths, settings.checkpoint_resume_source)
+    if checkpoint_dir is None:
+        if mode == "required":
+            raise RuntimeError(f"resume required but no complete {settings.checkpoint_resume_source} checkpoint exists")
+        return {}
+    state = load_checkpoint(checkpoint_dir, model, optimizer, scheduler, scaler, device)
+    state["checkpoint_dir"] = str(checkpoint_dir)
+    return state
