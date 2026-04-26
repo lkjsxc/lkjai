@@ -2,8 +2,9 @@
 
 ## Goal
 
-Train, export, and evaluate the 60M scratch model using XML actions and the
-same real tool loop that production will use.
+Train, export, and evaluate the active scratch model using XML actions and the
+same real tool loop that production will use. The active preset is 20M-class
+until the corpus grows enough to justify the 60M long-term target.
 
 ## Commands
 

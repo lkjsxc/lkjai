@@ -44,6 +44,6 @@ honestly.
 ## Defaults
 
 - `MODEL_API_URL=http://127.0.0.1:8081/v1/chat/completions`
-- `MODEL_NAME=lkjai-scratch-60m`
+- `MODEL_NAME=lkjai-scratch-20m`
 - `MODEL_MAX_NEW_TOKENS=512`
 - `MODEL_TEMPERATURE=0.2`

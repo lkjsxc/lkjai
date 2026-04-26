@@ -12,27 +12,32 @@ Hoffmann et al. (2022) defines compute-optimal training as roughly
 
 - `compute_optimal_tokens ≈ parameters × 20`
 
-For our scratch-60m preset:
+For the active `scratch-20m` preset:
 
-- Parameters: `~55,866,240`
+- Parameters: `~20,078,016`
+- Chinchilla target: `~400M tokens`
+
+For the long-term `scratch-60m` preset:
+
+- Parameters: `~58M`
 - Chinchilla target: `~1.1T tokens`
 
 ## Practical Budget
 
-At 60,000 active docs-derived corpus rows and ~150 tokens per row:
+At the current committed Kimi corpus size:
 
-- Train tokens: `~9,000,000`
-- Tokens per parameter: `~0.16`
-- Chinchilla gap: `~1.1T - 9M ≈ 99.2% shortfall`
+- Train tokens: about `26M`
+- Tokens per parameter at 20M: about `1.3`
+- Chinchilla gap: about `93.5% shortfall`
 
 This gap is expected and acceptable for the default path:
 
 - The target hardware is a single RTX 3070 8GB.
 - We optimize for trusted provenance, task diversity, and format alignment, not
   raw token volume.
-- Longer training steps (12,000) improve utilization of the available corpus.
-- Scaling from 6k to 60k rows increases train tokens 10x while preserving strict
-  provenance and deduplication hygiene.
+- The 20M preset is a deliberate bridge until corpus quality and volume improve.
+- Scaling toward 500M tokens remains necessary before `scratch-60m` becomes the
+  default again.
 
 ## SmolLM2 Guidance
 

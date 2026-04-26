@@ -17,7 +17,7 @@ Compose.
 
 ```bash
 cp .env.example .env
-mkdir -p data/models/lkjai-scratch-60m data/train data/agent data/workspace
+mkdir -p data/models/lkjai-scratch-20m data/train data/agent data/workspace
 ```
 
 ## Run Web Runtime

@@ -38,7 +38,7 @@
 
 ```bash
 cp .env.example .env
-mkdir -p data/models/lkjai-scratch-60m data/train data/agent data/workspace
+mkdir -p data/models/lkjai-scratch-20m data/train data/agent data/workspace
 docker compose --profile inference up --build inference
 docker compose --profile web up --build web
 docker compose --profile train up --build train
@@ -72,7 +72,7 @@ docker compose --progress quiet --profile verify up --build --abort-on-container
 ## Presets
 
 - `quick`: tiny scratch run for local smoke.
-- `agent`: `scratch-60m` defaults for RTX 3070 8GB research.
+- `agent`: `scratch-20m` defaults for RTX 3070 8GB research.
 - `custom`: all behavior controlled by explicit `TRAIN_*` environment values.
 
 ## Long-Run Contract Links

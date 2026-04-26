@@ -5,7 +5,8 @@
 - Runtime orchestrator: Rust with axum.
 - Inference runtime: separate Python/Torch OpenAI-compatible service.
 - Serving model family: local scratch dense decoder.
-- Training scale: `scratch-60m`, targeting 50-80M parameters.
+- Training scale: `scratch-20m` by default for the current corpus; `scratch-60m`
+  remains the long-term target.
 - Training method: local PyTorch from random initialization.
 - Tokenizer: local byte-level BPE.
 - Memory backend: SQLite plus FTS lexical retrieval.

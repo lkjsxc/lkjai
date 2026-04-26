@@ -43,4 +43,4 @@ sleep 5
 curl -sf http://127.0.0.1:8081/v1/models | jq '.data[0].id'
 ```
 
-Expected: `lkjai-scratch-60m` when exported artifacts are readable.
+Expected: `lkjai-scratch-20m` when exported artifacts are readable.
