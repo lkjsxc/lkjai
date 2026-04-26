@@ -103,7 +103,10 @@ def load_checkpoint(checkpoint_dir: Path, model, optimizer, scheduler, scaler, d
     optimizer.load_state_dict(state["optimizer"])
     if scaler is not None and state.get("scaler") is not None:
         scaler.load_state_dict(state["scaler"])
-    restore_rng_state(state.get("rng", {}))
+    try:
+        restore_rng_state(state.get("rng", {}))
+    except (TypeError, ValueError, RuntimeError) as error:
+        state["rng_load_warning"] = f"checkpoint RNG state was incompatible: {error}"
     return state
 
 

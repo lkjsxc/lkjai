@@ -85,3 +85,30 @@ def test_auto_resume_skips_incompatible_checkpoint(tmp_path):
     new_sched = torch.optim.lr_scheduler.LambdaLR(new_optim, lambda step: 1.0)
 
     assert maybe_resume(paths, settings, new_model, new_optim, new_sched, None, "cpu") == {}
+
+
+@pytest.mark.skipif(torch is None, reason="torch not installed")
+def test_checkpoint_load_tolerates_legacy_rng_payload(tmp_path):
+    from lkjai_train.checkpointing import load_checkpoint, save_checkpoint
+    from lkjai_train.scratch_model import ModelConfig, ScratchLM
+
+    config = ModelConfig(32, 8, 1, 16, 4, 2, 32, 0.0)
+    model = ScratchLM(config)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=0.01)
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lambda step: 1.0)
+    settings = SimpleNamespace(objective="causal_lm_full")
+    counters = {"microsteps": 1, "optimizer_steps": 1, "input_tokens": 8, "loss_tokens": 8}
+    save_checkpoint(tmp_path, config, model, optimizer, scheduler, None, counters, settings, 2.0, [])
+
+    state_path = tmp_path / "training-state.pt"
+    state = torch.load(state_path, weights_only=False)
+    state["rng"]["torch"] = [1, 2, 3]
+    torch.save(state, state_path)
+
+    restored = ScratchLM(config)
+    restored_optim = torch.optim.AdamW(restored.parameters(), lr=0.01)
+    restored_sched = torch.optim.lr_scheduler.LambdaLR(restored_optim, lambda step: 1.0)
+    loaded = load_checkpoint(tmp_path, restored, restored_optim, restored_sched, None, "cpu")
+
+    assert loaded["counters"] == counters
+    assert "rng_load_warning" in loaded
