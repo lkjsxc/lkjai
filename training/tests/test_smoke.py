@@ -65,7 +65,7 @@ def test_agent_settings_defaults(monkeypatch):
     assert settings.auto_batch is True
     assert settings.max_optimizer_steps == 400000
     assert settings.save_latest_every_optimizer_steps == 3000
-    assert settings.intermediate_save_every_optimizer_steps == 18000
+    assert settings.intermediate_save_every_optimizer_steps == 120000
     assert settings.keep_last_checkpoints == 8
     assert settings.corpus_size == 120000
     assert settings.behavioral_threshold == 0.35

@@ -11,7 +11,7 @@ The corpus has two separate objectives:
 - `sft`: XML-action chat rows for assistant-masked supervised training.
 
 The long-run target is `500000000` generated tokens. The committed corpus lives
-under `training/corpus/kimi-synthetic-v1/`.
+under `corpus/generated/kimi-full-v1/`.
 
 ## Read Order
 
@@ -28,5 +28,6 @@ under `training/corpus/kimi-synthetic-v1/`.
 - Do not paste full generated documents or ordinary CLI UI text into agent
   conversation.
 - Validate before committing generated shards.
-- Commit generated validated shards under `training/corpus/kimi-synthetic-v1/`.
-- Keep `pretrain` and `sft` separated all the way through training.
+- Commit generated validated shards under `corpus/generated/kimi-full-v1/`.
+- Keep generator staging outputs separated by objective. The committed active
+  full corpus is normalized into `train`, `val`, and `holdout` splits.

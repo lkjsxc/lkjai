@@ -3,7 +3,7 @@ mode: mixed
 pretrain_ratio: 0.8
 sft_ratio: 0.2
 output_dir: data/kimi_synthetic
-prompt_dir: scripts/kimi_corpus/prompts
+prompt_dir: tools/kimi-corpus/prompts
 prompt_version: v2
 batch_documents: 8
 max_calls: 10

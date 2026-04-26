@@ -50,7 +50,7 @@ Run one measurable long training job for the 3070-first 40M scratch model.
 - `TRAIN_VALIDATE_EVERY_OPTIMIZER_STEPS`: default `3000`
 - `TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS`: default `3000` for non-quick,
   `1` for quick
-- `TRAIN_INTERMEDIATE_SAVE_EVERY_OPTIMIZER_STEPS`: default `18000` for
+- `TRAIN_INTERMEDIATE_SAVE_EVERY_OPTIMIZER_STEPS`: default `120000` for
   non-quick, `0` for quick
 - `TRAIN_KEEP_LAST_CHECKPOINTS`: default `8`
 - `TRAIN_CHECKPOINT_RESUME_SOURCE`: `latest`, `final`, or `best`; default

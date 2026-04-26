@@ -1,0 +1,23 @@
+FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
+
+WORKDIR /workspace
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gcc g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN python -m pip install --no-cache-dir \
+    pytest \
+    tokenizers==0.21.1
+
+COPY training/package ./training/package
+COPY docs ./docs
+COPY configs ./configs
+COPY corpus/sources ./corpus/sources
+
+ENV PYTHONPATH=/workspace/training/package
+ENV DATA_DIR=/app/data
+ENV REPO_DOCS_DIR=/workspace/docs
+
+ENTRYPOINT ["python", "-m", "lkjai_train.cli"]
+CMD ["train"]

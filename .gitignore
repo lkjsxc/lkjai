@@ -86,3 +86,4 @@ junit.xml
 /training/.venv/
 /training/build/
 /training/dist/
+/training/package/*.egg-info/

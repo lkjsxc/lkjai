@@ -1,0 +1,58 @@
+{
+  "schema": "lkjai-agent-jsonl-v2",
+  "corpus": "kimi-corpus",
+  "rows": 176345,
+  "path": "corpus/generated/kimi-full-v1",
+  "split_rows": {
+    "train": 141258,
+    "val": 17539,
+    "holdout": 17548
+  },
+  "unique_rows": 176345,
+  "duplicate_rows": 0,
+  "sources": [
+    {
+      "name": "agentic",
+      "license": "project-local",
+      "rows": 11
+    },
+    {
+      "name": "everyday-chat",
+      "license": "project-local",
+      "rows": 125001
+    },
+    {
+      "name": "kjxlkj-api",
+      "license": "project-local",
+      "rows": 3
+    },
+    {
+      "name": "lkjai-docs",
+      "license": "project-local",
+      "rows": 1296
+    },
+    {
+      "name": "preferences",
+      "license": "project-local",
+      "rows": 50001
+    },
+    {
+      "name": "public-import",
+      "license": "Apache-2.0",
+      "rows": 1
+    },
+    {
+      "name": "runtime-schema",
+      "license": "project-local",
+      "rows": 12
+    },
+    {
+      "name": "source-code",
+      "license": "project-local",
+      "rows": 20
+    }
+  ],
+  "requested_train_tokens": 500000000,
+  "validation_tokenizer_tokens": 25962822,
+  "validation_report": "validation-report.json"
+}

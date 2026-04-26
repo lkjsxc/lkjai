@@ -17,7 +17,7 @@ behavioral reports.
 - Current artifacts were trained on disallowed LLM-authored corpus content and
   are invalid for acceptance after the provenance policy change.
 - New baseline target: full Kimi corpus chunks committed under
-  `training/corpus/kimi-synthetic-v1/` with at least `450000000` deduplicated train
+  `corpus/generated/kimi-full-v1/` with at least `450000000` deduplicated train
   tokenizer tokens.
 
 ## Iteration Command

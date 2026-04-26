@@ -5,16 +5,12 @@
 Committed corpus:
 
 ```text
-training/corpus/kimi-synthetic-v1/
+corpus/generated/kimi-full-v1/
   README.md
-  manifest.jsonl
-  validation-report.json
-  pretrain/train/*.jsonl
-  pretrain/val/*.jsonl
-  pretrain/holdout/*.jsonl
-  sft/train/*.jsonl
-  sft/val/*.jsonl
-  sft/holdout/*.jsonl
+  manifest.json
+  train/train-*.jsonl
+  val/val-*.jsonl
+  holdout/holdout-*.jsonl
 ```
 
 Runtime staging:
@@ -27,9 +23,38 @@ data/kimi_synthetic/
   quarantine/
 ```
 
+The committed corpus is the active training input. Runtime staging is an
+operator workspace for fresh Kimi CLI generation before validation and
+normalization.
+
+## Active Committed Row
+
+Each JSONL line in `corpus/generated/kimi-full-v1/{train,val,holdout}` uses the
+XML-action chat schema:
+
+```json
+{
+  "messages": [
+    {"role": "user", "content": "Inspect the project docs."},
+    {"role": "assistant", "content": "<action><tool>fs.read</tool><args>{\"path\":\"docs/README.md\"}</args></action>"},
+    {"role": "tool", "content": "Docs table of contents..."},
+    {"role": "assistant", "content": "<action><tool>agent.finish</tool><content>Summary...</content></action>"}
+  ],
+  "tags": ["kimi_corpus", "agentic"],
+  "meta": {
+    "id": "kimi-full-v1-train-000001",
+    "split": "train",
+    "source": "lkjai-docs",
+    "license": "project-local"
+  }
+}
+```
+
+Every assistant message must contain exactly one XML `<action>`.
+
 ## Pretraining Row
 
-Each JSONL line is one standalone document:
+Staging pretraining rows are standalone documents:
 
 ```json
 {
@@ -55,7 +80,7 @@ loss.
 
 ## SFT Row
 
-Each JSONL line uses the existing chat row format:
+Staging SFT rows use the existing chat row format:
 
 ```json
 {

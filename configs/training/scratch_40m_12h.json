@@ -35,7 +35,7 @@
   "max_microsteps": 0,
   "validate_every_optimizer_steps": 3000,
   "save_latest_every_optimizer_steps": 3000,
-  "intermediate_save_every_optimizer_steps": 18000,
+  "intermediate_save_every_optimizer_steps": 120000,
   "keep_last_checkpoints": 8,
   "checkpoint_resume_source": "latest",
   "log_every_optimizer_steps": 3000,

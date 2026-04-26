@@ -5,8 +5,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-GENERATOR = ROOT / "scripts" / "kimi_corpus" / "generate_kimi_corpus.py"
-SCORER = ROOT / "scripts" / "kimi_corpus" / "score_corpus.py"
+GENERATOR = ROOT / "tools" / "kimi-corpus" / "generate_kimi_corpus.py"
+SCORER = ROOT / "tools" / "kimi-corpus" / "score_corpus.py"
 FAKE_KIMI = ROOT / "training" / "tests" / "fixtures" / "fake_kimi.py"
 FAKE_KIMI_BAD = ROOT / "training" / "tests" / "fixtures" / "fake_kimi_bad.py"
 
@@ -146,7 +146,7 @@ def test_manifest_resume_appends_without_overwriting_completed_shards(tmp_path):
 
 
 def test_background_launch_dry_run():
-    result = run("bash", "scripts/kimi_corpus/launch_background.sh", "--config", "configs/corpus/kimi_debug.yaml", "--target-tokens", "50000", "--dry-run")
+    result = run("bash", "tools/kimi-corpus/launch_background.sh", "--config", "configs/corpus/kimi_debug.yaml", "--target-tokens", "50000", "--dry-run")
     assert "dry-run command:" in result.stdout
 
 

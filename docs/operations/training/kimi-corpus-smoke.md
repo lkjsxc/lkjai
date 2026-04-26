@@ -53,7 +53,8 @@ Date: 2026-04-24
 
 ## Blockers
 
-- Docker verify failed on pre-existing `rust fmt` diffs in `src/agent/` and `tests/agent_tests.rs`.
+- Docker verify must pass through `ops/verify.sh` after layout or corpus
+  changes.
 - PyTorch/tokenizers not installed on host; token count falls back to character heuristic.
 - Full 500M-token generation requires `TRAIN_PRESET=agent` and significant disk/memory.
 

@@ -2,8 +2,8 @@ target_tokens: 500000000
 mode: mixed
 pretrain_ratio: 0.9
 sft_ratio: 0.1
-output_dir: training/corpus/kimi-synthetic-v1
-prompt_dir: scripts/kimi_corpus/prompts
+output_dir: corpus/generated/kimi-full-v1
+prompt_dir: tools/kimi-corpus/prompts
 prompt_version: v2
 batch_documents: 12
 max_calls: 0

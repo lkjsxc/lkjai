@@ -9,7 +9,7 @@ schema.
 
 - Canonical system prompt: `prompts/codex-40m-system.txt`
 - Inactive YOLO supplement: `prompts/codex-40m-yolo.txt`
-- Runtime loader: `src/agent/prompt.rs`
+- Runtime loader: `apps/runtime/src/agent/prompt.rs`
 
 ## Contract
 

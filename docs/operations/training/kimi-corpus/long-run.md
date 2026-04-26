@@ -5,11 +5,11 @@
 Run the full generation after sample quality and verification pass:
 
 ```bash
-bash scripts/kimi_corpus/launch_background.sh \
+bash tools/kimi-corpus/launch_background.sh \
   --config configs/corpus/kimi_500m.yaml \
   --target-tokens 500000000 \
   --parallelism 2 \
-  --output-dir training/corpus/kimi-synthetic-v1 \
+  --output-dir corpus/generated/kimi-full-v1 \
   --full
 ```
 
@@ -37,4 +37,4 @@ Commit generated shards after validation:
 - A large committed corpus increases repository size.
 
 If generation stops early, keep valid shards, update
-`training/corpus/kimi-synthetic-v1/README.md`, and commit the current status.
+`corpus/generated/kimi-full-v1/README.md`, and commit the current status.

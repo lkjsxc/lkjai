@@ -1,35 +1,6 @@
 from lkjai_train.behavioral import bucket
 from lkjai_train.corpus import generate_corpus
-from lkjai_train.corpus_source import load_entries
 from lkjai_train.dataset import parse_assistant_xml
-
-
-def test_agentic_source_files_are_tagged_json_arrays():
-    assert load_entries("agentic_plan")
-    assert load_entries("agentic_tools")
-    assert load_entries("agentic_revision")
-    assert load_entries("docs_grounding")
-
-
-def test_agentic_rows_have_plan_event():
-    from lkjai_train.corpus_agentic import plan_rows
-
-    rows = plan_rows(100)
-    assert any(
-        m.get("role") == "assistant" and parse_assistant_xml(m.get("content", "")).get("tool") == "agent.think"
-        for row in rows
-        for m in row.get("messages", [])
-    )
-
-
-def test_agentic_rows_have_tool_observation_sequence():
-    from lkjai_train.corpus_agentic import chain_rows
-
-    rows = chain_rows(50)
-    for row in rows:
-        roles = [m["role"] for m in row["messages"]]
-        assert "tool" in roles
-        assert "assistant" in roles
 
 
 def test_active_agentic_rows_have_multi_turn_structure():

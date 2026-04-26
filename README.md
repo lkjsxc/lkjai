@@ -27,7 +27,7 @@ architecture, operations, and repository policy.
 - Runtime data is mounted at `./data` for models, checkpoints, memory, runs, and
   the tool workspace.
 - The mainline agent corpus target is 500M active tokens committed under
-  `training/corpus/kimi-synthetic-v1/` after validation.
+  `corpus/generated/kimi-full-v1/` after validation.
 - Scratch training has two explicit objectives: `causal_lm_full` for full
   next-token pretraining and `assistant_masked_sft` for XML-action SFT.
 - `TRAIN_MAX_STEPS` means optimizer steps; summaries separately report

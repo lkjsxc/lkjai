@@ -5,23 +5,26 @@
 - `README.md`
 - `LICENSE`
 - `docs/`
-- `src/`
+- `apps/`
 - `training/`
+- `corpus/`
+- `configs/`
+- `ops/`
+- `tools/`
 - `data/`
 - `Cargo.toml`
 - `Cargo.lock`
-- `Dockerfile`
-- `Dockerfile.train`
-- `Dockerfile.verify`
-- `docker-compose.yml`
-- `verify.sh`
+- `compose.yaml`
 
 ## Source Layout
 
-- `src/`: Rust web, model client, agent, memory, docs, and quality commands.
-- `training/`: Python tokenizer, scratch training, eval, manifest, and tests.
-- `training/corpus/`: committed validated generated corpus artifacts.
-- `training/corpus_sources/`: tagged JSON source entries expanded into rows.
+- `apps/runtime/`: Rust web, model client, agent, memory, docs, and quality commands.
+- `training/package/`: Python tokenizer, scratch training, eval, and manifest code.
+- `training/tests/`: Python training and corpus tests.
+- `corpus/generated/`: committed validated generated corpus artifacts.
+- `corpus/sources/`: reviewed JSON source entries expanded into rows.
+- `ops/docker/`: Dockerfiles.
+- `tools/`: Kimi generation, benchmarks, diagnostics, reports, and experiments.
 - `docs/`: canonical documentation.
 - `data/`: local untracked runtime and training artifacts.
 

@@ -8,7 +8,7 @@ Define the canonical training dataset for raw-generation evaluation and
 ## Storage Schema
 
 Editable source entries live in JSON array files under
-`training/corpus_sources/`; see
+`corpus/sources/`; see
 [source-corpus.md](source-corpus.md). Generated rows are JSONL in
 `lkjai-agent-jsonl-v2`:
 
@@ -63,7 +63,7 @@ Editable source entries live in JSON array files under
 
 - Target tokens: `500000000`
 - The full Kimi corpus is committed in chunked JSONL under
-  `training/corpus/kimi-synthetic-v1/`.
+  `corpus/generated/kimi-full-v1/`.
 - Runtime and training copies may be staged under ignored `data/kimi-corpus/`.
 - A small smoke corpus may exist for quick local checks.
 - Duplicate rows: at most `1%`
@@ -85,13 +85,13 @@ Editable source entries live in JSON array files under
 Committed generated corpus chunks live under:
 
 ```
-training/corpus/kimi-synthetic-v1/
+corpus/generated/kimi-full-v1/
   README.md
   manifest.json
   validation-report.json
-  pretrain/train/shard_000001.jsonl
-  pretrain/val/shard_000010.jsonl
-  sft/train/shard_000001.jsonl
+  train/train-000001.jsonl
+  val/val-000001.jsonl
+  holdout/holdout-000001.jsonl
 ```
 
 Each JSONL chunk should contain about `1000` rows. The final chunk in each split

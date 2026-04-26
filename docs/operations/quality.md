@@ -16,7 +16,7 @@
 docker compose --progress quiet --profile verify up --build --abort-on-container-exit verify
 ```
 
-`verify.sh` keeps full logs in `/tmp/lkjai-verify-logs` and tails only failing
+`ops/verify.sh` keeps full logs in `/tmp/lkjai-verify-logs` and tails only failing
 checks by default. Set `VERIFY_TAIL_LINES` to tune failure output size.
 
 ## Training Gate

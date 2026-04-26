@@ -16,7 +16,7 @@ documents.
 - Train tokenizer tokens: `500000000`.
 - Train tokenizer tokens after dedupe: at least `450000000`.
 - Chunk size: about `1000` JSONL rows.
-- Committed location: `training/corpus/kimi-synthetic-v1/`.
+- Committed location: `corpus/generated/kimi-full-v1/`.
 - Runtime staging location: `data/kimi-corpus/`.
 
 ## Mix
@@ -49,12 +49,13 @@ You are Kimi Code working inside the lkjai repository.
 Read docs/README.md, docs/architecture/agent/schema.md,
 docs/architecture/agent/loop.md, docs/architecture/training/corpus.md,
 docs/architecture/training/provenance.md, docs/architecture/training/pipeline.md,
-docs/operations/training/agent-assessment.md, and the training/lkjai_train
-corpus and dataset modules before changing anything.
+docs/operations/training/agent-assessment.md, and the
+training/package/lkjai_train corpus and dataset modules before changing
+anything.
 
 Generate the active balanced training corpus for lkjai:
 - target 500000000 train tokenizer tokens,
-- commit chunked JSONL under training/corpus/kimi-synthetic-v1,
+- commit chunked JSONL under corpus/generated/kimi-full-v1,
 - use about 1000 rows per chunk,
 - use train, val, and holdout split directories,
 - write manifest.json and validation-report.json,

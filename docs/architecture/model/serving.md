@@ -8,7 +8,7 @@ evaluation.
 ## Server
 
 - Default backend: Python/Torch OpenAI-compatible inference service.
-- Container image: `Dockerfile.inference`.
+- Container image: `ops/docker/Dockerfile.inference`.
 - Load root: `/models/${MODEL_NAME}`.
 - Bind: `0.0.0.0:8081` in-container.
 - Host port: `127.0.0.1:${MODEL_PORT:-8081}`.

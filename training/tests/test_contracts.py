@@ -39,7 +39,7 @@ def test_json_training_config_drives_agent_defaults(monkeypatch):
     assert settings.max_optimizer_steps == 400000
     assert settings.validate_every_optimizer_steps == 3000
     assert settings.save_latest_every_optimizer_steps == 3000
-    assert settings.intermediate_save_every_optimizer_steps == 18000
+    assert settings.intermediate_save_every_optimizer_steps == 120000
     assert settings.keep_last_checkpoints == 8
 
 
@@ -84,7 +84,7 @@ def test_public_active_sources_must_use_pinned_permissive_license(tmp_path, monk
 
 
 def test_tracked_agent_prompt_preserves_tool_action_schema():
-    prompt_path = Path(__file__).resolve().parents[2] / "prompts" / "codex-40m-system.txt"
+    prompt_path = Path(__file__).resolve().parents[2] / "apps" / "runtime" / "prompts" / "codex-40m-system.txt"
     text = prompt_path.read_text(encoding="utf-8")
     assert "<tool>agent.finish</tool>" in text
     assert "<tool>agent.request_confirmation</tool>" in text

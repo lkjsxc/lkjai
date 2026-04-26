@@ -17,7 +17,7 @@
 - Inference loads exported scratch checkpoints and generates actions directly.
 - Inference must not use exact supervised lookup, prompt matching, or canned
   response tables.
-- Training reads committed full corpus chunks from `/workspace/training/corpus`
+- Training reads committed full corpus chunks from `/workspace/corpus`
   and writes datasets, tokenizer, checkpoints, exports, and logs under
   `/app/data/train`.
 - Web writes transcripts and memory under `/app/data/agent`.
@@ -51,7 +51,7 @@ docker compose --progress quiet --profile verify up --build --abort-on-container
   result.
 - For long-running services, inspect bounded logs with
   `docker compose logs --tail=120 SERVICE`.
-- `verify.sh` stores full check logs under `/tmp/lkjai-verify-logs` and prints a
+- `ops/verify.sh` stores full check logs under `/tmp/lkjai-verify-logs` and prints a
   compact pass/fail summary.
 
 ## Training Defaults

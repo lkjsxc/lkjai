@@ -2,7 +2,7 @@ target
 tmp
 data/*
 !data/.gitkeep
-training/corpus
+corpus/generated
 .git
 .env
 __pycache__

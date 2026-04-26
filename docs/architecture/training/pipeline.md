@@ -21,10 +21,10 @@ the same real tool loop that production will use.
 
 ## Pipeline Order
 
-1. Validate tagged JSON source files in `training/corpus_sources/`.
+1. Validate tagged JSON source files in `corpus/sources/`.
 2. Build fixtures and the mainline 60K corpus.
 3. Build the full 500M-token Kimi corpus under
-   `training/corpus/kimi-synthetic-v1/` in validated JSONL shards.
+   `corpus/generated/kimi-full-v1/` in validated JSONL shards.
 4. Deduplicate and emit `train`, `val`, and `holdout` split files.
 5. Train the tokenizer on the train split only.
 6. Validate schema, split metadata, and write `validation-report.json`.
@@ -59,7 +59,7 @@ the same real tool loop that production will use.
 - `TRAIN_LR_MIN_FACTOR=0.1`
 - `TRAIN_VALIDATE_EVERY_OPTIMIZER_STEPS=3000`
 - `TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS=3000`
-- `TRAIN_INTERMEDIATE_SAVE_EVERY_OPTIMIZER_STEPS=18000`
+- `TRAIN_INTERMEDIATE_SAVE_EVERY_OPTIMIZER_STEPS=120000`
 - `TRAIN_KEEP_LAST_CHECKPOINTS=8`
 - `TRAIN_CHECKPOINT_RESUME_SOURCE=latest`
 - `TRAIN_DATALOADER_IMPL=mapped` for real non-quick runs
@@ -99,7 +99,7 @@ Recommended stages:
 ## Artifacts
 
 - Datasets: `data/train/datasets`
-- Committed full corpus: `training/corpus/kimi-synthetic-v1`
+- Committed full corpus: `corpus/generated/kimi-full-v1`
 - Tokenizer: `data/train/tokenizer`
 - Checkpoints: `data/train/checkpoints`
 - Exports: `data/train/exports`

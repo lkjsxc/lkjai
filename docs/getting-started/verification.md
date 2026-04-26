@@ -14,7 +14,7 @@ Verification proves:
 docker compose --progress quiet --profile verify up --build --abort-on-container-exit verify
 ```
 
-## Mandatory Checks in `verify.sh`
+## Mandatory Checks in `ops/verify.sh`
 
 1. `cargo fmt -- --check`
 2. `cargo test`
@@ -26,7 +26,7 @@ docker compose --progress quiet --profile verify up --build --abort-on-container
 
 ## Compact Logs
 
-`verify.sh` writes full command logs under `/tmp/lkjai-verify-logs` inside the
+`ops/verify.sh` writes full command logs under `/tmp/lkjai-verify-logs` inside the
 container and prints only one pass line per check. On failure it prints the last
 `VERIFY_TAIL_LINES`, default `120`, from the failing log.
 

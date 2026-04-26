@@ -21,7 +21,7 @@ honestly.
 - The Rust client consumes `choices[0].message.content`.
 - Every model step must return one XML action.
 - The runtime system prompt is tracked in `prompts/codex-40m-system.txt` and
-  loaded by `src/agent/prompt.rs`.
+  loaded by `apps/runtime/src/agent/prompt.rs`.
 - The action contract uses `<tool>...`, not `<type>...`.
 - Parse repair is allowed in the agent loop, but there is no non-model fallback.
 - Plain user text must stay plain when sent to the serving model. Do not wrap
