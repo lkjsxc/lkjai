@@ -14,8 +14,8 @@
   safety boundaries, docs grounding, and agentic multi-turn trajectories.
 - Evaluation must report task buckets so a single aggregate pass rate does not
   hide tool or confirmation regressions.
-- Use the 20M preset while the committed corpus is far below the 60M token
-  target. Move back to 60M only after data volume and behavior justify it.
+- Use the 40M preset as the active RTX 3070 baseline. Move to 60M only after
+  data volume and behavior justify it.
 
 ## Optimizer Lessons
 

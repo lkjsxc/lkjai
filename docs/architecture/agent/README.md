@@ -11,5 +11,6 @@ Use this subtree for the runtime loop that turns chat into multi-step agent work
 ## Child Index
 
 - [loop.md](loop.md): step-by-step agent loop contract
+- [prompt.md](prompt.md): tracked system prompt and 40M prompt contract
 - [schema.md](schema.md): action, event, and tool JSON contracts
 - [failures.md](failures.md): invalid output, tool errors, and stop rules

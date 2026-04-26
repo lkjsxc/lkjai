@@ -2,9 +2,8 @@
 
 ## Goal
 
-Train, export, and evaluate the active scratch model using XML actions and the
-same real tool loop that production will use. The active preset is 20M-class
-until the corpus grows enough to justify the 60M long-term target.
+Train, export, and evaluate the active 40M scratch model using XML actions and
+the same real tool loop that production will use.
 
 ## Commands
 
@@ -42,25 +41,26 @@ until the corpus grows enough to justify the 60M long-term target.
 ## Defaults
 
 - `TRAIN_PRESET=agent`
-- `TRAIN_MODEL_PRESET=scratch-20m`
+- `TRAIN_CONFIG=/workspace/configs/training/scratch_40m_12h.json`
+- `TRAIN_MODEL_PRESET=scratch-40m`
 - `TRAIN_OBJECTIVE=causal_lm_full`
 - `TRAIN_SEQUENCE_LEN=1024`
 - `TRAIN_CORPUS_TOKENS=500000000`
 - `TRAIN_CORPUS_DIR=/app/data/kimi-corpus`
-- `TRAIN_MAX_STEPS=120000` optimizer steps
+- `TRAIN_MAX_STEPS=400000` optimizer steps
 - `TRAIN_BATCH_SIZE=2`
 - `TRAIN_GRADIENT_ACCUMULATION=4`
-- `TRAIN_BATCH_POLICY=fixed`
+- `TRAIN_BATCH_POLICY=oom_fallback`
 - `TRAIN_AUTO_BATCH=true`
 - `TRAIN_TARGET_EFFECTIVE_BATCH_TOKENS` defaults to batch x sequence x
   accumulation and is preserved when CUDA auto-batch adjusts microbatch size.
 - `TRAIN_LR_SCHEDULE=linear_warmup_cosine`
 - `TRAIN_WARMUP_STEPS=min(100, TRAIN_MAX_STEPS / 10)`
 - `TRAIN_LR_MIN_FACTOR=0.1`
-- `TRAIN_VALIDATE_EVERY_OPTIMIZER_STEPS=250`
-- `TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS=250`
-- `TRAIN_INTERMEDIATE_SAVE_EVERY_OPTIMIZER_STEPS=1000`
-- `TRAIN_KEEP_LAST_CHECKPOINTS=3`
+- `TRAIN_VALIDATE_EVERY_OPTIMIZER_STEPS=3000`
+- `TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS=3000`
+- `TRAIN_INTERMEDIATE_SAVE_EVERY_OPTIMIZER_STEPS=18000`
+- `TRAIN_KEEP_LAST_CHECKPOINTS=8`
 - `TRAIN_CHECKPOINT_RESUME_SOURCE=latest`
 - `TRAIN_DATALOADER_IMPL=mapped` for real non-quick runs
 - `TRAIN_STATIC_SHAPES=true`
@@ -69,7 +69,7 @@ until the corpus grows enough to justify the 60M long-term target.
 - `TRAIN_ACTIVATION_CHECKPOINT=off`
 - `TRAIN_CHECKPOINT_PRESERVE_RNG=false`
 - `TRAIN_ATTENTION_BACKEND=auto`
-- `TRAIN_CURRICULUM=configs/curriculum/agent_20m.toml`
+- `TRAIN_CURRICULUM=configs/curriculum/agent_40m.toml`
 - `TRAIN_EXPORT_CHECKPOINT=best`
 - `TRAIN_BEHAVIORAL_THRESHOLD=0.35`
 - `TRAIN_DATA_DIR=/app/data/train`

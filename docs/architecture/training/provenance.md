@@ -45,6 +45,17 @@ The mainline 60,000 row corpus uses this approximate provenance mix:
 - `public-import`: ~0% (not available locally; redistributed to repo-derived)
 - `kimi-generated`: full 500M-token corpus under `data/kimi-corpus/`
 
+## Public Dataset Policy
+
+Active public-import rows are conservative by default:
+
+- Allowed active licenses: `Apache-2.0`, `MIT`, `BSD-2-Clause`, `BSD-3-Clause`.
+- Placeholder revisions are rejected for active sources.
+- OASST1 English, OASST2 English, smol-smoltalk, and Hermes Function-Calling V1
+  may become active only after revision pinning and local normalization.
+- Dolly and xLAM are review-only in mainline because their license or access
+  terms need a separate legal decision.
+
 ## Verification
 
 ```bash

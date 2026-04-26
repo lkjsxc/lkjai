@@ -17,7 +17,7 @@ Compose.
 
 ```bash
 cp .env.example .env
-mkdir -p data/models/lkjai-scratch-20m data/train data/agent data/workspace
+mkdir -p data/models/lkjai-scratch-40m data/train data/agent data/workspace
 ```
 
 ## Run Web Runtime
@@ -61,6 +61,18 @@ For a quick smoke check:
 
 ```bash
 TRAIN_PRESET=quick docker compose --profile train up --build train
+```
+
+For a 40M Docker start check without the full long run:
+
+```bash
+docker compose --profile train run --rm \
+  -e TRAIN_DATA_DIR=/app/data/train-start-check \
+  -e TRAIN_MAX_OPTIMIZER_STEPS=1 \
+  -e TRAIN_MAX_STEPS=1 \
+  -e TRAIN_RESUME=never \
+  -e TRAIN_COMPILE=off \
+  train train-scratch --preset agent
 ```
 
 Expected training artifacts:

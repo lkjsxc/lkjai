@@ -71,12 +71,12 @@ Editable source entries live in JSON array files under
 
 ## Token Budget
 
-- Active parameter count: about 20M (`scratch-20m` preset).
-- Long-term parameter count: 60M class (`scratch-60m` preset).
-- Chinchilla-optimal tokens for 20M: ~400M (~20 tokens/parameter).
+- Active parameter count: about 40M (`scratch-40m` preset).
+- Later scale target: 60M class (`scratch-60m` preset).
+- Chinchilla-optimal tokens for 40M: ~800M (~20 tokens/parameter).
 - Practical train tokens at current scale: the committed corpus has about 26M
   tokenizer tokens and must be treated as under-tokened.
-- Practical long-term train tokens at 60M scale: 500M (~8.3 tokens/parameter).
+- Practical target tokens at 40M scale: 500M (~12.5 tokens/parameter).
 - The target remains below the classic 20 tokens/parameter heuristic.
 - Quality, tool fidelity, and holdout isolation remain mandatory.
 

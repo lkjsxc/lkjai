@@ -27,7 +27,7 @@ GET ${MODEL_API_URL%/v1/chat/completions}/models
 
 ```json
 {
-  "model": "lkjai-scratch-20m",
+  "model": "lkjai-scratch-40m",
   "api_url": "http://127.0.0.1:8081/v1/chat/completions",
   "loaded": true,
   "reachable": true,

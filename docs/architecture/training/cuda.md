@@ -7,8 +7,9 @@
 - Mixed precision is enabled by default on CUDA.
 - `TRAIN_AMP=auto` chooses BF16 when supported and FP16 otherwise.
 - `TRAIN_AMP=fp16` uses a GradScaler.
-- Batch size 2 with gradient accumulation 4 is the default 20M path.
-- `TRAIN_BATCH_POLICY=fixed` keeps benchmark shapes stable by default.
+- Batch size 2 with gradient accumulation 4 is the default 40M path.
+- `TRAIN_BATCH_POLICY=oom_fallback` lets the 40M path reduce microbatch size
+  when an 8GB GPU cannot hold the configured shape.
 - Activation checkpointing is wired through `TRAIN_ACTIVATION_CHECKPOINT`.
 - Checkpoint wrappers use `TRAIN_CHECKPOINT_PRESERVE_RNG=false` unless a
   dropout-sensitive experiment opts back in.

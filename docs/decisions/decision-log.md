@@ -5,8 +5,8 @@
 - Runtime orchestrator: Rust with axum.
 - Inference runtime: separate Python/Torch OpenAI-compatible service.
 - Serving model family: local scratch dense decoder.
-- Training scale: `scratch-20m` by default for the current corpus; `scratch-60m`
-  remains the long-term target.
+- Training scale: `scratch-40m` by default for the current corpus;
+  `scratch-60m` remains a later target.
 - Training method: local PyTorch from random initialization.
 - Tokenizer: local byte-level BPE.
 - Memory backend: SQLite plus FTS lexical retrieval.
@@ -31,6 +31,8 @@
   kjxlkj runtime routes.
 - GPT/LLM-authored corpus packs are quarantined from default training.
 - Default corpus generation is docs-derived until reviewed non-LLM data exists.
+- Docker training reads a committed JSON config by default, with environment
+  variables used only as explicit overrides.
 
 ## Rationale
 

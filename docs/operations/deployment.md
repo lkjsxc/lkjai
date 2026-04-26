@@ -10,14 +10,14 @@
 
 ```bash
 cp .env.example .env
-mkdir -p data/models/lkjai-scratch-20m data/train data/agent data/workspace
+mkdir -p data/models/lkjai-scratch-40m data/train data/agent data/workspace
 docker compose --profile inference up --build inference
 docker compose --profile web up --build web
 ```
 
 ## Bootstrap Scratch Artifact
 
-- The default artifact root is `data/models/lkjai-scratch-20m/`.
+- The default artifact root is `data/models/lkjai-scratch-40m/`.
 - Training export copies tokenizer, config, checkpoint, and serving manifests
   into that directory.
 - Compose web uses `MODEL_API_URL=http://inference:8081/v1/chat/completions`.

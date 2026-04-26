@@ -69,9 +69,23 @@ consume them by default.
 
 ## Public-Import Note
 
-No permissive public dataset files are available in the local environment.
-The 5% public-import target is redistributed to repo-derived sources.
-Document this decision when reporting corpus mix metadata.
+No public dataset files are active by default. `public.json` records reviewed
+candidate and legal-review entries, but only entries tagged `public_dataset`
+are consumed by `prepare-public-corpus`.
+
+To activate a public source:
+
+- Use only a mainline-allowed license: `Apache-2.0`, `MIT`, `BSD-2-Clause`, or
+  `BSD-3-Clause`.
+- Pin an immutable revision. Placeholder values such as `latest`, `main`,
+  `master`, `pinned-by-operator`, and `review-required` are invalid for active
+  sources.
+- Normalize the source into local `messages` JSONL before training.
+- Preserve source URL, license, revision, row limit, skill, tags, and toolset.
+
+Candidate sources under review include OASST1 English, OASST2 English,
+smol-smoltalk, and Hermes Function-Calling V1. Dolly and xLAM remain
+legal-review only under the conservative mainline policy.
 
 ## Rationale
 

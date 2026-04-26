@@ -12,10 +12,10 @@ Hoffmann et al. (2022) defines compute-optimal training as roughly
 
 - `compute_optimal_tokens ≈ parameters × 20`
 
-For the active `scratch-20m` preset:
+For the active `scratch-40m` preset:
 
-- Parameters: `~20,078,016`
-- Chinchilla target: `~400M tokens`
+- Parameters: `~39,567,168`
+- Chinchilla target: `~791M tokens`
 
 For the long-term `scratch-60m` preset:
 
@@ -27,17 +27,17 @@ For the long-term `scratch-60m` preset:
 At the current committed Kimi corpus size:
 
 - Train tokens: about `26M`
-- Tokens per parameter at 20M: about `1.3`
-- Chinchilla gap: about `93.5% shortfall`
+- Tokens per parameter at 40M: about `0.66`
+- Chinchilla gap: about `96.7% shortfall`
 
 This gap is expected and acceptable for the default path:
 
 - The target hardware is a single RTX 3070 8GB.
 - We optimize for trusted provenance, task diversity, and format alignment, not
   raw token volume.
-- The 20M preset is a deliberate bridge until corpus quality and volume improve.
-- Scaling toward 500M tokens remains necessary before `scratch-60m` becomes the
-  default again.
+- The 40M preset is the active compromise between capacity and RTX 3070 memory.
+- Scaling toward 500M tokens remains necessary before `scratch-60m` becomes a
+  serious default candidate.
 
 ## SmolLM2 Guidance
 

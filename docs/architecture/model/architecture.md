@@ -13,9 +13,9 @@
 
 ## RTX 3070 Constraint
 
-- The default training preset targets about 20M parameters while the committed
+- The default training preset targets about 40M parameters while the committed
   corpus is around 26M tokenizer tokens.
-- `scratch-60m` remains the long-term target preset, not the active default.
+- `scratch-60m` remains a later scale target, not the active default.
 - The default model must fit RTX 3070 8GB training experiments with gradient
   accumulation.
 - If the target shape does not fit, reduce sequence length before hidden size and

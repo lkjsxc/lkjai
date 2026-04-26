@@ -20,6 +20,9 @@ honestly.
 - Request fields: `model`, `messages`, `max_tokens`, `temperature`.
 - The Rust client consumes `choices[0].message.content`.
 - Every model step must return one XML action.
+- The runtime system prompt is tracked in `prompts/codex-40m-system.txt` and
+  loaded by `src/agent/prompt.rs`.
+- The action contract uses `<tool>...`, not `<type>...`.
 - Parse repair is allowed in the agent loop, but there is no non-model fallback.
 - Plain user text must stay plain when sent to the serving model. Do not wrap
   ordinary chat in a synthetic task envelope unless the prompt is already
@@ -44,6 +47,6 @@ honestly.
 ## Defaults
 
 - `MODEL_API_URL=http://127.0.0.1:8081/v1/chat/completions`
-- `MODEL_NAME=lkjai-scratch-20m`
+- `MODEL_NAME=lkjai-scratch-40m`
 - `MODEL_MAX_NEW_TOKENS=512`
 - `MODEL_TEMPERATURE=0.2`

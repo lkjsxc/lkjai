@@ -7,9 +7,9 @@ behavioral reports.
 
 ## Baseline
 
-- Artifact root: `data/models/lkjai-scratch-20m/`.
+- Artifact root: `data/models/lkjai-scratch-40m/`.
 - Training summary: `data/train/checkpoints/training-summary.json`.
-- Active default parameter target: about `20M`.
+- Active default parameter target: about `40M`.
 - Current behavioral report: `data/train/runs/behavioral-eval.json`.
 - Current pass rate: `0.0` from `0/200` cases.
 - Current issue: malformed or prompt-copy generations were wrapped into valid
@@ -23,9 +23,9 @@ behavioral reports.
 ## Iteration Command
 
 ```bash
-MODEL_NAME=lkjai-scratch-20m \
+MODEL_NAME=lkjai-scratch-40m \
 TRAIN_PRESET=agent \
-TRAIN_MODEL_PRESET=scratch-20m \
+TRAIN_CONFIG=/workspace/configs/training/scratch_40m_12h.json \
 TRAIN_BEHAVIORAL_THRESHOLD=0.35 \
 docker compose --profile train up --build --abort-on-container-exit train
 ```

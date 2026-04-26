@@ -21,7 +21,11 @@ checks by default. Set `VERIFY_TAIL_LINES` to tune failure output size.
 
 ## Training Gate
 
-- `docker compose --profile train up --build train` is a separate training gate.
+- `docker compose --profile train up --build train` is the full long training
+  gate and is not required for ordinary code verification.
+- The bounded Docker start check in
+  [training/long-run.md](training/long-run.md) must pass for training-config
+  changes.
 - It produces `runs/fixed-eval.json` and `runs/behavioral-eval.json`.
 - Fixed eval acceptance requires XML-action artifacts to pass configured gates.
 - Current behavioral baseline is raw holdout `pass_rate=0.235`.
