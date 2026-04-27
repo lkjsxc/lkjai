@@ -4,6 +4,7 @@ from types import SimpleNamespace
 from lkjai_train.objectives import ASSISTANT_MASKED_SFT, CAUSAL_LM_FULL, objective_tokens
 from lkjai_train.packed_data import build_or_load_packed_cache, read_ids, read_mask, start_count
 from lkjai_train.paths import Paths
+from lkjai_train.scratch_loaders import train_source as loader_train_source
 
 
 def test_full_lm_objective_marks_all_tokens_for_loss():
@@ -35,6 +36,21 @@ def test_packed_cache_writes_lazy_window_inputs_and_masks(tmp_path):
     assert start_count(cache / "starts.bin") == 2
     assert read_ids(cache / "tokens.bin", 0, 5, 0) == [97, 98, 99, 100, 101]
     assert read_mask(cache / "loss_mask.bin", 1, 4) == [1, 1, 1, 1]
+
+
+def test_sft_training_source_prefers_xml_rows_over_public_pretrain(tmp_path, monkeypatch):
+    committed = tmp_path / "committed"
+    monkeypatch.setenv("TRAIN_COMMITTED_CORPUS_DIR", str(committed))
+    paths = Paths(str(tmp_path / "data"))
+    public_train = paths.public_pretrain_train / "train-000001.jsonl"
+    public_train.parent.mkdir(parents=True)
+    public_train.write_text(json.dumps({"mode": "pretrain", "text": "public text"}) + "\n", encoding="utf-8")
+    committed_train = paths.committed_train / "train-000001.jsonl"
+    committed_train.parent.mkdir(parents=True)
+    committed_train.write_text(json.dumps({"messages": []}) + "\n", encoding="utf-8")
+
+    assert loader_train_source(paths, CAUSAL_LM_FULL) == paths.public_pretrain_train
+    assert loader_train_source(paths, ASSISTANT_MASKED_SFT) == paths.committed_train
 
 
 class DummyTokenizer:

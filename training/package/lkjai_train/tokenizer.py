@@ -8,7 +8,7 @@ from .formatting import SPECIAL_TOKENS, iter_rows, row_text
 
 def train_tokenizer(paths, settings) -> Path:
     paths.ensure()
-    dataset = train_source(paths)
+    dataset = train_source(paths, settings.objective)
     if not any(iter_rows(dataset)):
         raise RuntimeError("tokenizer training requires at least one row")
     tokenizer = Tokenizer(models.BPE(unk_token="<unk>"))
@@ -34,11 +34,18 @@ def train_tokenizer(paths, settings) -> Path:
     return paths.tokenizer_json
 
 
-def train_source(paths) -> Path:
-    if paths.committed_train.exists() and any(paths.committed_train.rglob("*.jsonl")):
-        return paths.committed_train
+def train_source(paths, objective: str = "causal_lm_full") -> Path:
+    if objective in {"assistant_masked_sft", "sft", "assistant", "supervised"}:
+        if paths.committed_train.exists() and any(paths.committed_train.rglob("*.jsonl")):
+            return paths.committed_train
+        if paths.train_dataset.exists():
+            return paths.train_dataset
+    if paths.public_pretrain_train.exists() and any(paths.public_pretrain_train.rglob("*.jsonl")):
+        return paths.public_pretrain_train
     if paths.train_dataset.exists():
         return paths.train_dataset
+    if paths.committed_train.exists() and any(paths.committed_train.rglob("*.jsonl")):
+        return paths.committed_train
     return paths.corpus if paths.corpus.exists() else paths.fixtures
 
 

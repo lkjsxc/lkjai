@@ -5,13 +5,13 @@
 This directory is the canonical runbook for generating the English-only
 Kimi-authored synthetic corpus.
 
-The corpus has two separate objectives:
+The active objective is `sft`: XML-action chat rows for assistant-masked
+supervised training. Public Cosmopedia text supplies the causal-LM pretraining
+side.
 
-- `pretrain`: standalone documents for full next-token causal LM training.
-- `sft`: XML-action chat rows for assistant-masked supervised training.
-
-The long-run target is `500000000` generated tokens. The committed corpus lives
-under `corpus/generated/kimi-full-v1/`.
+The refreshed long-run target is `60000000` generated SFT tokens. The historical
+committed corpus lives under `corpus/generated/kimi-full-v1/` until a refreshed
+`corpus/generated/kimi-sft-60m-v1/` corpus is validated.
 
 ## Read Order
 
@@ -19,7 +19,7 @@ under `corpus/generated/kimi-full-v1/`.
 2. [quality.md](quality.md): validation and scoring gates.
 3. [workflow.md](workflow.md): sample-first and prompt-refinement flow.
 4. [commands.md](commands.md): exact local commands.
-5. [long-run.md](long-run.md): 500M-token background operation.
+5. [long-run.md](long-run.md): 60M-token background operation.
 
 ## Rules
 
@@ -30,6 +30,6 @@ under `corpus/generated/kimi-full-v1/`.
 - Do not paste full generated documents or ordinary CLI UI text into agent
   conversation.
 - Validate before committing generated shards.
-- Commit generated validated shards under `corpus/generated/kimi-full-v1/`.
+- Commit generated validated shards under `corpus/generated/kimi-sft-60m-v1/`.
 - Keep generator staging outputs separated by objective. The committed active
   full corpus is normalized into `train`, `val`, and `holdout` splits.

@@ -4,19 +4,13 @@ model_preset = "scratch-40m"
 target_tokens = 500000000
 
 [[stage]]
-name = "broad_pretrain"
+name = "curated_public_pretrain"
 objective = "causal_lm_full"
-token_fraction = 0.70
-mix = "pretrain,docs,source"
+token_fraction = 0.88
+mix = "cosmopedia_text_only"
 
 [[stage]]
-name = "tool_api_anneal"
-objective = "causal_lm_full"
-token_fraction = 0.20
-mix = "kjxlkj,workspace_tools,docs_grounding,everyday_chat"
-
-[[stage]]
-name = "xml_sft"
+name = "first_party_xml_sft"
 objective = "assistant_masked_sft"
-token_fraction = 0.10
-mix = "xml_action,everyday_chat,confirmation,failure_recovery"
+token_fraction = 0.12
+mix = "xml_action,everyday_chat,confirmation,failure_recovery,kjxlkj,memory"

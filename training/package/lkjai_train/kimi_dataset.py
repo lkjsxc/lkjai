@@ -10,8 +10,9 @@ from .kimi_validate_rows import validate_kimi_row
 from .rows import signature
 
 
-def prepare_kimi_corpus(paths, target_tokens: int = 500_000_000, seed: int = 42) -> Path:
+def prepare_kimi_corpus(paths, target_tokens: int = 60_000_000, seed: int = 42) -> Path:
     paths.ensure()
+    target_tokens = int(os.environ.get("TRAIN_FIRST_PARTY_SFT_TOKENS", str(target_tokens)))
     target = Path(os.environ.get("KIMI_OUTPUT_DIR", str(paths.kimi_corpus)))
     row_target = _estimate_rows_for_tokens(target_tokens)
     rows = generate_kimi_corpus(row_target, seed)

@@ -8,14 +8,13 @@ pretraining.
 
 For the current non-interactive Kimi CLI pipeline, use
 [kimi-corpus/README.md](kimi-corpus/README.md). This document is SFT/tool-data
-background; the active 500M-token pretraining path is public English text.
+background; the active public pretraining path is Cosmopedia `text` only.
 
 ## Target
 
-- Train tokenizer tokens: `500000000`.
-- Train tokenizer tokens after dedupe: at least `450000000`.
+- SFT tokenizer tokens: `60000000`.
 - Chunk size: about `1000` JSONL rows.
-- Committed location: `corpus/generated/kimi-full-v1/`.
+- Committed location: `corpus/generated/kimi-sft-60m-v1/`.
 - Runtime staging location: `data/kimi-corpus/` for optional Kimi rows.
 
 ## Mix
@@ -53,8 +52,8 @@ training/package/lkjai_train corpus and dataset modules before changing
 anything.
 
 Generate the active balanced training corpus for lkjai:
-- target 500000000 train tokenizer tokens,
-- commit chunked JSONL under corpus/generated/kimi-full-v1,
+- target 60000000 SFT tokenizer tokens,
+- commit chunked JSONL under corpus/generated/kimi-sft-60m-v1,
 - use about 1000 rows per chunk,
 - use train, val, and holdout split directories,
 - write manifest.json and validation-report.json,

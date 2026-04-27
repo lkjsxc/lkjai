@@ -19,12 +19,14 @@ def validate_public_pretrain_sources(paths) -> Path:
     sources = public_pretrain_sources()
     for source in sources:
         validate_source(source)
+    if not sources:
+        raise ValueError("no active public pretrain sources")
     paths.public_pretrain_manifest.write_text(json.dumps({"sources": sources}, indent=2), encoding="utf-8")
     return paths.public_pretrain_manifest
 
 
 def validate_source(source: dict) -> None:
-    required = ["name", "license", "source_url", "revision", "text_field", "language", "token_budget"]
+    required = ["name", "dataset", "config", "license", "source_url", "revision", "text_field", "language", "token_budget", "field_policy"]
     for key in required:
         if not source.get(key):
             raise ValueError(f"public pretrain source missing {key}")
@@ -36,20 +38,28 @@ def validate_source(source: dict) -> None:
         raise ValueError(f"public pretrain source {source['name']} must pin an immutable revision")
     if source["language"] != "en":
         raise ValueError(f"public pretrain source {source['name']} must be English")
+    if source["field_policy"] != "text-only" or source["text_field"] != "text":
+        raise ValueError(f"public pretrain source {source['name']} must be text-only")
+    if "prompt" not in source.get("excluded_fields", []) or "seed_data" not in source.get("excluded_fields", []):
+        raise ValueError(f"public pretrain source {source['name']} must exclude prompt and seed_data")
+    if int(source["token_budget"]) <= 0:
+        raise ValueError(f"public pretrain source {source['name']} must have positive token budget")
 
 
-def prepare_public_pretrain(paths, target_tokens: int = 500_000_000) -> Path:
+def prepare_public_pretrain(paths, target_tokens: int | None = None) -> Path:
     validate_public_pretrain_sources(paths)
+    sources = public_pretrain_sources()
+    target_tokens = public_pretrain_target(sources, target_tokens)
     output = Path(os.environ.get("PUBLIC_PRETRAIN_OUTPUT_DIR", str(paths.public_pretrain)))
     root_value = os.environ.get("TRAIN_PUBLIC_DATA_DIR", "")
     root = Path(root_value) if root_value else None
     state = CorpusState(output, target_tokens)
-    for source in public_pretrain_sources():
+    for source in sources:
         for local in source_paths(root, source):
             for text in iter_source_text(local, source["text_field"]):
                 if state.done:
                     break
-                state.add_row(pretrain_row(source, text, state.rows + 1))
+                state.add_row(source, text)
             if state.done:
                 break
     state.close()
@@ -59,27 +69,29 @@ def prepare_public_pretrain(paths, target_tokens: int = 500_000_000) -> Path:
     return output
 
 
+def public_pretrain_target(sources: list[dict], target_tokens: int | None) -> int:
+    if target_tokens is not None:
+        return target_tokens
+    default = sum(int(source["token_budget"]) for source in sources)
+    return int(os.environ.get("TRAIN_PUBLIC_PRETRAIN_TOKENS", str(default)))
+
+
 def pretrain_row(source: dict, text: str, index: int) -> dict:
     row_id = f"public-pretrain-{source['name']}-{index:09d}"
     return {
-        "id": row_id,
-        "mode": "pretrain",
-        "language": "en",
-        "domain": source["name"],
-        "difficulty": "mixed",
-        "title": title_from(text, row_id),
-        "text": text,
-        "metadata": {
-            "source": "public_pretrain",
-            "mode": "pretrain",
-            "provenance": "public-pretrain",
-            "author_type": "external",
-            "author_model": "unknown",
-            "language": "en",
-            "license": source["license"],
-            "source_ref": f"{source['source_url']}@{source['revision']}",
-            "estimated_tokens": approx_tokens(text),
-        },
+        "id": row_id, "mode": "pretrain", "language": "en", "domain": source["name"],
+        "difficulty": "mixed", "title": title_from(text, row_id), "text": text,
+        "metadata": pretrain_metadata(source, text),
+    }
+
+
+def pretrain_metadata(source: dict, text: str) -> dict:
+    return {
+        "source": "public_pretrain", "mode": "pretrain", "provenance": "public-pretrain",
+        "author_type": "external", "author_model": "unknown", "language": "en",
+        "license": source["license"], "source_ref": f"{source['source_url']}@{source['revision']}",
+        "dataset": source["dataset"], "config": source["config"], "field_policy": source["field_policy"],
+        "excluded_fields": source.get("excluded_fields", []), "estimated_tokens": approx_tokens(text),
     }
 
 
@@ -96,7 +108,7 @@ class CorpusState:
     def __init__(self, output: Path, target_tokens: int):
         self.output, self.target_tokens = output, target_tokens
         self.rows = self.tokens = self.duplicates = 0
-        self.split_rows, self.sources, self.seen = Counter(), Counter(), set()
+        self.split_rows, self.sources, self.source_tokens, self.seen = Counter(), Counter(), Counter(), set()
         self.handles = {}
         for split in ["train", "val", "holdout"]:
             (output / split).mkdir(parents=True, exist_ok=True)
@@ -107,17 +119,22 @@ class CorpusState:
     def done(self) -> bool:
         return self.tokens >= self.target_tokens
 
-    def add_row(self, row: dict) -> None:
-        digest = hashlib.sha256(row["text"].lower().encode("utf-8")).hexdigest()
+    def add_row(self, source: dict, text: str) -> None:
+        row_tokens = approx_tokens(text)
+        if self.source_tokens[source["name"]] >= int(source["token_budget"]):
+            return
+        digest = hashlib.sha256(normalized_text(text).encode("utf-8")).hexdigest()
         if digest in self.seen:
             self.duplicates += 1
             return
         self.seen.add(digest)
+        row = pretrain_row(source, text, self.rows + 1)
         split = split_for(self.rows + 1)
         self.write(split, row)
         self.rows += 1
         self.split_rows[split] += 1
         self.sources[(row["domain"], row["metadata"]["license"])] += 1
+        self.source_tokens[source["name"]] += row_tokens
         self.tokens += approx_tokens(row_text(row))
 
     def write(self, split: str, row: dict) -> None:
@@ -140,14 +157,23 @@ def split_for(index: int) -> str:
     return "train"
 
 
+def normalized_text(text: str) -> str:
+    return " ".join(text.strip().lower().split())
+
+
 def write_report(output: Path, state: CorpusState) -> None:
+    duplicate_rate = state.duplicates / max(1, state.rows + state.duplicates)
     manifest = {
         "schema": "lkjai-public-pretrain-v1",
         "target_tokens": state.target_tokens,
         "approx_tokens": state.tokens,
         "rows": state.rows,
         "duplicate_rows": state.duplicates,
+        "duplicate_rate": duplicate_rate,
         "split_rows": dict(state.split_rows),
+        "source_tokens": dict(state.source_tokens),
+        "field_policy": "text-only",
+        "excluded_fields": ["prompt", "seed_data"],
         "sources": [{"name": name, "license": license, "rows": rows} for (name, license), rows in sorted(state.sources.items())],
         "checksums": checksums(output),
     }

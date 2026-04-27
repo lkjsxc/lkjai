@@ -6,17 +6,18 @@ Run the full generation after sample quality and verification pass:
 
 ```bash
 bash tools/kimi-corpus/launch_background.sh \
-  --config configs/corpus/kimi_500m.yaml \
-  --target-tokens 500000000 \
+  --config configs/corpus/kimi_sft_60m.yaml \
+  --target-tokens 60000000 \
+  --mode sft \
   --parallelism 2 \
-  --output-dir corpus/generated/kimi-full-v1 \
+  --output-dir corpus/generated/kimi-sft-60m-v1 \
   --full
 ```
 
 ## Controls
 
 - `--parallelism 2` runs roughly two Kimi calls at a time.
-- `--target-tokens 500000000` is the default full target.
+- `--target-tokens 60000000` is the default SFT target.
 - `--resume` skips valid completed shards.
 - `runs/kimi_corpus/STOP` requests graceful stop.
 - `runs/kimi_corpus/kimi_corpus.pid` records the launcher PID.
@@ -37,4 +38,4 @@ Commit generated shards after validation:
 - A large committed corpus increases repository size.
 
 If generation stops early, keep valid shards, update
-`corpus/generated/kimi-full-v1/README.md`, and commit the current status.
+`corpus/generated/kimi-sft-60m-v1/README.md`, and commit the current status.

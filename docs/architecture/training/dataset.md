@@ -26,6 +26,8 @@ Describe the on-disk dataset artifacts used by training and evaluation.
 - `unique_rows`: normalized unique row count.
 - `duplicate_rows`: normalized duplicate row count.
 - `sources`: ordered source list with license and provenance details.
+- `field_policy`: public pretraining field policy; active value is `text-only`.
+- `excluded_fields`: public fields that must not appear in emitted rows.
 - `token_budget`: optional object with `train_tokens`, `parameter_count`,
   `tokens_per_parameter`, and `chinchilla_gap`.
 
@@ -39,6 +41,8 @@ Describe the on-disk dataset artifacts used by training and evaluation.
 - SFT rows must contain valid `messages`, `tags`, and `meta`.
 - Pretraining rows must contain `mode=pretrain`, English `text`, and
   source/license metadata.
+- Public pretraining rows must not include source `prompt` or `seed_data`
+  values.
 - Validation must fail on missing split labels or missing provenance fields.
 - Validation must fail on GPT, Kimi, Claude, or generic LLM-authored default
   rows.

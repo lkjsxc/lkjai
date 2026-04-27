@@ -23,10 +23,10 @@ the same real tool loop that production will use.
 
 1. Validate tagged JSON source files in `corpus/sources/`.
 2. Build fixtures and the mainline 60K corpus.
-3. Build the full 500M-token public pretraining corpus under
-   `data/public-corpus/` in validated JSONL shards.
+3. Build the 440M-token public pretraining corpus under `data/public-corpus/`
+   in validated JSONL shards.
 4. Deduplicate and emit `train`, `val`, and `holdout` split files.
-5. Train the tokenizer on the train split only.
+5. Train the tokenizer on the objective-appropriate train split only.
 6. Validate schema, split metadata, and write `validation-report.json`.
 7. Train the scratch model from a disk-backed packed token cache. Real
    non-quick runs use the mapped dataloader by default.
@@ -46,6 +46,8 @@ the same real tool loop that production will use.
 - `TRAIN_OBJECTIVE=causal_lm_full`
 - `TRAIN_SEQUENCE_LEN=1024`
 - `TRAIN_CORPUS_TOKENS=500000000`
+- `TRAIN_PUBLIC_PRETRAIN_TOKENS=440000000`
+- `TRAIN_FIRST_PARTY_SFT_TOKENS=60000000`
 - `TRAIN_CORPUS_DIR=/app/data/public-corpus`
 - `TRAIN_MAX_STEPS=400000` optimizer steps
 - `TRAIN_BATCH_SIZE=2`
@@ -92,14 +94,16 @@ the same real tool loop that production will use.
 
 Recommended stages:
 
-1. `causal_lm_full` pretraining.
-2. Optional continued pretraining on domain, tool, docs, and code mixtures.
-3. `assistant_masked_sft` on XML action traces.
+1. `causal_lm_full` on curated Cosmopedia `text`-only public pretraining.
+2. `assistant_masked_sft` on first-party XML action traces.
+3. Optional later preference training after both objective gates pass.
 
 ## Artifacts
 
 - Datasets: `data/train/datasets`
 - Active full corpus: `data/public-corpus`
+- Active first-party SFT corpus: `corpus/generated/kimi-full-v1` until a
+  refreshed 60M validated corpus is generated.
 - Tokenizer: `data/train/tokenizer`
 - Checkpoints: `data/train/checkpoints`
 - Exports: `data/train/exports`

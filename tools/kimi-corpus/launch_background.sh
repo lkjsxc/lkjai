@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CONFIG="configs/corpus/kimi_500m.yaml"
-TARGET="500000000"
+CONFIG="configs/corpus/kimi_sft_60m.yaml"
+TARGET="60000000"
 OUTPUT_DIR=""
 MODE="mixed"
 PARALLELISM="2"
@@ -20,7 +20,7 @@ while [[ $# -gt 0 ]]; do
     --run-dir) RUN_DIR="$2"; shift 2 ;;
     --debug) CONFIG="configs/corpus/kimi_debug.yaml"; TARGET="50000"; shift ;;
     --smoke) CONFIG="configs/corpus/kimi_debug.yaml"; TARGET="1000000"; shift ;;
-    --full) CONFIG="configs/corpus/kimi_500m.yaml"; TARGET="500000000"; shift ;;
+    --full) CONFIG="configs/corpus/kimi_sft_60m.yaml"; TARGET="60000000"; MODE="sft"; shift ;;
     --force) FORCE=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;

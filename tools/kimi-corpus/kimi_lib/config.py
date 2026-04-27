@@ -58,12 +58,12 @@ def apply_overrides(config: dict, args: Namespace) -> dict:
     if getattr(args, "quarantine_bad_shards", False):
         config["quarantine_bad_shards"] = True
     defaults = {
-        "target_tokens": 500_000_000,
-        "mode": "mixed",
+        "target_tokens": 60_000_000,
+        "mode": "sft",
         "output_dir": str(DEFAULT_OUTPUT_DIR),
         "prompt_version": "v1",
-        "pretrain_ratio": 0.9,
-        "sft_ratio": 0.1,
+        "pretrain_ratio": 0.0,
+        "sft_ratio": 1.0,
         "batch_documents": 12,
         "sample_documents": 20,
         "timeout_seconds": 240,

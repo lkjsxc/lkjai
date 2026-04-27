@@ -80,6 +80,8 @@ services:
       TRAIN_COMMITTED_CORPUS_DIR: ${TRAIN_COMMITTED_CORPUS_DIR:-/workspace/corpus/generated/kimi-full-v1}
       TRAIN_CORPUS_DIR: ${TRAIN_CORPUS_DIR:-/app/data/public-corpus}
       TRAIN_PUBLIC_DATA_DIR: ${TRAIN_PUBLIC_DATA_DIR:-/app/data/raw/cosmopedia}
+      TRAIN_PUBLIC_PRETRAIN_TOKENS: ${TRAIN_PUBLIC_PRETRAIN_TOKENS:-440000000}
+      TRAIN_FIRST_PARTY_SFT_TOKENS: ${TRAIN_FIRST_PARTY_SFT_TOKENS:-60000000}
     volumes:
       - ./data:/app/data
       - ./corpus:/workspace/corpus:ro
@@ -100,6 +102,9 @@ services:
       DATA_DIR: ${TRAIN_DATA_DIR:-/app/data/train}
       TRAIN_CORPUS_DIR: ${TRAIN_CORPUS_DIR:-/app/data/public-corpus}
       TRAIN_PUBLIC_DATA_DIR: ${TRAIN_PUBLIC_DATA_DIR:-/app/data/raw/cosmopedia}
+      TRAIN_PUBLIC_PRETRAIN_TOKENS: ${TRAIN_PUBLIC_PRETRAIN_TOKENS:-440000000}
+      HF_TOKEN: ${HF_TOKEN:-}
+      HF_TOKEN_FILE: ${HF_TOKEN_FILE:-}
     volumes:
       - ./data:/app/data
       - ./corpus:/workspace/corpus:ro

@@ -2,18 +2,111 @@
   {
     "tags": ["public_pretrain_dataset", "language:en", "license:Apache-2.0"],
     "content": {
-      "name": "cosmopedia-en",
+      "name": "cosmopedia-stanford",
+      "dataset": "HuggingFaceTB/cosmopedia",
+      "config": "stanford",
       "license": "Apache-2.0",
       "source_url": "https://huggingface.co/datasets/HuggingFaceTB/cosmopedia",
       "download_url": "https://huggingface.co/datasets/HuggingFaceTB/cosmopedia",
       "revision": "0ae6ec63f91742bd2d1eaef4f02232c55d719385",
-      "local_glob": "**/*.parquet",
+      "local_glob": "data/stanford/*.parquet",
       "text_field": "text",
+      "token_field": "token_length",
       "language": "en",
-      "token_budget": 500000000,
+      "token_budget": 180000000,
+      "field_policy": "text-only",
+      "excluded_fields": ["prompt", "seed_data"],
       "quality_tier": "high",
       "approval_status": "active",
-      "review_note": "Apache-2.0 English educational synthetic pretraining source. Use local normalized JSONL under TRAIN_PUBLIC_DATA_DIR."
+      "review_note": "Apache-2.0 synthetic educational text. Use only generated text; never train on prompt or seed_data."
+    }
+  },
+  {
+    "tags": ["public_pretrain_dataset", "language:en", "license:Apache-2.0"],
+    "content": {
+      "name": "cosmopedia-wikihow",
+      "dataset": "HuggingFaceTB/cosmopedia",
+      "config": "wikihow",
+      "license": "Apache-2.0",
+      "source_url": "https://huggingface.co/datasets/HuggingFaceTB/cosmopedia",
+      "download_url": "https://huggingface.co/datasets/HuggingFaceTB/cosmopedia",
+      "revision": "0ae6ec63f91742bd2d1eaef4f02232c55d719385",
+      "local_glob": "data/wikihow/*.parquet",
+      "text_field": "text",
+      "token_field": "token_length",
+      "language": "en",
+      "token_budget": 90000000,
+      "field_policy": "text-only",
+      "excluded_fields": ["prompt", "seed_data"],
+      "quality_tier": "high",
+      "approval_status": "active",
+      "review_note": "Procedural synthetic text from the curated Cosmopedia wikiHow subset."
+    }
+  },
+  {
+    "tags": ["public_pretrain_dataset", "language:en", "license:Apache-2.0"],
+    "content": {
+      "name": "cosmopedia-openstax",
+      "dataset": "HuggingFaceTB/cosmopedia",
+      "config": "openstax",
+      "license": "Apache-2.0",
+      "source_url": "https://huggingface.co/datasets/HuggingFaceTB/cosmopedia",
+      "download_url": "https://huggingface.co/datasets/HuggingFaceTB/cosmopedia",
+      "revision": "0ae6ec63f91742bd2d1eaef4f02232c55d719385",
+      "local_glob": "data/openstax/*.parquet",
+      "text_field": "text",
+      "token_field": "token_length",
+      "language": "en",
+      "token_budget": 50000000,
+      "field_policy": "text-only",
+      "excluded_fields": ["prompt", "seed_data"],
+      "quality_tier": "high",
+      "approval_status": "active",
+      "review_note": "Structured textbook-style synthetic text from the curated OpenStax subset."
+    }
+  },
+  {
+    "tags": ["public_pretrain_dataset", "language:en", "license:Apache-2.0"],
+    "content": {
+      "name": "cosmopedia-khanacademy",
+      "dataset": "HuggingFaceTB/cosmopedia",
+      "config": "khanacademy",
+      "license": "Apache-2.0",
+      "source_url": "https://huggingface.co/datasets/HuggingFaceTB/cosmopedia",
+      "download_url": "https://huggingface.co/datasets/HuggingFaceTB/cosmopedia",
+      "revision": "0ae6ec63f91742bd2d1eaef4f02232c55d719385",
+      "local_glob": "data/khanacademy/*.parquet",
+      "text_field": "text",
+      "token_field": "token_length",
+      "language": "en",
+      "token_budget": 30000000,
+      "field_policy": "text-only",
+      "excluded_fields": ["prompt", "seed_data"],
+      "quality_tier": "high",
+      "approval_status": "active",
+      "review_note": "Clear instructional synthetic text from the curated Khan Academy subset."
+    }
+  },
+  {
+    "tags": ["public_pretrain_dataset", "language:en", "license:Apache-2.0"],
+    "content": {
+      "name": "cosmopedia-auto-math-text",
+      "dataset": "HuggingFaceTB/cosmopedia",
+      "config": "auto_math_text",
+      "license": "Apache-2.0",
+      "source_url": "https://huggingface.co/datasets/HuggingFaceTB/cosmopedia",
+      "download_url": "https://huggingface.co/datasets/HuggingFaceTB/cosmopedia",
+      "revision": "0ae6ec63f91742bd2d1eaef4f02232c55d719385",
+      "local_glob": "data/auto_math_text/*.parquet",
+      "text_field": "text",
+      "token_field": "token_length",
+      "language": "en",
+      "token_budget": 90000000,
+      "field_policy": "text-only",
+      "excluded_fields": ["prompt", "seed_data"],
+      "quality_tier": "high",
+      "approval_status": "active",
+      "review_note": "Reasoning-heavy synthetic educational text from the curated auto_math_text subset."
     }
   },
   {

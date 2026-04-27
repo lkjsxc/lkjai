@@ -20,9 +20,12 @@
 - Everyday-chat rows: `125001`.
 - Generic final-answer rate: about `0.000011`.
 
-## Active Public-Pretrain Gap
+## Active Release-Pack Gap
 
 The historical Kimi corpus is valid by its old checks but is no longer the
-active 500M-token pretraining path. The active target is now
-`data/public-corpus/` with permissive English public text and at least
-`450000000` deduplicated train tokenizer tokens.
+active full training pack. The active target is now:
+
+- `440000000` Cosmopedia `text`-only public pretraining tokens under
+  `data/public-corpus/`.
+- `60000000` first-party XML-action SFT tokens.
+- At least `450000000` deduplicated tokenizer tokens across the release pack.

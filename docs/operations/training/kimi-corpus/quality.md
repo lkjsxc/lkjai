@@ -34,11 +34,10 @@ Reports separate:
 
 A sample is acceptable when:
 
-- it includes at least 20 pretraining rows and 20 SFT rows,
+- it includes at least 20 SFT rows,
 - only English rows are present,
 - at least five domains are present,
 - duplicate and near-duplicate rates are near zero,
-- pretraining chat contamination is zero,
 - malformed JSONL count is zero.
 
 ## Full-Run Acceptance
@@ -50,5 +49,5 @@ A committed shard batch is acceptable when:
 - manifest token totals and validation report agree,
 - generated data is committed only after scoring,
 - the background run can resume without overwriting valid shards,
-- total tokenizer tokens reach `500000000`,
-- deduplicated train tokenizer tokens reach at least `450000000`.
+- total tokenizer tokens reach `60000000`,
+- duplicate rate is at most `0.01`.

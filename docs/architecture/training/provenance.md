@@ -47,7 +47,7 @@ The mainline 60,000 row corpus uses this approximate provenance mix:
 - `test-derived`: ~10% (fixtures, failure diagnosis, confirmation, revision)
 - `human-seed`: ~7% (preference rubrics, safety boundaries)
 - `public-import`: ~0% (not available locally; redistributed to repo-derived)
-- `public-pretrain`: full 500M-token English corpus under
+- `public-pretrain`: 440M-token Cosmopedia `text`-only English corpus under
   `data/public-corpus/`
 - `kimi-generated`: optional SFT/tool corpus outside the pretraining target
 
@@ -57,6 +57,8 @@ Public-import rows remain conservative and opt-in:
 
 - Allowed active licenses: `Apache-2.0`, `MIT`, `BSD-2-Clause`, `BSD-3-Clause`.
 - Placeholder revisions are rejected for active sources.
+- Cosmopedia active rows must use only generated `text` and must exclude
+  `prompt` and `seed_data`.
 - ODC-By and CC-BY sources are reference-only under the current policy.
 - OASST1 English, OASST2 English, smol-smoltalk, and Hermes Function-Calling V1
   may become active only after revision pinning and local normalization.

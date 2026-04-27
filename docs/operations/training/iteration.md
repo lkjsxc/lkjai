@@ -16,14 +16,14 @@ behavioral reports.
   fallback final actions, inflating XML validity.
 - Current artifacts were trained on disallowed LLM-authored corpus content and
   are invalid for acceptance after the provenance policy change.
-- New baseline target: public English pretraining chunks under
-  `data/public-corpus/` with at least `450000000` deduplicated train tokenizer
-  tokens.
+- New baseline target: `440000000` public English pretraining tokens plus
+  `60000000` first-party XML-action SFT tokens.
 
 Materialize the ignored corpus after downloading Cosmopedia to
 `data/raw/cosmopedia/`:
 
 ```bash
+docker compose --profile corpus run --rm corpus download-public-pretrain
 docker compose --profile corpus run --rm corpus prepare-public-pretrain
 ```
 

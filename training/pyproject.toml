@@ -3,6 +3,7 @@ name = "lkjai-train"
 version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
+  "huggingface_hub==0.30.2",
   "pyarrow==20.0.0",
   "tokenizers==0.21.1",
   "torch==2.5.1",

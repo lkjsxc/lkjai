@@ -75,9 +75,16 @@ def test_public_candidates_are_not_active_sources_by_default():
 def test_public_pretrain_has_active_permissive_english_source():
     active = tagged_contents("public-pretrain", "public_pretrain_dataset")
     references = tagged_contents("public-pretrain", "public_pretrain_reference_only")
-    assert {item["name"] for item in active} == {"cosmopedia-en"}
-    assert active[0]["license"] == "Apache-2.0"
-    assert active[0]["language"] == "en"
+    assert {item["config"] for item in active} == {
+        "stanford",
+        "wikihow",
+        "openstax",
+        "khanacademy",
+        "auto_math_text",
+    }
+    assert {item["license"] for item in active} == {"Apache-2.0"}
+    assert {item["language"] for item in active} == {"en"}
+    assert sum(item["token_budget"] for item in active) == 440_000_000
     assert {item["name"] for item in references} == {"fineweb-reference", "dolma-reference"}
 
 

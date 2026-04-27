@@ -3,7 +3,7 @@
 Date: 2026-04-24
 
 This report is historical. Kimi generation is now optional SFT/tool data, while
-the active 500M-token pretraining path is public English text.
+the active public pretraining path is Cosmopedia `text`-only English.
 
 ## Smoke Parameters
 
@@ -57,11 +57,11 @@ the active 500M-token pretraining path is public English text.
 - Docker verify must pass through `ops/verify.sh` after layout or corpus
   changes.
 - PyTorch/tokenizers not installed on host; token count falls back to character heuristic.
-- Full 500M-token generation requires `TRAIN_PRESET=agent` and significant disk/memory.
+- Full 60M-token SFT generation requires Kimi access and significant disk/memory.
 
 ## Residual Risks
 
 - Token count is approximate without a pre-trained tokenizer.
 - The current active mix must be regenerated before this smoke report is used
   as evidence for acceptance.
-- Full generation time and disk usage for 500M tokens are untested at scale.
+- Full generation time and disk usage for 60M SFT tokens are untested at scale.

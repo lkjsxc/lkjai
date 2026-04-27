@@ -1,6 +1,7 @@
 import torch
 from torch.utils.data import DataLoader
 
+from .objectives import ASSISTANT_MASKED_SFT, normalize_objective
 from .packed_data import PackedDataset, build_or_load_packed_cache
 from .packed_datasets import MappedPackedDataset, SyntheticPackedDataset
 
@@ -8,13 +9,21 @@ from .packed_datasets import MappedPackedDataset, SyntheticPackedDataset
 def cache_paths(paths, tokenizer, settings):
     if settings.data_mode != "real":
         return None, None
-    train_src, val_src = train_source(paths), val_source(paths)
+    train_src, val_src = train_source(paths, settings.objective), val_source(paths, settings.objective)
     train_cache = build_or_load_packed_cache(paths, tokenizer, train_src, "train", settings)
     val_cache = build_or_load_packed_cache(paths, tokenizer, val_src, "val", settings)
     return train_cache, val_cache
 
 
-def train_source(paths):
+def train_source(paths, objective: str = "causal_lm_full"):
+    if normalize_objective(objective) == ASSISTANT_MASKED_SFT:
+        if paths.committed_train.exists() and any(paths.committed_train.rglob("*.jsonl")):
+            return paths.committed_train
+        if paths.train_dataset.exists():
+            return paths.train_dataset
+        if paths.public_pretrain_train.exists() and any(paths.public_pretrain_train.rglob("*.jsonl")):
+            return paths.public_pretrain_train
+        return paths.fixtures
     if paths.public_pretrain_train.exists() and any(paths.public_pretrain_train.rglob("*.jsonl")):
         return paths.public_pretrain_train
     if paths.train_dataset.exists():
@@ -24,7 +33,15 @@ def train_source(paths):
     return paths.fixtures
 
 
-def val_source(paths):
+def val_source(paths, objective: str = "causal_lm_full"):
+    if normalize_objective(objective) == ASSISTANT_MASKED_SFT:
+        if paths.committed_val.exists() and any(paths.committed_val.rglob("*.jsonl")):
+            return paths.committed_val
+        if paths.val_dataset.exists():
+            return paths.val_dataset
+        if paths.public_pretrain_val.exists() and any(paths.public_pretrain_val.rglob("*.jsonl")):
+            return paths.public_pretrain_val
+        return paths.fixtures
     if paths.public_pretrain_val.exists() and any(paths.public_pretrain_val.rglob("*.jsonl")):
         return paths.public_pretrain_val
     if paths.val_dataset.exists():

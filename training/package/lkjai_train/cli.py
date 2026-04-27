@@ -15,7 +15,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(prog="lkjai-train")
     parser.add_argument("--data-dir", default=os.environ.get("TRAIN_DATA_DIR", os.environ.get("DATA_DIR", "/app/data")))
     sub = parser.add_subparsers(dest="command", required=True)
-    for command in ["validate-sources", "validate-public-sources", "validate-public-pretrain", "prepare-fixtures", "prepare-corpus", "prepare-public-corpus", "prepare-public-pretrain", "train-tokenizer", "prepare-preferences", "export-manifest", "smoke", "train"]:
+    for command in ["validate-sources", "validate-public-sources", "validate-public-pretrain", "download-public-pretrain", "prepare-fixtures", "prepare-corpus", "prepare-public-corpus", "prepare-public-pretrain", "train-tokenizer", "prepare-preferences", "export-manifest", "smoke", "train"]:
         sub.add_parser(command)
     validate = sub.add_parser("validate-dataset")
     validate.add_argument("--path", default="")
@@ -51,6 +51,10 @@ def dispatch(args, paths: Paths):
         from .public_pretrain import validate_public_pretrain_sources
 
         return validate_public_pretrain_sources(paths)
+    if args.command == "download-public-pretrain":
+        from .public_pretrain_download import download_public_pretrain
+
+        return download_public_pretrain(paths)
     if args.command == "prepare-corpus":
         corpus = prepare_corpus(paths, train_settings(env_preset()).corpus_size)
         from .public_pretrain import validate_public_pretrain_sources

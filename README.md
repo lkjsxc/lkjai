@@ -26,8 +26,8 @@ architecture, operations, and repository policy.
 - Competency acceptance is behavioral eval pass rate `>= 80%`.
 - Runtime data is mounted at `./data` for models, checkpoints, memory, runs, and
   the tool workspace.
-- The mainline pretraining corpus target is 500M active English tokens staged
-  under ignored `data/public-corpus/` with committed source recipes.
+- The mainline release pack target is 440M public English pretraining tokens
+  plus 60M first-party XML-action SFT tokens.
 - Scratch training has two explicit objectives: `causal_lm_full` for full
   next-token pretraining and `assistant_masked_sft` for XML-action SFT.
 - `TRAIN_MAX_STEPS` means optimizer steps; summaries separately report
