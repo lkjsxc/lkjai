@@ -108,7 +108,7 @@ class CorpusGenerator:
             if not rows:
                 if is_transient_result(result):
                     time.sleep(2**attempt); continue
-                self.quarantine_payload(mode, shard_id, result, "no_jsonl_records"); continue
+                self.quarantine_payload(mode, shard_id, result, "no_jsonl_records"); break
             write_jsonl_atomic(path, rows)
             score = score_paths([path], self.tokenizer)
             status = "valid" if score["valid_documents"] == score["documents"] and score["documents"] else "quarantined"

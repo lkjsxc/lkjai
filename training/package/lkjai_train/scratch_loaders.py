@@ -15,15 +15,23 @@ def cache_paths(paths, tokenizer, settings):
 
 
 def train_source(paths):
+    if paths.public_pretrain_train.exists() and any(paths.public_pretrain_train.rglob("*.jsonl")):
+        return paths.public_pretrain_train
+    if paths.train_dataset.exists():
+        return paths.train_dataset
     if paths.committed_train.exists() and any(paths.committed_train.rglob("*.jsonl")):
         return paths.committed_train
-    return paths.train_dataset if paths.train_dataset.exists() else paths.fixtures
+    return paths.fixtures
 
 
 def val_source(paths):
+    if paths.public_pretrain_val.exists() and any(paths.public_pretrain_val.rglob("*.jsonl")):
+        return paths.public_pretrain_val
+    if paths.val_dataset.exists():
+        return paths.val_dataset
     if paths.committed_val.exists() and any(paths.committed_val.rglob("*.jsonl")):
         return paths.committed_val
-    return paths.val_dataset if paths.val_dataset.exists() else paths.fixtures
+    return paths.fixtures
 
 
 def loader(cache, settings, pad_id: int, shuffle: bool, device, vocab_size: int, split: str):

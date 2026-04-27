@@ -30,7 +30,7 @@ normalization.
 ## Active Committed Row
 
 Each JSONL line in `corpus/generated/kimi-full-v1/{train,val,holdout}` uses the
-XML-action chat schema:
+pretraining or XML-action SFT schema. Active rows must be English-only.
 
 ```json
 {
@@ -50,7 +50,8 @@ XML-action chat schema:
 }
 ```
 
-Every assistant message must contain exactly one XML `<action>`.
+Every assistant message must contain exactly one XML `<action>`. In SFT rows,
+the final assistant action must be `agent.finish`.
 
 ## Pretraining Row
 
@@ -110,7 +111,8 @@ Staging SFT rows use the existing chat row format:
 ```
 
 `assistant_masked_sft` masks non-assistant text and trains only on assistant
-content.
+content. Preference comparisons belong in separate preference-pair artifacts,
+not in active SFT rows.
 
 ## Manifest Row
 

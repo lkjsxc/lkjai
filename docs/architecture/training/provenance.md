@@ -3,7 +3,7 @@
 ## Goal
 
 Keep active training data traceable to project canon, runtime contracts, tests,
-or explicit permissive public sources.
+or pinned permissive public pretraining sources.
 
 ## Allowed Active Provenance
 
@@ -11,7 +11,10 @@ or explicit permissive public sources.
 - `test-derived`: generated from deterministic verification fixtures.
 - `runtime-schema-derived`: generated from typed tool, API, or action schemas.
 - `human-seed`: short seed rows reviewed outside model-generated corpus work.
-- `public-import`: explicit license-gated external data with pinned revision.
+- `public-import`: explicit license-gated external data with pinned revision;
+  inactive by default for the Kimi full corpus.
+- `public-pretrain`: pinned permissive English public text for causal LM
+  pretraining.
 - `kimi-generated`: Kimi Code generated corpus rows from approved prompts.
 
 ## Disallowed Active Provenance
@@ -26,6 +29,7 @@ or explicit permissive public sources.
 - Existing tracked source packs authored by Codex/GPT are inactive.
 - Inactive packs must not be read by `prepare-corpus`.
 - Kimi source packs may be promoted only with `kimi-generated` metadata.
+- Kimi-only teacher-data restrictions are removed; Kimi rows are optional.
 
 ## Artifact Rule
 
@@ -43,14 +47,17 @@ The mainline 60,000 row corpus uses this approximate provenance mix:
 - `test-derived`: ~10% (fixtures, failure diagnosis, confirmation, revision)
 - `human-seed`: ~7% (preference rubrics, safety boundaries)
 - `public-import`: ~0% (not available locally; redistributed to repo-derived)
-- `kimi-generated`: full 500M-token corpus under `data/kimi-corpus/`
+- `public-pretrain`: full 500M-token English corpus under
+  `data/public-corpus/`
+- `kimi-generated`: optional SFT/tool corpus outside the pretraining target
 
 ## Public Dataset Policy
 
-Active public-import rows are conservative by default:
+Public-import rows remain conservative and opt-in:
 
 - Allowed active licenses: `Apache-2.0`, `MIT`, `BSD-2-Clause`, `BSD-3-Clause`.
 - Placeholder revisions are rejected for active sources.
+- ODC-By and CC-BY sources are reference-only under the current policy.
 - OASST1 English, OASST2 English, smol-smoltalk, and Hermes Function-Calling V1
   may become active only after revision pinning and local normalization.
 - Dolly and xLAM are review-only in mainline because their license or access

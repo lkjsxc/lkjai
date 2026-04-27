@@ -76,6 +76,7 @@ visible brief rationales and must not contain hidden chain-of-thought detail.
 - Invalid model responses must produce `error` events in `events`.
 - If the model server is unreachable, `stop_reason` is `model_error`.
 - If no final assistant action is produced, `stop_reason` must indicate failure.
+- If confirmation is required, `stop_reason` is `confirmation_required`.
 - `GET /api/model` reflects runtime model client configuration and reachability,
   not benchmarked quality.
 - `repeat_action` means the model repeated the same non-terminal action and the

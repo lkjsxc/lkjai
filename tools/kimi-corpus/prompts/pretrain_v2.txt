@@ -18,10 +18,16 @@ Required metadata subfields (exact keys):
 - metadata.generated_at must be "{{GENERATED_AT}}"
 - metadata.prompt_version must be "{{PROMPT_VERSION}}"
 - metadata.estimated_tokens should be your rough token estimate
+- metadata.provenance must be "kimi-generated"
+- metadata.author_type must be "external-agent-generated"
+- metadata.author_model must be "kimi-code"
+- metadata.language must be "en"
+- metadata.license must be "project-local"
+- metadata.source_ref must identify this synthetic prompt batch
 
 Fixed values:
 - mode must be "pretrain".
-- language must be "en", "ja", or "mixed" and must accurately match the actual text content.
+- language must be "en" and the actual text must be English.
 - Generate exactly {{DOCUMENTS}} JSONL lines.
 
 Content requirements:
@@ -31,7 +37,7 @@ Content requirements:
 - Do NOT include filler, fluff, generic boilerplate (e.g., "Here is", "As requested", "I hope this helps", "In conclusion"), apologies, or "as an AI" phrasing.
 - Do NOT use repeated templates across documents. Vary document length, structure, tone, and style genuinely.
 - Avoid repeated lines or repeated n-gram patterns within or across documents.
-- Generate original, compact, dense, useful educational text: ordinary prose, short textbook-like sections, math reasoning examples, science/history summaries, programming notes, problem/solution articles, code snippets with explanations, structured lists converted to prose, bilingual translation-style snippets, and original short stories when requested by the domain plan.
+- Generate original, compact, dense, useful educational English text: ordinary prose, short textbook-like sections, math reasoning examples, science/history summaries, programming notes, problem/solution articles, code snippets with explanations, structured lists converted to prose, and original short stories when requested by the domain plan.
 - Every document must contain substantive content; extremely short or empty text is forbidden.
 - Safety-sensitive topics must be high-level, defensive, or refusal-oriented; do not provide operational harm instructions.
 

@@ -30,8 +30,8 @@ checks by default. Set `VERIFY_TAIL_LINES` to tune failure output size.
 - Fixed eval acceptance requires XML-action artifacts to pass configured gates.
 - Current behavioral baseline is raw holdout `pass_rate=0.235`.
 - The next improvement gate is `TRAIN_BEHAVIORAL_THRESHOLD`, default `0.35`.
-- Everyday-chat holdout pass rate must be reported for runs that change corpus
-  generation.
+- Public-pretrain validation reports must be updated for runs that change the
+  500M corpus.
 - Agent competency acceptance remains behavioral `pass_rate >= 0.80`.
 - For strict enforcement, keep `TRAIN_ENFORCE_COMPETENCY=1`.
 - For exploratory runs, override with `TRAIN_ENFORCE_COMPETENCY=0`.

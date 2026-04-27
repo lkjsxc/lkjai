@@ -38,7 +38,7 @@ def kimi_meta(
     license_name: str = "project-local",
     safety_scope: str = "workspace-safe",
 ) -> dict:
-    return meta_base(
+    data = meta_base(
         row_id,
         domain,
         skill,
@@ -52,6 +52,9 @@ def kimi_meta(
         "external-agent-generated",
         "kimi-code",
     )
+    data["mode"] = "sft"
+    data["prompt_version"] = "deterministic-v1"
+    return data
 
 
 def meta_base(

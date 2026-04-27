@@ -72,6 +72,15 @@ def test_public_candidates_are_not_active_sources_by_default():
     }
 
 
+def test_public_pretrain_has_active_permissive_english_source():
+    active = tagged_contents("public-pretrain", "public_pretrain_dataset")
+    references = tagged_contents("public-pretrain", "public_pretrain_reference_only")
+    assert {item["name"] for item in active} == {"cosmopedia-en"}
+    assert active[0]["license"] == "Apache-2.0"
+    assert active[0]["language"] == "en"
+    assert {item["name"] for item in references} == {"fineweb-reference", "dolma-reference"}
+
+
 def test_public_active_sources_must_use_pinned_permissive_license(tmp_path, monkeypatch):
     paths = Paths(str(tmp_path))
     monkeypatch.setattr(public_import, "public_sources", lambda: [public_source("CC-BY-4.0", "abc123")])

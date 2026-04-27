@@ -5,6 +5,8 @@
 - Use recent small-model work as process guidance, not as pretrained weights.
 - Keep the default runtime trained from random initialization.
 - Import public data only when license and revision metadata are explicit.
+- The active pretraining corpus may use non-Kimi public teacher text when it is
+  English and permissively licensed.
 
 ## Data-Centric Lessons
 

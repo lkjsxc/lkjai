@@ -47,6 +47,8 @@ Execute one user turn as a bounded multi-step loop.
 - `tool_error`: configured fatal tool failure.
 - `model_error`: model server call failed or model server is unreachable.
 - `repeat_action`: repeated identical non-terminal action was blocked.
+- `confirmation_required`: a mutation request was converted into a visible
+  confirmation request and no mutation ran yet.
 
 ## Verification
 

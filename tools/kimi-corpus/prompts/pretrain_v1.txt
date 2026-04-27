@@ -11,7 +11,13 @@ Fixed requirements:
 - metadata.generated_at must be "{{GENERATED_AT}}".
 - metadata.prompt_version must be "{{PROMPT_VERSION}}".
 - metadata.estimated_tokens should be your rough estimate.
-- language must be "en", "ja", or "mixed".
+- metadata.provenance must be "kimi-generated".
+- metadata.author_type must be "external-agent-generated".
+- metadata.author_model must be "kimi-code".
+- metadata.language must be "en".
+- metadata.license must be "project-local".
+- metadata.source_ref must identify this synthetic prompt batch.
+- language must be "en".
 - Generate exactly {{DOCUMENTS}} JSONL lines.
 
 Content requirements:
@@ -21,7 +27,7 @@ Content requirements:
 - Generate original, compact, dense, useful educational text.
 - Avoid filler, repeated templates, apologies, and "as an AI" phrasing.
 - Vary document length, structure, and style.
-- Include ordinary prose, short textbook-like sections, math reasoning examples, science/history summaries, programming notes, problem/solution articles, code snippets with explanations, structured lists converted to prose, bilingual translation-style snippets, and original short stories when requested by the domain plan.
+- Include ordinary English prose, short textbook-like sections, math reasoning examples, science/history summaries, programming notes, problem/solution articles, code snippets with explanations, structured lists converted to prose, and original short stories when requested by the domain plan.
 - Safety-sensitive topics must be high-level, defensive, or refusal-oriented; do not provide operational harm instructions.
 
 Batch plan:

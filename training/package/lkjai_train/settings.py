@@ -88,7 +88,7 @@ def make_settings(preset, model_preset, resolver, vocab, seq, layers, hidden, he
         enforce_competency=resolver.bool("TRAIN_ENFORCE_COMPETENCY", "enforce_competency", False),
         corpus_size=resolver.int("TRAIN_CORPUS_SIZE", "corpus_size", rows),
         corpus_tokens=resolver.int("TRAIN_CORPUS_TOKENS", "corpus_tokens", 500_000_000),
-        corpus_dir=resolver.str("TRAIN_CORPUS_DIR", "corpus_dir", "/app/data/kimi-corpus"),
+        corpus_dir=resolver.str("TRAIN_CORPUS_DIR", "corpus_dir", "/app/data/public-corpus"),
         curriculum=resolver.str("TRAIN_CURRICULUM", "curriculum", "configs/curriculum/agent_40m.toml"),
         seed=resolver.int("TRAIN_SEED", "seed", 42),
         data_mode=resolver.str("TRAIN_DATA_MODE", "data_mode", "real"),

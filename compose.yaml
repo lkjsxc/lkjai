@@ -78,6 +78,8 @@ services:
       TRAIN_CONFIG: ${TRAIN_CONFIG:-/workspace/configs/training/scratch_40m_12h.json}
       TRAIN_BEHAVIORAL_CHECKPOINT: ${TRAIN_BEHAVIORAL_CHECKPOINT:-export}
       TRAIN_COMMITTED_CORPUS_DIR: ${TRAIN_COMMITTED_CORPUS_DIR:-/workspace/corpus/generated/kimi-full-v1}
+      TRAIN_CORPUS_DIR: ${TRAIN_CORPUS_DIR:-/app/data/public-corpus}
+      TRAIN_PUBLIC_DATA_DIR: ${TRAIN_PUBLIC_DATA_DIR:-/app/data/raw/cosmopedia}
     volumes:
       - ./data:/app/data
       - ./corpus:/workspace/corpus:ro
@@ -88,6 +90,19 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
+
+  corpus:
+    profiles: ["corpus"]
+    build:
+      context: .
+      dockerfile: ops/docker/Dockerfile.train
+    environment:
+      DATA_DIR: ${TRAIN_DATA_DIR:-/app/data/train}
+      TRAIN_CORPUS_DIR: ${TRAIN_CORPUS_DIR:-/app/data/public-corpus}
+      TRAIN_PUBLIC_DATA_DIR: ${TRAIN_PUBLIC_DATA_DIR:-/app/data/raw/cosmopedia}
+    volumes:
+      - ./data:/app/data
+      - ./corpus:/workspace/corpus:ro
 
   verify:
     profiles: ["verify"]

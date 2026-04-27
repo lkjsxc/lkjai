@@ -16,9 +16,16 @@ behavioral reports.
   fallback final actions, inflating XML validity.
 - Current artifacts were trained on disallowed LLM-authored corpus content and
   are invalid for acceptance after the provenance policy change.
-- New baseline target: full Kimi corpus chunks committed under
-  `corpus/generated/kimi-full-v1/` with at least `450000000` deduplicated train
-  tokenizer tokens.
+- New baseline target: public English pretraining chunks under
+  `data/public-corpus/` with at least `450000000` deduplicated train tokenizer
+  tokens.
+
+Materialize the ignored corpus after downloading Cosmopedia to
+`data/raw/cosmopedia/`:
+
+```bash
+docker compose --profile corpus run --rm corpus prepare-public-pretrain
+```
 
 ## Iteration Command
 
@@ -26,6 +33,7 @@ behavioral reports.
 MODEL_NAME=lkjai-scratch-40m \
 TRAIN_PRESET=agent \
 TRAIN_CONFIG=/workspace/configs/training/scratch_40m_12h.json \
+TRAIN_CORPUS_DIR=/app/data/public-corpus \
 TRAIN_BEHAVIORAL_THRESHOLD=0.35 \
 docker compose --profile train up --build --abort-on-container-exit train
 ```

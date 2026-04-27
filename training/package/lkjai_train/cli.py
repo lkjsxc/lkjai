@@ -5,7 +5,7 @@ from pathlib import Path
 
 from .corpus_source import SOURCE_DIR, validate_sources
 from .dataset import prepare_corpus, prepare_fixtures, validate_dataset
-from .kimi_dataset import prepare_kimi_corpus, validate_kimi_corpus
+from .kimi_dataset import validate_kimi_corpus
 from .manifest import checkpoint_manifest, export_manifest
 from .paths import Paths
 from .settings import train_settings
@@ -15,7 +15,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(prog="lkjai-train")
     parser.add_argument("--data-dir", default=os.environ.get("TRAIN_DATA_DIR", os.environ.get("DATA_DIR", "/app/data")))
     sub = parser.add_subparsers(dest="command", required=True)
-    for command in ["validate-sources", "validate-public-sources", "prepare-fixtures", "prepare-corpus", "prepare-public-corpus", "train-tokenizer", "prepare-preferences", "export-manifest", "smoke", "train"]:
+    for command in ["validate-sources", "validate-public-sources", "validate-public-pretrain", "prepare-fixtures", "prepare-corpus", "prepare-public-corpus", "prepare-public-pretrain", "train-tokenizer", "prepare-preferences", "export-manifest", "smoke", "train"]:
         sub.add_parser(command)
     validate = sub.add_parser("validate-dataset")
     validate.add_argument("--path", default="")
@@ -47,16 +47,24 @@ def dispatch(args, paths: Paths):
         from .public_import import validate_public_sources
 
         return validate_public_sources(paths)
+    if args.command == "validate-public-pretrain":
+        from .public_pretrain import validate_public_pretrain_sources
+
+        return validate_public_pretrain_sources(paths)
     if args.command == "prepare-corpus":
         corpus = prepare_corpus(paths, train_settings(env_preset()).corpus_size)
-        settings = train_settings(env_preset())
-        kimi_target = settings.corpus_tokens if settings.corpus_tokens > 0 else 1_000_000
-        prepare_kimi_corpus(paths, target_tokens=kimi_target)
+        from .public_pretrain import validate_public_pretrain_sources
+
+        validate_public_pretrain_sources(paths)
         return corpus
     if args.command == "prepare-public-corpus":
         from .public_import import prepare_public_corpus
 
         return prepare_public_corpus(paths)
+    if args.command == "prepare-public-pretrain":
+        from .public_pretrain import prepare_public_pretrain
+
+        return prepare_public_pretrain(paths)
     if args.command == "train-tokenizer":
         return run_tokenizer(paths, train_settings(env_preset()))
     if args.command == "validate-dataset":

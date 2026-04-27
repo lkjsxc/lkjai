@@ -52,7 +52,7 @@
   "enforce_competency": false,
   "corpus_size": 120000,
   "corpus_tokens": 500000000,
-  "corpus_dir": "/app/data/kimi-corpus",
+  "corpus_dir": "/app/data/public-corpus",
   "curriculum": "configs/curriculum/agent_40m.toml",
   "seed": 42,
   "data_mode": "real",

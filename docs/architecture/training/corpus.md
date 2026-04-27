@@ -2,8 +2,8 @@
 
 ## Goal
 
-Define the canonical training dataset for raw-generation evaluation and
-`kjxlkj` API integration.
+Define the canonical English-only public pretraining dataset for scratch
+language-model training.
 
 ## Storage Schema
 
@@ -46,7 +46,8 @@ Editable source entries live in JSON array files under
 - Public rows must use explicit permissive licenses only.
 - The mainline corpus must stay commercial-safe.
 - Default rows must not contain GPT/Codex-authored corpus text.
-- Kimi Code may create active corpus rows when metadata declares Kimi provenance.
+- Public pretraining rows may be active when metadata declares pinned source,
+  license, and `public-pretrain` provenance.
 - Quarantined source packs must not be consumed by `prepare-corpus`.
 
 ## Model-Facing Serialization
@@ -62,12 +63,16 @@ Editable source entries live in JSON array files under
 ## Dataset Targets
 
 - Target tokens: `500000000`
-- The full Kimi corpus is committed in chunked JSONL under
-  `corpus/generated/kimi-full-v1/`.
-- Runtime and training copies may be staged under ignored `data/kimi-corpus/`.
+- The full public pretraining corpus is staged under ignored
+  `data/public-corpus/`.
+- Source recipes, pinned revisions, and validation metadata are committed under
+  `corpus/sources/`.
 - A small smoke corpus may exist for quick local checks.
 - Duplicate rows: at most `1%`
 - Deduplicated tokenizer tokens on the train split: at least `450000000`
+- Active committed rows must be English-only.
+- Active public corpora must use permissive licenses only:
+  `Apache-2.0`, `MIT`, `BSD-2-Clause`, or `BSD-3-Clause`.
 
 ## Token Budget
 
@@ -80,13 +85,12 @@ Editable source entries live in JSON array files under
 - The target remains below the classic 20 tokens/parameter heuristic.
 - Quality, tool fidelity, and holdout isolation remain mandatory.
 
-## Kimi Corpus Layout
+## Public Pretraining Layout
 
-Committed generated corpus chunks live under:
+Ignored generated pretraining chunks live under:
 
 ```
-corpus/generated/kimi-full-v1/
-  README.md
+data/public-corpus/
   manifest.json
   validation-report.json
   train/train-000001.jsonl
@@ -97,10 +101,27 @@ corpus/generated/kimi-full-v1/
 Each JSONL chunk should contain about `1000` rows. The final chunk in each split
 may contain fewer rows.
 
+Raw public downloads stay outside git under:
+
+```
+data/raw/cosmopedia/
+```
+
+The active source is the Apache-2.0 Cosmopedia Hugging Face dataset:
+`https://huggingface.co/datasets/HuggingFaceTB/cosmopedia`
+
+After the user downloads the snapshot, materialize ignored shards with:
+
+```bash
+TRAIN_PUBLIC_DATA_DIR=/app/data/raw/cosmopedia \
+TRAIN_CORPUS_DIR=/app/data/public-corpus \
+docker compose --profile corpus run --rm corpus prepare-public-pretrain
+```
+
 Generated runtime copies may also live under:
 
 ```
-data/kimi-corpus/
+data/public-corpus/
   train/*.jsonl
   val/*.jsonl
   holdout/*.jsonl
@@ -108,31 +129,27 @@ data/kimi-corpus/
   validation-report.json
 ```
 
-- `manifest.json` records schema, row counts, split counts, token counts, and sources.
+- `manifest.json` records schema, row counts, split counts, token counts, and
+  sources.
 - `validation-report.json` records total rows, duplicate rate, XML validity
   rate, `agent.finish` termination rate, tool distribution, chunk sizes,
   everyday-chat coverage, and provenance distribution.
 
-## Kimi-Generated Provenance
+## Public Pretraining Provenance
 
-Active `kimi-generated` rows must use:
-
-- `provenance`: `kimi-generated`
-- `author_type`: `external-agent-generated`
-- `author_model`: `kimi-code`
+- `provenance`: `public-pretrain`
+- `author_type`: `external`
+- `author_model`: `unknown`
 - explicit `source_ref` and `license`
 
-These rows are mechanically derived from repository files and runtime schemas,
-but the trace assembly and multi-turn structure are Kimi-authored.
+Rows are copied from pinned permissive public sources after local normalization,
+dedupe, English filtering, and token-budget validation.
 
 ## Sources
 
-- Kimi-generated standalone pretraining documents.
-- Kimi-generated active XML action traces.
-- Everyday conversation and follow-up traces.
-- Docs-grounded and source-grounded tasks.
-- Runtime tool traces with real observations and explicit `agent.finish`.
-- Safety, confirmation, failure recovery, and revision traces.
+- Permissive English public pretraining text.
+- Optional later SFT, tool, memory, and `kjxlkj` traces outside the 500M
+  pretraining target.
 
 ## Rejection Patterns
 
@@ -140,4 +157,7 @@ but the trace assembly and multi-turn structure are Kimi-authored.
 - Greetings, thanks, and capability questions must not call filesystem tools.
 - Repeated failed tool calls must be represented as failures to avoid, not as
   successful target behavior.
-- Generic final answers are allowed only in explicit negative preference rows.
+- Generic final answers belong only in separate preference-pair artifacts, not
+  active causal/SFT corpus rows.
+- Rejected alternatives and preference-pair rows must not appear as ordinary
+  assistant targets in the active corpus.

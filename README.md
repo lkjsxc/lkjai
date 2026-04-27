@@ -26,13 +26,13 @@ architecture, operations, and repository policy.
 - Competency acceptance is behavioral eval pass rate `>= 80%`.
 - Runtime data is mounted at `./data` for models, checkpoints, memory, runs, and
   the tool workspace.
-- The mainline agent corpus target is 500M active tokens committed under
-  `corpus/generated/kimi-full-v1/` after validation.
+- The mainline pretraining corpus target is 500M active English tokens staged
+  under ignored `data/public-corpus/` with committed source recipes.
 - Scratch training has two explicit objectives: `causal_lm_full` for full
   next-token pretraining and `assistant_masked_sft` for XML-action SFT.
 - `TRAIN_MAX_STEPS` means optimizer steps; summaries separately report
   microsteps, optimizer steps, input tokens, and loss-bearing tokens.
-- Kimi synthetic corpus generation is documented in
+- Optional Kimi synthetic corpus generation is documented in
   [docs/operations/training/kimi-corpus/README.md](docs/operations/training/kimi-corpus/README.md).
 
 ## Rule

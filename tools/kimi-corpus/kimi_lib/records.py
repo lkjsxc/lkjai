@@ -42,6 +42,12 @@ def normalize_record(record: dict, mode: str, index: int, prompt_version: str, s
         metadata.setdefault("generated_at", now_iso())
         metadata.setdefault("prompt_version", prompt_version)
         metadata.setdefault("estimated_tokens", approx_tokens(record.get("text", "")))
+        metadata.setdefault("provenance", "kimi-generated")
+        metadata.setdefault("author_type", "external-agent-generated")
+        metadata.setdefault("author_model", "kimi-code")
+        metadata.setdefault("language", "en")
+        metadata.setdefault("license", "project-local")
+        metadata.setdefault("source_ref", f"kimi_synthetic:{prompt_version}")
         return record
     record.setdefault("messages", [])
     record.setdefault("tags", ["kimi_synthetic", "language:en"])

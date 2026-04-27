@@ -34,7 +34,7 @@ def prompt_path(config: dict, mode: str) -> Path:
 def domain_language_plan(config: dict, mode: str, documents: int) -> dict:
     domains = config.get("pretrain_domains" if mode == "pretrain" else "sft_domains", [])
     return {
-        "languages": ", ".join(["en", "ja", "mixed"][: min(3, documents)]),
+        "languages": "en",
         "domains": ", ".join(domains[: max(5, min(len(domains), documents))]),
         "difficulties": "introductory, intermediate, advanced",
     }

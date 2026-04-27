@@ -53,6 +53,7 @@ ALLOWED_PROVENANCE = {
     "runtime-schema-derived",
     "human-seed",
     "public-import",
+    "public-pretrain",
     "kimi-generated",
 }
 

@@ -7,7 +7,9 @@ live here.
 
 ## Contents
 
-- [kimi-full-v1/](kimi-full-v1/): active Kimi-derived XML-action corpus.
+- [kimi-full-v1/](kimi-full-v1/): historical Kimi-derived XML-action corpus.
+- The active 500M public pretraining corpus is stored under ignored
+  `data/public-corpus/`; source recipes live in `corpus/sources/`.
 
 ## Rules
 

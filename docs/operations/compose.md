@@ -5,6 +5,7 @@
 - `inference`: Python/Torch OpenAI-compatible scratch inference service.
 - `web`: Rust axum agent orchestrator plus its inference dependency.
 - `train`: PyTorch scratch training container.
+- `corpus`: CPU public-corpus materialization container.
 - `verify`: repository verification container.
 
 ## Data Mount
@@ -19,9 +20,12 @@
 - Inference loads exported scratch checkpoints and generates actions directly.
 - Inference must not use exact supervised lookup, prompt matching, or canned
   response tables.
-- Training reads committed full corpus chunks from `/workspace/corpus`
+- Training reads the active public pretraining corpus from
+  `/app/data/public-corpus`
   and writes datasets, tokenizer, checkpoints, exports, and logs under
   `/app/data/train`.
+- Corpus materialization reads user-downloaded raw files from
+  `/app/data/raw/cosmopedia`.
 - Web writes transcripts and memory under `/app/data/agent`.
 - Web uses `/app/data/workspace` as the only filesystem root for tools.
 - Web must not mount the host root.
@@ -43,6 +47,7 @@ cp .env.example .env
 mkdir -p data/models/lkjai-scratch-40m data/train data/agent data/workspace
 docker compose --profile inference up --build inference
 docker compose --profile web up --build web
+docker compose --profile corpus run --rm corpus prepare-public-pretrain
 docker compose --profile train up --build train
 docker compose --progress quiet --profile verify up --build --abort-on-container-exit verify
 ```
@@ -63,6 +68,8 @@ docker compose --progress quiet --profile verify up --build --abort-on-container
 - `TRAIN_PRESET=quick` runs tiny scratch training with reduced steps.
 - `TRAIN_OBJECTIVE` defaults to `causal_lm_full`; use
   `assistant_masked_sft` for XML-action SFT.
+- `TRAIN_CORPUS_DIR` defaults to `/app/data/public-corpus`.
+- `TRAIN_PUBLIC_DATA_DIR` defaults to `/app/data/raw/cosmopedia`.
 - `TRAIN_FIXED_EVAL_THRESHOLD` defaults to `0.60` for artifact reporting.
 - `TRAIN_BEHAVIORAL_THRESHOLD` defaults to `0.35` for the next pass-rate ladder.
 - `TRAIN_ENFORCE_COMPETENCY` defaults to disabled unless explicitly enabled.

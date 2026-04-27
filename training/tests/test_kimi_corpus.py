@@ -6,6 +6,7 @@ import pytest
 from lkjai_train.dataset import parse_assistant_xml
 from lkjai_train.kimi_corpus import generate_kimi_corpus
 from lkjai_train.kimi_dataset import validate_dataset_directory, write_chunked_rows, write_rows
+from lkjai_train.kimi_validate_rows import validate_kimi_row
 from lkjai_train.paths import Paths
 from lkjai_train.rows import kimi_meta
 
@@ -15,6 +16,8 @@ def test_kimi_meta_has_correct_provenance():
     assert m["provenance"] == "kimi-generated"
     assert m["author_type"] == "external-agent-generated"
     assert m["author_model"] == "kimi-code"
+    assert m["mode"] == "sft"
+    assert m["prompt_version"] == "deterministic-v1"
 
 
 def test_generate_kimi_corpus_produces_xml_actions():
@@ -39,6 +42,11 @@ def test_all_traces_end_with_agent_finish():
         assert parse_assistant_xml(last_assistant)["tool"] == "agent.finish"
 
 
+def test_active_kimi_rows_do_not_teach_rejected_assistant_targets():
+    rows = generate_kimi_corpus(200)
+    assert not [row for row in rows if "preference" in row.get("tags", [])]
+
+
 def test_kimi_corpus_contains_everyday_chat():
     rows = generate_kimi_corpus(100)
     everyday = [row for row in rows if "everyday_chat" in row.get("tags", [])]
@@ -61,6 +69,47 @@ def test_directory_validation_produces_report(tmp_path):
     assert report["duplicate_rate"] <= 0.01
     assert report["provenance_distribution"]["kimi-generated"] == len(rows)
     assert report["everyday_chat_rows"] > 0
+    assert not report["flag_counts"]
+
+
+def test_validation_rejects_preference_rows_in_active_corpus():
+    row = {
+        "messages": [
+            {"role": "user", "content": "Choose the better answer."},
+            {"role": "assistant", "content": "<action><tool>agent.finish</tool><content>bad</content></action>"},
+            {"role": "assistant", "content": "<action><tool>agent.finish</tool><content>good</content></action>"},
+        ],
+        "tags": ["kimi_synthetic", "language:en"],
+        "meta": kimi_meta("bad-001", "preferences", "rejected-action", "test", split="train"),
+    }
+    facts = validate_kimi_row(row)
+    assert "preference_row_in_active_corpus" in facts.flags
+
+
+def test_validation_accepts_english_pretrain_row():
+    row = {
+        "id": "pretrain-001",
+        "mode": "pretrain",
+        "language": "en",
+        "domain": "science",
+        "difficulty": "introductory",
+        "title": "Careful Measurement",
+        "text": "Careful measurement begins with a clear question, a stable instrument, and a written record of each observation. Repeated trials help separate signal from ordinary noise.",
+        "metadata": {
+            "source": "kimi_synthetic",
+            "mode": "pretrain",
+            "generated_at": "2026-04-27T00:00:00Z",
+            "prompt_version": "v2",
+            "estimated_tokens": 32,
+            "provenance": "kimi-generated",
+            "author_type": "external-agent-generated",
+            "author_model": "kimi-code",
+            "language": "en",
+            "license": "project-local",
+            "source_ref": "kimi_synthetic:v2",
+        },
+    }
+    assert validate_kimi_row(row).valid
 
 
 def test_chunked_writer_uses_roughly_1000_rows(tmp_path):

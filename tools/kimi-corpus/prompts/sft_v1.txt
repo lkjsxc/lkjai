@@ -20,8 +20,8 @@ Message requirements:
 - Include user and assistant turns.
 - Assistant content must be one safe, useful answer. For tool/action examples, use one valid XML action.
 - Preserve assistant-masked SFT semantics: the assistant message is the supervised target.
-- Include English, Japanese, and mixed examples when requested.
-- Include instruction following, reasoning summaries, summarization, translation, coding, correction, refusal/safety, and practical problem solving.
+- Include English examples only.
+- Include instruction following, reasoning summaries, summarization, coding, correction, refusal/safety, and practical problem solving.
 - Avoid unsafe operational content. For sensitive requests, generate safe refusal or safe-completion examples only.
 - Do not reproduce copyrighted text, benchmark answer dumps, web articles, or memorized material.
 - Avoid generic assistant boilerplate and repeated templates.

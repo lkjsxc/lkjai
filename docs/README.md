@@ -43,7 +43,7 @@
 3. [architecture/training/corpus.md](architecture/training/corpus.md)
 4. [architecture/training/pipeline.md](architecture/training/pipeline.md)
 5. [operations/training/agent-assessment.md](operations/training/agent-assessment.md)
-6. [operations/training/kimi-corpus/README.md](operations/training/kimi-corpus/README.md)
+6. [architecture/training/source-corpus.md](architecture/training/source-corpus.md)
 7. [architecture/model/config.md](architecture/model/config.md)
 8. [architecture/model/serving.md](architecture/model/serving.md)
 9. [product/kjxlkj-integration.md](product/kjxlkj-integration.md)

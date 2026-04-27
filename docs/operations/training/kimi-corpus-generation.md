@@ -2,14 +2,13 @@
 
 ## Goal
 
-Generate and commit the full Kimi-authored XML action corpus for the scratch
-agent, with enough everyday conversation coverage to make basic chat usable.
+Generate optional Kimi-authored XML action data for the scratch agent, with
+enough everyday conversation coverage to make basic chat usable after
+pretraining.
 
 For the current non-interactive Kimi CLI pipeline, use
-[kimi-corpus/README.md](kimi-corpus/README.md). The older prompt below
-describes the committed XML-action corpus target and remains useful background
-for SFT data, but the new pipeline also generates standalone pretraining
-documents.
+[kimi-corpus/README.md](kimi-corpus/README.md). This document is SFT/tool-data
+background; the active 500M-token pretraining path is public English text.
 
 ## Target
 
@@ -17,7 +16,7 @@ documents.
 - Train tokenizer tokens after dedupe: at least `450000000`.
 - Chunk size: about `1000` JSONL rows.
 - Committed location: `corpus/generated/kimi-full-v1/`.
-- Runtime staging location: `data/kimi-corpus/`.
+- Runtime staging location: `data/kimi-corpus/` for optional Kimi rows.
 
 ## Mix
 
@@ -25,7 +24,7 @@ documents.
 - Runtime schema, XML validity, and direct-answer control: `20%`.
 - Local tool use, observation handling, and recovery: `20%`.
 - Docs and source grounding: `15%`.
-- Memory, preference, and kjxlkj read/confirmation flows: `15%`.
+- Memory, kjxlkj read/confirmation, and recovery flows: `15%`.
 
 ## Quality Gates
 
@@ -60,7 +59,7 @@ Generate the active balanced training corpus for lkjai:
 - use train, val, and holdout split directories,
 - write manifest.json and validation-report.json,
 - prioritize a balanced agent: everyday conversation, XML validity, local tools,
-  observation handling, docs/source grounding, memory, preferences, and kjxlkj
+  observation handling, docs/source grounding, memory, recovery, and kjxlkj
   confirmation flows.
 - include direct negative pressure against generic finals like
   "Completed task for docs/architecture/training/provenance.md."

@@ -1,0 +1,43 @@
+[
+  {
+    "tags": ["public_pretrain_dataset", "language:en", "license:Apache-2.0"],
+    "content": {
+      "name": "cosmopedia-en",
+      "license": "Apache-2.0",
+      "source_url": "https://huggingface.co/datasets/HuggingFaceTB/cosmopedia",
+      "download_url": "https://huggingface.co/datasets/HuggingFaceTB/cosmopedia",
+      "revision": "0ae6ec63f91742bd2d1eaef4f02232c55d719385",
+      "local_glob": "**/*.parquet",
+      "text_field": "text",
+      "language": "en",
+      "token_budget": 500000000,
+      "quality_tier": "high",
+      "approval_status": "active",
+      "review_note": "Apache-2.0 English educational synthetic pretraining source. Use local normalized JSONL under TRAIN_PUBLIC_DATA_DIR."
+    }
+  },
+  {
+    "tags": ["public_pretrain_reference_only", "language:en", "license:ODC-By-1.0"],
+    "content": {
+      "name": "fineweb-reference",
+      "license": "ODC-By-1.0",
+      "source_url": "https://huggingface.co/datasets/HuggingFaceFW/fineweb",
+      "revision": "reference-only",
+      "language": "en",
+      "approval_status": "excluded-by-license-policy",
+      "review_note": "High-quality English web pretraining reference, excluded because active policy allows Apache/MIT/BSD only."
+    }
+  },
+  {
+    "tags": ["public_pretrain_reference_only", "language:en", "license:ODC-By-1.0"],
+    "content": {
+      "name": "dolma-reference",
+      "license": "ODC-By-1.0",
+      "source_url": "https://huggingface.co/datasets/allenai/dolma",
+      "revision": "reference-only",
+      "language": "en",
+      "approval_status": "excluded-by-license-policy",
+      "review_note": "LLM-jp-style English source reference, excluded under the current permissive-only policy."
+    }
+  }
+]

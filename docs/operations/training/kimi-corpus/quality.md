@@ -4,8 +4,11 @@
 
 - JSONL parses with one object per line.
 - Required fields exist for the row mode.
+- Active row language is `en`.
 - Pretraining rows are standalone documents, not chat transcripts.
 - SFT assistant messages are valid XML actions.
+- SFT rows end with `agent.finish`.
+- Preference-pair rows are excluded from active SFT.
 - Metadata declares `kimi_synthetic` or `kimi-generated` provenance.
 - Duplicate and near-duplicate rates stay low.
 - Repetition, boilerplate, wrapper leakage, unsafe operational text, and Kimi
@@ -32,7 +35,7 @@ Reports separate:
 A sample is acceptable when:
 
 - it includes at least 20 pretraining rows and 20 SFT rows,
-- English, Japanese, and mixed rows are present,
+- only English rows are present,
 - at least five domains are present,
 - duplicate and near-duplicate rates are near zero,
 - pretraining chat contamination is zero,
@@ -46,4 +49,6 @@ A committed shard batch is acceptable when:
 - quarantined shards are excluded from training paths,
 - manifest token totals and validation report agree,
 - generated data is committed only after scoring,
-- the background run can resume without overwriting valid shards.
+- the background run can resume without overwriting valid shards,
+- total tokenizer tokens reach `500000000`,
+- deduplicated train tokenizer tokens reach at least `450000000`.

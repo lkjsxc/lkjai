@@ -27,6 +27,7 @@ CHAT = ("user:", "assistant:", "as an ai", "i cannot", "i'm unable", "chatgpt", 
 BOILER = ("here is", "strict jsonl", "as requested", "i hope this helps")
 UNSAFE = ("make a bomb", "steal password", "credit card dump", "malware payload")
 PRETRAIN = {"id", "mode", "language", "domain", "difficulty", "title", "text", "metadata"}
+PRETRAIN_META = {"source", "mode", "generated_at", "prompt_version", "estimated_tokens", "provenance", "author_type", "author_model", "language", "license", "source_ref"}
 SFT = {"messages", "tags", "meta"}
 SFT_META = {"id", "split", "provenance", "author_type", "author_model", "quality_tier", "domain", "skill", "toolset", "language", "safety_scope", "license", "source_ref", "mode", "prompt_version"}
 
@@ -105,7 +106,7 @@ def score_record(row: dict, path: Path, line_no: int, tokenizer=None) -> Documen
     flags.extend(validate_pretrain(row) if mode == "pretrain" else validate_sft(row) if mode == "sft" else ["unknown_mode"])
     flags.extend(content_flags(text, mode))
     lang = record_language(row)
-    if lang not in {"en", "ja", "mixed"}:
+    if lang != "en":
         flags.append("invalid_language")
     elif not language_matches(text, lang):
         flags.append("language_mismatch")
@@ -119,7 +120,10 @@ def validate_pretrain(row: dict) -> list[str]:
     if PRETRAIN - row.keys(): flags.append("missing_pretrain_fields")
     if row.get("mode") != "pretrain": flags.append("wrong_pretrain_mode")
     if not isinstance(row.get("text"), str) or len(row.get("text", "").strip()) < 80: flags.append("short_or_empty_text")
-    if not isinstance(row.get("metadata"), dict) or row["metadata"].get("source") != "kimi_synthetic": flags.append("bad_metadata")
+    meta = row.get("metadata", {})
+    if not isinstance(meta, dict) or meta.get("source") != "kimi_synthetic": flags.append("bad_metadata")
+    elif PRETRAIN_META - meta.keys(): flags.append("missing_pretrain_meta_fields")
+    elif meta.get("provenance") != "kimi-generated" or meta.get("language") != "en": flags.append("bad_pretrain_meta")
     return flags
 
 
@@ -130,6 +134,7 @@ def validate_sft(row: dict) -> list[str]:
     elif not any(msg.get("role") == "assistant" for msg in messages): flags.append("missing_assistant")
     if not isinstance(meta, dict) or meta.get("provenance") != "kimi-generated": flags.append("bad_sft_meta")
     elif SFT_META - meta.keys(): flags.append("missing_sft_meta_fields")
+    elif meta.get("language") != "en": flags.append("bad_sft_language")
     for message in messages if isinstance(messages, list) else []:
         if message.get("role") == "assistant" and not valid_xml(message.get("content", "")):
             flags.append("invalid_assistant_xml"); break

@@ -2,8 +2,8 @@
 
 ## Purpose
 
-This directory is the canonical runbook for generating the Kimi-authored
-synthetic corpus.
+This directory is the canonical runbook for generating the English-only
+Kimi-authored synthetic corpus.
 
 The corpus has two separate objectives:
 
@@ -25,6 +25,8 @@ under `corpus/generated/kimi-full-v1/`.
 
 - Use Kimi CLI non-interactively.
 - Keep raw Kimi logs under `runs/kimi_corpus/logs/`.
+- Generate English rows only.
+- Use public corpus projects as quality references, not copied text.
 - Do not paste full generated documents or ordinary CLI UI text into agent
   conversation.
 - Validate before committing generated shards.

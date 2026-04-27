@@ -2,6 +2,9 @@
 
 Date: 2026-04-24
 
+This report is historical. Kimi generation is now optional SFT/tool data, while
+the active 500M-token pretraining path is public English text.
+
 ## Smoke Parameters
 
 - Data dir: `/tmp/lkjai-kimi-smoke`
@@ -44,12 +47,10 @@ Date: 2026-04-24
 ## Source/License Mix
 
 - lkjai-docs (project-local): 251
-- preferences (project-local): 101
 - source-code (project-local): 20
 - runtime-schema (project-local): 12
 - agentic (project-local): 11
 - kjxlkj-api (project-local): 3
-- public-import (Apache-2.0): 1
 
 ## Blockers
 
@@ -61,5 +62,6 @@ Date: 2026-04-24
 ## Residual Risks
 
 - Token count is approximate without a pre-trained tokenizer.
-- Public-import rows are minimal; mix redistributes to docs-grounded when absent.
+- The current active mix must be regenerated before this smoke report is used
+  as evidence for acceptance.
 - Full generation time and disk usage for 500M tokens are untested at scale.

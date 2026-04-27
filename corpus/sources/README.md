@@ -7,7 +7,9 @@ message rows with consistent provenance.
 
 ## Contents
 
-- [public.json](public.json): approved public-import seed entries.
+- [public.json](public.json): approved public-import SFT seed entries.
+- [public-pretrain.json](public-pretrain.json): active and reference public
+  English pretraining sources.
 
 ## Rules
 

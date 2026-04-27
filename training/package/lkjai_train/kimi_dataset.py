@@ -6,6 +6,7 @@ from pathlib import Path
 from .corpus import dedupe_rows
 from .formatting import SPECIAL_TOKENS, row_text
 from .kimi_corpus import generate_kimi_corpus, kimi_source_metadata
+from .kimi_validate_rows import validate_kimi_row
 from .rows import signature
 
 
@@ -29,7 +30,6 @@ def _estimate_rows_for_tokens(target_tokens: int) -> int:
     rough_tokens_per_row = int(os.environ.get("KIMI_TOKENS_PER_ROW", "2000"))
     return max(1000, target_tokens // rough_tokens_per_row)
 
-
 def _build_manifest(target: Path, rows: list[dict], split: dict) -> dict:
     unique_rows = {signature(row) for row in rows}
     return {
@@ -50,7 +50,6 @@ def validate_kimi_corpus(paths) -> Path:
     paths.kimi_validation_report.write_text(json.dumps(report, indent=2), encoding="utf-8")
     return paths.kimi_validation_report
 
-
 def validate_dataset_directory(directory: Path) -> dict:
     files = sorted(directory.rglob("*.jsonl"))
     if not files:
@@ -59,6 +58,8 @@ def validate_dataset_directory(directory: Path) -> dict:
     signatures = set()
     split_counts = Counter()
     tool_counts = Counter()
+    mode_counts = Counter()
+    flag_counts = Counter()
     provenance_counts = Counter()
     source_license_counts = Counter()
     trace_finish = 0
@@ -75,37 +76,27 @@ def validate_dataset_directory(directory: Path) -> dict:
                 continue
             row = json.loads(line)
             total_rows += 1
-            signatures.add(signature(row))
-            meta = row.get("meta", {})
+            signatures.add(_row_signature(row))
+            facts = validate_kimi_row(row)
+            meta = row.get("meta", row.get("metadata", {}))
             tags = set(row.get("tags", []))
             is_everyday = "everyday_chat" in tags
             everyday += int(is_everyday)
-            split_counts[meta.get("split", "unknown")] += 1
+            split_counts[facts.split] += 1
+            mode_counts[facts.mode] += 1
             provenance_counts[meta.get("provenance", "unknown")] += 1
-            source_license_counts[(meta.get("domain", "unknown"), meta.get("license", "unknown"))] += 1
-            last_assistant = None
-            for message in row.get("messages", []):
-                if message.get("role") == "assistant":
-                    xml_total += 1
-                    last_assistant = message["content"]
-                    try:
-                        from .dataset import parse_assistant_xml
-                        parsed = parse_assistant_xml(message["content"])
-                        xml_valid += 1
-                        tool_counts[parsed.get("tool", "unknown")] += 1
-                    except ValueError:
-                        pass
-            if last_assistant:
-                try:
-                    from .dataset import parse_assistant_xml
-                    final_action = parse_assistant_xml(last_assistant)
-                    if final_action.get("tool") == "agent.finish":
-                        trace_finish += 1
-                    is_generic = _is_generic_final(final_action)
-                    generic += int(is_generic)
-                    everyday_generic += int(is_everyday and is_generic)
-                except ValueError:
-                    pass
+            source_license_counts[(facts.domain, facts.license)] += 1
+            xml_total += facts.xml_total
+            xml_valid += facts.xml_valid
+            if facts.final_tool:
+                tool_counts[facts.final_tool] += 1
+            trace_finish += int(facts.mode == "sft" and facts.final_tool == "agent.finish")
+            if final_action := _final_action(row):
+                generic_final = _is_generic_final(final_action)
+                generic += int(generic_final)
+                everyday_generic += int(is_everyday and generic_final)
+            for flag in facts.flags:
+                flag_counts[flag] += 1
     duplicate_rate = (total_rows - len(signatures)) / max(1, total_rows)
     token_count = _count_tokens_in_directory(directory)
     return {
@@ -114,8 +105,10 @@ def validate_dataset_directory(directory: Path) -> dict:
         "tokenizer_tokens": token_count,
         "duplicate_rate": duplicate_rate,
         "xml_validity_rate": xml_valid / max(1, xml_total),
-        "agent_finish_rate": trace_finish / max(1, total_rows),
+        "agent_finish_rate": trace_finish / max(1, mode_counts["sft"]),
         "tool_distribution": dict(tool_counts),
+        "mode_distribution": dict(mode_counts),
+        "flag_counts": dict(flag_counts),
         "chunk_sizes": chunk_sizes,
         "everyday_chat_rows": everyday,
         "everyday_chat_generic_finals": everyday_generic,
@@ -130,6 +123,19 @@ def _is_generic_final(action: dict) -> bool:
     generic = ("completed task for", "done.", "ok.", "it depends")
     return action.get("tool") == "agent.finish" and any(item in text for item in generic)
 
+def _row_signature(row: dict) -> str:
+    if row.get("mode") == "pretrain":
+        return json.dumps({"id": row.get("id"), "text": row.get("text", "")}, sort_keys=True)
+    return signature(row)
+
+def _final_action(row: dict) -> dict:
+    try:
+        from .dataset import parse_assistant_xml
+
+        assistants = [m for m in row.get("messages", []) if m.get("role") == "assistant"]
+        return parse_assistant_xml(assistants[-1]["content"]) if assistants else {}
+    except (ValueError, KeyError, TypeError):
+        return {}
 
 def enforce_kimi_report(report: dict) -> None:
     if report["xml_validity_rate"] < 0.995:
@@ -149,7 +155,10 @@ def enforce_kimi_report(report: dict) -> None:
         raise ValueError(f"Kimi corpus chunks exceed 1000 rows: {bad_chunks}")
     if set(report["provenance_distribution"]) != {"kimi-generated"}:
         raise ValueError("Kimi corpus must use only kimi-generated provenance")
-
+    if set(report.get("mode_distribution", {})) - {"pretrain", "sft"}:
+        raise ValueError("Kimi corpus contains unknown row modes")
+    if report.get("flag_counts"):
+        raise ValueError(f"Kimi corpus has invalid rows: {sorted(report['flag_counts'])[:8]}")
 
 def _count_tokens_in_directory(directory: Path) -> int:
     from .formatting import load_rows
@@ -171,13 +180,11 @@ def _count_tokens_in_directory(directory: Path) -> int:
     tokenizer.train_from_iterator(texts, trainer=trainer)
     return sum(len(tokenizer.encode(text).ids) for text in texts)
 
-
 def write_rows(path: Path, rows: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as file:
         for row in rows:
             file.write(json.dumps(row, ensure_ascii=False) + "\n")
-
 
 def write_chunked_rows(directory: Path, split: str, rows: list[dict], chunk_size: int = 1000) -> None:
     directory.mkdir(parents=True, exist_ok=True)

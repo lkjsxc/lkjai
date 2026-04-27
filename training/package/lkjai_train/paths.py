@@ -15,6 +15,12 @@ class Paths:
         self.corpus = self.datasets / "corpus.jsonl"
         self.public_corpus = self.datasets / "public.jsonl"
         self.public_manifest = self.datasets / "public-sources.json"
+        self.public_pretrain = Path(os.environ.get("TRAIN_CORPUS_DIR", str(self.root / "public-corpus")))
+        self.public_pretrain_train = self.public_pretrain / "train"
+        self.public_pretrain_val = self.public_pretrain / "val"
+        self.public_pretrain_holdout = self.public_pretrain / "holdout"
+        self.public_pretrain_manifest = self.public_pretrain / "manifest.json"
+        self.public_pretrain_report = self.public_pretrain / "validation-report.json"
         self.train_dataset = self.datasets / "train.jsonl"
         self.val_dataset = self.datasets / "val.jsonl"
         self.holdout_dataset = self.datasets / "holdout.jsonl"

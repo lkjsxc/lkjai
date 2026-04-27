@@ -19,4 +19,4 @@ mix = "kjxlkj,workspace_tools,docs_grounding,everyday_chat"
 name = "xml_sft"
 objective = "assistant_masked_sft"
 token_fraction = 0.10
-mix = "xml_action,everyday_chat,confirmation,preference_chosen"
+mix = "xml_action,everyday_chat,confirmation,failure_recovery"

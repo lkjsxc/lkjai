@@ -1,6 +1,6 @@
 # Full Corpus Status
 
-## Generated Chunks
+## Historical Kimi Chunks
 
 - Path: `corpus/generated/kimi-full-v1/`.
 - Rows: `176345`.
@@ -20,9 +20,9 @@
 - Everyday-chat rows: `125001`.
 - Generic final-answer rate: about `0.000011`.
 
-## Remaining Gap
+## Active Public-Pretrain Gap
 
-The generated corpus more than doubles the previous 60k-row active corpus and
-is chunked correctly, but it does not yet meet the 500M train-token target.
-The next generator iteration must either stream many more rows or produce
-longer high-quality scenarios without loading the entire corpus in memory.
+The historical Kimi corpus is valid by its old checks but is no longer the
+active 500M-token pretraining path. The active target is now
+`data/public-corpus/` with permissive English public text and at least
+`450000000` deduplicated train tokenizer tokens.
