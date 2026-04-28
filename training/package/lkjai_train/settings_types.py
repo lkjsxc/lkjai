@@ -42,6 +42,7 @@ class TrainSettings:
     keep_last_checkpoints: int
     save_latest_every_optimizer_steps: int
     checkpoint_resume_source: str
+    init_checkpoint: str
     log_every_optimizer_steps: int
     validation_batches: int
     resume: str
@@ -53,6 +54,8 @@ class TrainSettings:
     export_checkpoint: str
     fixed_eval_threshold: float
     behavioral_threshold: float
+    xml_validity_threshold: float
+    everyday_chat_threshold: float
     enforce_competency: bool
     corpus_size: int
     corpus_tokens: int

@@ -8,6 +8,7 @@ from lkjai_train.corpus_source import tagged_contents
 from lkjai_train.model_presets import MODEL_PRESETS
 from lkjai_train.paths import Paths
 import lkjai_train.public_import as public_import
+from lkjai_train.pipeline import competency_passes, sft_stage_settings
 
 
 def test_scratch_40m_settings_are_available(monkeypatch):
@@ -41,6 +42,8 @@ def test_json_training_config_drives_agent_defaults(monkeypatch):
     assert settings.save_latest_every_optimizer_steps == 3000
     assert settings.intermediate_save_every_optimizer_steps == 120000
     assert settings.keep_last_checkpoints == 8
+    assert settings.xml_validity_threshold == 0.95
+    assert settings.everyday_chat_threshold == 0.90
 
 
 def test_env_overrides_json_training_config(monkeypatch):
@@ -53,6 +56,31 @@ def test_env_overrides_json_training_config(monkeypatch):
 
     assert settings.max_optimizer_steps == 7
     assert settings.batch_policy == "fixed"
+
+
+def test_sft_stage_starts_from_best_checkpoint_by_default(tmp_path, monkeypatch):
+    monkeypatch.delenv("TRAIN_RESUME", raising=False)
+    paths = Paths(str(tmp_path))
+    settings = train_settings("quick")
+    sft = sft_stage_settings(paths, settings)
+    assert sft.objective == "assistant_masked_sft"
+    assert sft.resume == "never"
+    assert sft.init_checkpoint == str(paths.checkpoint_best)
+
+
+def test_competency_requires_xml_chat_and_overall_rates(tmp_path):
+    settings = train_settings("quick")
+    report = tmp_path / "behavioral-eval.json"
+    report.write_text(
+        json.dumps({"xml_validity": 0.95, "everyday_chat_pass_rate": 0.90, "pass_rate": 0.35}),
+        encoding="utf-8",
+    )
+    assert competency_passes(report, settings)
+    report.write_text(
+        json.dumps({"xml_validity": 0.95, "everyday_chat_pass_rate": 0.89, "pass_rate": 0.35}),
+        encoding="utf-8",
+    )
+    assert not competency_passes(report, settings)
 
 
 def test_public_candidates_are_not_active_sources_by_default():

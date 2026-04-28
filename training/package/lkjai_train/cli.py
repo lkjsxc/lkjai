@@ -8,6 +8,7 @@ from .dataset import prepare_corpus, prepare_fixtures, validate_dataset
 from .kimi_dataset import validate_kimi_corpus
 from .manifest import checkpoint_manifest, export_manifest
 from .paths import Paths
+from .pipeline import failed_case_ids, fixed_artifact_passes, train_pipeline, train_sft
 from .settings import train_settings
 
 
@@ -21,6 +22,8 @@ def main() -> None:
     validate.add_argument("--path", default="")
     train = sub.add_parser("train-scratch")
     train.add_argument("--preset", default=os.environ.get("TRAIN_PRESET", "quick"))
+    sft = sub.add_parser("train-sft")
+    sft.add_argument("--preset", default=os.environ.get("TRAIN_PRESET", "quick"))
     for name in ["fixed-eval", "behavioral-eval"]:
         parser_eval = sub.add_parser(name)
         parser_eval.add_argument("--threshold", type=float, default=0.0)
@@ -79,6 +82,8 @@ def dispatch(args, paths: Paths):
         return validate_dataset(default_dataset(paths))
     if args.command == "train-scratch":
         return run_training(paths, train_settings(args.preset))
+    if args.command == "train-sft":
+        return train_sft(paths, train_settings(args.preset))
     if args.command == "fixed-eval":
         from .evals import evaluate_fixed_suite
 
@@ -109,7 +114,7 @@ def dispatch(args, paths: Paths):
     if args.command == "smoke":
         return smoke(paths)
     if args.command == "train":
-        return train_pipeline(paths)
+        return train_pipeline(paths, train_settings(env_preset()))
     raise ValueError(args.command)
 
 
@@ -138,35 +143,6 @@ def smoke(paths: Paths):
     return evaluate_fixed_suite(paths, 0.0)
 
 
-def train_pipeline(paths: Paths):
-    from .behavioral import evaluate_behavior
-    from .evals import evaluate_fixed_suite
-
-    settings = train_settings(env_preset())
-    validate_sources()
-    prepare_fixtures(paths)
-    dataset_path = prepare_corpus(paths, settings.corpus_size)
-    run_tokenizer(paths, settings)
-    for path in [dataset_path, paths.train_dataset, paths.val_dataset, paths.holdout_dataset]:
-        validate_dataset(path)
-    if paths.committed_kimi_corpus.exists() and any(paths.committed_kimi_corpus.rglob("*.jsonl")):
-        validate_dataset(paths.committed_kimi_corpus)
-    run_training(paths, settings)
-    export_manifest(paths, settings)
-    fixed = evaluate_fixed_suite(paths, settings.fixed_eval_threshold)
-    behavioral = evaluate_behavior(paths, settings, settings.behavioral_threshold, os.environ.get("TRAIN_BEHAVIORAL_CHECKPOINT", "export"))
-    if settings.enforce_competency and not competency_passes(behavioral, settings.behavioral_threshold):
-        raise RuntimeError("agent competency gate failed")
-    if not fixed_artifact_passes(fixed, settings.fixed_eval_threshold):
-        raise RuntimeError(f"fixed artifact gate failed: {failed_case_ids(fixed)}")
-    return behavioral
-
-
-def competency_passes(path: Path, threshold: float) -> bool:
-    data = json.loads(path.read_text(encoding="utf-8"))
-    return data.get("xml_validity", 0.0) >= 0.95 and data.get("pass_rate", 0.0) >= threshold
-
-
 def default_dataset(paths: Paths) -> Path:
     if paths.committed_kimi_corpus.exists() and any(paths.committed_kimi_corpus.rglob("*.jsonl")):
         return paths.committed_kimi_corpus
@@ -177,20 +153,6 @@ def default_dataset(paths: Paths) -> Path:
 
 def env_preset() -> str:
     return os.environ.get("TRAIN_PRESET", "quick")
-
-
-def pass_rate(path: Path) -> float:
-    return float(json.loads(path.read_text(encoding="utf-8")).get("pass_rate", 0.0))
-
-
-def fixed_artifact_passes(path: Path, threshold: float) -> bool:
-    return pass_rate(path) >= threshold
-
-
-def failed_case_ids(path: Path) -> str:
-    data = json.loads(path.read_text(encoding="utf-8"))
-    failed = [item["id"] for item in data.get("cases", []) if not item.get("passed")]
-    return ", ".join(failed) if failed else "pass_rate below threshold"
 
 
 if __name__ == "__main__":

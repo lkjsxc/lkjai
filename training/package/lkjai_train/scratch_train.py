@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import torch
 
@@ -24,6 +25,7 @@ def train_scratch(paths, settings) -> dict:
     seed_torch(device, settings.seed)
     config = model_config(settings, tokenizer.get_vocab_size())
     model = ScratchLM(config).to(device)
+    load_initial_weights(model, settings, device)
     model.configure_runtime(settings)
     maybe_auto_batch(model, settings, device, config)
     optimizer = create_optimizer(model, settings, device)
@@ -39,6 +41,17 @@ def train_scratch(paths, settings) -> dict:
     warmup_compiled_model(model, settings, device, config)
     metrics = run_loop(model, optimizer, scheduler, scaler, train_loader, val_loader, settings, device, config, paths, state)
     return save_training(paths, settings, config, model, train_cache, val_cache, metrics)
+
+
+def load_initial_weights(model, settings, device) -> None:
+    if not settings.init_checkpoint:
+        return
+    path = Path(settings.init_checkpoint)
+    weights = path / "model.pt" if path.is_dir() else path
+    if not weights.exists():
+        raise RuntimeError(f"TRAIN_INIT_CHECKPOINT missing model weights: {weights}")
+    model.load_state_dict(torch.load(weights, map_location=device, weights_only=True))
+    print(json.dumps({"event": "init_checkpoint", "path": str(weights)}), flush=True)
 
 
 def validate_settings(settings) -> None:

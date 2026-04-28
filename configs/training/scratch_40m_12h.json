@@ -49,6 +49,8 @@
   "export_checkpoint": "best",
   "fixed_eval_threshold": 0.6,
   "behavioral_threshold": 0.35,
+  "xml_validity_threshold": 0.95,
+  "everyday_chat_threshold": 0.9,
   "enforce_competency": false,
   "corpus_size": 120000,
   "corpus_tokens": 500000000,

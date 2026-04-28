@@ -7,7 +7,7 @@ from lkjai_train.corpus import generate_corpus
 from lkjai_train.corpus_source import load_entries, tagged_contents, validate_sources
 from lkjai_train.dataset import parse_assistant_xml, prepare_fixtures, validate_dataset
 from lkjai_train.behavioral import action_schema_error, bucket, bucket_rates
-from lkjai_train.formatting import prompt_text, supervised_token_ids
+from lkjai_train.formatting import message_text, prompt_text, supervised_token_ids
 from lkjai_train.generation import agent_context_messages, first_xml_action, latest_user_event, normalize_action, normalize_messages
 from lkjai_train.paths import Paths
 from lkjai_train.preference import prepare_preferences
@@ -122,8 +122,8 @@ def test_prompt_boundary_matches_message_text_before_assistant_target():
     assistant = "<action><tool>agent.finish</tool><content>hi</content></action>"
     messages = [{"role": "user", "content": "hello"}]
     trained = prompt_text(messages) + "\n" + assistant
-    full = prompt_text(messages + [{"role": "assistant", "content": assistant}])
-    assert trained == full
+    full = message_text(messages + [{"role": "assistant", "content": assistant}])
+    assert full.startswith(trained + "\n</dialogue>")
 
 
 def test_agent_corpus_default_has_required_mix():
