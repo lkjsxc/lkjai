@@ -47,7 +47,7 @@ The mainline 60,000 row corpus uses this approximate provenance mix:
 - `test-derived`: ~10% (fixtures, failure diagnosis, confirmation, revision)
 - `human-seed`: ~7% (preference rubrics, safety boundaries)
 - `public-import`: ~0% (not available locally; redistributed to repo-derived)
-- `public-pretrain`: 440M-token Cosmopedia `text`-only English corpus under
+- `public-pretrain`: 500M-token Cosmopedia `text`-only English corpus under
   `data/public-corpus/`
 - `kimi-generated`: optional SFT/tool corpus outside the pretraining target
 

@@ -78,8 +78,8 @@ Public pretraining rows use standalone English `text` with metadata:
 
 ## Dataset Targets
 
-- Complete release pack target: `500000000` tokens.
-- Public pretraining target: `440000000` generated `text`-only tokens.
+- Complete release pack target: at least `500000000` tokens.
+- Public pretraining target: `500000000` generated `text`-only tokens.
 - First-party XML-action SFT target: `60000000` tokens.
 - Duplicate rows: at most `1%`.
 - Deduplicated tokenizer tokens in the complete release pack: at least
@@ -96,7 +96,7 @@ Public pretraining rows use standalone English `text` with metadata:
 | Cosmopedia `openstax` `text` only | `50000000` | `causal_lm_full` |
 | Cosmopedia `khanacademy` `text` only | `20000000` | `causal_lm_full` |
 | Cosmopedia `auto_math_text` `text` only | `90000000` | `causal_lm_full` |
-| Cosmopedia `stories` `text` only | `10000000` | `causal_lm_full` |
+| Cosmopedia `stories` `text` only | `70000000` | `causal_lm_full` |
 | First-party XML-action traces | `60000000` | `assistant_masked_sft` |
 
 The public side teaches English fluency and explanation style. The first-party

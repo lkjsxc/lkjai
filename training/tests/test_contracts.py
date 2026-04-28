@@ -113,7 +113,7 @@ def test_public_pretrain_has_active_permissive_english_source():
     }
     assert {item["license"] for item in active} == {"Apache-2.0"}
     assert {item["language"] for item in active} == {"en"}
-    assert sum(item["token_budget"] for item in active) == 440_000_000
+    assert sum(item["token_budget"] for item in active) == 500_000_000
     assert {item["name"] for item in references} == {"fineweb-reference", "dolma-reference"}
 
 

@@ -16,7 +16,7 @@ behavioral reports.
   fallback final actions, inflating XML validity.
 - Current artifacts were trained on disallowed LLM-authored corpus content and
   are invalid for acceptance after the provenance policy change.
-- New baseline target: `440000000` public English pretraining tokens plus
+- New baseline target: `500000000` public English pretraining tokens plus
   `60000000` first-party XML-action SFT tokens.
 
 Materialize the ignored corpus after downloading Cosmopedia to
@@ -38,13 +38,13 @@ docker compose --profile train run --rm \
   -e TRAIN_INIT_CHECKPOINT= \
   -e TRAIN_CORPUS_DIR=/app/data/public-corpus \
   -e TRAIN_PUBLIC_DATA_DIR=/app/data/raw/cosmopedia \
-  -e TRAIN_PUBLIC_PRETRAIN_TOKENS=440000000 \
+  -e TRAIN_PUBLIC_PRETRAIN_TOKENS=500000000 \
   -e TRAIN_CONFIG=/workspace/configs/training/scratch_40m_12h.json \
   -e TRAIN_PRESET=agent \
   train train
 ```
 
-Early causal-LM checkpoints from the current run:
+Stopped first attempt, because it used the previous `440000000` public target:
 
 - Step `1`: loss `9.1082`, `8192` input tokens seen.
 - Step `3000`: loss `6.5823`, `24576000` input tokens seen.

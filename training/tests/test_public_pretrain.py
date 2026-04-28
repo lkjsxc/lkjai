@@ -16,7 +16,7 @@ def test_public_pretrain_sources_are_pinned_and_permissive(tmp_path):
     assert {source["license"] for source in data["sources"]} == {"Apache-2.0"}
     assert all(source["language"] == "en" for source in data["sources"])
     assert all(len(source["revision"]) >= 20 for source in data["sources"])
-    assert sum(source["token_budget"] for source in data["sources"]) == 440_000_000
+    assert sum(source["token_budget"] for source in data["sources"]) == 500_000_000
     assert {source["field_policy"] for source in data["sources"]} == {"text-only"}
     assert all({"prompt", "seed_data"} <= set(source["excluded_fields"]) for source in data["sources"])
 

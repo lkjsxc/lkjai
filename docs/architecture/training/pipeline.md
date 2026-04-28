@@ -25,7 +25,7 @@ the same real tool loop that production will use.
 
 1. Validate tagged JSON source files in `corpus/sources/`.
 2. Build fixtures and the mainline 60K corpus.
-3. Build the 440M-token public pretraining corpus under `data/public-corpus/`
+3. Build the 500M-token public pretraining corpus under `data/public-corpus/`
    in validated JSONL shards.
 4. Deduplicate and emit `train`, `val`, and `holdout` split files.
 5. Train the tokenizer on the objective-appropriate train split only.
@@ -48,7 +48,7 @@ the same real tool loop that production will use.
 - `TRAIN_OBJECTIVE=causal_lm_full`
 - `TRAIN_SEQUENCE_LEN=1024`
 - `TRAIN_CORPUS_TOKENS=500000000`
-- `TRAIN_PUBLIC_PRETRAIN_TOKENS=440000000`
+- `TRAIN_PUBLIC_PRETRAIN_TOKENS=500000000`
 - `TRAIN_FIRST_PARTY_SFT_TOKENS=60000000`
 - `TRAIN_CORPUS_DIR=/app/data/public-corpus`
 - `TRAIN_MAX_STEPS=400000` optimizer steps

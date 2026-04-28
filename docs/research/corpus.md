@@ -4,7 +4,7 @@
 
 `lkjai` needs two data types, not one generic English dump:
 
-- `440000000` curated public English tokens for `causal_lm_full`.
+- `500000000` curated public English tokens for `causal_lm_full`.
 - `60000000` first-party XML-action tokens for `assistant_masked_sft`.
 
 The public side teaches English fluency, explanation style, procedural writing,

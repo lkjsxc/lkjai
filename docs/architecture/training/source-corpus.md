@@ -78,7 +78,7 @@ data/raw/cosmopedia/          # user-downloaded Hugging Face snapshot
 data/public-corpus/           # generated ignored train/val/holdout shards
 ```
 
-Materialize the active 440M-token public pretraining corpus with:
+Materialize the active 500M-token public pretraining corpus with:
 
 ```bash
 HF_TOKEN=<hugging-face-token-if-needed> \

@@ -73,7 +73,7 @@ docker compose --progress quiet --profile verify up --build --abort-on-container
   `assistant_masked_sft` for XML-action SFT.
 - `TRAIN_CORPUS_DIR` defaults to `/app/data/public-corpus`.
 - `TRAIN_PUBLIC_DATA_DIR` defaults to `/app/data/raw/cosmopedia`.
-- `TRAIN_PUBLIC_PRETRAIN_TOKENS` defaults to `440000000`.
+- `TRAIN_PUBLIC_PRETRAIN_TOKENS` defaults to `500000000`.
 - `TRAIN_FIRST_PARTY_SFT_TOKENS` defaults to `60000000`.
 - `TRAIN_FIXED_EVAL_THRESHOLD` defaults to `0.60` for artifact reporting.
 - `TRAIN_BEHAVIORAL_THRESHOLD` defaults to `0.35` for the next pass-rate ladder.

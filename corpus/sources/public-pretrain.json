@@ -101,7 +101,7 @@
       "text_field": "text",
       "token_field": "token_length",
       "language": "en",
-      "token_budget": 10000000,
+      "token_budget": 70000000,
       "field_policy": "text-only",
       "excluded_fields": ["prompt", "seed_data"],
       "quality_tier": "medium",
