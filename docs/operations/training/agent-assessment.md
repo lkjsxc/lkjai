@@ -4,9 +4,11 @@
 
 - Latest behavioral report: `data/train/runs/behavioral-eval.json`.
 - Current artifact pass rate: `0.0` from `0/200` cases.
-- Current artifact XML validity: `0.02` from `4/200` cases.
-- Current fixed eval: `12/13` artifact checks passed.
+- Current artifact XML validity: `0.0` from `0/200` cases.
+- Current fixed eval: `15/16` artifact checks passed.
 - Missing fixed eval target: tokenizer train tokens `>= 450000000`.
+- Compose verify passed on 2026-04-28.
+- The active trained dataset has zero `everyday_chat` rows.
 
 ## Observed Chat Behavior
 
@@ -18,6 +20,7 @@ Recent transcripts under `data/agent/runs/` show:
 - the model often repeats the same failed action,
 - some final answers are generic task-completion text,
 - older runs include non-XML or JSON-shaped assistant output.
+- current runs include `missing <action>` and `missing </action>` at step 1.
 
 ## Improvement Priorities
 
@@ -30,6 +33,8 @@ Recent transcripts under `data/agent/runs/` show:
 5. Expand valid XML action rows before increasing advanced tool complexity.
 6. Report everyday-chat pass rate separately from repository tool tasks.
 7. Block repeated identical non-terminal actions during runtime probes.
+8. Train the accepted runtime artifact through `assistant_masked_sft`.
+9. Keep recovery model-pure: no fallback replies or XML wrapping.
 
 ## Manual Probe Set
 

@@ -26,12 +26,15 @@ fn visit_docs_dir(dir: &Path, errors: &mut Vec<String>) -> std::io::Result<()> {
         .iter()
         .filter(|entry| !entry.file_name().to_string_lossy().starts_with('.'))
         .collect();
+    let readme = dir.join("README.md");
     let readmes = visible
         .iter()
         .filter(|entry| entry.file_name() == "README.md")
         .count();
     if readmes != 1 {
         errors.push(format!("{} expected exactly one README.md", dir.display()));
+    } else {
+        require_child_links(dir, &readme, &visible, errors)?;
     }
     let children = visible
         .iter()
@@ -43,6 +46,31 @@ fn visit_docs_dir(dir: &Path, errors: &mut Vec<String>) -> std::io::Result<()> {
     for entry in visible {
         if entry.path().is_dir() {
             visit_docs_dir(&entry.path(), errors)?;
+        }
+    }
+    Ok(())
+}
+
+fn require_child_links(
+    dir: &Path,
+    readme: &Path,
+    entries: &[fs::DirEntry],
+    errors: &mut Vec<String>,
+) -> std::io::Result<()> {
+    let content = fs::read_to_string(readme)?;
+    for entry in entries {
+        let name = entry.file_name();
+        if name == "README.md" {
+            continue;
+        }
+        let name = name.to_string_lossy();
+        let target = if entry.path().is_dir() {
+            format!("{name}/README.md")
+        } else {
+            name.to_string()
+        };
+        if !markdown_links(&content).iter().any(|link| link == &target) {
+            errors.push(format!("{} missing TOC link to {}", dir.display(), target));
         }
     }
     Ok(())

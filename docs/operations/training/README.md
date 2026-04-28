@@ -23,3 +23,5 @@ gating, and operator-facing acceptance flow.
   improvement priorities
 - [full-corpus-status.md](full-corpus-status.md): generated chunk status and
   remaining token gap
+- [model-pure-recovery.md](model-pure-recovery.md): no-fallback recovery path
+  for broken XML-action chat artifacts

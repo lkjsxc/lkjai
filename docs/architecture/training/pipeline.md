@@ -14,7 +14,9 @@ the same real tool loop that production will use.
 - `python -m lkjai_train.cli train-tokenizer`
 - `python -m lkjai_train.cli validate-dataset`
 - `python -m lkjai_train.cli train-scratch`
+- `python -m lkjai_train.cli train-sft`
 - `python -m lkjai_train.cli fixed-eval`
+- `python -m lkjai_train.cli generation-sanity`
 - `python -m lkjai_train.cli behavioral-eval`
 - `python -m lkjai_train.cli export-manifest`
 - `python -m lkjai_train.cli smoke`
@@ -28,15 +30,15 @@ the same real tool loop that production will use.
 4. Deduplicate and emit `train`, `val`, and `holdout` split files.
 5. Train the tokenizer on the objective-appropriate train split only.
 6. Validate schema, split metadata, and write `validation-report.json`.
-7. Train the scratch model from a disk-backed packed token cache. Real
-   non-quick runs use the mapped dataloader by default.
-8. Measure validation loss periodically on the validation split.
-9. Save atomic checkpoints: `latest/` during training, retained numbered
+7. Train the causal-LM pretrain stage from a disk-backed packed token cache.
+8. Train `assistant_masked_sft` from the accepted pretrain weights.
+9. Measure validation loss periodically on the active validation split.
+10. Save atomic checkpoints: `latest/` during training, retained numbered
    `steps/` snapshots, `best/` on validation improvement, and `final/` as the
    last state.
-10. Run fixed eval.
-11. Run raw holdout behavioral eval.
-12. Record pass-rate, invalid-XML, wrong-tool, and non-finish trends.
+11. Export the SFT checkpoint.
+12. Run fixed eval, generation sanity, and raw holdout behavioral eval.
+13. Record pass-rate, invalid-XML, wrong-tool, and non-finish trends.
 
 ## Defaults
 
@@ -74,6 +76,8 @@ the same real tool loop that production will use.
 - `TRAIN_CURRICULUM=configs/curriculum/agent_40m.toml`
 - `TRAIN_EXPORT_CHECKPOINT=best`
 - `TRAIN_BEHAVIORAL_THRESHOLD=0.35`
+- `TRAIN_EVERYDAY_CHAT_THRESHOLD=0.90`
+- `TRAIN_XML_VALIDITY_THRESHOLD=0.95`
 - `TRAIN_DATA_DIR=/app/data/train`
 
 ## Objectives And Accounting
@@ -97,6 +101,9 @@ Recommended stages:
 1. `causal_lm_full` on curated Cosmopedia `text`-only public pretraining.
 2. `assistant_masked_sft` on first-party XML action traces.
 3. Optional later preference training after both objective gates pass.
+
+The accepted runtime artifact is the SFT-stage export. A pretrain-only artifact
+is not accepted for chat, even when fixed artifact checks pass.
 
 ## Artifacts
 
