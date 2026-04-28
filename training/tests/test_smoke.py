@@ -113,7 +113,7 @@ def test_fixture_dataset_validates(tmp_path):
 def test_prompt_text_uses_training_continuation_boundary():
     text = prompt_text([{"role": "user", "content": "hello"}])
     assert text.startswith("<bos>")
-    assert text.endswith("<assistant_action>")
+    assert text.endswith("<assistant_action>\n")
     assert "<dialogue>" in text
     assert "</dialogue>" not in text
 
@@ -121,7 +121,7 @@ def test_prompt_text_uses_training_continuation_boundary():
 def test_prompt_boundary_matches_message_text_before_assistant_target():
     assistant = "<action><tool>agent.finish</tool><content>hi</content></action>"
     messages = [{"role": "user", "content": "hello"}]
-    trained = prompt_text(messages) + "\n" + assistant
+    trained = prompt_text(messages) + assistant
     full = message_text(messages + [{"role": "assistant", "content": assistant}])
     assert full.startswith(trained + "\n</dialogue>")
 

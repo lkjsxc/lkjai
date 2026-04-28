@@ -72,6 +72,8 @@ Public pretraining rows use standalone English `text` with metadata:
 - Model-facing text uses paired XML-like sections.
 - Prompt construction ends with `<assistant_action>` so the model learns the same
   continuation boundary used during inference.
+- The boundary includes the newline after `<assistant_action>`; inference must
+  preserve that exact next-token context.
 - Assistant outputs use one XML action whose child tags become typed tool fields.
 
 ## Dataset Targets

@@ -20,7 +20,7 @@ def message_text(messages: list[dict]) -> str:
 def prompt_text(messages: list[dict]) -> str:
     parts = dialogue_parts(messages)
     parts.append("<assistant_action>")
-    return "\n".join(parts)
+    return "\n".join(parts) + "\n"
 
 
 def dialogue_parts(messages: list[dict]) -> list[str]:
