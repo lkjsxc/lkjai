@@ -110,11 +110,20 @@ def test_fixture_dataset_validates(tmp_path):
     assert validate_dataset(paths.holdout_dataset) == paths.holdout_dataset
 
 
-def test_prompt_text_appends_assistant_action_header():
+def test_prompt_text_uses_training_continuation_boundary():
     text = prompt_text([{"role": "user", "content": "hello"}])
     assert text.startswith("<bos>")
     assert text.endswith("<assistant_action>")
     assert "<dialogue>" in text
+    assert "</dialogue>" not in text
+
+
+def test_prompt_boundary_matches_message_text_before_assistant_target():
+    assistant = "<action><tool>agent.finish</tool><content>hi</content></action>"
+    messages = [{"role": "user", "content": "hello"}]
+    trained = prompt_text(messages) + "\n" + assistant
+    full = prompt_text(messages + [{"role": "assistant", "content": assistant}])
+    assert trained == full
 
 
 def test_agent_corpus_default_has_required_mix():

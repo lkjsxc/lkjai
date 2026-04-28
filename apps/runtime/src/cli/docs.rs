@@ -54,7 +54,7 @@ fn visit_docs_dir(dir: &Path, errors: &mut Vec<String>) -> std::io::Result<()> {
 fn require_child_links(
     dir: &Path,
     readme: &Path,
-    entries: &[fs::DirEntry],
+    entries: &[&fs::DirEntry],
     errors: &mut Vec<String>,
 ) -> std::io::Result<()> {
     let content = fs::read_to_string(readme)?;

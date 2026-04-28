@@ -12,19 +12,18 @@ SPECIAL_TOKENS = [
 
 
 def message_text(messages: list[dict]) -> str:
-    parts = ["<bos>", "<dialogue>"]
-    for message in messages:
-        if message["role"] == "assistant":
-            parts.extend(["<assistant_action>", message["content"]])
-            continue
-        parts.append(open_message(message))
-        parts.append(escape_text(message["content"]))
-        parts.append(close_message())
+    parts = dialogue_parts(messages)
     parts.extend(["</dialogue>", "<eos>"])
     return "\n".join(parts)
 
 
 def prompt_text(messages: list[dict]) -> str:
+    parts = dialogue_parts(messages)
+    parts.append("<assistant_action>")
+    return "\n".join(parts)
+
+
+def dialogue_parts(messages: list[dict]) -> list[str]:
     parts = ["<bos>", "<dialogue>"]
     for message in messages:
         if message["role"] == "assistant":
@@ -33,8 +32,7 @@ def prompt_text(messages: list[dict]) -> str:
         parts.append(open_message(message))
         parts.append(escape_text(message["content"]))
         parts.append(close_message())
-    parts.extend(["</dialogue>", "<assistant_action>"])
-    return "\n".join(parts)
+    return parts
 
 
 def row_text(row: dict) -> str:
