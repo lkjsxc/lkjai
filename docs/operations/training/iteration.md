@@ -56,6 +56,7 @@ Corrected 500M public run:
 - Public train tokenizer tokens: `463087933`.
 - Step `1`: loss `9.10818`, `8192` input tokens seen.
 - Step `3000`: loss `6.9528`, `24576000` input tokens seen.
+- Step `6000`: loss `7.1408`, `49152000` input tokens seen.
 
 ## Acceptance Record
 
