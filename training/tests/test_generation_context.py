@@ -36,3 +36,9 @@ def test_sampling_handles_half_precision_temperature():
     logits = torch.tensor([[1.0, 2.0, 3.0]], dtype=torch.float16)
     token = choose_token(logits, 0.2)
     assert int(token.item()) in {0, 1, 2}
+
+
+def test_sampling_suppresses_banned_special_tokens():
+    logits = torch.tensor([[100.0, 2.0, 3.0]])
+    token = choose_token(logits, 0.0, {0})
+    assert int(token.item()) == 2

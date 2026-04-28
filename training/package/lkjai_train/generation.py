@@ -6,10 +6,10 @@ from xml.etree import ElementTree
 from .formatting import prompt_text
 
 
-def choose_token(logits, temperature: float):
+def choose_token(logits, temperature: float, banned_token_ids: set[int] | None = None):
     import torch
 
-    logits = safe_logits(logits)
+    logits = suppress_tokens(safe_logits(logits), banned_token_ids or set())
     if temperature <= 0.0:
         return torch.argmax(logits, dim=-1, keepdim=True)
     scaled = safe_logits(logits / max(temperature, 1e-5))
@@ -17,6 +17,15 @@ def choose_token(logits, temperature: float):
     if invalid_probs(probs):
         return torch.argmax(logits, dim=-1, keepdim=True)
     return torch.multinomial(probs, num_samples=1)
+
+
+def suppress_tokens(logits, banned_token_ids: set[int]):
+    if not banned_token_ids:
+        return logits
+    for token_id in banned_token_ids:
+        if 0 <= token_id < logits.shape[-1]:
+            logits[..., token_id] = -1e9
+    return logits
 
 
 def safe_logits(logits):
@@ -54,6 +63,7 @@ class LoadedModel:
         self.model.load_state_dict(torch.load(model_dir / "model.pt", map_location=self.device, weights_only=True))
         self.model.eval()
         self.config = config
+        self.banned_token_ids = self.special_generation_bans()
 
     def complete(self, messages: list[dict], max_tokens: int = 128, temperature: float = 0.0) -> str:
         import torch
@@ -69,7 +79,7 @@ class LoadedModel:
                 logits, _, cache = self.model(input_ids, use_cache=True)
                 next_logits = logits[:, -1, :]
                 for _ in range(max_tokens):
-                    next_id = choose_token(next_logits, temperature)
+                    next_id = choose_token(next_logits, temperature, self.banned_token_ids)
                     token = int(next_id.item())
                     generated.append(token)
                     if eos is not None and token == eos:
@@ -80,6 +90,9 @@ class LoadedModel:
                     logits, _, cache = self.model(next_id, cache=cache, use_cache=True)
                     next_logits = logits[:, -1, :]
         return normalize_action(self.tokenizer.decode(generated, skip_special_tokens=False))
+
+    def special_generation_bans(self) -> set[int]:
+        return {token_id for name in ["<pad>", "<unk>", "<bos>", "<assistant_action>"] if (token_id := self.tokenizer.token_to_id(name)) is not None}
 
 
 def normalize_messages(messages: list[dict]) -> list[dict]:
@@ -167,7 +180,9 @@ def normalize_action(text: str) -> str:
     candidate = first_xml_action(text)
     if candidate:
         return candidate
-    text = text.replace("<eos>", "").replace("<assistant_action>", "").strip()
+    for special in ["<pad>", "<unk>", "<bos>", "<eos>", "<assistant_action>"]:
+        text = text.replace(special, "")
+    text = text.strip()
     if text.startswith("action>"):
         return f"<{text}"
     if text.startswith(("reasoning>", "tool>")):
