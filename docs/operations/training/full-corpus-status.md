@@ -38,6 +38,7 @@ Current generated public corpus:
 - Manifest: `data/public-corpus/manifest.json`.
 - Target tokens: `500000000`.
 - Approximate tokens: `500000590`.
+- Public train tokenizer tokens: `463087933`.
 - Rows: `531856`.
 - Duplicate rows: `0`.
 - Duplicate rate: `0.0`.

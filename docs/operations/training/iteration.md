@@ -33,7 +33,7 @@ Fresh 500M-target run, started from an empty data directory:
 
 ```bash
 docker compose --profile train run --rm \
-  -e DATA_DIR=/app/data/train-full-500m-from-scratch \
+  -e DATA_DIR=/app/data/train-full-500m-from-scratch-v2 \
   -e TRAIN_RESUME=never \
   -e TRAIN_INIT_CHECKPOINT= \
   -e TRAIN_CORPUS_DIR=/app/data/public-corpus \
@@ -49,6 +49,12 @@ Stopped first attempt, because it used the previous `440000000` public target:
 - Step `1`: loss `9.1082`, `8192` input tokens seen.
 - Step `3000`: loss `6.5823`, `24576000` input tokens seen.
 - Step `6000`: loss `6.9035`, `49152000` input tokens seen.
+
+Corrected 500M public run:
+
+- Data directory: `data/train-full-500m-from-scratch-v2/`.
+- Public train tokenizer tokens: `463087933`.
+- Step `1`: loss `9.10818`, `8192` input tokens seen.
 
 ## Acceptance Record
 
