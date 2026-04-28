@@ -63,6 +63,18 @@ Corrected 500M public run:
 - Step `54000`: loss `7.3923`, `442368000` input tokens seen.
 - Step `60000`: loss `7.4206`, `491520000` input tokens seen.
 
+Two-hour finish adjustment:
+
+- Stopped open-ended `400000`-step run after latest checkpoint step `75000`.
+- Resumed causal-LM pretrain to bounded final step `84000`.
+- Ran SFT from pretrain final checkpoint for bounded `12000` optimizer steps.
+- SFT final loss: `3.5202`; validation loss: `3.5870`.
+- Export: `data/train-full-500m-from-scratch-v2/exports/manifest.json`.
+- Fixed eval: `16/16`.
+- Generation sanity: `2/2` valid XML through structural-token suppression and
+  invalid-generation fallback.
+- Behavioral eval: `0/200`; XML validity `200/200`.
+
 ## Acceptance Record
 
 Each accepted run records:
