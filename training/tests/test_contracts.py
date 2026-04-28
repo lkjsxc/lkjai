@@ -109,6 +109,7 @@ def test_public_pretrain_has_active_permissive_english_source():
         "openstax",
         "khanacademy",
         "auto_math_text",
+        "stories",
     }
     assert {item["license"] for item in active} == {"Apache-2.0"}
     assert {item["language"] for item in active} == {"en"}

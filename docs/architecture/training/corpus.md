@@ -94,8 +94,9 @@ Public pretraining rows use standalone English `text` with metadata:
 | Cosmopedia `stanford` `text` only | `180000000` | `causal_lm_full` |
 | Cosmopedia `wikihow` `text` only | `90000000` | `causal_lm_full` |
 | Cosmopedia `openstax` `text` only | `50000000` | `causal_lm_full` |
-| Cosmopedia `khanacademy` `text` only | `30000000` | `causal_lm_full` |
+| Cosmopedia `khanacademy` `text` only | `20000000` | `causal_lm_full` |
 | Cosmopedia `auto_math_text` `text` only | `90000000` | `causal_lm_full` |
+| Cosmopedia `stories` `text` only | `10000000` | `causal_lm_full` |
 | First-party XML-action traces | `60000000` | `assistant_masked_sft` |
 
 The public side teaches English fluency and explanation style. The first-party

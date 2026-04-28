@@ -79,12 +79,34 @@
       "text_field": "text",
       "token_field": "token_length",
       "language": "en",
-      "token_budget": 30000000,
+      "token_budget": 20000000,
       "field_policy": "text-only",
       "excluded_fields": ["prompt", "seed_data"],
       "quality_tier": "high",
       "approval_status": "active",
       "review_note": "Clear instructional synthetic text from the curated Khan Academy subset."
+    }
+  },
+  {
+    "tags": ["public_pretrain_dataset", "language:en", "license:Apache-2.0"],
+    "content": {
+      "name": "cosmopedia-stories",
+      "dataset": "HuggingFaceTB/cosmopedia",
+      "config": "stories",
+      "license": "Apache-2.0",
+      "source_url": "https://huggingface.co/datasets/HuggingFaceTB/cosmopedia",
+      "download_url": "https://huggingface.co/datasets/HuggingFaceTB/cosmopedia",
+      "revision": "0ae6ec63f91742bd2d1eaef4f02232c55d719385",
+      "local_glob": "data/stories/*.parquet",
+      "text_field": "text",
+      "token_field": "token_length",
+      "language": "en",
+      "token_budget": 10000000,
+      "field_policy": "text-only",
+      "excluded_fields": ["prompt", "seed_data"],
+      "quality_tier": "medium",
+      "approval_status": "active",
+      "review_note": "Synthetic commonsense stories from Cosmopedia; use only generated text."
     }
   },
   {
