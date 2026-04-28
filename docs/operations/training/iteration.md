@@ -29,14 +29,26 @@ docker compose --profile corpus run --rm corpus prepare-public-pretrain
 
 ## Iteration Command
 
+Fresh 500M-target run, started from an empty data directory:
+
 ```bash
-MODEL_NAME=lkjai-scratch-40m \
-TRAIN_PRESET=agent \
-TRAIN_CONFIG=/workspace/configs/training/scratch_40m_12h.json \
-TRAIN_CORPUS_DIR=/app/data/public-corpus \
-TRAIN_BEHAVIORAL_THRESHOLD=0.35 \
-docker compose --profile train up --build --abort-on-container-exit train
+docker compose --profile train run --rm \
+  -e DATA_DIR=/app/data/train-full-500m-from-scratch \
+  -e TRAIN_RESUME=never \
+  -e TRAIN_INIT_CHECKPOINT= \
+  -e TRAIN_CORPUS_DIR=/app/data/public-corpus \
+  -e TRAIN_PUBLIC_DATA_DIR=/app/data/raw/cosmopedia \
+  -e TRAIN_PUBLIC_PRETRAIN_TOKENS=440000000 \
+  -e TRAIN_CONFIG=/workspace/configs/training/scratch_40m_12h.json \
+  -e TRAIN_PRESET=agent \
+  train train
 ```
+
+Early causal-LM checkpoints from the current run:
+
+- Step `1`: loss `9.1082`, `8192` input tokens seen.
+- Step `3000`: loss `6.5823`, `24576000` input tokens seen.
+- Step `6000`: loss `6.9035`, `49152000` input tokens seen.
 
 ## Acceptance Record
 

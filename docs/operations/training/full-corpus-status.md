@@ -29,3 +29,22 @@ active full training pack. The active target is now:
   `data/public-corpus/`.
 - `60000000` first-party XML-action SFT tokens.
 - At least `450000000` deduplicated tokenizer tokens across the release pack.
+
+## Public Pretrain Materialization
+
+Current generated public corpus:
+
+- Path: `data/public-corpus/`.
+- Manifest: `data/public-corpus/manifest.json`.
+- Target tokens: `440000000`.
+- Approximate tokens: `440000607`.
+- Rows: `443489`.
+- Duplicate rows: `0`.
+- Duplicate rate: `0.0`.
+- Source mix:
+  - `cosmopedia-stanford`: `180000719`.
+  - `cosmopedia-wikihow`: `90001277`.
+  - `cosmopedia-auto-math-text`: `89997320`.
+  - `cosmopedia-openstax`: `50000260`.
+  - `cosmopedia-khanacademy`: `20000634`.
+  - `cosmopedia-stories`: `10000397`.
