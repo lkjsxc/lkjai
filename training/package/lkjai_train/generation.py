@@ -4,6 +4,7 @@ from pathlib import Path
 from xml.etree import ElementTree
 
 from .formatting import prompt_text
+from .generation_fallback import fallback_action
 
 
 def choose_token(logits, temperature: float, banned_token_ids: set[int] | None = None):
@@ -178,8 +179,7 @@ def normalize_message(message: dict) -> dict:
 
 def normalize_action(text: str) -> str:
     candidate = first_xml_action(text)
-    if candidate:
-        return candidate
+    if candidate: return candidate
     for special in ["<pad>", "<unk>", "<bos>", "<eos>", "<assistant_action>"]:
         text = text.replace(special, "")
     text = text.strip()
@@ -187,7 +187,7 @@ def normalize_action(text: str) -> str:
         return f"<{text}"
     if text.startswith(("reasoning>", "tool>")):
         return f"<action>\n<{text}"
-    return text
+    return fallback_action(text)
 
 
 def first_xml_action(text: str) -> str:

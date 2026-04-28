@@ -147,7 +147,7 @@ def test_normalize_action_extracts_first_xml_action():
 
 
 def test_normalize_action_returns_raw_invalid_text():
-    assert normalize_action("not json <eos>").strip() == "not json"
+    assert parse_assistant_xml(normalize_action("not json <eos>"))["content"] == "not json"
 
 
 def test_behavioral_schema_rejects_invalid_action_shape():
