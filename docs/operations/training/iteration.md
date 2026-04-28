@@ -58,6 +58,7 @@ Corrected 500M public run:
 - Step `3000`: loss `6.9528`, `24576000` input tokens seen.
 - Step `6000`: loss `7.1408`, `49152000` input tokens seen.
 - Step `9000`: loss `7.3577`, `73728000` input tokens seen.
+- Step `12000`: loss `7.4170`, `98304000` input tokens seen.
 
 ## Acceptance Record
 
