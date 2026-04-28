@@ -9,10 +9,34 @@ from .formatting import prompt_text
 def choose_token(logits, temperature: float):
     import torch
 
+    logits = safe_logits(logits)
     if temperature <= 0.0:
         return torch.argmax(logits, dim=-1, keepdim=True)
-    probs = torch.softmax(logits / max(temperature, 1e-5), dim=-1)
+    scaled = safe_logits(logits / max(temperature, 1e-5))
+    probs = torch.softmax(scaled, dim=-1)
+    if invalid_probs(probs):
+        return torch.argmax(logits, dim=-1, keepdim=True)
     return torch.multinomial(probs, num_samples=1)
+
+
+def safe_logits(logits):
+    import torch
+
+    logits = logits.float()
+    finite = torch.isfinite(logits)
+    if finite.all():
+        return logits
+    floor = torch.finfo(logits.dtype).min
+    return torch.where(finite, logits, torch.full_like(logits, floor))
+
+
+def invalid_probs(probs) -> bool:
+    import torch
+
+    if not torch.isfinite(probs).all() or (probs < 0).any():
+        return True
+    totals = probs.sum(dim=-1)
+    return bool((~torch.isfinite(totals)).any() or (totals <= 0).any())
 
 
 class LoadedModel:

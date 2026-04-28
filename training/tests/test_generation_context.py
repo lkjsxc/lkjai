@@ -1,4 +1,6 @@
-from lkjai_train.generation import agent_context_messages, latest_user_event, normalize_messages
+import torch
+
+from lkjai_train.generation import agent_context_messages, choose_token, latest_user_event, normalize_messages
 
 
 def test_raw_user_prompt_stays_raw():
@@ -23,3 +25,14 @@ def test_agent_context_messages_preserve_empty_observation():
     messages = agent_context_messages(content)
     assert messages[-1]["role"] == "tool"
     assert messages[-1]["content"] == ""
+
+
+def test_sampling_falls_back_when_logits_are_not_finite():
+    logits = torch.tensor([[float("nan"), 2.0, float("inf")]])
+    assert choose_token(logits, 0.2).shape == (1, 1)
+
+
+def test_sampling_handles_half_precision_temperature():
+    logits = torch.tensor([[1.0, 2.0, 3.0]], dtype=torch.float16)
+    token = choose_token(logits, 0.2)
+    assert int(token.item()) in {0, 1, 2}
