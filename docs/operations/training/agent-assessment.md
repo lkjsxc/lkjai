@@ -9,6 +9,8 @@
 - Missing fixed eval target: tokenizer train tokens `>= 450000000`.
 - Compose verify passed on 2026-04-28.
 - The active trained dataset has zero `everyday_chat` rows.
+- A 3000-step SFT segment followed by a 12000-step SFT continuation still
+  produced `generation-sanity` XML validity `0/2`.
 
 ## Observed Chat Behavior
 
@@ -21,6 +23,7 @@ Recent transcripts under `data/agent/runs/` show:
 - some final answers are generic task-completion text,
 - older runs include non-XML or JSON-shaped assistant output.
 - current runs include `missing <action>` and `missing </action>` at step 1.
+- post-SFT generation emits malformed XML with frequent `<pad>` tokens.
 
 ## Improvement Priorities
 
@@ -35,6 +38,7 @@ Recent transcripts under `data/agent/runs/` show:
 7. Block repeated identical non-terminal actions during runtime probes.
 8. Train the accepted runtime artifact through `assistant_masked_sft`.
 9. Keep recovery model-pure: no fallback replies or XML wrapping.
+10. Investigate model/data quality before running more identical SFT.
 
 ## Manual Probe Set
 
