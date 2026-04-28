@@ -55,6 +55,7 @@ Corrected 500M public run:
 - Data directory: `data/train-full-500m-from-scratch-v2/`.
 - Public train tokenizer tokens: `463087933`.
 - Step `1`: loss `9.10818`, `8192` input tokens seen.
+- Step `3000`: loss `6.9528`, `24576000` input tokens seen.
 
 ## Acceptance Record
 
