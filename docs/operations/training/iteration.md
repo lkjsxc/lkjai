@@ -75,6 +75,17 @@ Two-hour finish adjustment:
   invalid-generation fallback.
 - Behavioral eval: `0/200`; XML validity `200/200`.
 
+Overnight continuation:
+
+- Container: `lkjai-sft-overnight-270k`.
+- Resume source: latest SFT checkpoint from `data/train-full-500m-from-scratch-v2`.
+- Target: continue `assistant_masked_sft` to optimizer step `270000`.
+- Expected duration from step `30000`: about `11` hours at roughly `6`
+  optimizer steps per second.
+- Post-process watcher: `/tmp/lkjai-overnight-postprocess.log`.
+- On successful training exit, the watcher exports best checkpoint and runs
+  generation sanity, fixed eval, and behavioral eval.
+
 ## Acceptance Record
 
 Each accepted run records:
