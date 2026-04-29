@@ -121,6 +121,12 @@ Low-LR repair run:
   about `1.9198` at step `21000`.
 - Raw probes for `Hello`, `What is 2 + 2?`, and `Thanks` still failed complete
   XML; protocol decoding produced valid XML envelopes but poor content.
+- Completed at step `60000`.
+- Final validation loss: `1.9228`; best validation loss: `1.9167`.
+- Final evals on the best export:
+  - Generation sanity: `2/2` XML-valid through protocol decoding.
+  - Fixed eval: `9/16`.
+  - Behavioral eval: `0/200`; XML validity `200/200`.
 - Do not accept either repair run until raw XML and content quality pass.
 
 ## Acceptance Record
