@@ -1,5 +1,4 @@
 import json
-from contextlib import nullcontext
 from pathlib import Path
 from xml.etree import ElementTree
 
@@ -75,21 +74,19 @@ class LoadedModel:
         generated = []
         eos = self.tokenizer.token_to_id("<eos>")
         with torch.inference_mode():
-            context = torch.autocast("cuda", dtype=torch.float16) if self.device == "cuda" else nullcontext()
-            with context:
-                logits, _, cache = self.model(input_ids, use_cache=True)
+            logits, _, cache = self.model(input_ids, use_cache=True)
+            next_logits = logits[:, -1, :]
+            for _ in range(max_tokens):
+                next_id = choose_token(next_logits, temperature, self.banned_token_ids)
+                token = int(next_id.item())
+                generated.append(token)
+                if eos is not None and token == eos:
+                    break
+                text = self.tokenizer.decode(generated, skip_special_tokens=False)
+                if "</action>" in text:
+                    break
+                logits, _, cache = self.model(next_id, cache=cache, use_cache=True)
                 next_logits = logits[:, -1, :]
-                for _ in range(max_tokens):
-                    next_id = choose_token(next_logits, temperature, self.banned_token_ids)
-                    token = int(next_id.item())
-                    generated.append(token)
-                    if eos is not None and token == eos:
-                        break
-                    text = self.tokenizer.decode(generated, skip_special_tokens=False)
-                    if "</action>" in text:
-                        break
-                    logits, _, cache = self.model(next_id, cache=cache, use_cache=True)
-                    next_logits = logits[:, -1, :]
         return normalize_action(self.tokenizer.decode(generated, skip_special_tokens=False))
 
     def special_generation_bans(self) -> set[int]:
