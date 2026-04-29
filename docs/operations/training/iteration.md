@@ -102,6 +102,27 @@ Overnight result:
   and lets the local model generate `<content>`. This helps web usability while
   raw generation probes remain the acceptance signal.
 
+## XML Repair Follow-up
+
+High-LR repair run:
+
+- Data root: `data/train-xml-repair-v1`.
+- Init checkpoint: `data/train-full-500m-from-scratch-v2/checkpoints/best`.
+- Stopped at optimizer step `60000` after a clean latest save.
+- Best validation loss was at step `24000`: `2.0817`.
+- Step `60000` raw probes still failed to emit complete `<action>` XML.
+
+Low-LR repair run:
+
+- Data root: `data/train-xml-repair-lr-v2`.
+- Init checkpoint: `data/train-xml-repair-v1/checkpoints/best`.
+- Learning rate: `0.00003` with `TRAIN_LR_MIN_FACTOR=0.2`.
+- At step `30000`, validation loss reached about `1.9337`; best observed was
+  about `1.9198` at step `21000`.
+- Raw probes for `Hello`, `What is 2 + 2?`, and `Thanks` still failed complete
+  XML; protocol decoding produced valid XML envelopes but poor content.
+- Do not accept either repair run until raw XML and content quality pass.
+
 ## Acceptance Record
 
 Each accepted run records:
