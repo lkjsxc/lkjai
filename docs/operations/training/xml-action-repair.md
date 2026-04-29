@@ -30,6 +30,9 @@ XML actions:
 The corpus is not an accepted substitute for behavioral eval. It is a repair
 curriculum to make the model itself produce XML before the fallback path.
 
+Runtime protocol decoding may force the XML envelope for web usability, but raw
+model acceptance must still be measured without that decoder.
+
 ## Run
 
 ```bash

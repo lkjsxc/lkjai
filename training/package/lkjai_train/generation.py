@@ -1,9 +1,9 @@
 import json
+import os
 from pathlib import Path
 from xml.etree import ElementTree
 
-from .formatting import prompt_text
-from .generation_fallback import fallback_action
+from .protocol_decode import constrained_finish, raw_completion
 
 
 def choose_token(logits, temperature: float, banned_token_ids: set[int] | None = None):
@@ -66,28 +66,16 @@ class LoadedModel:
         self.banned_token_ids = self.special_generation_bans()
 
     def complete(self, messages: list[dict], max_tokens: int = 128, temperature: float = 0.0) -> str:
-        import torch
-
         normalized = normalize_messages(messages)
-        prompt_ids = self.tokenizer.encode(prompt_text(normalized)).ids[-self.config.sequence_len :]
-        input_ids = torch.tensor([prompt_ids], device=self.device)
-        generated = []
-        eos = self.tokenizer.token_to_id("<eos>")
-        with torch.inference_mode():
-            logits, _, cache = self.model(input_ids, use_cache=True)
-            next_logits = logits[:, -1, :]
-            for _ in range(max_tokens):
-                next_id = choose_token(next_logits, temperature, self.banned_token_ids)
-                token = int(next_id.item())
-                generated.append(token)
-                if eos is not None and token == eos:
-                    break
-                text = self.tokenizer.decode(generated, skip_special_tokens=False)
-                if "</action>" in text:
-                    break
-                logits, _, cache = self.model(next_id, cache=cache, use_cache=True)
-                next_logits = logits[:, -1, :]
-        return normalize_action(self.tokenizer.decode(generated, skip_special_tokens=False))
+        raw = raw_completion(self, normalized, max_tokens, temperature)
+        if candidate := first_xml_action(raw):
+            return candidate
+        if os.environ.get("LKJAI_DECODING_MODE", "structured") == "raw":
+            return normalize_action(raw)
+        return constrained_finish(self, normalized, max_tokens, temperature)
+
+    def choose_token(self, logits, temperature: float):
+        return choose_token(logits, temperature, self.banned_token_ids)
 
     def special_generation_bans(self) -> set[int]:
         return {token_id for name in ["<pad>", "<unk>", "<bos>", "<assistant_action>"] if (token_id := self.tokenizer.token_to_id(name)) is not None}
@@ -176,7 +164,8 @@ def normalize_message(message: dict) -> dict:
 
 def normalize_action(text: str) -> str:
     candidate = first_xml_action(text)
-    if candidate: return candidate
+    if candidate:
+        return candidate
     for special in ["<pad>", "<unk>", "<bos>", "<eos>", "<assistant_action>"]:
         text = text.replace(special, "")
     text = text.strip()
@@ -184,7 +173,7 @@ def normalize_action(text: str) -> str:
         return f"<{text}"
     if text.startswith(("reasoning>", "tool>")):
         return f"<action>\n<{text}"
-    return fallback_action(text)
+    return text
 
 
 def first_xml_action(text: str) -> str:

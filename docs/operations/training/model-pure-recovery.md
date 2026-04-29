@@ -22,6 +22,8 @@ As of 2026-04-28:
 
 - Do not add deterministic conversational fallback behavior.
 - Do not wrap malformed generation into a valid `agent.finish` action.
+- If runtime uses protocol-constrained decoding, keep raw generation probes
+  separate and report them honestly.
 - Do not use a stronger hosted model as the accepted runtime path.
 - Fix prompt serialization, corpus mix, staged training, and acceptance gates.
 - Export only a checkpoint that passes raw generation gates.

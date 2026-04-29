@@ -98,6 +98,9 @@ Overnight result:
 - Behavioral eval: `0/200`; XML validity `200/200`.
 - Current generated content still uses the fallback `agent.finish` response:
   `I could not produce a complete model action.`
+- Added protocol-constrained runtime decoding that fixes only the XML envelope
+  and lets the local model generate `<content>`. This helps web usability while
+  raw generation probes remain the acceptance signal.
 
 ## Acceptance Record
 

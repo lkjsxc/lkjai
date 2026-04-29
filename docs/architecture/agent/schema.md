@@ -10,6 +10,9 @@ The model must return exactly one `<action>` block.
   thought store.
 - `<reasoning>` should be one short sentence that explains the next action.
 - `agent.finish` is the only normal successful terminator.
+- Runtime may use constrained decoding to hold the XML envelope fixed while the
+  model generates field content. This is a protocol decoder, not an answer
+  fallback.
 
 ```xml
 <action>
