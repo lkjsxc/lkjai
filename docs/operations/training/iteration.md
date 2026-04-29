@@ -86,6 +86,19 @@ Overnight continuation:
 - On successful training exit, the watcher exports best checkpoint and runs
   generation sanity, fixed eval, and behavioral eval.
 
+Overnight result:
+
+- Completed at optimizer step `270000`.
+- Final SFT loss: `3.7791`.
+- Best validation loss: `2.7690`.
+- Final validation loss: `3.8169`.
+- Fresh export completed at `2026-04-29 11:41`.
+- Generation sanity: `2/2` valid XML.
+- Fixed eval: `16/16`.
+- Behavioral eval: `0/200`; XML validity `200/200`.
+- Current generated content still uses the fallback `agent.finish` response:
+  `I could not produce a complete model action.`
+
 ## Acceptance Record
 
 Each accepted run records:
