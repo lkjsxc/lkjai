@@ -4,7 +4,7 @@ from collections import Counter
 from pathlib import Path
 
 from .corpus import dedupe_rows
-from .formatting import SPECIAL_TOKENS, row_text
+from .formatting import row_text
 from .kimi_corpus import generate_kimi_corpus, kimi_source_metadata
 from .kimi_validate_rows import validate_kimi_row
 from .rows import signature
@@ -171,14 +171,10 @@ def _count_tokens_in_directory(directory: Path) -> int:
     if not texts:
         return 0
     try:
-        from tokenizers import Tokenizer, decoders, models, pre_tokenizers, trainers
+        from .tokenizer import train_text_tokenizer
     except Exception:
         return sum(len(t) // 4 for t in texts)
-    tokenizer = Tokenizer(models.BPE(unk_token="<unk>"))
-    tokenizer.pre_tokenizer = pre_tokenizers.ByteLevel(add_prefix_space=False)
-    tokenizer.decoder = decoders.ByteLevel()
-    trainer = trainers.BpeTrainer(vocab_size=8192, min_frequency=1, special_tokens=SPECIAL_TOKENS)
-    tokenizer.train_from_iterator(texts, trainer=trainer)
+    tokenizer = train_text_tokenizer(texts, 8192)
     return sum(len(tokenizer.encode(text).ids) for text in texts)
 
 def write_rows(path: Path, rows: list[dict]) -> None:

@@ -1,14 +1,9 @@
 import json
 from pathlib import Path
 
+from .tokenizer_tokens import BASE_SPECIAL_TOKENS
 
-SPECIAL_TOKENS = [
-    "<pad>",
-    "<unk>",
-    "<bos>",
-    "<eos>",
-    "<assistant_action>",
-]
+SPECIAL_TOKENS = BASE_SPECIAL_TOKENS
 
 
 def message_text(messages: list[dict]) -> str:
@@ -29,9 +24,9 @@ def dialogue_parts(messages: list[dict]) -> list[str]:
         if message["role"] == "assistant":
             parts.extend(["<assistant_action>", message["content"]])
             continue
-        parts.append(open_message(message))
+        parts.extend(open_message(message))
         parts.append(escape_text(message["content"]))
-        parts.append(close_message())
+        parts.extend(close_message())
     return parts
 
 
@@ -58,23 +53,27 @@ def supervised_segments(messages: list[dict]) -> list[tuple[str, bool]]:
             items.append(("<assistant_action>", False))
             items.append((message["content"], True))
             continue
-        items.append((open_message(message), False))
+        for segment in open_message(message):
+            items.append((segment, False))
         items.append((escape_text(message["content"]), False))
-        items.append((close_message(), False))
+        for segment in close_message():
+            items.append((segment, False))
     items.extend([("</dialogue>", False), ("<eos>", False)])
     return [(text + ("\n" if index + 1 < len(items) else ""), train) for index, (text, train) in enumerate(items)]
 
 
-def open_message(message: dict) -> str:
+def open_message(message: dict) -> list[str]:
     role = message["role"]
     name = message.get("name", "")
+    parts = ["<message>", f"<role>{escape_text(role)}</role>"]
     if role == "tool" and name:
-        return f'<message role="{role}"><tool_name>{escape_text(name)}</tool_name><content>'
-    return f'<message role="{role}"><content>'
+        parts.append(f"<tool_name>{escape_text(name)}</tool_name>")
+    parts.append("<content>")
+    return parts
 
 
-def close_message() -> str:
-    return "</content></message>"
+def close_message() -> list[str]:
+    return ["</content>", "</message>"]
 
 
 def escape_text(text: str) -> str:

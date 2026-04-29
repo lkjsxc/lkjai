@@ -32,15 +32,17 @@ context, and recurring first-party corpus sections.
 - Assistant actions: `<action>`, `</action>`, `<reasoning>`, `</reasoning>`,
   `<tool>`, `</tool>`.
 - Tool fields and corpus metadata sections: `<path>`, `</path>`, `<query>`,
-  `</query>`, `<summary>`, `</summary>`, `<operation>`, `</operation>`,
-  `<pending_tool>`, `</pending_tool>`, `<ref>`, `</ref>`, `<body>`,
-  `</body>`, `<is_private>`, `</is_private>`, `<case>`, `</case>`,
+  `</query>`, `<command>`, `</command>`, `<url>`, `</url>`, `<operation>`,
+  `</operation>`, `<pending_tool>`, `</pending_tool>`, `<ref>`, `</ref>`,
+  `<id>`, `</id>`, `<body>`, `</body>`, `<is_private>`, `</is_private>`,
+  `<is_favorite>`, `</is_favorite>`, `<current_resource_id>`,
+  `</current_resource_id>`, `<alias>`, `</alias>`, `<case>`, `</case>`,
   `<schema>`, `</schema>`, `<scenario>`, `</scenario>`, `<skill>`,
   `</skill>`, `<source>`, `</source>`, `<title>`, `</title>`,
   `<snippet>`, `</snippet>`, `<angle>`, `</angle>`, `<audience>`,
   `</audience>`, `<policy>`, `</policy>`, `<first>`, `</first>`,
   `<error>`, `</error>`, `<blocker>`, `</blocker>`, `<draft>`, `</draft>`,
-  `<session>`, `</session>`, `<mode>`, `</mode>`.
+  `<session>`, `</session>`, `<mode>`, `</mode>`, `<args>`, `</args>`.
 
 ## Prompt Serialization
 
