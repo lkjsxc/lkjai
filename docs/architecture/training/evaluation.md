@@ -23,8 +23,10 @@ Define the checks that decide whether a model is better in the real runtime.
 ## Current Baseline
 
 - Baseline artifact: `data/train/runs/behavioral-eval.json`.
-- Baseline pass rate: `0.235` from `47/200` holdout cases.
-- Baseline XML validity must not be inflated by fallback wrapping.
+- Current accepted baseline: none.
+- Latest documented raw repair runs remain `0/200` behavioral pass rate.
+- Historical `0.235` pass rate was fallback-inflated and is not an acceptance
+  baseline.
 
 ## Acceptance Metrics
 

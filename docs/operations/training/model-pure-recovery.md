@@ -7,16 +7,15 @@ wrapping, or an external fallback model.
 
 ## Current Finding
 
-As of 2026-04-28:
+As of 2026-04-29:
 
 - Compose verify passes.
-- Runtime transcripts show step-1 parse failures such as `missing <action>`.
-- The exported checkpoint produces invalid XML for simple greetings.
+- Raw model probes still fail complete XML for simple greetings.
 - `data/train/runs/behavioral-eval.json` reports `pass_rate=0.0` and
-  `xml_validity=0.0`.
-- The active trained dataset has no `everyday_chat` rows.
-- The exported checkpoint was trained with `causal_lm_full`, not the required
-  `assistant_masked_sft` follow-up stage.
+  no accepted behavioral baseline.
+- Protocol decoding can produce XML envelopes, but it is not an acceptance
+  signal.
+- Existing trained artifacts predate atomic XML-like tag tokenization.
 
 ## Recovery Rules
 
@@ -26,6 +25,7 @@ As of 2026-04-28:
   separate and report them honestly.
 - Do not use a stronger hosted model as the accepted runtime path.
 - Fix prompt serialization, corpus mix, staged training, and acceptance gates.
+- Regenerate tokenizer and model artifacts after tokenizer-contract changes.
 - Export only a checkpoint that passes raw generation gates.
 
 ## Required Pipeline

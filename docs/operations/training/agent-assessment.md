@@ -4,13 +4,12 @@
 
 - Latest behavioral report: `data/train/runs/behavioral-eval.json`.
 - Current artifact pass rate: `0.0` from `0/200` cases.
-- Current artifact XML validity: `0.0` from `0/200` cases.
-- Current fixed eval: `15/16` artifact checks passed.
-- Missing fixed eval target: tokenizer train tokens `>= 450000000`.
-- Compose verify passed on 2026-04-28.
-- The active trained dataset has zero `everyday_chat` rows.
-- A 3000-step SFT segment followed by a 12000-step SFT continuation still
-  produced `generation-sanity` XML validity `0/2`.
+- Latest repair export produced protocol-decoded XML validity `200/200`, but
+  raw generated actions still failed acceptance.
+- Latest fixed eval after low-LR repair: `9/16`.
+- Compose verify passed on 2026-04-29 before tokenizer-contract changes.
+- Existing trained artifacts predate atomic XML-like tag tokenization and must
+  be regenerated before acceptance.
 
 ## Observed Chat Behavior
 
@@ -22,8 +21,9 @@ Recent transcripts under `data/agent/runs/` show:
 - the model often repeats the same failed action,
 - some final answers are generic task-completion text,
 - older runs include non-XML or JSON-shaped assistant output.
-- current runs include `missing <action>` and `missing </action>` at step 1.
-- post-SFT generation emits malformed XML with frequent `<pad>` tokens.
+- raw runs include `missing <action>` and `missing </action>` failures.
+- protocol decoding can create valid envelopes, but content quality remains too
+  poor for acceptance.
 
 ## Improvement Priorities
 

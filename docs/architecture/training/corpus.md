@@ -69,7 +69,9 @@ Public pretraining rows use standalone English `text` with metadata:
 ## Model-Facing Serialization
 
 - Storage remains JSONL.
-- Model-facing text uses paired XML-like sections.
+- Model-facing text uses paired XML-like sections without tag attributes.
+- Canonical XML-like tags must be single tokenizer tokens; see
+  [tokenizer.md](tokenizer.md).
 - Prompt construction ends with `<assistant_action>` so the model learns the same
   continuation boundary used during inference.
 - The boundary includes the newline after `<assistant_action>`; inference must

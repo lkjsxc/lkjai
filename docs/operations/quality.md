@@ -28,7 +28,8 @@ checks by default. Set `VERIFY_TAIL_LINES` to tune failure output size.
   changes.
 - It produces `runs/fixed-eval.json` and `runs/behavioral-eval.json`.
 - Fixed eval acceptance requires XML-action artifacts to pass configured gates.
-- Current behavioral baseline is raw holdout `pass_rate=0.235`.
+- Current accepted behavioral baseline is none; latest raw repair runs remain
+  `pass_rate=0.0`.
 - The next improvement gate is `TRAIN_BEHAVIORAL_THRESHOLD`, default `0.35`.
 - Public-pretrain validation reports must be updated for runs that change the
   500M public pretraining corpus.

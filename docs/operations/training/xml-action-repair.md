@@ -33,6 +33,10 @@ curriculum to make the model itself produce XML before the fallback path.
 Runtime protocol decoding may force the XML envelope for web usability, but raw
 model acceptance must still be measured without that decoder.
 
+The latest low-LR repair run completed at step `60000`, but fixed eval fell to
+`9/16` and raw behavioral eval remained `0/200`. Do not accept repair artifacts
+until raw XML and content quality pass.
+
 ## Run
 
 ```bash

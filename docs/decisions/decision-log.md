@@ -8,7 +8,8 @@
 - Training scale: `scratch-40m` by default for the current corpus;
   `scratch-60m` remains a later target.
 - Training method: local PyTorch from random initialization.
-- Tokenizer: local byte-level BPE.
+- Tokenizer: local byte-level BPE with canonical XML-like tags added as single
+  tokens.
 - Memory backend: SQLite plus FTS lexical retrieval.
 - Agent loop limit: `AGENT_MAX_STEPS=6`.
 - Active context default: `1024` tokens.
@@ -33,6 +34,8 @@
 - Default corpus generation is docs-derived until reviewed non-LLM data exists.
 - Docker training reads a committed JSON config by default, with environment
   variables used only as explicit overrides.
+- Model-facing prompt XML uses no attributes so canonical tags can remain
+  atomic tokens.
 
 ## Rationale
 

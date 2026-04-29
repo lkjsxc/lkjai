@@ -8,6 +8,7 @@
   `40M` parameters for the current corpus; `60M` remains a later scale target.
 - Keep the runtime LLM-readable: paired XML-like prompt sections and one
   XML-like assistant action with child tags only.
+- Make canonical XML-like prompt and action tags single tokenizer tokens.
 - End each successful user turn through the real `agent.finish` tool.
 - Judge quality on raw generation only. Exact-match supervised lookup is not an
   accepted runtime or evaluation path.
@@ -42,9 +43,10 @@
 2. [repository/workflow.md](repository/workflow.md)
 3. [architecture/training/corpus.md](architecture/training/corpus.md)
 4. [architecture/training/pipeline.md](architecture/training/pipeline.md)
-5. [operations/training/agent-assessment.md](operations/training/agent-assessment.md)
-6. [architecture/training/source-corpus.md](architecture/training/source-corpus.md)
-7. [architecture/model/config.md](architecture/model/config.md)
-8. [architecture/model/serving.md](architecture/model/serving.md)
-9. [product/kjxlkj-integration.md](product/kjxlkj-integration.md)
-10. [operations/training/competency-gate.md](operations/training/competency-gate.md)
+5. [architecture/training/tokenizer.md](architecture/training/tokenizer.md)
+6. [operations/training/agent-assessment.md](operations/training/agent-assessment.md)
+7. [architecture/training/source-corpus.md](architecture/training/source-corpus.md)
+8. [architecture/model/config.md](architecture/model/config.md)
+9. [architecture/model/serving.md](architecture/model/serving.md)
+10. [product/kjxlkj-integration.md](product/kjxlkj-integration.md)
+11. [operations/training/competency-gate.md](operations/training/competency-gate.md)

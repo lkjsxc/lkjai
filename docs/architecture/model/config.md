@@ -15,7 +15,7 @@ Keep one coherent contract for training, export, and serving on a local RTX
 - Default artifact root: `data/models/lkjai-scratch-40m/`.
 - Default training starts from random initialization.
 - Default tokenizer is a local byte-level BPE tokenizer trained on the train
-  split only.
+  split only, with canonical XML-like tags added as single tokens.
 - Default training objective is `causal_lm_full`.
 - XML-action SFT is available as `assistant_masked_sft`; it masks non-assistant
   labels and preserves the message serialization used by the runtime.
