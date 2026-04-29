@@ -25,3 +25,5 @@ gating, and operator-facing acceptance flow.
   remaining token gap
 - [model-pure-recovery.md](model-pure-recovery.md): no-fallback recovery path
   for broken XML-action chat artifacts
+- [xml-action-repair.md](xml-action-repair.md): focused repair corpus and SFT
+  pass for broken XML action generation
