@@ -25,7 +25,9 @@ run_step() {
 
 run_step "rust fmt" cargo fmt --all -- --check
 run_step "rust tests" cargo test --workspace
-run_step "python tests" python3 -m pytest -o cache_dir=/tmp/pytest-cache -m "not slow" training/tests
+run_step "native configure" cmake -S native -B /tmp/lkjai-native-build -G Ninja
+run_step "native build" cmake --build /tmp/lkjai-native-build --parallel
+run_step "native tests" ctest --test-dir /tmp/lkjai-native-build --output-on-failure
 run_step "docs topology" cargo run -p lkjai --bin lkjai -- docs validate-topology
 run_step "docs links" cargo run -p lkjai --bin lkjai -- docs validate-links
 run_step "line limits" cargo run -p lkjai --bin lkjai -- quality check-lines

@@ -2,7 +2,7 @@
 
 ## Goal
 
-Call one real OpenAI-compatible inference endpoint and surface its health
+Call one real native OpenAI-compatible inference endpoint and surface its health
 honestly.
 
 ## Contract
@@ -41,8 +41,8 @@ honestly.
 
 ## Performance Policy
 
-- Prefer CUDA when `torch.cuda.is_available()` is true.
-- Use `torch.inference_mode()` during generation.
+- Prefer CUDA when the native server reports a usable device.
+- Keep decode state in native-owned buffers during generation.
 - Stop generation as soon as one complete `</action>` is produced.
 - Do not use exact prompt lookup, supervised lookup, or canned response tables.
 

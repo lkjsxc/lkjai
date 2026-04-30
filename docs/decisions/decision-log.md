@@ -3,11 +3,11 @@
 ## Accepted Defaults
 
 - Runtime orchestrator: Rust with axum.
-- Inference runtime: separate Python/Torch OpenAI-compatible service.
+- Inference runtime: separate native C++/CUDA OpenAI-compatible service.
 - Serving model family: local scratch dense decoder.
 - Training scale: `scratch-40m` by default for the current corpus;
   `scratch-60m` remains a later target.
-- Training method: local PyTorch from random initialization.
+- Training method: local native C++/CUDA from random initialization.
 - Tokenizer: local byte-level BPE with canonical XML-like tags added as single
   tokens.
 - Memory backend: SQLite plus FTS lexical retrieval.
@@ -36,13 +36,16 @@
   variables used only as explicit overrides.
 - Model-facing prompt XML uses no attributes so canonical tags can remain
   atomic tokens.
+- Product Python training and inference are removed in favor of native
+  C++/CUDA binaries.
+- Native model artifacts use `lkjai-native-artifact-v1` flat binary weights.
 
 ## Rationale
 
 - From-scratch training is the research question, even when weaker than
   pretrained workflows.
-- Serving trained checkpoints through Python/Torch is more valuable than
-  preserving a placeholder Rust inference stub.
+- Serving and training through native CUDA removes Python from the critical
+  product path while preserving the Rust HTTP integration boundary.
 - Rust remains the web and agent runtime direction.
 - SQLite keeps memory simple, inspectable, and local.
 - Health probes prevent silent fallback to fake responses.

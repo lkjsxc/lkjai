@@ -10,8 +10,7 @@
 - Host-YOLO tool concept with explicit transcript logging.
 - Data-directory workspace boundary for file and shell tools.
 - Docs link validation, line limits, and no-Node gate.
-- Python training package as the home for tokenizer, scratch training, and eval
-  scripts.
+- Native C++/CUDA product binaries for train and serve.
 
 ## Remove Or Replace
 
@@ -23,9 +22,11 @@
 - 512 MiB artifact limit as a core success criterion.
 - Direct natural-language tool routing as the main agent mechanism.
 - Host root mounts for agent file and shell tools.
+- Python inference, Python training, PyTorch checkpoints, and product Python
+  tests.
 
 ## Reframe
 
-- Model work becomes tokenizer plus from-scratch dense LM training.
+- Model work becomes native tokenizer plus from-scratch dense LM training.
 - Training quality becomes agent eval pass rate, not raw loss alone.
 - Context handling becomes memory retrieval and summaries.

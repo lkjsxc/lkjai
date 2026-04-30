@@ -2,12 +2,12 @@
 
 ## Required Behavior
 
-- Training uses CUDA when `torch.cuda.is_available()` is true.
-- Training stack uses local PyTorch scratch-model code.
-- Training containers target PyTorch `2.11.0` with CUDA `12.8`.
+- Training uses CUDA when the native trainer detects a usable device.
+- Training stack uses local C++/CUDA scratch-model code.
+- Training containers target CUDA `12.8` and cuDNN `9`.
 - Mixed precision is enabled by default on CUDA.
 - `TRAIN_AMP=auto` chooses BF16 when supported and FP16 otherwise.
-- `TRAIN_AMP=fp16` uses a GradScaler.
+- `TRAIN_AMP=fp16` uses native loss scaling.
 - Batch size 2 with gradient accumulation 4 is the default 40M path.
 - `TRAIN_BATCH_POLICY=oom_fallback` lets the 40M path reduce microbatch size
   when an 8GB GPU cannot hold the configured shape.
@@ -18,14 +18,13 @@
 
 ## Optional Acceleration
 
-- `TRAIN_COMPILE=auto` enables `torch.compile(..., mode="reduce-overhead")`
-  on CUDA non-quick runs after warmup.
+- `TRAIN_COMPILE` is removed from the product path.
 - `TRAIN_ATTENTION_BACKEND=auto` prefers native PyTorch SDPA unless a benchmark
   selects a faster backend.
 - `TRAIN_ATTENTION_BACKEND=flash2` requires building the train image with
   `INSTALL_FLASH_ATTN=1`.
 - `TRAIN_ATTENTION_BACKEND=sdpa_flash` forces PyTorch flash SDPA.
-- Native PyTorch scaled-dot-product attention remains the mandatory baseline.
+- Native CUDA and vendor-library attention paths own the mandatory baseline.
 - DataLoader pinned memory is enabled for CUDA runs.
 - Model training uses fused QKV and fused SwiGLU projections in the scratch
   decoder.

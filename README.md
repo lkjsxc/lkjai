@@ -1,9 +1,9 @@
 # lkjai
 
 `lkjai` is a docs-first from-scratch multi-turn agent research system for RTX
-3070 8GB: train a small dense decoder locally, serve it through a separate
-Python/Torch inference runtime, and orchestrate data-directory tool use,
-memory, summaries, and XML actions in Rust.
+3070 8GB: train a small dense decoder locally through native C++/CUDA, serve it
+through a separate native OpenAI-compatible runtime, and orchestrate
+data-directory tool use, memory, summaries, and XML actions in Rust.
 
 Treat [docs/README.md](docs/README.md) as the only active canon for behavior,
 architecture, operations, and repository policy.
@@ -21,8 +21,8 @@ architecture, operations, and repository policy.
 
 - Compose profiles: `inference`, `web`, `train`, `verify`.
 - `web` runs the Rust agent orchestrator.
-- `inference` runs the Python/Torch OpenAI-compatible scratch inference service.
-- `train` prepares corpus/tokenizer/checkpoint artifacts from scratch.
+- `inference` runs the native C++/CUDA OpenAI-compatible scratch inference service.
+- `train` prepares native tokenizer, packed-cache, and checkpoint artifacts from scratch.
 - Competency acceptance is behavioral eval pass rate `>= 80%`.
 - Runtime data is mounted at `./data` for models, checkpoints, memory, runs, and
   the tool workspace.

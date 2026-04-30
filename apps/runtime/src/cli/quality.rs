@@ -17,6 +17,7 @@ pub fn check_lines() -> Result<(), Box<dyn std::error::Error>> {
     check_path(Path::new("docs"), DOC_LIMIT, true, &mut violations)?;
     for root in [
         "apps",
+        "native",
         "training/package",
         "training/tests",
         "configs",
@@ -87,7 +88,7 @@ fn ignored_path(path: &Path) -> bool {
 
 fn checked_extension(path: &Path, include_markdown: bool) -> bool {
     let ext = path.extension().and_then(|ext| ext.to_str());
-    matches!(ext, Some("rs" | "py" | "sh" | "toml" | "css" | "js"))
+    matches!(ext, Some("rs" | "py" | "sh" | "toml" | "css" | "js" | "cpp" | "hpp" | "cu" | "txt"))
         || (include_markdown && ext == Some("md"))
 }
 

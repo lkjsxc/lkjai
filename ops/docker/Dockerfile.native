@@ -1,0 +1,33 @@
+FROM nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04 AS build
+
+WORKDIR /workspace
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      build-essential ca-certificates cmake ninja-build \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY native ./native
+
+RUN cmake -S native -B /build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+    && cmake --build /build --parallel
+
+FROM nvidia/cuda:12.8.1-cudnn-runtime-ubuntu24.04
+
+WORKDIR /workspace
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=build /build/lkjai-native-server /usr/local/bin/lkjai-native-server
+COPY --from=build /build/lkjai-native-train /usr/local/bin/lkjai-native-train
+COPY --from=build /build/lkjai-native-inspect /usr/local/bin/lkjai-native-inspect
+
+ENV MODEL_ROOT=/models
+ENV MODEL_NAME=lkjai-scratch-40m
+ENV INFERENCE_HOST=0.0.0.0
+ENV INFERENCE_PORT=8081
+
+EXPOSE 8081
+ENTRYPOINT ["lkjai-native-server"]

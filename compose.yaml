@@ -5,7 +5,7 @@ services:
     profiles: ["inference", "web"]
     build:
       context: .
-      dockerfile: ops/docker/Dockerfile.inference
+      dockerfile: ops/docker/Dockerfile.native
     ports:
       - "127.0.0.1:${MODEL_PORT:-8081}:8081"
     environment:
@@ -27,9 +27,9 @@ services:
       test:
         [
           "CMD",
-          "python",
-          "-c",
-          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8081/healthz', timeout=5).read()",
+          "curl",
+          "--fail",
+          "http://127.0.0.1:8081/healthz",
         ]
       interval: 10s
       timeout: 6s
@@ -70,7 +70,7 @@ services:
     profiles: ["train"]
     build:
       context: .
-      dockerfile: ops/docker/Dockerfile.train
+      dockerfile: ops/docker/Dockerfile.native
     environment:
       DATA_DIR: ${TRAIN_DATA_DIR:-/app/data/train}
       MODEL_NAME: ${MODEL_NAME:-lkjai-scratch-40m}
@@ -82,6 +82,8 @@ services:
       TRAIN_PUBLIC_DATA_DIR: ${TRAIN_PUBLIC_DATA_DIR:-/app/data/raw/cosmopedia}
       TRAIN_PUBLIC_PRETRAIN_TOKENS: ${TRAIN_PUBLIC_PRETRAIN_TOKENS:-500000000}
       TRAIN_FIRST_PARTY_SFT_TOKENS: ${TRAIN_FIRST_PARTY_SFT_TOKENS:-60000000}
+    entrypoint: ["lkjai-native-train"]
+    command: ["--smoke", "--steps", "2"]
     volumes:
       - ./data:/app/data
       - ./corpus:/workspace/corpus:ro

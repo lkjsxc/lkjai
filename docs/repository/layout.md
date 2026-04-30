@@ -6,6 +6,7 @@
 - `LICENSE`
 - `docs/`
 - `apps/`
+- `native/`
 - `training/`
 - `corpus/`
 - `configs/`
@@ -19,8 +20,8 @@
 ## Source Layout
 
 - `apps/runtime/`: Rust web, model client, agent, memory, docs, and quality commands.
-- `training/package/`: Python tokenizer, scratch training, eval, and manifest code.
-- `training/tests/`: Python training and corpus tests.
+- `native/`: C++/CUDA train, serve, artifact, tokenizer, and kernel code.
+- `training/`: legacy migration notes only; product Python does not live here.
 - `corpus/generated/`: committed validated generated corpus artifacts.
 - `corpus/sources/`: reviewed JSON source entries expanded into rows.
 - `ops/docker/`: Dockerfiles.

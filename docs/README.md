@@ -4,8 +4,9 @@
 
 ## System Goal
 
-- Train and serve a commercial-safe scratch model. The active default is about
-  `40M` parameters for the current corpus; `60M` remains a later scale target.
+- Train and serve a commercial-safe scratch model through native C++/CUDA
+  product binaries. The active default is about `40M` parameters for the
+  current corpus; `60M` remains a later scale target.
 - Keep the runtime LLM-readable: paired XML-like prompt sections and one
   XML-like assistant action with child tags only.
 - Make canonical XML-like prompt and action tags single tokenizer tokens.
@@ -25,6 +26,7 @@
 6. Remove conflicting legacy behavior instead of preserving it.
 7. Docs-first workflow is mandatory: change docs, then code, then retrain.
 8. Evaluation claims must match the real runtime path and actual tool execution.
+9. Product training and serving must not depend on Python.
 
 ## Top-Level Sections
 
@@ -48,6 +50,7 @@
 6. [operations/training/agent-assessment.md](operations/training/agent-assessment.md)
 7. [architecture/training/source-corpus.md](architecture/training/source-corpus.md)
 8. [architecture/model/config.md](architecture/model/config.md)
-9. [architecture/model/serving.md](architecture/model/serving.md)
-10. [product/kjxlkj-integration.md](product/kjxlkj-integration.md)
-11. [operations/training/competency-gate.md](operations/training/competency-gate.md)
+9. [architecture/native/strategy.md](architecture/native/strategy.md)
+10. [architecture/model/serving.md](architecture/model/serving.md)
+11. [product/kjxlkj-integration.md](product/kjxlkj-integration.md)
+12. [operations/training/competency-gate.md](operations/training/competency-gate.md)
