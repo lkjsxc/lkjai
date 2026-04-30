@@ -141,6 +141,33 @@ Each accepted run records:
 - direct-answer, tool-call, confirmation, safety, and agentic bucket rates,
 - manual inference probes.
 
+## Speed Implementation Check
+
+Performance implementation batch on 2026-04-30:
+
+- Compose verify passed after the performance refactor.
+- Training image builds on PyTorch `2.11.0+cu128` with CUDA `12.8`.
+- FlashAttention is opt-in with `INSTALL_FLASH_ATTN=1`; the default image uses
+  PyTorch SDPA paths so builds stay reliable.
+- Synthetic 40M one-step CUDA check passed with batch `1`, compile off, and
+  peak CUDA allocation about `675 MB`.
+- Bounded synthetic GPU benchmark `speed-smoke/synthetic_gpu` passed.
+- Auto-batch selected batch `8` for the bounded synthetic benchmark.
+- Median profiled throughput in that benchmark was about `69910` input
+  tokens/sec.
+- This is a synthetic model-side smoke benchmark, not a replacement for the
+  required real-data full training run.
+
+Full retrain target:
+
+```bash
+docker compose --profile train run --rm \
+  -e TRAIN_DATA_DIR=/app/data/train-speed-v1 \
+  -e TRAIN_RESUME=never \
+  -e TRAIN_INIT_CHECKPOINT= \
+  train train
+```
+
 ## Manual Probe Set
 
 - `Say hello.`

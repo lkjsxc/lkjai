@@ -24,6 +24,16 @@ marked as a separate preset.
 - Prior short matrix showed `torch.compile` post-warm as the strongest
   measured direction.
 
+## Current Speed Smoke
+
+- Date: 2026-04-30.
+- Image: `lkjai-train:latest` from PyTorch `2.11.0+cu128`.
+- Case: `artifacts/benchmarks/speed-smoke/synthetic_gpu`.
+- Result: about `69910` median input tokens/sec on two profiled synthetic
+  microsteps after auto-batch selected batch `8`.
+- Treat this as a model-path smoke benchmark; real packed-cache training still
+  requires a full `train-speed-v1` run.
+
 ## Optimization Order
 
 1. Measure the current training path with a bounded Compose benchmark.
