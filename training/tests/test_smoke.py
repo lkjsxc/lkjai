@@ -59,7 +59,7 @@ def test_agent_settings_defaults(monkeypatch):
     assert settings.kv_heads == 2
     assert settings.batch_size == 2
     assert settings.gradient_accumulation == 4
-    assert settings.dataloader_impl == "mapped"
+    assert settings.dataloader_impl == "batch_mapped"
     assert settings.batch_policy == "oom_fallback"
     assert settings.activation_checkpoint == "every_n"
     assert settings.compile == "auto"

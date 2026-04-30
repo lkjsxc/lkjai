@@ -30,13 +30,13 @@ impl PackedCache {
     }
 
     fn token_at(&self, index: usize) -> u32 {
-        let offset = index * 4;
-        if offset + 4 > self.tokens.len() {
+        let offset = index * 2;
+        if offset + 2 > self.tokens.len() {
             return 0;
         }
-        let mut bytes = [0_u8; 4];
-        bytes.copy_from_slice(&self.tokens[offset..offset + 4]);
-        u32::from_le_bytes(bytes)
+        let mut bytes = [0_u8; 2];
+        bytes.copy_from_slice(&self.tokens[offset..offset + 2]);
+        u16::from_le_bytes(bytes) as u32
     }
 
     fn mask_at(&self, index: usize) -> u8 {

@@ -34,6 +34,10 @@ def test_packed_cache_writes_lazy_window_inputs_and_masks(tmp_path):
     settings = SimpleNamespace(objective=CAUSAL_LM_FULL, sequence_len=4)
     cache = build_or_load_packed_cache(paths, DummyTokenizer(), source, "train", settings)
     assert start_count(cache / "starts.bin") == 2
+    meta = json.loads((cache / "metadata.json").read_text(encoding="utf-8"))
+    assert meta["format"] == "lkjai-packed-cache-v2"
+    assert meta["token_dtype"] == "uint16"
+    assert (cache / "tokens.bin").stat().st_size == 14
     assert read_ids(cache / "tokens.bin", 0, 5, 0) == [97, 98, 99, 100, 101]
     assert read_mask(cache / "loss_mask.bin", 1, 4) == [1, 1, 1, 1]
 

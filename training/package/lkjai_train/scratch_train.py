@@ -60,7 +60,7 @@ def validate_settings(settings) -> None:
         "TRAIN_EXPORT_CHECKPOINT": (settings.export_checkpoint, {"best", "final"}),
         "TRAIN_AMP": (settings.amp, {"auto", "bf16", "fp16", "off"}),
         "TRAIN_DATA_MODE": (settings.data_mode, {"real", "synthetic_cpu", "synthetic_gpu"}),
-        "TRAIN_DATALOADER_IMPL": (settings.dataloader_impl, {"legacy", "mapped"}),
+        "TRAIN_DATALOADER_IMPL": (settings.dataloader_impl, {"legacy", "mapped", "batch_mapped"}),
         "TRAIN_LR_SCHEDULE": (settings.lr_schedule, {"cosine", "constant", "linear_warmup_cosine"}),
         "TRAIN_CHECKPOINT_RESUME_SOURCE": (settings.checkpoint_resume_source, {"latest", "final", "best"}),
         "TRAIN_BATCH_POLICY": (settings.batch_policy, {"fixed", "oom_fallback", "sweep"}),

@@ -14,7 +14,7 @@ Run one measurable long training job for the 3070-first 40M scratch model.
 - Training writes under `TRAIN_DATA_DIR`, default `/app/data/train`.
 - Training defaults to `TRAIN_OBJECTIVE=causal_lm_full`.
 - Export defaults to the best validation checkpoint.
-- Real non-quick runs default to the mapped packed-token dataloader.
+- Real non-quick runs default to the batch-mapped packed-token dataloader.
 - CUDA runs probe a safe microbatch automatically and adjust gradient
   accumulation to keep the target effective token batch.
 - Resume defaults to the newest complete `latest/` checkpoint snapshot.
@@ -70,8 +70,8 @@ Run one measurable long training job for the 3070-first 40M scratch model.
 - `TRAIN_ATTENTION_BACKEND`: `auto`, `sdpa`, `sdpa_flash`, `sdpa_math`, or
   `flash2`; default `auto`
 - `TRAIN_EXPORT_CHECKPOINT`: `best` or `final`, default `best`
-- `TRAIN_DATALOADER_IMPL`: `mapped` by default for real non-quick runs,
-  `legacy` for quick
+- `TRAIN_DATALOADER_IMPL`: `batch_mapped` by default for real non-quick runs,
+  `legacy` for quick; `mapped` remains a benchmark comparison path
 - `TRAIN_DATALOADER_BENCHMARK`: optional benchmark logging flag
 - `TRAIN_CORPUS_SIZE`: default `120000`
 - `TRAIN_FIXED_EVAL_THRESHOLD`: default `0.60` for fixed report metadata

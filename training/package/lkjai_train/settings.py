@@ -95,7 +95,7 @@ def make_settings(preset, model_preset, resolver, vocab, seq, layers, hidden, he
         curriculum=resolver.str("TRAIN_CURRICULUM", "curriculum", "configs/curriculum/agent_40m.toml"),
         seed=resolver.int("TRAIN_SEED", "seed", 42),
         data_mode=resolver.str("TRAIN_DATA_MODE", "data_mode", "real"),
-        dataloader_impl=resolver.str("TRAIN_DATALOADER_IMPL", "dataloader_impl", "legacy" if preset == "quick" else "mapped"),
+        dataloader_impl=resolver.str("TRAIN_DATALOADER_IMPL", "dataloader_impl", "legacy" if preset == "quick" else "batch_mapped"),
         num_workers=resolver.int("TRAIN_NUM_WORKERS", "num_workers", 0),
         pin_memory=resolver.bool("TRAIN_PIN_MEMORY", "pin_memory", True),
         prefetch_factor=resolver.int("TRAIN_PREFETCH_FACTOR", "prefetch_factor", 2),

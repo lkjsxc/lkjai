@@ -55,8 +55,11 @@ def cache_name(split: str, objective: str, sequence_len: int) -> str:
 
 
 def metadata(source: Path, split: str, objective: str, settings, vocab_size: int) -> dict:
+    if vocab_size > 65535:
+        raise ValueError("packed cache v2 requires vocab_size <= 65535")
     return {
-        "format": "lkjai-packed-cache-v1",
+        "format": "lkjai-packed-cache-v2",
+        "token_dtype": "uint16",
         "source": str(source),
         "source_fingerprint": source_fingerprint(source),
         "split": split,
@@ -88,7 +91,7 @@ def cache_is_current(cache_dir: Path, expected: dict) -> bool:
 
 
 def write_stream_files(cache_dir: Path, tokenizer, source: Path, objective: str, eos_id: int) -> None:
-    token_buffer = array("I")
+    token_buffer = array("H")
     mask_buffer = array("B")
     with (cache_dir / "tokens.bin").open("wb") as token_file, (cache_dir / "loss_mask.bin").open("wb") as mask_file:
         for row in iter_rows(source):
@@ -100,7 +103,7 @@ def write_stream_files(cache_dir: Path, tokenizer, source: Path, objective: str,
             if len(token_buffer) >= 1_000_000:
                 token_buffer.tofile(token_file)
                 mask_buffer.tofile(mask_file)
-                token_buffer = array("I")
+                token_buffer = array("H")
                 mask_buffer = array("B")
         if token_buffer:
             token_buffer.tofile(token_file)
@@ -113,7 +116,7 @@ def ensure_minimum_length(tokens_path: Path, masks_path: Path, minimum_tokens: i
         return
     missing = minimum_tokens - current
     with tokens_path.open("ab") as token_file, masks_path.open("ab") as mask_file:
-        array("I", [eos_id] * missing).tofile(token_file)
+        array("H", [eos_id] * missing).tofile(token_file)
         array("B", [0] * missing).tofile(mask_file)
 
 
@@ -155,7 +158,7 @@ def count_loss_tokens(path: Path) -> int:
 
 
 def token_count(path: Path) -> int:
-    return path.stat().st_size // 4 if path.exists() else 0
+    return path.stat().st_size // 2 if path.exists() else 0
 
 
 def start_count(path: Path) -> int:
@@ -170,10 +173,10 @@ def read_start(path: Path, index: int) -> int:
 
 def read_ids(path: Path, start: int, count: int, pad_id: int) -> list[int]:
     with path.open("rb") as file:
-        file.seek(start * 4)
-        data = file.read(count * 4)
-    items = array("I")
-    items.frombytes(data[: len(data) - (len(data) % 4)])
+        file.seek(start * 2)
+        data = file.read(count * 2)
+    items = array("H")
+    items.frombytes(data[: len(data) - (len(data) % 2)])
     values = list(items)
     if len(values) < count:
         values.extend([pad_id] * (count - len(values)))

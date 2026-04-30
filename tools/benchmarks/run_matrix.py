@@ -13,22 +13,23 @@ from run_support import ROOT, Telemetry, build_image, prepare_data_dir, run, sum
 CASES = {
     "real_legacy": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "legacy"},
     "real_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "mapped"},
+    "real_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped"},
     "synthetic_cpu": {"TRAIN_DATA_MODE": "synthetic_cpu", "TRAIN_DATALOADER_IMPL": "legacy"},
     "synthetic_gpu": {"TRAIN_DATA_MODE": "synthetic_gpu", "TRAIN_DATALOADER_IMPL": "legacy"},
-    "bf16_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "mapped", "TRAIN_AMP": "bf16"},
-    "fp16_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "mapped", "TRAIN_AMP": "fp16"},
-    "amp_off_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "mapped", "TRAIN_AMP": "off"},
-    "compile_mapped": {
+    "bf16_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped", "TRAIN_AMP": "bf16"},
+    "fp16_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped", "TRAIN_AMP": "fp16"},
+    "amp_off_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped", "TRAIN_AMP": "off"},
+    "compile_batch_mapped": {
         "TRAIN_DATA_MODE": "real",
-        "TRAIN_DATALOADER_IMPL": "mapped",
+        "TRAIN_DATALOADER_IMPL": "batch_mapped",
         "TRAIN_COMPILE": "reduce-overhead",
         "TRAIN_COMPILE_WARMUP_MICROSTEPS": "2",
     },
-    "batch2_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "mapped", "TRAIN_BATCH_SIZE": "2"},
-    "batch4_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "mapped", "TRAIN_BATCH_SIZE": "4"},
-    "no_checkpoint_mapped": {
+    "batch2_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped", "TRAIN_BATCH_SIZE": "2"},
+    "batch4_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped", "TRAIN_BATCH_SIZE": "4"},
+    "no_checkpoint_batch_mapped": {
         "TRAIN_DATA_MODE": "real",
-        "TRAIN_DATALOADER_IMPL": "mapped",
+        "TRAIN_DATALOADER_IMPL": "batch_mapped",
         "TRAIN_ACTIVATION_CHECKPOINT": "off",
     },
 }
@@ -122,7 +123,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--run-id", default=time.strftime("%Y%m%d-%H%M%S"))
     parser.add_argument("--image", default="")
-    parser.add_argument("--cases", default="real_legacy,real_mapped,synthetic_cpu,synthetic_gpu")
+    parser.add_argument("--cases", default="real_legacy,real_mapped,real_batch_mapped,synthetic_gpu")
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--sample-interval", type=float, default=0.5)
     parser.add_argument("--no-build", action="store_true")

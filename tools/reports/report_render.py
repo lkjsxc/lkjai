@@ -32,7 +32,7 @@ Known hardware facts from discovery: RTX 3070, 8 GiB VRAM, compute capability 8.
 flowchart LR
   A[JSONL corpus shards] --> B[Byte BPE tokenizer]
   B --> C[Packed token cache]
-  C --> D[DataLoader or mapped reader]
+  C --> D[DataLoader or batch-mapped reader]
   D --> E[ScratchLM forward/backward]
   E --> F[AdamW optimizer]
   F --> G[Validation and checkpoints]
@@ -43,7 +43,7 @@ timeline
   title Optimization Timeline
   Baseline discovery : entrypoint, model, data, GPU, WSL limits
   Harness : diagnostics collector, benchmark matrix, telemetry
-  Data path : legacy file-open reader vs mapped packed cache
+  Data path : legacy file-open reader vs mapped and batch-mapped cache
   GPU path : AMP, compile, TF32, batch and accumulation sweeps
   Rust path : packed-reader pilot and migration plan
   Report : tables, charts, diffs, best known config
@@ -75,13 +75,13 @@ Charts:
 2. `torch.compile` is the strongest post-warm candidate, but first-step compilation is expensive and requires the compile-ready image with `gcc/g++`.
 3. Activation checkpointing is expensive in the short probe; disabling it improved step time, but longer VRAM and loss checks are required before accepting it for full runs.
 4. Increasing batch size improves tokens/sec up to batch 2 in the short probe; batch 4 fit but was slower, so the current knee candidate is batch 2.
-5. The mapped loader is implemented and useful for Rust/Python parity work, but it did not beat the legacy loader in the repeated short GPU-bound matrix.
+5. The batch-mapped loader is the default production candidate; keep legacy and mapped loaders as benchmark comparisons.
 6. WSL2 limits profiler and PCI inspection depth; `nvidia-smi pci -gCnt`, dmon/pmon, and query loops are the reliable fallbacks on this host.
 
 ## Implemented Changes
 
 - Added env-gated training controls for data mode, loader implementation, DataLoader workers, pinning, prefetch, persistent workers, compile mode, TF32, matmul precision, clipping, and profiling.
-- Added `MappedPackedDataset` to avoid repeated per-sample file opens and Python list conversion.
+- Added mapped and batch-mapped datasets to avoid repeated per-sample file opens and Python list conversion.
 - Added synthetic CPU and synthetic GPU modes for the required real-vs-synthetic diagnostic decision.
 - Added step profiling JSONL with loader wait, H2D, forward, backward, optimizer, loss, and token counts.
 - Added diagnostics collector, Docker benchmark matrix, report generator, and Rust pilot scaffold.

@@ -71,12 +71,13 @@ def comparison_rows(rows: list[dict]) -> list[list[str]]:
     baseline = row_value(rows, "matrix-short/real_legacy", "median_tokens_per_second")
     targets = [
         ("Mapped loader", "matrix-short/real_mapped"),
+        ("Batch-mapped loader", "matrix-short/real_batch_mapped"),
         ("Synthetic GPU", "matrix-short/synthetic_gpu"),
-        ("BF16 mapped", "precision-short/bf16_mapped"),
-        ("AMP off mapped", "precision-short/amp_off_mapped"),
-        ("Batch 2 mapped", "batch-short/batch2_mapped"),
-        ("No checkpoint mapped", "batch-short/no_checkpoint_mapped"),
-        ("Compile post-warm", "compile-postwarm-short/compile_mapped"),
+        ("BF16 batch-mapped", "precision-short/bf16_batch_mapped"),
+        ("AMP off batch-mapped", "precision-short/amp_off_batch_mapped"),
+        ("Batch 2 batch-mapped", "batch-short/batch2_batch_mapped"),
+        ("No checkpoint batch-mapped", "batch-short/no_checkpoint_batch_mapped"),
+        ("Compile post-warm", "compile-postwarm-short/compile_batch_mapped"),
     ]
     output = []
     for label, suffix in targets:

@@ -3,7 +3,7 @@ from torch.utils.data import DataLoader
 
 from .objectives import ASSISTANT_MASKED_SFT, normalize_objective
 from .packed_data import PackedDataset, build_or_load_packed_cache
-from .packed_datasets import MappedPackedDataset, SyntheticPackedDataset
+from .packed_datasets import BatchMappedPackedDataset, MappedPackedDataset, SyntheticPackedDataset
 
 
 def cache_paths(paths, tokenizer, settings):
@@ -57,9 +57,24 @@ def loader(cache, settings, pad_id: int, shuffle: bool, device, vocab_size: int,
     if settings.data_mode == "synthetic_cpu":
         dataset = SyntheticPackedDataset(synthetic_windows(settings, split), settings.sequence_len, vocab_size, settings.seed)
         return DataLoader(dataset, batch_size=settings.batch_size, shuffle=shuffle, pin_memory=device.type == "cuda")
+    if settings.dataloader_impl == "batch_mapped":
+        return batch_mapped_loader(cache, settings, pad_id, shuffle, device, split)
     dataset_cls = MappedPackedDataset if settings.dataloader_impl == "mapped" else PackedDataset
     kwargs = dataloader_kwargs(settings, shuffle, device, split)
     return DataLoader(dataset_cls(cache, settings.sequence_len, pad_id), **kwargs)
+
+
+def batch_mapped_loader(cache, settings, pad_id: int, shuffle: bool, device, split: str):
+    dataset = BatchMappedPackedDataset(cache, settings.sequence_len, pad_id, settings.batch_size)
+    return DataLoader(
+        dataset,
+        batch_size=None,
+        shuffle=shuffle,
+        pin_memory=device.type == "cuda" and settings.pin_memory,
+        num_workers=settings.num_workers,
+        drop_last=False,
+        **worker_kwargs(settings),
+    )
 
 
 def dataloader_kwargs(settings, shuffle: bool, device, split: str) -> dict:
@@ -71,9 +86,17 @@ def dataloader_kwargs(settings, shuffle: bool, device, split: str) -> dict:
         "drop_last": split == "train" and settings.static_shapes,
     }
     if settings.num_workers > 0:
-        kwargs["prefetch_factor"] = settings.prefetch_factor
-        kwargs["persistent_workers"] = settings.persistent_workers
+        kwargs.update(worker_kwargs(settings))
     return kwargs
+
+
+def worker_kwargs(settings) -> dict:
+    if settings.num_workers <= 0:
+        return {}
+    return {
+        "prefetch_factor": settings.prefetch_factor,
+        "persistent_workers": settings.persistent_workers,
+    }
 
 
 def synthetic_windows(settings, split: str) -> int:

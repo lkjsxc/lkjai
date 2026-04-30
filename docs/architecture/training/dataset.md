@@ -17,6 +17,7 @@ Describe the on-disk dataset artifacts used by training and evaluation.
 - Canonical holdout split: `data/train/datasets/holdout.jsonl`
 - Fixtures: `data/train/datasets/fixtures.jsonl`
 - Metadata: `data/train/datasets/metadata.json`
+- Packed cache v2: `data/train/datasets/packed/*/{tokens.bin,loss_mask.bin,starts.bin,metadata.json}`
 
 ## Metadata
 
@@ -30,6 +31,15 @@ Describe the on-disk dataset artifacts used by training and evaluation.
 - `excluded_fields`: public fields that must not appear in emitted rows.
 - `token_budget`: optional object with `train_tokens`, `parameter_count`,
   `tokens_per_parameter`, and `chinchilla_gap`.
+
+## Packed Cache
+
+- Packed cache metadata uses `format=lkjai-packed-cache-v2`.
+- Token ids are stored as `uint16`; the active `8192` vocabulary fits in 13
+  bits.
+- Loss masks remain byte masks.
+- Start offsets remain unsigned 64-bit integers.
+- Rebuild old packed caches instead of reading v1 files.
 
 ## Validation
 

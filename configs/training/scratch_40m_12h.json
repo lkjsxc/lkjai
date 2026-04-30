@@ -58,7 +58,7 @@
   "curriculum": "configs/curriculum/agent_40m.toml",
   "seed": 42,
   "data_mode": "real",
-  "dataloader_impl": "mapped",
+  "dataloader_impl": "batch_mapped",
   "num_workers": 0,
   "pin_memory": true,
   "prefetch_factor": 2,

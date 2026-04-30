@@ -66,7 +66,7 @@ the same real tool loop that production will use.
 - `TRAIN_INTERMEDIATE_SAVE_EVERY_OPTIMIZER_STEPS=120000`
 - `TRAIN_KEEP_LAST_CHECKPOINTS=8`
 - `TRAIN_CHECKPOINT_RESUME_SOURCE=latest`
-- `TRAIN_DATALOADER_IMPL=mapped` for real non-quick runs
+- `TRAIN_DATALOADER_IMPL=batch_mapped` for real non-quick runs
 - `TRAIN_STATIC_SHAPES=true`
 - `TRAIN_COMPILE=auto`
 - `TRAIN_COMPILE_WARMUP_MICROSTEPS=2`

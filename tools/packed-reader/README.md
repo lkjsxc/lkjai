@@ -3,7 +3,7 @@
 ## Purpose
 
 This Rust utility exercises packed-token dataset reading outside the runtime
-service.
+service. It reads packed cache v2 `uint16` token files.
 
 ## Contents
 
