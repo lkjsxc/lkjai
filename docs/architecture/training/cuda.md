@@ -19,11 +19,11 @@
 ## Optional Acceleration
 
 - `TRAIN_COMPILE` is removed from the product path.
-- `TRAIN_ATTENTION_BACKEND=auto` prefers native PyTorch SDPA unless a benchmark
-  selects a faster backend.
-- `TRAIN_ATTENTION_BACKEND=flash2` requires building the train image with
-  `INSTALL_FLASH_ATTN=1`.
-- `TRAIN_ATTENTION_BACKEND=sdpa_flash` forces PyTorch flash SDPA.
+- `TRAIN_ATTENTION_BACKEND=auto` lets the native trainer choose the fastest
+  supported vendor-library or custom CUDA path.
+- `TRAIN_ATTENTION_BACKEND=custom_decode` forces the native decode kernel for
+  serving benchmarks.
+- `TRAIN_ATTENTION_BACKEND=library` forces vendor-library attention paths.
 - Native CUDA and vendor-library attention paths own the mandatory baseline.
 - DataLoader pinned memory is enabled for CUDA runs.
 - Model training uses fused QKV and fused SwiGLU projections in the scratch

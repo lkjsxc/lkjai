@@ -2,18 +2,16 @@
 
 ## Purpose
 
-Training owns the Python package, tests, and packaging metadata for scratch
-model preparation, tokenizer training, model training, evaluation, and manifest
-export.
+Training is a retired product-code location kept only to make the native
+migration explicit.
 
 ## Contents
 
-- [package/](package/): import root containing `lkjai_train`.
-- [tests/](tests/): pytest suite and fixtures.
-- [pyproject.toml](pyproject.toml): Python project metadata and pytest config.
+- Product train and serve code lives in [../native/](../native/).
+- Historical Python package and tests were removed.
+- Training runbooks live in [../docs/operations/training/](../docs/operations/training/).
 
 ## Rules
 
-- Import modules with `PYTHONPATH=training/package`.
 - Long jobs run through Docker Compose.
 - Generated artifacts belong under `data/`, not in this directory.

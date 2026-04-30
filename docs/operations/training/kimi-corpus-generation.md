@@ -47,9 +47,8 @@ You are Kimi Code working inside the lkjai repository.
 Read docs/README.md, docs/architecture/agent/schema.md,
 docs/architecture/agent/loop.md, docs/architecture/training/corpus.md,
 docs/architecture/training/provenance.md, docs/architecture/training/pipeline.md,
-docs/operations/training/agent-assessment.md, and the
-training/package/lkjai_train corpus and dataset modules before changing
-anything.
+docs/operations/training/agent-assessment.md, and native training contracts
+before changing anything.
 
 Generate the active balanced training corpus for lkjai:
 - target 60000000 SFT tokenizer tokens,

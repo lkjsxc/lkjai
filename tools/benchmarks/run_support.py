@@ -152,6 +152,6 @@ def percentile(values: list[float], pct: float) -> float:
 
 
 def build_image(image: str) -> None:
-    code = run(["docker", "build", "-f", "ops/docker/Dockerfile.train", "-t", image, "."], ROOT / "artifacts" / "last-docker-build.log")
+    code = run(["docker", "build", "-f", "ops/docker/Dockerfile.native", "-t", image, "."], ROOT / "artifacts" / "last-docker-build.log")
     if code != 0:
         raise SystemExit(code)

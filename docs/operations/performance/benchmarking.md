@@ -7,7 +7,7 @@ Every performance run records:
 - commit SHA,
 - Docker image tag,
 - GPU name and compute capability,
-- driver, CUDA, cuDNN, and PyTorch versions,
+- driver, CUDA, cuDNN, and native build versions,
 - training preset and JSON config path,
 - batch size, gradient accumulation, AMP, compile mode, attention backend,
 - median and p95 microstep seconds,

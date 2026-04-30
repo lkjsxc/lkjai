@@ -17,7 +17,6 @@ python3 tools/kimi-corpus/generate_kimi_corpus.py \
   --target-tokens 50000 \
   --mode mixed \
   --parallelism 2 \
-  --fake-kimi training/tests/fixtures/fake_kimi.py \
   --output-dir /tmp/lkjai-kimi-fake \
   --max-calls 2
 ```

@@ -19,7 +19,8 @@ marked as a separate preset.
 ## Baseline Facts
 
 - Host target: NVIDIA RTX 3070, SM 8.6, 8 GiB VRAM.
-- Current container baseline before this contract: PyTorch `2.5.1+cu124`.
+- Historical container baseline before the native rewrite: PyTorch
+  `2.5.1+cu124`.
 - Prior long SFT run recorded about `37695` input tokens/sec.
 - Prior short matrix showed `torch.compile` post-warm as the strongest
   measured direction.
@@ -27,7 +28,7 @@ marked as a separate preset.
 ## Current Speed Smoke
 
 - Date: 2026-04-30.
-- Image: `lkjai-train:latest` from PyTorch `2.11.0+cu128`.
+- Image: historical `lkjai-train:latest` from PyTorch `2.11.0+cu128`.
 - Case: `artifacts/benchmarks/speed-smoke/synthetic_gpu`.
 - Result: about `69910` median input tokens/sec on two profiled synthetic
   microsteps after auto-batch selected batch `8`.
@@ -37,7 +38,7 @@ marked as a separate preset.
 ## Optimization Order
 
 1. Measure the current training path with a bounded Compose benchmark.
-2. Use the fastest supported PyTorch/CUDA image for this project.
+2. Use the native CUDA image for this project.
 3. Prefer library attention paths before custom kernels.
 4. Rebuild packed caches as `uint16` because the vocabulary fits in 13 bits.
 5. Sweep batch size, checkpointing, AMP, compile mode, and attention backend.

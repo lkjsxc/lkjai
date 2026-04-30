@@ -40,9 +40,6 @@ until raw XML and content quality pass.
 ## Run
 
 ```bash
-docker compose --profile train run --rm --entrypoint python train \
-  -m lkjai_train.repair_corpus /app/data/xml-action-repair-v1
-
 docker compose --profile train run --rm \
   -e DATA_DIR=/app/data/train-xml-repair-v1 \
   -e TRAIN_COMMITTED_CORPUS_DIR=/app/data/xml-action-repair-v1 \

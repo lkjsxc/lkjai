@@ -33,8 +33,8 @@ architecture, operations, and repository policy.
 - Canonical XML-like prompt and action tags are single tokenizer tokens.
 - `TRAIN_MAX_STEPS` means optimizer steps; summaries separately report
   microsteps, optimizer steps, input tokens, and loss-bearing tokens.
-- Optional Kimi synthetic corpus generation is documented in
-  [docs/operations/training/kimi-corpus/README.md](docs/operations/training/kimi-corpus/README.md).
+- Optional Kimi synthetic corpus tooling remains under `tools/` and is not part
+  of the product train or serve path.
 
 ## Rule
 

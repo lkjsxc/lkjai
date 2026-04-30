@@ -18,11 +18,13 @@ docker compose --progress quiet --profile verify up --build --abort-on-container
 
 1. `cargo fmt -- --check`
 2. `cargo test`
-3. `python3 -m pytest -o cache_dir=/tmp/pytest-cache -m "not slow" training/tests`
-4. `cargo run --bin lkjai -- docs validate-topology`
-5. `cargo run --bin lkjai -- docs validate-links`
-6. `cargo run --bin lkjai -- quality check-lines`
-7. `cargo run --bin lkjai -- quality no-node`
+3. `cmake -S native -B /tmp/lkjai-native-build -G Ninja`
+4. `cmake --build /tmp/lkjai-native-build --parallel`
+5. `ctest --test-dir /tmp/lkjai-native-build --output-on-failure`
+6. `cargo run --bin lkjai -- docs validate-topology`
+7. `cargo run --bin lkjai -- docs validate-links`
+8. `cargo run --bin lkjai -- quality check-lines`
+9. `cargo run --bin lkjai -- quality no-node`
 
 ## Compact Logs
 

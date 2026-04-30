@@ -59,14 +59,16 @@ def run_case(image: str, run_id: str, case: str, repeat: int, base_env: dict, sa
         "--rm",
         "--gpus",
         "all",
+        "--entrypoint",
+        "lkjai-native-train",
         "-v",
         f"{ROOT / 'data'}:/app/data",
         "-v",
         f"{ROOT / 'corpus'}:/workspace/corpus:ro",
         image,
-        "train-scratch",
-        "--preset",
-        env.get("TRAIN_PRESET", "agent"),
+        "--smoke",
+        "--steps",
+        env.get("TRAIN_MAX_OPTIMIZER_STEPS", "2"),
     ]
     docker_env = []
     for key, value in sorted(env.items()):

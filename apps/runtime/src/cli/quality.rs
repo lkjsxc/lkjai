@@ -15,15 +15,7 @@ struct QualityResult {
 pub fn check_lines() -> Result<(), Box<dyn std::error::Error>> {
     let mut violations = Vec::new();
     check_path(Path::new("docs"), DOC_LIMIT, true, &mut violations)?;
-    for root in [
-        "apps",
-        "native",
-        "training/package",
-        "training/tests",
-        "configs",
-        "ops",
-        "tools",
-    ] {
+    for root in ["apps", "native", "configs", "ops", "tools"] {
         check_path(Path::new(root), SRC_LIMIT, false, &mut violations)?;
     }
     finish("check-lines", violations)
@@ -88,8 +80,10 @@ fn ignored_path(path: &Path) -> bool {
 
 fn checked_extension(path: &Path, include_markdown: bool) -> bool {
     let ext = path.extension().and_then(|ext| ext.to_str());
-    matches!(ext, Some("rs" | "py" | "sh" | "toml" | "css" | "js" | "cpp" | "hpp" | "cu" | "txt"))
-        || (include_markdown && ext == Some("md"))
+    matches!(
+        ext,
+        Some("rs" | "py" | "sh" | "toml" | "css" | "js" | "cpp" | "hpp" | "cu" | "txt")
+    ) || (include_markdown && ext == Some("md"))
 }
 
 fn node_mentioned(path: &Path) -> Result<bool, std::io::Error> {

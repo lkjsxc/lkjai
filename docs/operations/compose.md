@@ -2,10 +2,9 @@
 
 ## Profiles
 
-- `inference`: Python/Torch OpenAI-compatible scratch inference service.
+- `inference`: native OpenAI-compatible scratch inference service.
 - `web`: Rust axum agent orchestrator plus its inference dependency.
-- `train`: PyTorch scratch training container.
-- `corpus`: CPU public-corpus materialization container.
+- `train`: native scratch training container.
 - `verify`: repository verification container.
 
 ## Data Mount
@@ -20,14 +19,8 @@
 - Inference loads exported scratch checkpoints and generates actions directly.
 - Inference must not use exact supervised lookup, prompt matching, or canned
   response tables.
-- Training reads the active public pretraining corpus from
-  `/app/data/public-corpus`
-  and writes datasets, tokenizer, checkpoints, exports, and logs under
+- Training writes datasets, tokenizer, checkpoints, exports, and logs under
   `/app/data/train`.
-- Corpus materialization reads user-downloaded raw files from
-  `/app/data/raw/cosmopedia`.
-- Corpus download can read `HF_TOKEN` or `HF_TOKEN_FILE`; token values must not
-  be written to reports or logs.
 - Web writes transcripts and memory under `/app/data/agent`.
 - Web uses `/app/data/workspace` as the only filesystem root for tools.
 - Web must not mount the host root.
@@ -49,8 +42,6 @@ cp .env.example .env
 mkdir -p data/models/lkjai-scratch-40m data/train data/agent data/workspace
 docker compose --profile inference up --build inference
 docker compose --profile web up --build web
-docker compose --profile corpus run --rm corpus download-public-pretrain
-docker compose --profile corpus run --rm corpus prepare-public-pretrain
 docker compose --profile train up --build train
 docker compose --progress quiet --profile verify up --build --abort-on-container-exit verify
 ```
@@ -66,29 +57,15 @@ docker compose --progress quiet --profile verify up --build --abort-on-container
 
 ## Training Defaults
 
-- The `train` service defaults to `TRAIN_PRESET=agent` with
-  `TRAIN_CONFIG=/workspace/configs/training/scratch_40m_12h.json`.
-- `TRAIN_PRESET=quick` runs tiny scratch training with reduced steps.
-- `TRAIN_OBJECTIVE` defaults to `causal_lm_full`; use
-  `assistant_masked_sft` for XML-action SFT.
-- `TRAIN_CORPUS_DIR` defaults to `/app/data/public-corpus`.
-- `TRAIN_PUBLIC_DATA_DIR` defaults to `/app/data/raw/cosmopedia`.
-- `TRAIN_PUBLIC_PRETRAIN_TOKENS` defaults to `500000000`.
-- `TRAIN_FIRST_PARTY_SFT_TOKENS` defaults to `60000000`.
-- `TRAIN_FIXED_EVAL_THRESHOLD` defaults to `0.60` for artifact reporting.
-- `TRAIN_BEHAVIORAL_THRESHOLD` defaults to `0.35` for the next pass-rate ladder.
-- `TRAIN_ENFORCE_COMPETENCY` defaults to disabled unless explicitly enabled.
+- The `train` service runs `lkjai-native-train`.
 - Training writes to `TRAIN_DATA_DIR`, default `/app/data/train`.
-- Behavioral competency requires `data/train/runs/behavioral-eval.json`
-  `pass_rate >= 0.80`.
-- Default `TRAIN_CORPUS_SIZE` is `120000` and `TRAIN_MAX_STEPS` is `400000`
-  optimizer steps.
+- The default Compose command is a two-step smoke run.
+- Long native training must save `lkjai-native-artifact-v1` under `data/models`.
 
 ## Presets
 
-- `quick`: tiny scratch run for local smoke.
+- `smoke`: tiny native run for local verification.
 - `agent`: `scratch-40m` defaults for RTX 3070 8GB research.
-- `custom`: all behavior controlled by explicit `TRAIN_*` environment values.
 
 ## Long-Run Contract Links
 

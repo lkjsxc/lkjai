@@ -21,9 +21,9 @@ before attempting rollout-heavy reinforcement learning.
 
 ## Commands
 
-- `python -m lkjai_train.cli prepare-preferences`
-- `python -m lkjai_train.cli train-simpo`
-- `python -m lkjai_train.cli train-dpo`
+- `lkjai-native-train --prepare-preferences`
+- `lkjai-native-train --train-simpo`
+- `lkjai-native-train --train-dpo`
 
 ## Artifacts
 

@@ -35,7 +35,7 @@ Keep one coherent contract for training, export, and serving on a local RTX
 - FP16 training uses AMP gradient scaling.
 - Activation checkpointing is enabled for `scratch-40m` only when the active
   JSON config or auto-batch policy requires it.
-- Serving default: Python/Torch OpenAI-compatible runtime with KV-cache decode.
+- Serving default: native OpenAI-compatible runtime with KV-cache decode.
 - Runtime quality must come from real generation. No supervised exact-match
   lookup is allowed in the default path.
 

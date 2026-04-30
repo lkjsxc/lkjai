@@ -95,22 +95,6 @@ services:
               count: all
               capabilities: [gpu]
 
-  corpus:
-    profiles: ["corpus"]
-    build:
-      context: .
-      dockerfile: ops/docker/Dockerfile.train
-    environment:
-      DATA_DIR: ${TRAIN_DATA_DIR:-/app/data/train}
-      TRAIN_CORPUS_DIR: ${TRAIN_CORPUS_DIR:-/app/data/public-corpus}
-      TRAIN_PUBLIC_DATA_DIR: ${TRAIN_PUBLIC_DATA_DIR:-/app/data/raw/cosmopedia}
-      TRAIN_PUBLIC_PRETRAIN_TOKENS: ${TRAIN_PUBLIC_PRETRAIN_TOKENS:-500000000}
-      HF_TOKEN: ${HF_TOKEN:-}
-      HF_TOKEN_FILE: ${HF_TOKEN_FILE:-}
-    volumes:
-      - ./data:/app/data
-      - ./corpus:/workspace/corpus:ro
-
   verify:
     profiles: ["verify"]
     build:
@@ -119,7 +103,6 @@ services:
     working_dir: /workspace
     environment:
       DATA_DIR: /workspace/data/verify
-      PYTHONPATH: /workspace/training/package
       CARGO_TARGET_DIR: /target
     volumes:
       - .:/workspace:ro

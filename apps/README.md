@@ -14,4 +14,4 @@ application or service boundary.
 
 - Keep application code under child directories.
 - Shared project intent belongs in `docs/`.
-- Training code belongs in `training/package/`.
+- Product training code belongs in `native/`.

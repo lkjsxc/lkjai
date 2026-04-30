@@ -13,4 +13,4 @@ metrics.
 ## Rules
 
 - Write outputs under ignored artifact directories.
-- Build training containers from `ops/docker/Dockerfile.train`.
+- Build training containers from `ops/docker/Dockerfile.native`.

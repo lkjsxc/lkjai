@@ -7,8 +7,8 @@ evaluation.
 
 ## Server
 
-- Default backend: Python/Torch OpenAI-compatible inference service.
-- Container image: `ops/docker/Dockerfile.inference`.
+- Default backend: native OpenAI-compatible inference service.
+- Container image: `ops/docker/Dockerfile.native`.
 - Load root: `/models/${MODEL_NAME}`.
 - Bind: `0.0.0.0:8081` in-container.
 - Host port: `127.0.0.1:${MODEL_PORT:-8081}`.
@@ -30,7 +30,7 @@ evaluation.
 - No supervised action index, prompt lookup table, or policy-file fallback is
   allowed in the accepted runtime path.
 - Adapter seams are allowed for future backends, but the 3070-first backend is
-  the Python/Torch path.
+  the native path.
 
 ## Health
 

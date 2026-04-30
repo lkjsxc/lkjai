@@ -8,37 +8,22 @@ the same real tool loop that production will use.
 ## Commands
 
 - `docker compose --profile train up --build train`
-- `python -m lkjai_train.cli prepare-fixtures`
-- `python -m lkjai_train.cli validate-sources`
-- `python -m lkjai_train.cli prepare-corpus`
-- `python -m lkjai_train.cli train-tokenizer`
-- `python -m lkjai_train.cli validate-dataset`
-- `python -m lkjai_train.cli train-scratch`
-- `python -m lkjai_train.cli train-sft`
-- `python -m lkjai_train.cli fixed-eval`
-- `python -m lkjai_train.cli generation-sanity`
-- `python -m lkjai_train.cli behavioral-eval`
-- `python -m lkjai_train.cli export-manifest`
-- `python -m lkjai_train.cli smoke`
+- `docker compose --profile verify up --build --abort-on-container-exit verify`
+- `lkjai-native-train --smoke --steps 2`
+- `lkjai-native-inspect --model-dir data/models/lkjai-scratch-40m`
 
 ## Pipeline Order
 
 1. Validate tagged JSON source files in `corpus/sources/`.
-2. Build fixtures and the mainline 60K corpus.
-3. Build the 500M-token public pretraining corpus under `data/public-corpus/`
-   in validated JSONL shards.
-4. Deduplicate and emit `train`, `val`, and `holdout` split files.
-5. Train the tokenizer on the objective-appropriate train split only.
-6. Validate schema, split metadata, and write `validation-report.json`.
-7. Train the causal-LM pretrain stage from a disk-backed packed token cache.
-8. Train `assistant_masked_sft` from the accepted pretrain weights.
-9. Measure validation loss periodically on the active validation split.
-10. Save atomic checkpoints: `latest/` during training, retained numbered
-   `steps/` snapshots, `best/` on validation improvement, and `final/` as the
-   last state.
-11. Export the SFT checkpoint.
-12. Run fixed eval, generation sanity, and raw holdout behavioral eval.
-13. Record pass-rate, invalid-XML, wrong-tool, and non-finish trends.
+2. Read reviewed JSONL corpus rows.
+3. Serialize dialogue and assistant action targets.
+4. Train or load the byte-level BPE tokenizer.
+5. Write `lkjai-packed-cache-v2` train, val, and holdout caches.
+6. Train the causal-LM pretrain stage through native C++/CUDA.
+7. Train the XML-action SFT stage from accepted pretrain weights.
+8. Save atomic native checkpoints and `lkjai-native-artifact-v1` exports.
+9. Run native server generation checks and behavioral eval.
+10. Record pass-rate, invalid-XML, wrong-tool, and non-finish trends.
 
 ## Defaults
 
@@ -66,10 +51,9 @@ the same real tool loop that production will use.
 - `TRAIN_INTERMEDIATE_SAVE_EVERY_OPTIMIZER_STEPS=120000`
 - `TRAIN_KEEP_LAST_CHECKPOINTS=8`
 - `TRAIN_CHECKPOINT_RESUME_SOURCE=latest`
-- `TRAIN_DATALOADER_IMPL=batch_mapped` for real non-quick runs
+- Native packed-cache reader for real non-quick runs
 - `TRAIN_STATIC_SHAPES=true`
-- `TRAIN_COMPILE=auto`
-- `TRAIN_COMPILE_WARMUP_MICROSTEPS=2`
+- `TRAIN_COMPILE` is not used in the native product path
 - `TRAIN_ACTIVATION_CHECKPOINT=off`
 - `TRAIN_CHECKPOINT_PRESERVE_RNG=false`
 - `TRAIN_ATTENTION_BACKEND=auto`
@@ -88,9 +72,8 @@ the same real tool loop that production will use.
   only assistant content tokens contribute to loss.
 - A microstep is one forward/backward batch.
 - An optimizer step happens after `TRAIN_GRADIENT_ACCUMULATION` microsteps.
-- On CUDA, automatic batch sizing probes the largest safe microbatch up to
-  `TRAIN_AUTO_BATCH_MAX`, then recomputes gradient accumulation from
-  `TRAIN_TARGET_EFFECTIVE_BATCH_TOKENS`.
+- On CUDA, native auto-batch probes the largest safe microbatch up to
+  `TRAIN_AUTO_BATCH_MAX`.
 - `TRAIN_MAX_STEPS` and `TRAIN_MAX_OPTIMIZER_STEPS` stop by optimizer steps.
 - `TRAIN_MAX_MICROSTEPS` is an optional hard stop for old-style microstep caps.
 - `input_tokens_seen` counts all tokens fed to the model.
@@ -113,7 +96,7 @@ is not accepted for chat, even when fixed artifact checks pass.
   refreshed 60M validated corpus is generated.
 - Tokenizer: `data/train/tokenizer`
 - Checkpoints: `data/train/checkpoints`
-- Exports: `data/train/exports`
+- Native exports: `data/models/lkjai-scratch-40m`
 - Eval reports: `data/train/runs`
 
 ## Checkpoint Resume

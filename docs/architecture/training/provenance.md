@@ -68,8 +68,8 @@ Public-import rows remain conservative and opt-in:
 ## Verification
 
 ```bash
-PYTHONPATH=training/package python3 -m lkjai_train.cli prepare-corpus
-PYTHONPATH=training/package python3 -m lkjai_train.cli validate-dataset
+docker compose --profile train up --build train
+lkjai-native-inspect --model-dir data/models/lkjai-scratch-40m
 ```
 
 Expected: generated row metadata uses only allowed provenance and XML actions.

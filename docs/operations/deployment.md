@@ -23,7 +23,7 @@ docker compose --profile web up --build web
 - Compose web uses `MODEL_API_URL=http://inference:8081/v1/chat/completions`.
 - Host checks inference on `http://127.0.0.1:8081/v1/models`.
 - Chat reports explicit model errors instead of dummy web-runtime responses.
-- Default inference is Python/Torch until native Rust tensor decoding is ready.
+- Default inference is the native C++/CUDA server.
 
 ## Rejected Bootstrap
 

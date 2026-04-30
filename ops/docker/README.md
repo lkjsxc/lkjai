@@ -7,8 +7,7 @@ Dockerfiles define reproducible containers for each execution mode.
 ## Contents
 
 - [Dockerfile.runtime](Dockerfile.runtime): Rust runtime service image.
-- [Dockerfile.inference](Dockerfile.inference): Python inference server image.
-- [Dockerfile.train](Dockerfile.train): Python training image.
+- [Dockerfile.native](Dockerfile.native): native train and inference image.
 - [Dockerfile.verify](Dockerfile.verify): combined verification image.
 
 ## Rules

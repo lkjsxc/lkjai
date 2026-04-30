@@ -47,7 +47,7 @@ Check:
 
 Fix:
 - Use `TRAIN_PRESET=agent`.
-- Run `python -m lkjai_train.cli prepare-corpus` first.
+- Run the native train profile first.
 - Verify `data/train/datasets/corpus.jsonl` has >= 100 rows.
 
 ## Verify Profile Fails
@@ -58,7 +58,7 @@ exits non-zero.
 Check:
 - Rust formatting: `cargo fmt -- --check`.
 - Rust tests: `cargo test`.
-- Python tests: `python3 -m pytest -m "not slow" training/tests`.
+- Native tests: `ctest --test-dir /tmp/lkjai-native-build --output-on-failure`.
 - Line limits: `cargo run --bin lkjai -- quality check-lines`.
 - Docs topology: `cargo run --bin lkjai -- docs validate-topology`.
 
