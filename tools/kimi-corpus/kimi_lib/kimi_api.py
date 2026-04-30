@@ -37,11 +37,13 @@ class KimiApiRunner:
         stdout_path = self.logs_dir / f"{call_id}.stdout.log"
         stderr_path = self.logs_dir / f"{call_id}.stderr.log"
         prompt_path.write_text(redact(prompt, self.keys), encoding="utf-8")
+        stdout_path.touch()
         started = time.perf_counter()
         if not self.keys:
             stderr_path.write_text("MOONSHOT_API_KEY or --api-key-file is required\n", encoding="utf-8")
             return KimiResult(1, stdout_path, stderr_path, self.variant, time.perf_counter() - started)
-        for attempt in range(max_retries + 1):
+        attempts = max(max_retries + 1, len(self.keys))
+        for attempt in range(attempts):
             key = self._key()
             try:
                 rows = self._chat(prompt, key, timeout_seconds)
@@ -50,6 +52,8 @@ class KimiApiRunner:
                 return KimiResult(0, stdout_path, stderr_path, self.variant, time.perf_counter() - started)
             except ApiError as error:
                 stderr_path.write_text(redact(error.message, self.keys), encoding="utf-8")
+                if error.auth and attempt + 1 < len(self.keys):
+                    continue
                 if not error.transient or attempt >= max_retries:
                     return KimiResult(error.exit_code, stdout_path, stderr_path, self.variant, time.perf_counter() - started)
                 time.sleep(2**attempt)
@@ -70,7 +74,7 @@ class KimiApiRunner:
             "response_format": row_schema(),
             "max_completion_tokens": 8192,
             "prompt_cache_key": f"lkjai:{self.model}:sft",
-            "extra_body": {"thinking": {"type": "disabled"}},
+            "thinking": {"type": "disabled"},
         }
         data = self._post("/chat/completions", body, key, timeout_seconds)
         content = data["choices"][0]["message"]["content"]
@@ -94,11 +98,12 @@ class KimiApiRunner:
 
 
 class ApiError(Exception):
-    def __init__(self, message: str, transient: bool, exit_code: int):
+    def __init__(self, message: str, transient: bool, exit_code: int, auth: bool = False):
         super().__init__(message)
         self.message = message
         self.transient = transient
         self.exit_code = exit_code
+        self.auth = auth
 
     @classmethod
     def from_http(cls, status: int, text: str) -> "ApiError":
@@ -107,8 +112,10 @@ class ApiError(Exception):
             error_type = json.loads(text).get("error", {}).get("type", "")
         except json.JSONDecodeError:
             pass
+        auth = status == 401 or "auth" in error_type
         transient = status >= 500 or status == 429 or error_type in TRANSIENT_TYPES
-        return cls(f"http_status={status} error_type={error_type} body={text}", transient, 75 if transient else 1)
+        code = 75 if transient else 2 if auth else 1
+        return cls(f"http_status={status} error_type={error_type} body={text}", transient, code, auth)
 
 
 def rows_to_jsonl(content: str) -> str:
