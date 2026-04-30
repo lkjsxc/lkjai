@@ -68,6 +68,13 @@ def normalize_record(record: dict, mode: str, index: int, prompt_version: str, s
         "source_ref": f"kimi_synthetic:{prompt_version}",
         "mode": "sft",
         "prompt_version": prompt_version,
+        "template_family": "direct_finish",
+        "scenario_family_id": f"synthetic-{prompt_version}-{index:04d}",
+        "intent": "direct_answer",
+        "tool_sequence": ["agent.finish"],
+        "confirmation_required": False,
+        "grounding_source": "synthetic",
+        "gold_stop_reason": "finish",
     }
     for key, value in defaults.items():
         meta.setdefault(key, value)

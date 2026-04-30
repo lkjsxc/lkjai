@@ -7,6 +7,7 @@ from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from pathlib import Path
 
 from .config import DEFAULT_RUN_DIR
+from .kimi_api import KimiApiRunner
 from .kimi_cli import KimiRunner, is_transient_result
 from .manifest import Manifest, split_for_shard
 from .prompts import extract_prompt_candidates, next_prompt_version, prompt_candidate_valid, render_prompt
@@ -24,7 +25,8 @@ class CorpusGenerator:
             self.config["stop_file"] = str(self.run_dir / "STOP")
         self.logs_dir = self.run_dir / "logs"
         self.prompt_dir = Path(config.get("prompt_dir", "tools/kimi-corpus/prompts"))
-        self.kimi = KimiRunner(self.logs_dir, args.fake_kimi)
+        provider = str(getattr(args, "api_provider", None) or config.get("api_provider", "cli"))
+        self.kimi = KimiApiRunner(self.logs_dir, config, args) if provider == "kimi-api" else KimiRunner(self.logs_dir, args.fake_kimi)
         self.manifest = Manifest(self.output_dir, self.kimi.variant)
         self.tokenizer = self.load_optional_tokenizer()
         self.started = time.perf_counter()

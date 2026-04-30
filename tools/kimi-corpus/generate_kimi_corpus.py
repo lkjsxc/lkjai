@@ -37,6 +37,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--stop-file", default=None)
     parser.add_argument("--run-dir", default=str(DEFAULT_RUN_DIR))
     parser.add_argument("--fake-kimi", default="", help="Path to a fake kimi executable for tests.")
+    parser.add_argument("--api-provider", choices=["cli", "kimi-api"], default=None)
+    parser.add_argument("--api-key-file", default="")
+    parser.add_argument("--api-base-url", default=None)
+    parser.add_argument("--api-model", default=None)
     parser.add_argument("--sample-first", action="store_true", help="Run sample, score, refine, second sample workflow.")
     return parser.parse_args()
 

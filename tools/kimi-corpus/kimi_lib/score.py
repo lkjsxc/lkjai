@@ -11,6 +11,7 @@ from typing import Iterable
 from xml.etree import ElementTree
 
 from .records import approx_tokens, record_text
+from .score_agent import validate_agent_sft
 from .score_extra import (
     estimate_near_duplicates,
     iter_jsonl_files,
@@ -138,6 +139,7 @@ def validate_sft(row: dict) -> list[str]:
     for message in messages if isinstance(messages, list) else []:
         if message.get("role") == "assistant" and not valid_xml(message.get("content", "")):
             flags.append("invalid_assistant_xml"); break
+    flags.extend(validate_agent_sft(row))
     return flags
 
 
