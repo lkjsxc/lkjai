@@ -13,7 +13,7 @@ RUN python -m pip install --break-system-packages --no-cache-dir \
     pytest \
     tokenizers==0.21.1
 
-ARG INSTALL_FLASH_ATTN=1
+ARG INSTALL_FLASH_ATTN=0
 RUN if [ "$INSTALL_FLASH_ATTN" = "1" ]; then \
       MAX_JOBS=4 python -m pip install --break-system-packages --no-cache-dir --no-build-isolation flash-attn==2.8.3; \
     fi

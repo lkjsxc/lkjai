@@ -4,7 +4,8 @@
 
 1. Native PyTorch SDPA.
 2. PyTorch SDPA with explicit flash backend.
-3. FlashAttention-2 where install, GPU, dtype, and shape support are valid.
+3. FlashAttention-2 in a dedicated `INSTALL_FLASH_ATTN=1` benchmark image
+   where install, GPU, dtype, and shape support are valid.
 4. `torch.compile` with stable static shapes.
 5. Triton kernels for measured elementwise or cache-update hotspots.
 6. Hand-written CUDA only after profiler evidence.

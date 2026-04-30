@@ -22,7 +22,8 @@
   on CUDA non-quick runs after warmup.
 - `TRAIN_ATTENTION_BACKEND=auto` prefers native PyTorch SDPA unless a benchmark
   selects a faster backend.
-- `TRAIN_ATTENTION_BACKEND=flash2` requires FlashAttention-2.
+- `TRAIN_ATTENTION_BACKEND=flash2` requires building the train image with
+  `INSTALL_FLASH_ATTN=1`.
 - `TRAIN_ATTENTION_BACKEND=sdpa_flash` forces PyTorch flash SDPA.
 - Native PyTorch scaled-dot-product attention remains the mandatory baseline.
 - DataLoader pinned memory is enabled for CUDA runs.
