@@ -1,7 +1,8 @@
 use uuid::Uuid;
 
 use super::{
-    chat_actions, event, filter_events, response, Agent, ChatRequest, ChatResponse, Event,
+    chat_actions, confirmation_flow, event, filter_events, response, Agent, ChatRequest,
+    ChatResponse, Event,
 };
 
 impl Agent {
@@ -10,6 +11,20 @@ impl Agent {
         let max_steps = request.max_steps.unwrap_or(self.config.agent_max_steps);
         let visible = request.visible_event_kinds.clone();
         let mut events = vec![event("user", request.message.clone(), None, None)];
+        let base_prior = self.transcript(&run_id).unwrap_or_default();
+        if let Some((assistant, stop_reason)) = confirmation_flow::respond(
+            &request.message,
+            &base_prior,
+            &self.config,
+            &self.memory,
+            &run_id,
+            &mut events,
+        )
+        .await
+        {
+            self.persist(&run_id, &events);
+            return response(run_id, assistant, filter_events(&events, &visible), &stop_reason);
+        }
         if !self.model.is_reachable().await {
             events.push(event(
                 "error",
@@ -25,7 +40,6 @@ impl Agent {
                 "model_error",
             );
         }
-        let base_prior = self.transcript(&run_id).unwrap_or_default();
         let mut prior = base_prior.clone();
         prior.extend(events.clone());
         let mut assistant = String::new();
@@ -139,6 +153,16 @@ impl Agent {
         events: &mut Vec<Event>,
         stop_reason: &mut String,
     ) -> bool {
+        if super::confirmation::is_mutation(&action.tool) {
+            events.push(event(
+                "error",
+                "resource mutation requires confirmation".into(),
+                Some(action.tool),
+                Some(step),
+            ));
+            *stop_reason = "confirmation_required".into();
+            return true;
+        }
         let result = self.action_tool(action, run_id, step, events).await;
         *prior = base_prior.to_vec();
         prior.extend(events.clone());

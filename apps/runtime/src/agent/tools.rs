@@ -3,37 +3,26 @@ use crate::config::Config;
 
 #[derive(Clone, Debug)]
 pub enum ToolCall {
-    AgentFinish {
-        content: String,
-    },
-    AgentThink {
-        content: String,
-    },
-    Shell {
-        command: String,
-    },
-    Fetch {
-        url: String,
-    },
-    Read {
-        path: String,
-    },
+    AgentFinish { content: String },
+    AgentThink { content: String },
+    Shell { command: String },
+    Fetch { url: String },
+    Read { path: String },
     Write {
         path: String,
         content: String,
     },
-    List {
-        path: String,
-    },
-    MemorySearch {
-        query: String,
-    },
-    MemoryWrite {
-        content: String,
-    },
+    List { path: String },
+    MemorySearch { query: String },
+    MemoryWrite { content: String },
     ResourceSearch {
         query: String,
         kind: String,
+        sort: Option<String>,
+        cursor: Option<String>,
+        limit: Option<String>,
+        direction: Option<String>,
+        scope: Option<String>,
     },
     ResourceFetch {
         reference: String,
@@ -48,6 +37,13 @@ pub enum ToolCall {
     ResourceCreateNote {
         body: String,
         alias: Option<String>,
+        is_favorite: bool,
+        is_private: bool,
+    },
+    ResourceCreateMedia {
+        path: String,
+        alias: Option<String>,
+        is_favorite: bool,
         is_private: bool,
     },
     ResourceUpdate {
@@ -91,8 +87,13 @@ impl ToolCall {
                 content: required(action, "content")?,
             }),
             "resource.search" => Ok(Self::ResourceSearch {
-                query: required(action, "query")?,
+                query: required_any(action, &["query", "q"])?,
                 kind: optional(action, "kind").unwrap_or_else(|| "all".into()),
+                sort: optional(action, "sort"),
+                cursor: optional(action, "cursor"),
+                limit: optional(action, "limit"),
+                direction: optional(action, "direction"),
+                scope: optional(action, "scope"),
             }),
             "resource.fetch" => Ok(Self::ResourceFetch {
                 reference: required_any(action, &["ref", "id"])?,
@@ -107,6 +108,13 @@ impl ToolCall {
             "resource.create_note" => Ok(Self::ResourceCreateNote {
                 body: required(action, "body")?,
                 alias: optional(action, "alias"),
+                is_favorite: action.bool_field("is_favorite", false),
+                is_private: action.bool_field("is_private", false),
+            }),
+            "resource.create_media" => Ok(Self::ResourceCreateMedia {
+                path: required(action, "path")?,
+                alias: optional(action, "alias"),
+                is_favorite: action.bool_field("is_favorite", false),
                 is_private: action.bool_field("is_private", false),
             }),
             "resource.update_resource" => Ok(Self::ResourceUpdate {
@@ -136,31 +144,13 @@ impl ToolCall {
             Self::ResourceHistory { .. } => "resource.history",
             Self::ResourcePreview { .. } => "resource.preview_markdown",
             Self::ResourceCreateNote { .. } => "resource.create_note",
+            Self::ResourceCreateMedia { .. } => "resource.create_media",
             Self::ResourceUpdate { .. } => "resource.update_resource",
         }
     }
 
     pub fn summary(&self) -> String {
-        match self {
-            Self::AgentFinish { content } => content.chars().take(80).collect(),
-            Self::AgentThink { content } => content.chars().take(80).collect(),
-            Self::Shell { command } => command.clone(),
-            Self::Fetch { url } => url.clone(),
-            Self::Read { path } | Self::List { path } => path.clone(),
-            Self::Write { path, content } => format!("{path} ({} bytes)", content.len()),
-            Self::MemorySearch { query } => query.clone(),
-            Self::MemoryWrite { content } => content.clone(),
-            Self::ResourceSearch { query, kind } => format!("{query} [{kind}]"),
-            Self::ResourceFetch { reference } | Self::ResourceHistory { reference } => {
-                reference.clone()
-            }
-            Self::ResourcePreview { body, .. } | Self::ResourceCreateNote { body, .. } => {
-                body.chars().take(80).collect()
-            }
-            Self::ResourceUpdate {
-                reference, body, ..
-            } => format!("{reference}: {}", body.chars().take(60).collect::<String>()),
-        }
+        super::tool_summary::summary(self)
     }
 }
 pub async fn execute(

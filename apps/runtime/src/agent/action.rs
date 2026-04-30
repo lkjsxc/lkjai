@@ -8,6 +8,18 @@ pub struct Action {
 }
 
 impl Action {
+    pub fn new(tool: String, fields: BTreeMap<String, String>) -> Self {
+        Self {
+            tool,
+            reasoning: None,
+            fields,
+        }
+    }
+
+    pub fn fields(&self) -> BTreeMap<String, String> {
+        self.fields.clone()
+    }
+
     pub fn field(&self, key: &str) -> Option<String> {
         self.fields.get(key).filter(|v| !v.is_empty()).cloned()
     }
