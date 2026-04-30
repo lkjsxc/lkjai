@@ -67,7 +67,8 @@ Run one measurable long training job for the 3070-first 40M scratch model.
 - `TRAIN_ACTIVATION_CHECKPOINT`: `off`, `all`, or `every_n`; default `off`
 - `TRAIN_ACTIVATION_CHECKPOINT_EVERY_N`: default `2`
 - `TRAIN_CHECKPOINT_PRESERVE_RNG`: default `false`
-- `TRAIN_ATTENTION_BACKEND`: `auto`, `sdpa`, or `flash2`; default `auto`
+- `TRAIN_ATTENTION_BACKEND`: `auto`, `sdpa`, `sdpa_flash`, `sdpa_math`, or
+  `flash2`; default `auto`
 - `TRAIN_EXPORT_CHECKPOINT`: `best` or `final`, default `best`
 - `TRAIN_DATALOADER_IMPL`: `mapped` by default for real non-quick runs,
   `legacy` for quick

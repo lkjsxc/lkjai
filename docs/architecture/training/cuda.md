@@ -4,6 +4,7 @@
 
 - Training uses CUDA when `torch.cuda.is_available()` is true.
 - Training stack uses local PyTorch scratch-model code.
+- Training containers target PyTorch `2.11.0` with CUDA `12.8`.
 - Mixed precision is enabled by default on CUDA.
 - `TRAIN_AMP=auto` chooses BF16 when supported and FP16 otherwise.
 - `TRAIN_AMP=fp16` uses a GradScaler.
@@ -19,8 +20,10 @@
 
 - `TRAIN_COMPILE=auto` enables `torch.compile(..., mode="reduce-overhead")`
   on CUDA non-quick runs after warmup.
-- `TRAIN_ATTENTION_BACKEND=auto` tries FlashAttention-2 when import and shapes
-  allow it, then falls back to native PyTorch SDPA.
+- `TRAIN_ATTENTION_BACKEND=auto` prefers native PyTorch SDPA unless a benchmark
+  selects a faster backend.
+- `TRAIN_ATTENTION_BACKEND=flash2` requires FlashAttention-2.
+- `TRAIN_ATTENTION_BACKEND=sdpa_flash` forces PyTorch flash SDPA.
 - Native PyTorch scaled-dot-product attention remains the mandatory baseline.
 - DataLoader pinned memory is enabled for CUDA runs.
 

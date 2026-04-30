@@ -12,7 +12,7 @@ RUN apt-get update \
 RUN python3 -m pip install --break-system-packages --no-cache-dir pytest
 
 RUN python3 -m pip install --break-system-packages --no-cache-dir \
-    torch --index-url https://download.pytorch.org/whl/cpu
+    torch==2.11.0 --index-url https://download.pytorch.org/whl/cpu
 
 RUN python3 -m pip install --break-system-packages --no-cache-dir \
     tokenizers==0.21.1

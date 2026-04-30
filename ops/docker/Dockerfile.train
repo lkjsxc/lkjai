@@ -1,16 +1,22 @@
-FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
+FROM pytorch/pytorch:2.11.0-cuda12.8-cudnn9-devel
 
 WORKDIR /workspace
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc g++ \
+    && apt-get install -y --no-install-recommends gcc g++ git ninja-build \
     && rm -rf /var/lib/apt/lists/*
 
 RUN python -m pip install --no-cache-dir \
+    packaging \
     huggingface_hub==0.30.2 \
     pyarrow==20.0.0 \
     pytest \
     tokenizers==0.21.1
+
+ARG INSTALL_FLASH_ATTN=1
+RUN if [ "$INSTALL_FLASH_ATTN" = "1" ]; then \
+      MAX_JOBS=4 python -m pip install --no-cache-dir --no-build-isolation flash-attn==2.8.3; \
+    fi
 
 COPY training/package ./training/package
 COPY docs ./docs
