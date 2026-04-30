@@ -39,8 +39,8 @@ Run one measurable long training job for the 3070-first 40M scratch model.
 - `TRAIN_DROPOUT`: default `0.0`
 - `TRAIN_BATCH_SIZE`: default `2`
 - `TRAIN_GRADIENT_ACCUMULATION`: default `4`
-- `TRAIN_BATCH_POLICY`: `fixed`, `oom_fallback`, or `sweep`; default
-  `oom_fallback`
+- `TRAIN_BATCH_POLICY`: `fixed`, `oom_fallback`, or timed CUDA `sweep`;
+  default `oom_fallback`
 - `TRAIN_AUTO_BATCH`: default `true`; CUDA-only automatic microbatch probe
 - `TRAIN_AUTO_BATCH_MAX`: default `16`
 - `TRAIN_TARGET_EFFECTIVE_BATCH_TOKENS`: default batch x sequence x accumulation
@@ -60,8 +60,8 @@ Run one measurable long training job for the 3070-first 40M scratch model.
 - `TRAIN_VALIDATION_BATCHES`: default `8`
 - `TRAIN_RESUME`: `auto`, `never`, or `required`
 - `TRAIN_AMP`: `auto`, `bf16`, or `fp16`
-- `TRAIN_COMPILE`: `off`, `auto`, `default`, or `reduce-overhead`; default
-  `auto`
+- `TRAIN_COMPILE`: `off`, `auto`, `default`, `reduce-overhead`,
+  `max-autotune`, or `max-autotune-no-cudagraphs`; default `auto`
 - `TRAIN_COMPILE_WARMUP_MICROSTEPS`: default `2`
 - `TRAIN_STATIC_SHAPES`: default `true`
 - `TRAIN_ACTIVATION_CHECKPOINT`: `off`, `all`, or `every_n`; default `off`

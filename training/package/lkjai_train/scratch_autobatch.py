@@ -10,7 +10,10 @@ from .scratch_optim import autocast_context
 def maybe_auto_batch(model, settings, device: torch.device, config) -> None:
     if getattr(settings, "batch_policy", "oom_fallback") == "fixed" or not settings.auto_batch or device.type != "cuda":
         return
-    chosen = probe_largest_batch(model, settings, device, config)
+    if settings.batch_policy == "sweep":
+        chosen = probe_fastest_batch(model, settings, device, config)
+    else:
+        chosen = probe_largest_batch(model, settings, device, config)
     settings.batch_size = chosen
     settings.gradient_accumulation = max(1, math.ceil(settings.target_effective_batch_tokens / max(1, chosen * settings.sequence_len)))
     memory = torch.cuda.max_memory_allocated(device) if device.type == "cuda" else 0
@@ -27,6 +30,56 @@ def maybe_auto_batch(model, settings, device: torch.device, config) -> None:
         ),
         flush=True,
     )
+
+
+def probe_fastest_batch(model, settings, device: torch.device, config) -> int:
+    saved_rng = rng_state()
+    was_training = model.training
+    candidates = candidate_batches(settings)
+    best_batch, best_rate = 1, 0.0
+    try:
+        for batch_size in candidates:
+            rate = timed_batch_rate(model, settings, device, config, batch_size)
+            if rate > best_rate:
+                best_batch, best_rate = batch_size, rate
+        return best_batch
+    finally:
+        model.train(was_training)
+        model.zero_grad(set_to_none=True)
+        restore_rng_state(saved_rng)
+        torch.cuda.empty_cache()
+
+
+def candidate_batches(settings) -> list[int]:
+    target = max(1, settings.target_effective_batch_tokens // max(1, settings.sequence_len))
+    return list(range(1, max(1, min(settings.auto_batch_max, target)) + 1))
+
+
+def timed_batch_rate(model, settings, device: torch.device, config, batch_size: int) -> float:
+    if not probe_batch_fits(model, settings, device, config, batch_size):
+        return 0.0
+    torch.cuda.synchronize()
+    start = torch.cuda.Event(enable_timing=True)
+    end = torch.cuda.Event(enable_timing=True)
+    start.record()
+    for step in range(3):
+        synthetic_step(model, settings, device, config, batch_size, step)
+    end.record()
+    torch.cuda.synchronize()
+    ms = max(1e-6, start.elapsed_time(end))
+    return 3000.0 * batch_size * settings.sequence_len / ms
+
+
+def synthetic_step(model, settings, device: torch.device, config, batch_size: int, step: int) -> None:
+    model.zero_grad(set_to_none=True)
+    generator = torch.Generator(device=device)
+    generator.manual_seed(settings.seed + 10_000 + batch_size * 17 + step)
+    shape = (batch_size, settings.sequence_len)
+    input_ids = torch.randint(5, config.vocab_size, shape, device=device, dtype=torch.long, generator=generator)
+    labels = torch.randint(5, config.vocab_size, shape, device=device, dtype=torch.long, generator=generator)
+    with autocast_context(device, settings.amp):
+        _, loss, _ = model(input_ids, labels)
+    loss.backward()
 
 
 def probe_largest_batch(model, settings, device: torch.device, config) -> int:

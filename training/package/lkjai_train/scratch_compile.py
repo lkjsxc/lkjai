@@ -21,9 +21,9 @@ def resolved_compile_mode(settings, device) -> str:
         return "off"
     if choice == "auto":
         return "reduce-overhead"
-    if choice in {"default", "reduce-overhead"}:
+    if choice in {"default", "reduce-overhead", "max-autotune", "max-autotune-no-cudagraphs"}:
         return choice
-    raise ValueError("TRAIN_COMPILE must be off, auto, default, or reduce-overhead")
+    raise ValueError("TRAIN_COMPILE must be off, auto, default, reduce-overhead, max-autotune, or max-autotune-no-cudagraphs")
 
 
 def warmup_compiled_model(model, settings, device, config) -> None:

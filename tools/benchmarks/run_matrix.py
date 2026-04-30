@@ -14,6 +14,9 @@ CASES = {
     "real_legacy": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "legacy"},
     "real_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "mapped"},
     "real_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped"},
+    "sdpa_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped", "TRAIN_ATTENTION_BACKEND": "sdpa"},
+    "sdpa_flash_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped", "TRAIN_ATTENTION_BACKEND": "sdpa_flash"},
+    "flash2_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped", "TRAIN_ATTENTION_BACKEND": "flash2"},
     "synthetic_cpu": {"TRAIN_DATA_MODE": "synthetic_cpu", "TRAIN_DATALOADER_IMPL": "legacy"},
     "synthetic_gpu": {"TRAIN_DATA_MODE": "synthetic_gpu", "TRAIN_DATALOADER_IMPL": "legacy"},
     "bf16_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped", "TRAIN_AMP": "bf16"},
@@ -123,7 +126,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--run-id", default=time.strftime("%Y%m%d-%H%M%S"))
     parser.add_argument("--image", default="")
-    parser.add_argument("--cases", default="real_legacy,real_mapped,real_batch_mapped,synthetic_gpu")
+    parser.add_argument("--cases", default="real_legacy,real_mapped,real_batch_mapped,sdpa_batch_mapped,sdpa_flash_batch_mapped,synthetic_gpu")
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--sample-interval", type=float, default=0.5)
     parser.add_argument("--no-build", action="store_true")

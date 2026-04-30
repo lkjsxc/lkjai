@@ -33,7 +33,7 @@ def decode_after_ids(loaded, input_ids, max_tokens: int, temperature: float, sto
     import torch
 
     generated = []
-    eos = loaded.tokenizer.token_to_id("<eos>")
+    stop_ids = token_ids(loaded.tokenizer, stop_markers + ["<eos>"])
     with torch.inference_mode():
         logits, _, cache = loaded.model(input_ids, use_cache=True)
         next_logits = logits[:, -1, :]
@@ -41,14 +41,15 @@ def decode_after_ids(loaded, input_ids, max_tokens: int, temperature: float, sto
             next_id = loaded.choose_token(next_logits, temperature)
             token = int(next_id.item())
             generated.append(token)
-            text = loaded.tokenizer.decode(generated, skip_special_tokens=False)
-            if eos is not None and token == eos:
-                break
-            if any(marker in text for marker in stop_markers):
+            if token in stop_ids:
                 break
             logits, _, cache = loaded.model(next_id, cache=cache, use_cache=True)
             next_logits = logits[:, -1, :]
     return loaded.tokenizer.decode(generated, skip_special_tokens=False)
+
+
+def token_ids(tokenizer, markers: list[str]) -> set[int]:
+    return {token_id for marker in markers if (token_id := tokenizer.token_to_id(marker)) is not None}
 
 
 def clean_content(text: str) -> str:

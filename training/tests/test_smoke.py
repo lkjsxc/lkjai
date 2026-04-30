@@ -9,7 +9,7 @@ from lkjai_train.dataset import parse_assistant_xml, prepare_fixtures, validate_
 from lkjai_train.behavioral import action_schema_error, bucket, bucket_rates
 from lkjai_train.formatting import message_text, prompt_text, supervised_token_ids
 from lkjai_train.generation import agent_context_messages, first_xml_action, latest_user_event, normalize_action, normalize_messages
-from lkjai_train.protocol_decode import clean_content
+from lkjai_train.protocol_decode import clean_content, token_ids
 from lkjai_train.paths import Paths
 from lkjai_train.preference import prepare_preferences
 from lkjai_train.public_import import ALLOWED_LICENSES, prepare_public_corpus, validate_public_sources
@@ -154,6 +154,10 @@ def test_protocol_content_cleaning_escapes_without_action_fallback():
     assert clean_content("Hi & <x></content>") == "Hi &amp; &lt;x&gt;"
 
 
+def test_protocol_stop_markers_use_token_ids():
+    assert token_ids(StopTokenizer(), ["</action>", "</missing>", "<eos>"]) == {7, 9}
+
+
 def test_behavioral_schema_rejects_invalid_action_shape():
     assert action_schema_error({}) == "action missing tool"
     assert action_schema_error({"tool": "fs.list", "path": "."}) == ""
@@ -198,3 +202,8 @@ class DummyTokenizer:
 class Encoded:
     def __init__(self, ids):
         self.ids = ids
+
+
+class StopTokenizer:
+    def token_to_id(self, token):
+        return {"</action>": 7, "<eos>": 9}.get(token)
