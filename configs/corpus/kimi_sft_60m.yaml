@@ -3,11 +3,16 @@ mode: sft
 pretrain_ratio: 0.0
 sft_ratio: 1.0
 output_dir: corpus/generated/kimi-sft-60m-v1
+pilot_output_dir: corpus/generated/kimi-sft-pilot-v1
+api_provider: kimi-api
+api_base_url: https://api.moonshot.ai/v1
+api_model: kimi-k2.6
+pilot_tokens: 1000000
 prompt_dir: tools/kimi-corpus/prompts
-prompt_version: v2
+prompt_version: api-v1
 batch_documents: 12
 max_calls: 0
-parallelism: 2
+parallelism: 8
 timeout_seconds: 240
 sleep_between_calls: 2
 max_retries: 3
@@ -15,4 +20,4 @@ repair_attempts: 1
 quarantine_bad_shards: true
 stop_file: runs/kimi_corpus/STOP
 seed: 42
-sft_domains: [instruction-following, summarization, coding, correction, refusal-safety, reasoning-summary, xml-action, kjxlkj-confirmation, memory-preference]
+sft_domains: [direct-finish, read-only-retrieval, mutation-confirmation, failure-safety-recovery]

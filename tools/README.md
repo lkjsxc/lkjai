@@ -9,7 +9,7 @@ Support tooling lives here. These are not production runtime entry points.
 - [benchmarks/](benchmarks/): Docker-backed training benchmark helpers.
 - [diagnostics/](diagnostics/): local diagnostic collection utilities.
 - [experiments/](experiments/): experimental scripts.
-- [kimi-corpus/](kimi-corpus/): Kimi CLI synthetic corpus generator.
+- [kimi-corpus/](kimi-corpus/): Kimi API synthetic corpus generator.
 - [packed-reader/](packed-reader/): Rust packed-token reader utility.
 - [reports/](reports/): helpers that write generated reports under
   `artifacts/reports/`.

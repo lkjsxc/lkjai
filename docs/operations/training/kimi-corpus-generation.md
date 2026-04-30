@@ -6,24 +6,25 @@ Generate optional Kimi-authored XML action data for the scratch agent, with
 enough everyday conversation coverage to make basic chat usable after
 pretraining.
 
-For the current non-interactive Kimi CLI pipeline, use
-[kimi-corpus/README.md](kimi-corpus/README.md). This document is SFT/tool-data
-background; the active public pretraining path is Cosmopedia `text` only.
+For the current Kimi API pipeline, use [kimi-corpus/README.md](kimi-corpus/README.md).
+This document is SFT/tool-data background; the active public pretraining path is
+Cosmopedia `text` only.
 
 ## Target
 
-- SFT tokenizer tokens: `60000000`.
+- Pilot SFT tokenizer tokens: `1000000`.
+- Full SFT tokenizer tokens: `60000000`.
 - Chunk size: about `1000` JSONL rows.
+- Pilot location: `corpus/generated/kimi-sft-pilot-v1/`.
 - Committed location: `corpus/generated/kimi-sft-60m-v1/`.
 - Runtime staging location: `data/kimi-corpus/` for optional Kimi rows.
 
 ## Mix
 
-- Everyday conversation and clarification: `30%`.
-- Runtime schema, XML validity, and direct-answer control: `20%`.
-- Local tool use, observation handling, and recovery: `20%`.
-- Docs and source grounding: `15%`.
-- Memory, kjxlkj read/confirmation, and recovery flows: `15%`.
+- Direct finish and preference handling: `15%`.
+- Read-only retrieval and grounded answering: `35%`.
+- Mutation with confirmation: `25%`.
+- Failure, safety, and recovery: `25%`.
 
 ## Quality Gates
 
@@ -37,56 +38,12 @@ background; the active public pretraining path is Cosmopedia `text` only.
 - Non-final chunks have roughly `1000` rows.
 - Every active row has `kimi-generated` provenance.
 
-## KimiCode Prompt
+## Kimi API Requirements
 
-Copy the prompt below into Kimi Code.
-
-```text
-You are Kimi Code working inside the lkjai repository.
-
-Read docs/README.md, docs/architecture/agent/schema.md,
-docs/architecture/agent/loop.md, docs/architecture/training/corpus.md,
-docs/architecture/training/provenance.md, docs/architecture/training/pipeline.md,
-docs/operations/training/agent-assessment.md, and native training contracts
-before changing anything.
-
-Generate the active balanced training corpus for lkjai:
-- target 60000000 SFT tokenizer tokens,
-- commit chunked JSONL under corpus/generated/kimi-sft-60m-v1,
-- use about 1000 rows per chunk,
-- use train, val, and holdout split directories,
-- write manifest.json and validation-report.json,
-- prioritize a balanced agent: everyday conversation, XML validity, local tools,
-  observation handling, docs/source grounding, memory, recovery, and kjxlkj
-  confirmation flows.
-- include direct negative pressure against generic finals like
-  "Completed task for docs/architecture/training/provenance.md."
-
-Every assistant message must be exactly one XML action:
-<action>
-<reasoning>brief visible rationale</reasoning>
-<tool>agent.finish</tool>
-<content>Final answer.</content>
-</action>
-
-Use <reasoning> as a short visible rationale only. Do not write long hidden
-chain-of-thought. Use agent.finish directly for simple greetings, thanks,
-clarifications, concise answers, and normal everyday chat. Use agent.think only
-for explicit non-terminating planning. Never emit JSON assistant actions.
-Never answer ordinary chat with repository task-completion text.
-
-Rows must use:
-- provenance: kimi-generated
-- author_type: external-agent-generated
-- author_model: kimi-code
-- explicit source_ref
-- explicit license
-
-Do not use GPT, Codex, Claude, or generic LLM-authored corpus packs as active
-training data. Regenerate any shard that fails validation.
-
-Run validation and report row counts, split counts, token counts, duplicate
-rate, XML validity, agent.finish rate, chunk sizes, everyday-chat coverage,
-tool distribution, provenance distribution, source/license mix, commands run,
-blockers, and residual risks.
-```
+- Base URL: `https://api.moonshot.ai/v1`.
+- Default model: `kimi-k2.6`.
+- Use structured JSON output for row objects.
+- Use `thinking={"type":"disabled"}` for canonical rows.
+- Use `/tokenizers/estimate-token-count` before large shard requests.
+- Use all discovered API keys in parallel and redact them everywhere.
+- Treat API error types as retry, quota, auth, or quarantine signals.

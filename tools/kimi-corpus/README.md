@@ -2,8 +2,8 @@
 
 ## Purpose
 
-This tool drives non-interactive Kimi CLI corpus generation, validation, and
-scoring for staging outputs.
+This tool drives Kimi API corpus generation, validation, and scoring for
+staging outputs.
 
 ## Contents
 

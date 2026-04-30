@@ -1,10 +1,13 @@
 target_tokens: 50000
-mode: mixed
-pretrain_ratio: 0.8
-sft_ratio: 0.2
+mode: sft
+pretrain_ratio: 0.0
+sft_ratio: 1.0
 output_dir: data/kimi_synthetic
+api_provider: kimi-api
+api_base_url: https://api.moonshot.ai/v1
+api_model: kimi-k2.6
 prompt_dir: tools/kimi-corpus/prompts
-prompt_version: v2
+prompt_version: api-v1
 batch_documents: 8
 max_calls: 10
 parallelism: 2
@@ -15,5 +18,4 @@ repair_attempts: 1
 quarantine_bad_shards: true
 stop_file: runs/kimi_corpus/STOP
 seed: 42
-pretrain_domains: [education, programming, math, science, history, everyday, structured-data, original-fiction]
-sft_domains: [instruction-following, summarization, coding, correction, refusal-safety, reasoning-summary, xml-action]
+sft_domains: [direct-finish, read-only-retrieval, mutation-confirmation, failure-safety-recovery]

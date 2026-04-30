@@ -51,6 +51,11 @@ The model must return exactly one `<action>` block.
 </action>
 ```
 
+After a confirmation request, the runtime stores the pending operation in the
+transcript. A later explicit user confirmation executes that exact pending
+operation without asking the model to reconstruct it. A cancellation or topic
+change clears the pending mutation without execution.
+
 ## Event Kinds
 
 - `user`

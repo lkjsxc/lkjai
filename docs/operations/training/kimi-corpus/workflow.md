@@ -3,14 +3,15 @@
 ## Order
 
 1. Read this directory and the training architecture docs.
-2. Run fake Kimi smoke tests.
-3. Generate a real sample with Kimi.
-4. Score the sample and write `runs/kimi_corpus/sample_report.md`.
-5. Ask Kimi to refine prompts using only aggregate scores and short excerpts.
-6. Regenerate a second sample.
-7. Score the second sample.
-8. Launch the long run only after sample quality is acceptable.
-9. Periodically score, commit validated shards, and update the corpus README.
+2. Run a dry-run smoke test.
+3. Resolve models, balance, and API token estimates.
+4. Generate a real sample with structured Kimi API output.
+5. Score the sample and write `runs/kimi_corpus/sample_report.md`.
+6. Refine scenarios or prompts using only aggregate scores and short excerpts.
+7. Regenerate a second sample.
+8. Score the second sample.
+9. Generate the 1M-token pilot only after sample quality is acceptable.
+10. Launch the full long run only after pilot quality is acceptable.
 
 ## Prompt Refinement
 
@@ -23,13 +24,15 @@ Prompt refinement must preserve:
 - no benchmark dumps,
 - no assistant-chat framing in pretraining,
 - assistant-masked SFT row compatibility.
+- the four active template families,
+- confirmation-before-mutation labels.
 
 Do not blindly accept a refined prompt. Validate the prompt text before saving a
-new `pretrain_vN.txt` or `sft_vN.txt`.
+new `sft_vN.txt`.
 
 ## Logs
 
-Raw Kimi stdout and stderr stay in `runs/kimi_corpus/logs/`.
+Redacted Kimi request metadata and responses stay in `runs/kimi_corpus/logs/`.
 
 Reports may include:
 
@@ -37,9 +40,11 @@ Reports may include:
 - flag counts,
 - short representative excerpts,
 - command paths,
+- model names,
+- redacted key fingerprints,
 - blocker summaries.
 
-Reports must not include full Kimi logs or full generated documents.
+Reports must not include API keys, full Kimi logs, or full generated documents.
 
 ## Commits
 

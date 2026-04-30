@@ -14,6 +14,7 @@
 - `resource.history`: fetch `kjxlkj` resource history.
 - `resource.preview_markdown`: preview a `kjxlkj` markdown mutation.
 - `resource.create_note`: create a `kjxlkj` note after confirmation.
+- `resource.create_media`: create a `kjxlkj` media resource after confirmation.
 - `resource.update_resource`: update a `kjxlkj` resource after confirmation.
 - `agent.request_confirmation`: stop and ask before a `kjxlkj` mutation.
 - `agent.think`: record a non-terminating visible plan.
@@ -32,7 +33,8 @@
 
 - Local filesystem, shell, web, and read-only resource tools run without
   confirmation.
-- `kjxlkj` mutations require `agent.request_confirmation`.
+- `kjxlkj` mutations require `agent.request_confirmation` and a later user
+  confirmation before execution.
 - Command execution is not sandboxed by the application.
 - File and shell tools are bounded to `TOOL_WORKSPACE_DIR`.
 - The container must not mount host `/` for agent tools.
@@ -40,6 +42,20 @@
 - Tool results must be logged after execution.
 - Memory writes must be logged.
 - The runtime must not invent fake tool results.
+
+## Resource Fields
+
+- `resource.search` accepts `query` or `q`, plus optional `kind`, `sort`,
+  `cursor`, `limit`, `direction`, and `scope`.
+- `resource.fetch` and `resource.history` accept `ref` or `id`.
+- `resource.preview_markdown` accepts `body` and optional
+  `current_resource_id`.
+- `resource.create_note` accepts `body`, optional `alias`, `is_favorite`, and
+  `is_private`.
+- `resource.create_media` accepts workspace-confined `path`, optional `alias`,
+  `is_favorite`, and `is_private`.
+- `resource.update_resource` accepts `ref` or `id`, `body`, optional `alias`,
+  `is_favorite`, and `is_private`.
 
 ## Limits
 

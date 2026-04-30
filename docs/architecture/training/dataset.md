@@ -11,6 +11,8 @@ Describe the on-disk dataset artifacts used by training and evaluation.
   `data/public-corpus/{train,val,holdout}/*.jsonl`
 - Historical Kimi corpus:
   `corpus/generated/kimi-full-v1/{train,val,holdout}/*.jsonl`
+- Kimi API pilot corpus:
+  `corpus/generated/kimi-sft-pilot-v1/{train,val,holdout}/*.jsonl`
 - Canonical combined corpus: `data/train/datasets/corpus.jsonl`
 - Canonical train split: `data/train/datasets/train.jsonl`
 - Canonical validation split: `data/train/datasets/val.jsonl`
@@ -57,12 +59,15 @@ Describe the on-disk dataset artifacts used by training and evaluation.
 - Validation must fail on GPT, Kimi, Claude, or generic LLM-authored default
   rows.
 - Validation must fail when assistant content is not valid XML.
+- Validation must fail when a resource mutation lacks prior confirmation.
+- Validation must fail when a scenario family appears in multiple splits.
 - Validation must fail when duplicate rows exceed 1%.
 - Validation proves shape only, not quality.
 
 ## Split Policy
 
-- Split is row-based, not token-stream-based.
+- Split is scenario-family-based for generated agent SFT rows.
+- Split is row-based only for legacy rows that lack a scenario family.
 - Training uses `train.jsonl`.
 - Validation loss uses `val.jsonl`.
 - Behavioral evaluation uses `holdout.jsonl`.

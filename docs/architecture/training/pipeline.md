@@ -92,8 +92,9 @@ is not accepted for chat, even when fixed artifact checks pass.
 
 - Datasets: `data/train/datasets`
 - Active full corpus: `data/public-corpus`
-- Active first-party SFT corpus: `corpus/generated/kimi-full-v1` until a
-  refreshed 60M validated corpus is generated.
+- Active first-party SFT corpus: `corpus/generated/kimi-full-v1` until
+  `corpus/generated/kimi-sft-pilot-v1` passes pilot gates and a full refreshed
+  60M validated corpus is generated.
 - Tokenizer: `data/train/tokenizer`
 - Checkpoints: `data/train/checkpoints`
 - Native exports: `data/models/lkjai-scratch-40m`

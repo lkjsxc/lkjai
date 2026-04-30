@@ -15,7 +15,7 @@ or pinned permissive public pretraining sources.
   inactive by default for the Kimi full corpus.
 - `public-pretrain`: pinned permissive English public text for causal LM
   pretraining.
-- `kimi-generated`: Kimi Code generated corpus rows from approved prompts.
+- `kimi-generated`: Kimi API generated corpus rows from approved prompts.
 
 ## Disallowed Active Provenance
 
@@ -29,6 +29,7 @@ or pinned permissive public pretraining sources.
 - Existing tracked source packs authored by Codex/GPT are inactive.
 - Inactive packs must not be read by `prepare-corpus`.
 - Kimi source packs may be promoted only with `kimi-generated` metadata.
+- Kimi API keys must never be committed or written unredacted to manifests.
 - Kimi-only teacher-data restrictions are removed; Kimi rows are optional.
 
 ## Artifact Rule

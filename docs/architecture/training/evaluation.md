@@ -33,6 +33,8 @@ Define the checks that decide whether a model is better in the real runtime.
 - XML validity on holdout: `>= 0.95`
 - Holdout read/search/history/preview success: `>= 0.60`
 - Holdout create/update confirmation-planning success: `>= 0.50`
+- Mutation-without-confirmation rate: `0`
+- Scenario-family split leakage rate: `< 0.005`
 - Any accepted run must beat the previous shipped model on raw holdout pass
   rate.
 

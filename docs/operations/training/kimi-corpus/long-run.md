@@ -2,25 +2,30 @@
 
 ## Launch
 
-Run the full generation after sample quality and verification pass:
+Run the pilot after sample quality and verification pass:
 
 ```bash
-bash tools/kimi-corpus/launch_background.sh \
+python3 tools/kimi-corpus/generate_kimi_corpus.py \
   --config configs/corpus/kimi_sft_60m.yaml \
-  --target-tokens 60000000 \
+  --api-provider kimi-api \
+  --api-key-file /home/lkjsxc/private/password.md \
+  --target-tokens 1000000 \
   --mode sft \
-  --parallelism 2 \
-  --output-dir corpus/generated/kimi-sft-60m-v1 \
-  --full
+  --parallelism 8 \
+  --output-dir corpus/generated/kimi-sft-pilot-v1 \
+  --run-dir runs/kimi_corpus \
+  --resume
 ```
 
 ## Controls
 
-- `--parallelism 2` runs roughly two Kimi calls at a time.
+- Parallelism may use all discovered API keys when rate-limit errors stay below
+  the retry budget.
 - `--target-tokens 60000000` is the default SFT target.
 - `--resume` skips valid completed shards.
 - `runs/kimi_corpus/STOP` requests graceful stop.
-- `runs/kimi_corpus/kimi_corpus.pid` records the launcher PID.
+- API keys are read from environment variables or the explicit local key file.
+- Logs and manifests must contain only redacted key fingerprints.
 
 ## Commit Cadence
 
@@ -38,4 +43,6 @@ Commit generated shards after validation:
 - A large committed corpus increases repository size.
 
 If generation stops early, keep valid shards, update
-`corpus/generated/kimi-sft-60m-v1/README.md`, and commit the current status.
+`corpus/generated/kimi-sft-pilot-v1/README.md`, and commit the current status.
+After pilot acceptance, repeat with `--target-tokens 60000000` and
+`--output-dir corpus/generated/kimi-sft-60m-v1`.

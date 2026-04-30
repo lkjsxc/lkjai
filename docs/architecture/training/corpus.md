@@ -104,6 +104,17 @@ Public pretraining rows use standalone English `text` with metadata:
 The public side teaches English fluency and explanation style. The first-party
 side teaches action XML, tool choice, memory, recovery, and `kjxlkj` behavior.
 
+## SFT Mix
+
+The refreshed Kimi API SFT target uses four template families:
+
+- Direct finish and preference handling: `15%`.
+- Read-only retrieval and grounded answering: `35%`.
+- Mutation with confirmation: `25%`.
+- Failure, safety, and recovery: `25%`.
+
+Preference comparisons are separate artifacts and must not dominate active SFT.
+
 ## Public Pretraining Layout
 
 Ignored generated pretraining chunks live under:
