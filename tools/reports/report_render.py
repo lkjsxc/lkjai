@@ -1,12 +1,15 @@
 import json
 
-from report_helpers import PRIMARY_SOURCES, REPORT, ROOT, fmt, latest_dir
+from report_helpers import PRIMARY_SOURCES, REPORT_ROOT, ROOT, fmt, latest_dir
 
 
 def render_report(context: dict) -> None:
     source_lines = "\n".join(f"- [{name}]({url})" for name, url in PRIMARY_SOURCES)
     rust_summary = rust_pilot_summary()
-    REPORT.write_text(
+    out_dir = REPORT_ROOT / str(context.get("run_id", "latest"))
+    out_dir.mkdir(parents=True, exist_ok=True)
+    report = out_dir / "training-performance-report.md"
+    report.write_text(
         f"""# lkjai Training Performance Report
 
 ## Executive Summary
@@ -115,6 +118,7 @@ Recommended order:
 """,
         encoding="utf-8",
     )
+    context["report_path"] = str(report.relative_to(ROOT))
 
 
 def rust_pilot_summary() -> str:

@@ -11,7 +11,8 @@ Support tooling lives here. These are not production runtime entry points.
 - [experiments/](experiments/): experimental scripts.
 - [kimi-corpus/](kimi-corpus/): Kimi CLI synthetic corpus generator.
 - [packed-reader/](packed-reader/): Rust packed-token reader utility.
-- [reports/](reports/): report generation helpers.
+- [reports/](reports/): helpers that write generated reports under
+  `artifacts/reports/`.
 
 ## Rules
 

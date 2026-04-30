@@ -32,7 +32,8 @@
 - [getting-started/README.md](getting-started/README.md): setup, run, verify.
 - [product/README.md](product/README.md): chat, tools, and API behavior.
 - [architecture/README.md](architecture/README.md): agent, runtime, model, training.
-- [operations/README.md](operations/README.md): Compose, deployment, quality gates.
+- [operations/README.md](operations/README.md): Compose, deployment, performance,
+  quality gates.
 - [repository/README.md](repository/README.md): layout, workflow, and file rules.
 - [research/README.md](research/README.md): external references that inform the canon.
 - [decisions/README.md](decisions/README.md): accepted and rejected choices.

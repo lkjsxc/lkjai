@@ -160,7 +160,7 @@ def first_line(path: Path) -> str:
 
 
 def write_human_summary(out_dir: Path, summary: dict) -> None:
-    reports = ROOT / "reports"
+    reports = ROOT / "artifacts" / "reports" / summary["run_id"]
     reports.mkdir(parents=True, exist_ok=True)
     rows = []
     for name, data in sorted(summary["commands"].items()):

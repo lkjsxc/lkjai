@@ -4,7 +4,6 @@ import json
 
 from report_helpers import (
     ROOT,
-    REPORT,
     comparison_rows,
     fmt,
     git_diff_artifact,
@@ -26,6 +25,7 @@ def main() -> None:
     aggregate, summary_rows, benchmark_label = benchmark_data(args.benchmark_run_id)
     charts = chart_links(aggregate)
     context = {
+        "run_id": args.benchmark_run_id or args.diagnostics_run_id or "latest",
         "best": best_config(aggregate),
         "diagnostics_label": diagnostics_dir.relative_to(ROOT) if diagnostics_dir else "not collected",
         "benchmark_label": benchmark_label,
@@ -37,7 +37,7 @@ def main() -> None:
         "diff_path": git_diff_artifact(),
     }
     render_report(context)
-    print(json.dumps({"report": str(REPORT), "status": "pass"}))
+    print(json.dumps({"report": context["report_path"], "status": "pass"}))
 
 
 def selected_dir(root, run_id: str):

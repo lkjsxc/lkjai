@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-REPORT = ROOT / "reports" / "training-performance-report.md"
+REPORT_ROOT = ROOT / "artifacts" / "reports"
 PRIMARY_SOURCES = [
     ("NVIDIA SMI User Guide", "https://docs.nvidia.com/deploy/nvidia-smi/index.html"),
     ("NVIDIA CUDA on WSL User Guide", "https://docs.nvidia.com/cuda/wsl-user-guide/index.html"),
