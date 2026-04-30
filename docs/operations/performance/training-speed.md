@@ -42,6 +42,8 @@ marked as a separate preset.
 - Default compile mode for non-quick CUDA runs: `reduce-overhead`, unless the
   benchmark matrix selects a faster stable option.
 - BF16 remains preferred when CUDA reports support.
+- Serving decode reuses preallocated KV cache storage; training speed remains
+  the first-order objective.
 
 ## Non-Goals
 

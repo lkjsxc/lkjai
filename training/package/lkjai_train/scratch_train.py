@@ -65,7 +65,7 @@ def validate_settings(settings) -> None:
         "TRAIN_CHECKPOINT_RESUME_SOURCE": (settings.checkpoint_resume_source, {"latest", "final", "best"}),
         "TRAIN_BATCH_POLICY": (settings.batch_policy, {"fixed", "oom_fallback", "sweep"}),
         "TRAIN_ACTIVATION_CHECKPOINT": (settings.activation_checkpoint, {"off", "all", "every_n"}),
-        "TRAIN_ATTENTION_BACKEND": (settings.attention_backend, {"auto", "sdpa", "flash2"}),
+        "TRAIN_ATTENTION_BACKEND": (settings.attention_backend, {"auto", "sdpa", "sdpa_flash", "sdpa_math", "flash2"}),
     }
     for name, (value, allowed) in choices.items():
         if value not in allowed:

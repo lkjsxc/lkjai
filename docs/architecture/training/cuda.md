@@ -26,6 +26,8 @@
 - `TRAIN_ATTENTION_BACKEND=sdpa_flash` forces PyTorch flash SDPA.
 - Native PyTorch scaled-dot-product attention remains the mandatory baseline.
 - DataLoader pinned memory is enabled for CUDA runs.
+- Model training uses fused QKV and fused SwiGLU projections in the scratch
+  decoder.
 
 ## Fallback
 

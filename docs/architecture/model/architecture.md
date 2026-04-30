@@ -4,7 +4,8 @@
 
 - The model is dense decoder-only.
 - Blocks use pre-norm residual structure.
-- Attention uses RoPE.
+- Attention uses RoPE from precomputed per-layer tables.
+- Training uses fused QKV projection and fused SwiGLU gate/up projection.
 - Grouped-query attention is preferred.
 - Feed-forward layers use SwiGLU or a close gated MLP variant.
 - Norm layers use RMSNorm.

@@ -24,7 +24,7 @@ evaluation.
 
 - Required files: `manifest.json`, `config.json`, `tokenizer.json`, `model.pt`.
 - Serving loads the exported checkpoint and generates tokens directly.
-- Decode must reuse KV cache across generated tokens.
+- Decode must reuse preallocated KV cache storage across generated tokens.
 - No supervised action index, prompt lookup table, or policy-file fallback is
   allowed in the accepted runtime path.
 - Adapter seams are allowed for future backends, but the 3070-first backend is
