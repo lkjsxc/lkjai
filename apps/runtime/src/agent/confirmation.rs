@@ -29,7 +29,9 @@ pub fn handle(action: Action, step: usize, events: &mut Vec<Event>) -> Result<St
         .field("pending_tool")
         .ok_or_else(|| "request_confirmation missing pending_tool".to_string())?;
     if !MUTATIONS.contains(&pending_tool.as_str()) {
-        return Err(format!("confirmation pending_tool must be a mutation: {pending_tool}"));
+        return Err(format!(
+            "confirmation pending_tool must be a mutation: {pending_tool}"
+        ));
     }
     let pending = Pending {
         summary: summary.clone(),
@@ -60,11 +62,17 @@ pub fn pending(events: &[Event]) -> Option<Pending> {
 }
 
 pub fn confirmed(text: &str) -> bool {
-    matches!(text.trim().to_ascii_lowercase().as_str(), "yes" | "y" | "ok" | "proceed" | "confirm")
+    matches!(
+        text.trim().to_ascii_lowercase().as_str(),
+        "yes" | "y" | "ok" | "proceed" | "confirm"
+    )
 }
 
 pub fn cancelled(text: &str) -> bool {
-    matches!(text.trim().to_ascii_lowercase().as_str(), "no" | "n" | "cancel" | "stop")
+    matches!(
+        text.trim().to_ascii_lowercase().as_str(),
+        "no" | "n" | "cancel" | "stop"
+    )
 }
 
 pub fn is_mutation(tool: &str) -> bool {

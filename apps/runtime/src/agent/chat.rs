@@ -23,7 +23,12 @@ impl Agent {
         .await
         {
             self.persist(&run_id, &events);
-            return response(run_id, assistant, filter_events(&events, &visible), &stop_reason);
+            return response(
+                run_id,
+                assistant,
+                filter_events(&events, &visible),
+                &stop_reason,
+            );
         }
         if !self.model.is_reachable().await {
             events.push(event(

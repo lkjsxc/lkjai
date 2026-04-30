@@ -101,11 +101,7 @@ pub async fn model_server(responses: Vec<String>) -> (String, tokio::task::JoinH
     (url, handle)
 }
 
-pub async fn resource_server() -> (
-    String,
-    Arc<Mutex<Vec<String>>>,
-    tokio::task::JoinHandle<()>,
-) {
+pub async fn resource_server() -> (String, Arc<Mutex<Vec<String>>>, tokio::task::JoinHandle<()>) {
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let url = format!("http://{}", listener.local_addr().unwrap());
     let seen = Arc::new(Mutex::new(Vec::new()));
@@ -118,7 +114,7 @@ pub async fn resource_server() -> (
             let request = String::from_utf8_lossy(&buf[..size]).to_string();
             let first = request.lines().next().unwrap_or("").to_string();
             seen_server.lock().await.push(first);
-            let body = r#"{"id":"release-notes","kind":"note","body":"# Updated"}"#;
+            let body = r##"{"id":"release-notes","kind":"note","body":"# Updated"}"##;
             let response = format!(
                 "HTTP/1.1 200 OK\r\nconnection: close\r\ncontent-type: application/json\r\ncontent-length: {}\r\n\r\n{}",
                 body.len(),

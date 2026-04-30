@@ -1,20 +1,40 @@
-use super::{memory::MemoryStore, tool_local, tool_remote};
+use super::{
+    memory::MemoryStore,
+    tool_fields::{optional, required, required_any},
+    tool_local, tool_remote,
+};
 use crate::config::Config;
 
 #[derive(Clone, Debug)]
 pub enum ToolCall {
-    AgentFinish { content: String },
-    AgentThink { content: String },
-    Shell { command: String },
-    Fetch { url: String },
-    Read { path: String },
+    AgentFinish {
+        content: String,
+    },
+    AgentThink {
+        content: String,
+    },
+    Shell {
+        command: String,
+    },
+    Fetch {
+        url: String,
+    },
+    Read {
+        path: String,
+    },
     Write {
         path: String,
         content: String,
     },
-    List { path: String },
-    MemorySearch { query: String },
-    MemoryWrite { content: String },
+    List {
+        path: String,
+    },
+    MemorySearch {
+        query: String,
+    },
+    MemoryWrite {
+        content: String,
+    },
     ResourceSearch {
         query: String,
         kind: String,
@@ -172,18 +192,4 @@ pub async fn execute(
         return Ok(value);
     }
     Err(format!("tool not implemented: {}", call.name()))
-}
-
-fn required(action: &super::action::Action, key: &str) -> Result<String, String> {
-    optional(action, key).ok_or_else(|| format!("missing string arg {key}"))
-}
-
-fn required_any(action: &super::action::Action, keys: &[&str]) -> Result<String, String> {
-    keys.iter()
-        .find_map(|key| optional(action, key))
-        .ok_or_else(|| format!("missing one of {}", keys.join(", ")))
-}
-
-fn optional(action: &super::action::Action, key: &str) -> Option<String> {
-    action.field(key)
 }

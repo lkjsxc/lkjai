@@ -55,7 +55,9 @@ pub async fn execute(call: &ToolCall, config: &Config) -> Result<Option<String>,
         } => (
             Method::POST,
             "/api/resources/notes".to_string(),
-            Some(json!({"body": body, "alias": alias, "is_favorite": is_favorite, "is_private": is_private})),
+            Some(
+                json!({"body": body, "alias": alias, "is_favorite": is_favorite, "is_private": is_private}),
+            ),
             Vec::new(),
             None,
         ),
@@ -151,7 +153,9 @@ async fn media_form(
     is_private: bool,
 ) -> Result<multipart::Form, String> {
     let safe_path = workspace_path(&config.tool_workspace_dir, path.to_string())?;
-    let bytes = fs::read(&safe_path).await.map_err(|error| error.to_string())?;
+    let bytes = fs::read(&safe_path)
+        .await
+        .map_err(|error| error.to_string())?;
     let filename = safe_path
         .file_name()
         .and_then(|name| name.to_str())

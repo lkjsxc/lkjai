@@ -1,6 +1,8 @@
 mod agent_support;
 
-use agent_support::{action, confirm_action, model_server, request, resource_server, temp_root, test_config};
+use agent_support::{
+    action, confirm_action, model_server, request, resource_server, temp_root, test_config,
+};
 use lkjai::{agent::Agent, model_client::ModelClient};
 
 #[tokio::test]
@@ -15,7 +17,10 @@ async fn direct_resource_mutation_is_blocked_without_confirmation() {
     let agent = Agent::new(config.clone(), ModelClient::from_config(&config));
     let response = agent.chat(request("update release notes", 1)).await;
     assert_eq!(response.stop_reason, "confirmation_required");
-    assert!(!response.events.iter().any(|event| event.kind == "tool_call"));
+    assert!(!response
+        .events
+        .iter()
+        .any(|event| event.kind == "tool_call"));
     server.abort();
     std::fs::remove_dir_all(root).unwrap();
 }

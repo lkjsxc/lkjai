@@ -6,6 +6,7 @@ mod confirmation_flow;
 mod memory;
 mod prompt;
 mod schema;
+mod tool_fields;
 mod tool_local;
 mod tool_remote;
 mod tool_runner;
