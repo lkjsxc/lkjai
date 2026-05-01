@@ -27,6 +27,16 @@ Train the scratch dense decoder without Python or PyTorch in the product path.
 ## Acceptance
 
 - Compose verify must pass without product Python tests.
-- A synthetic GPU smoke run must complete at least two optimizer steps.
+- A native smoke run must complete at least two optimizer steps and export a
+  valid `lkjai-native-artifact-v1` directory.
 - A native artifact inspect command must validate all index offsets and shapes.
 - Training speed reports median and p95 microstep time.
+
+## Current Smoke Implementation
+
+- `lkjai-native-train --smoke --steps N` trains a tiny transition decoder from
+  XML-action text.
+- The smoke export is written under `DATA_DIR/exports/${MODEL_NAME}` and
+  `${DATA_DIR}/../models/${MODEL_NAME}`.
+- The smoke model proves the artifact, load, and decode path. It is not a
+  behavioral competency artifact.

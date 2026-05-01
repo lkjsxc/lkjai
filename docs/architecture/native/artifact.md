@@ -24,6 +24,12 @@ Each exported model directory contains:
 - Index entries contain name, dtype, shape, byte offset, and byte length.
 - Supported dtypes are `u16`, `u32`, `f16`, `bf16`, and `f32`.
 
+## Smoke Artifact
+
+The smoke trainer writes the same required file set with a transition table in
+`weights.lkjw`. This is a native plumbing artifact, not an accepted assistant
+model.
+
 ## Compatibility
 
 - Native artifacts do not need to load Python `model.pt` checkpoints.

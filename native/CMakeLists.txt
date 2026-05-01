@@ -24,6 +24,7 @@ add_library(lkjai_native_core STATIC
   src/artifact.cpp
   src/env.cpp
   src/json_min.cpp
+  src/simple_model.cpp
 )
 target_include_directories(lkjai_native_core PUBLIC src)
 target_link_libraries(lkjai_native_core PUBLIC lkjai_cuda)
@@ -41,3 +42,7 @@ enable_testing()
 add_test(NAME native_inspect_missing COMMAND lkjai-native-inspect --model-dir /missing)
 set_tests_properties(native_inspect_missing PROPERTIES WILL_FAIL TRUE)
 add_test(NAME native_train_smoke COMMAND lkjai-native-train --smoke --steps 2)
+add_test(
+  NAME native_smoke_export
+  COMMAND sh -c "rm -rf /tmp/lkjai-native-ctest && DATA_DIR=/tmp/lkjai-native-ctest MODEL_NAME=smoke ./lkjai-native-train --smoke --steps 2 && ./lkjai-native-inspect --model-dir /tmp/lkjai-native-ctest/exports/smoke"
+)

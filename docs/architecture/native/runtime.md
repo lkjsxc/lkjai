@@ -21,6 +21,8 @@ Serve the scratch model through one native C++/CUDA HTTP process.
 - Stop generation as soon as one complete `</action>` is produced.
 - Do not use supervised lookup, canned responses, or prompt lookup tables.
 - CPU execution is allowed only as a visible degraded mode.
+- The current smoke artifact uses native transition decoding only to prove
+  export/load/chat plumbing. It does not satisfy model competency gates.
 
 ## Environment
 

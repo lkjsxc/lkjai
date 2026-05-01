@@ -1,9 +1,14 @@
 #include <chrono>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <thread>
 
 #include "cuda_probe.hpp"
+#include "env.hpp"
+#include "simple_model.hpp"
 
 namespace {
 
@@ -21,6 +26,47 @@ int int_arg(int argc, char** argv, const std::string& flag, int fallback) {
   return fallback;
 }
 
+const char* kSmokeAction =
+    "<action>\n"
+    "<reasoning>The native smoke model completed a trained transition decode.</reasoning>\n"
+    "<tool>agent.finish</tool>\n"
+    "<content>native smoke complete</content>\n"
+    "</action>";
+
+void write_text(const std::filesystem::path& path, const std::string& text) {
+  std::filesystem::create_directories(path.parent_path());
+  std::ofstream out(path);
+  out << text;
+}
+
+void write_artifact(const std::filesystem::path& dir, int steps) {
+  std::filesystem::create_directories(dir);
+  write_text(dir / "manifest.json",
+             "{\"format\":\"lkjai-native-artifact-v1\",\"kind\":\"transition-smoke\"}\n");
+  write_text(dir / "config.json",
+             "{\"model\":\"transition-smoke\",\"context\":1024,\"steps\":" +
+                 std::to_string(steps) + "}\n");
+  write_text(dir / "tokenizer.json",
+             "{\"format\":\"byte-fallback-smoke\",\"seed\":\"<action>\"}\n");
+  write_text(dir / "weights.index.json",
+             "{\"tensors\":[{\"name\":\"transition_table\",\"dtype\":\"u32\","
+             "\"shape\":[1],\"byte_offset\":0,\"byte_length\":1}]}\n");
+  write_text(dir / "trainer_state.json",
+             "{\"status\":\"smoke-trained\",\"optimizer_steps\":" +
+                 std::to_string(steps) + "}\n");
+  auto transitions = lkjai::train_transitions(kSmokeAction);
+  if (!lkjai::write_transition_model(dir / "weights.lkjw", transitions)) {
+    throw std::runtime_error("failed to write weights.lkjw");
+  }
+}
+
+void export_smoke_artifacts(int steps) {
+  auto data = std::filesystem::path(lkjai::env_string("DATA_DIR", "/tmp/lkjai-native-smoke"));
+  auto model = lkjai::env_string("MODEL_NAME", "lkjai-scratch-40m");
+  write_artifact(data / "exports" / model, steps);
+  write_artifact(data.parent_path() / "models" / model, steps);
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -36,6 +82,7 @@ int main(int argc, char** argv) {
     std::cerr << "{\"event\":\"native_train_smoke_step\",\"step\":" << step
               << "}\n";
   }
+  export_smoke_artifacts(steps);
   auto elapsed = std::chrono::duration<double>(
       std::chrono::steady_clock::now() - started).count();
   std::cout << "{\"status\":\"pass\",\"mode\":\"smoke\",\"steps\":" << steps

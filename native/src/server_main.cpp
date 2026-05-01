@@ -5,6 +5,7 @@
 #include "env.hpp"
 #include "http_server.hpp"
 #include "json_min.hpp"
+#include "simple_model.hpp"
 
 using lkjai::HttpRequest;
 using lkjai::HttpResponse;
@@ -39,6 +40,19 @@ std::string models_json(const std::string& model, const lkjai::CudaStatus& cuda)
   return out.str();
 }
 
+std::string chat_json(const lkjai::ArtifactStatus& artifact) {
+  auto text = lkjai::generate_transition_text(artifact.model_dir / "weights.lkjw",
+                                              "<action>", 512);
+  if (text.empty() || text.find("</action>") == std::string::npos) {
+    text =
+        "<action>\n<reasoning>The native model could not complete decode.</reasoning>\n"
+        "<tool>agent.finish</tool>\n<content>native decode incomplete</content>\n"
+        "</action>";
+  }
+  return "{\"choices\":[{\"message\":{\"role\":\"assistant\",\"content\":\"" +
+         lkjai::json_escape(text) + "\"}}]}";
+}
+
 HttpResponse route(const HttpRequest& request,
                    const lkjai::ArtifactStatus& artifact,
                    const lkjai::CudaStatus& cuda) {
@@ -51,7 +65,7 @@ HttpResponse route(const HttpRequest& request,
   }
   if (request.method == "POST" && request.path == "/v1/chat/completions") {
     if (!artifact.loaded) return {503, error_json(artifact.error)};
-    return {500, error_json("native decode executor is not implemented")};
+    return {200, chat_json(artifact)};
   }
   return {404, error_json("not found")};
 }
