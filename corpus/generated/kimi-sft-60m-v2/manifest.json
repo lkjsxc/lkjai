@@ -1,0 +1,15 @@
+{
+  "schema": "lkjai-agent-jsonl-v3",
+  "corpus": "kimi-sft-60m-v2",
+  "status": "seed",
+  "rows": 5,
+  "path": "corpus/generated/kimi-sft-60m-v2",
+  "split_rows": {
+    "train": 3,
+    "val": 1,
+    "holdout": 1
+  },
+  "target_tokenizer_tokens": 60000000,
+  "validation_report": "validation-report.json",
+  "note": "Seed slice only; full corpus generation remains required before training acceptance."
+}

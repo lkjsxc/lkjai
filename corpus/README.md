@@ -8,6 +8,7 @@ scratch outputs and temporary generated data belong under `data/`.
 ## Contents
 
 - [generated/](generated/): committed validated generated corpus artifacts.
+- [fixtures/](fixtures/): committed grounding fixtures for generated rows.
 - [sources/](sources/): reviewed source JSON used by corpus builders.
 
 ## Rules

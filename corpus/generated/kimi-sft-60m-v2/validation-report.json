@@ -1,0 +1,18 @@
+{
+  "schema": "lkjai-corpus-validation-v2",
+  "status": "seed-pass",
+  "rows": 5,
+  "xml_validity_rate": 1.0,
+  "runtime_contract_rate": 1.0,
+  "replayable_confirmation_rate": 1.0,
+  "disabled_default_tool_calls": 0,
+  "duplicate_rate": 0.0,
+  "fixture_grounded_rate": 1.0,
+  "tool_distribution": {
+    "agent.finish": 4,
+    "resource.search": 1,
+    "agent.request_confirmation": 1,
+    "resource.history": 1
+  },
+  "note": "Seed slice only; not the full 60M-token acceptance corpus."
+}

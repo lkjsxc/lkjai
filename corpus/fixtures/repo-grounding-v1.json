@@ -1,0 +1,32 @@
+[
+  {
+    "fixture_id": "lkjai-docs-canon-v1",
+    "repo": "lkjai",
+    "source_ref": "docs/README.md",
+    "summary": "docs/ is the active canon; successful turns finish through agent.finish."
+  },
+  {
+    "fixture_id": "kjxlkj-search-v1",
+    "repo": "kjxlkj",
+    "source_ref": "../kjxlkj/docs/product/behavior/search-and-pagination.md",
+    "summary": "resource search accepts q, kind, scope, sort, cursor, direction, and limit."
+  },
+  {
+    "fixture_id": "kjxlkj-history-v1",
+    "repo": "kjxlkj",
+    "source_ref": "../kjxlkj/docs/product/behavior/history-and-favorites.md",
+    "summary": "history pages and JSON history share directional cursor semantics."
+  },
+  {
+    "fixture_id": "kjxlkj-update-v1",
+    "repo": "kjxlkj",
+    "source_ref": "../kjxlkj/docs/product/api/write-endpoints.md",
+    "summary": "resource update accepts body, alias, is_favorite, and is_private."
+  },
+  {
+    "fixture_id": "lkjmcsmp-message-catalog-v1",
+    "repo": "lkjmcsmp",
+    "source_ref": "../lkjmcsmp/docs/product/settings/message-catalog.md",
+    "summary": "language files are flat JSON objects and missing keys fall back to English."
+  }
+]

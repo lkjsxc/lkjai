@@ -28,5 +28,10 @@ val/val-*.jsonl
 holdout/holdout-*.jsonl
 ```
 
+## Current State
+
+The committed rows are a seed slice for validator and fixture testing. They are
+not enough for training acceptance.
+
 Generated staging outputs stay under ignored `data/kimi_synthetic/` until they
 pass all gates.
