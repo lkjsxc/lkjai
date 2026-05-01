@@ -42,7 +42,7 @@ std::string models_json(const std::string& model, const lkjai::CudaStatus& cuda)
 
 std::string chat_json(const lkjai::ArtifactStatus& artifact) {
   auto text = lkjai::generate_transition_text(artifact.model_dir / "weights.lkjw",
-                                              "<action>", 512);
+                                              "<action>\n<reasoning>", 512);
   if (text.empty() || text.find("</action>") == std::string::npos) {
     text =
         "<action>\n<reasoning>The native model could not complete decode.</reasoning>\n"
