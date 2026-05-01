@@ -11,6 +11,7 @@ struct GateResult<'a> {
 pub fn validate_topology() -> Result<(), Box<dyn std::error::Error>> {
     let mut errors = Vec::new();
     visit_docs_dir(Path::new("docs"), &mut errors)?;
+    super::topology::visit_tracked_dirs(&mut errors)?;
     finish("validate-topology", errors)
 }
 
@@ -69,7 +70,10 @@ fn require_child_links(
         } else {
             name.to_string()
         };
-        if !markdown_links(&content).iter().any(|link| link == &target) {
+        if !markdown_links(&content)
+            .iter()
+            .any(|link| link_matches(link, &target, entry.path().is_dir()))
+        {
             errors.push(format!("{} missing TOC link to {}", dir.display(), target));
         }
     }
@@ -111,6 +115,12 @@ fn markdown_links(content: &str) -> Vec<String> {
         }
     }
     links
+}
+
+fn link_matches(link: &str, target: &str, is_dir: bool) -> bool {
+    let clean = link.split('#').next().unwrap_or(link);
+    clean == target
+        || (is_dir && (clean == format!("{target}/") || clean == format!("{target}/README.md")))
 }
 
 fn skip_link(link: &str) -> bool {

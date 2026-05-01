@@ -20,13 +20,12 @@ XML-action SFT corpus.
 
 ## Layout
 
-```text
-manifest.json
-validation-report.json
-train/train-*.jsonl
-val/val-*.jsonl
-holdout/holdout-*.jsonl
-```
+- [manifest.json](manifest.json): corpus status and split counts.
+- [validation-report.json](validation-report.json): latest committed
+  validation summary.
+- `train/train-*.jsonl`: promoted train shards.
+- `val/val-*.jsonl`: promoted validation shards.
+- `holdout/holdout-*.jsonl`: promoted holdout shards.
 
 ## Current State
 

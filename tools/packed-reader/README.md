@@ -8,6 +8,7 @@ service. It reads packed cache v2 `uint16` token files.
 ## Contents
 
 - [src/](src/): utility source code.
+- [Cargo.lock](Cargo.lock): utility lockfile.
 - [Cargo.toml](Cargo.toml): crate manifest for package `lkjai_packed_reader`.
 
 ## Rules

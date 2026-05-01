@@ -10,6 +10,7 @@ CLI modules implement local verification gates used by Docker Compose.
 - [docs.rs](docs.rs): README topology and Markdown link validation.
 - [mod.rs](mod.rs): CLI module exports.
 - [quality.rs](quality.rs): line-limit and forbidden-runtime checks.
+- [topology.rs](topology.rs): durable tracked directory README checks.
 
 ## Rules
 
