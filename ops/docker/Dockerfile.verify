@@ -6,7 +6,7 @@ RUN rustup component add rustfmt
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-      build-essential ca-certificates cmake ninja-build git \
+      build-essential ca-certificates cmake ninja-build git python3 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY ops/verify.sh /verify.sh

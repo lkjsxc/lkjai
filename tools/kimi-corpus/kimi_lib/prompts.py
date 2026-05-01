@@ -18,6 +18,7 @@ def render_prompt(config: dict, mode: str, documents: int, sample: bool) -> str:
         "PROMPT_VERSION": str(config.get("prompt_version", "v1")),
         "SAMPLE_NOTE": "This is a sample batch for quality inspection." if sample else "This is a production shard batch.",
         "GENERATED_AT": now_iso(),
+        "FIXTURES": fixture_context(config),
     }
     for key, value in replacements.items():
         template = template.replace("{{" + key + "}}", value)
@@ -38,6 +39,16 @@ def domain_language_plan(config: dict, mode: str, documents: int) -> dict:
         "domains": ", ".join(domains[: max(5, min(len(domains), documents))]),
         "difficulties": "introductory, intermediate, advanced",
     }
+
+
+def fixture_context(config: dict) -> str:
+    paths = config.get("fixture_files", ["corpus/fixtures/repo-grounding-v1.json"])
+    snippets = []
+    for item in paths:
+        path = Path(str(item))
+        if path.exists():
+            snippets.append(f"Fixture file: {path}\n{path.read_text(encoding='utf-8')[:12000]}")
+    return "\n\n".join(snippets) or "No fixture file found; generate direct_finish rows only."
 
 
 def extract_prompt_candidates(text: str) -> dict[str, str]:

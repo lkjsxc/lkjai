@@ -64,7 +64,6 @@ def validate_required_fields(row: dict) -> list[str]:
             continue
         fields = xml_fields(str(message.get("content", "")))
         tool = fields.get("tool", "")
-        flags.extend(validate_fields(tool, fields))
         if tool == "agent.request_confirmation":
             missing = {"summary", "operation", "pending_tool"} - fields.keys()
             if missing:
@@ -73,6 +72,8 @@ def validate_required_fields(row: dict) -> list[str]:
                 flags.append("confirmation_non_resource_mutation")
             else:
                 flags.extend(validate_fields(fields["pending_tool"], fields, "confirmation_pending"))
+        else:
+            flags.extend(validate_fields(tool, fields))
     return flags
 
 

@@ -10,6 +10,7 @@ api_model: kimi-k2.6
 pilot_tokens: 1000000
 prompt_dir: tools/kimi-corpus/prompts
 prompt_version: api-v2
+fixture_files: [corpus/fixtures/repo-grounding-v1.json]
 batch_documents: 12
 max_calls: 0
 parallelism: 8

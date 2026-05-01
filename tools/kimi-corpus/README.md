@@ -9,6 +9,7 @@ staging outputs.
 
 - [generate_kimi_corpus.py](generate_kimi_corpus.py): main generator CLI.
 - [inspect_samples.py](inspect_samples.py): sample inspection helper.
+- [promote_pilot.py](promote_pilot.py): validated pilot promotion helper.
 - [score_corpus.py](score_corpus.py): corpus scoring CLI.
 - [launch_background.sh](launch_background.sh): background generation helper.
 - [stop_background.sh](stop_background.sh): stop-file helper for background

@@ -30,6 +30,13 @@ run_step "native build" cmake --build /tmp/lkjai-native-build --parallel
 run_step "native tests" ctest --test-dir /tmp/lkjai-native-build --output-on-failure
 run_step "docs topology" cargo run -p lkjai --bin lkjai -- docs validate-topology
 run_step "docs links" cargo run -p lkjai --bin lkjai -- docs validate-links
+run_step "corpus actions" sh -c 'cargo run -p lkjai --bin lkjai -- corpus validate-actions corpus/generated/kimi-sft-60m-v2/*/*.jsonl'
+run_step "kimi corpus score" python3 tools/kimi-corpus/score_corpus.py \
+  corpus/generated/kimi-sft-60m-v2 \
+  --fail-on-invalid \
+  --fail-on-split-leakage \
+  --max-duplicate-rate 0.01 \
+  --max-near-duplicate-rate 0.01
 run_step "line limits" cargo run -p lkjai --bin lkjai -- quality check-lines
 run_step "forbidden js runtime check" cargo run -p lkjai --bin lkjai -- quality no-node
 

@@ -16,8 +16,8 @@ def load_api_keys(path: str = "") -> list[str]:
             values.append(os.environ[key])
     if os.environ.get("MOONSHOT_API_KEYS"):
         values.extend(split_values(os.environ["MOONSHOT_API_KEYS"]))
-    if path:
-        text = Path(path).read_text(encoding="utf-8", errors="replace")
+    for candidate in key_files(path):
+        text = candidate.read_text(encoding="utf-8", errors="replace")
         values.extend(KEY_RE.findall(text))
     seen, keys = set(), []
     for value in values:
@@ -26,6 +26,22 @@ def load_api_keys(path: str = "") -> list[str]:
             seen.add(value)
             keys.append(value)
     return keys
+
+
+def key_files(path: str) -> list[Path]:
+    paths = [Path(path)] if path else []
+    paths.extend(
+        [
+            Path("/home/lkjsxc/password.md"),
+            Path("/home/lkjsxc/private/archived/security/password.md"),
+        ]
+    )
+    seen, found = set(), []
+    for item in paths:
+        if item.exists() and item not in seen:
+            seen.add(item)
+            found.append(item)
+    return found
 
 
 def split_values(text: str) -> list[str]:

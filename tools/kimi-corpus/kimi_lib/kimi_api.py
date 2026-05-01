@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -28,6 +29,7 @@ class KimiApiRunner:
         self.model = str(getattr(args, "api_model", None) or config.get("api_model") or "kimi-k2.6")
         self.keys = load_api_keys(getattr(args, "api_key_file", ""))
         self.next_key = 0
+        self.key_lock = threading.Lock()
         self.variant = "kimi_api"
         self.executable = f"{self.base_url}/chat/completions"
 
@@ -60,8 +62,9 @@ class KimiApiRunner:
         return KimiResult(1, stdout_path, stderr_path, self.variant, time.perf_counter() - started)
 
     def _key(self) -> str:
-        key = self.keys[self.next_key % len(self.keys)]
-        self.next_key += 1
+        with self.key_lock:
+            key = self.keys[self.next_key % len(self.keys)]
+            self.next_key += 1
         return key
 
     def _chat(self, prompt: str, key: str, timeout_seconds: int) -> str:

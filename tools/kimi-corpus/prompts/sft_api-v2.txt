@@ -64,4 +64,7 @@ Batch request:
 - domains: {{DOMAIN_PLAN}}
 - difficulties: {{DIFFICULTY_PLAN}}
 
+Approved fixtures:
+{{FIXTURES}}
+
 Return the JSON object now.

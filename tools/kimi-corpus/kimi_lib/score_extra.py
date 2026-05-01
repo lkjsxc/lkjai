@@ -124,3 +124,50 @@ def markdown_report(summary: dict) -> str:
         for name, count in sorted(summary.get(key, {}).items()):
             lines.append(f"- {name}: {count}")
     return "\n".join(lines) + "\n"
+
+
+def promotion_gate(paths, summary: dict, args) -> dict:
+    details = corpus_details(paths)
+    errors = []
+    docs = int(summary.get("documents", 0))
+    valid = int(summary.get("valid_documents", docs))
+    if getattr(args, "fail_on_invalid", False) and valid != docs:
+        errors.append(f"invalid_documents={docs - valid}")
+    duplicate = float(summary.get("duplicate_rate", 0.0) or 0.0)
+    near = float(summary.get("near_duplicate_rate", 0.0) or 0.0)
+    if args.max_duplicate_rate is not None and duplicate > args.max_duplicate_rate:
+        errors.append(f"duplicate_rate={duplicate}")
+    if args.max_near_duplicate_rate is not None and near > args.max_near_duplicate_rate:
+        errors.append(f"near_duplicate_rate={near}")
+    if getattr(args, "fail_on_split_leakage", False) and details["split_leaks"]:
+        errors.append(f"split_leaks={len(details['split_leaks'])}")
+    if getattr(args, "require_template_families", False):
+        required = {"direct_finish", "read_only_retrieval", "mutation_confirmation", "failure_safety_recovery"}
+        missing = sorted(required - set(details["template_family_distribution"]))
+        if missing:
+            errors.append(f"missing_template_families={','.join(missing)}")
+    disabled = sum(count for flag, count in summary.get("flag_counts", {}).items() if "disabled" in flag)
+    if disabled:
+        errors.append(f"disabled_tool_flags={disabled}")
+    return {"status": "pass" if not errors else "fail", "errors": errors, **details}
+
+
+def corpus_details(paths) -> dict:
+    templates, scenario_splits = {}, {}
+    for path in iter_jsonl_files(paths):
+        with path.open("r", encoding="utf-8") as handle:
+            for line in handle:
+                if not line.strip():
+                    continue
+                try:
+                    meta = json.loads(line).get("meta", {})
+                except json.JSONDecodeError:
+                    continue
+                template = str(meta.get("template_family", "unknown"))
+                templates[template] = templates.get(template, 0) + 1
+                scenario = str(meta.get("scenario_family_id", ""))
+                split = str(meta.get("split", ""))
+                if scenario and split:
+                    scenario_splits.setdefault(scenario, set()).add(split)
+    leaks = {key: sorted(value) for key, value in scenario_splits.items() if len(value) > 1}
+    return {"template_family_distribution": templates, "split_leaks": leaks}

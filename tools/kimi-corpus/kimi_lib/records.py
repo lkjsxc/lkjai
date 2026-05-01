@@ -16,6 +16,13 @@ def approx_tokens(text: str) -> int:
 
 
 def parse_jsonl_payload(text: str) -> list[dict]:
+    try:
+        parsed = json.loads(text)
+        rows = parsed.get("rows") or parsed.get("documents") if isinstance(parsed, dict) else parsed
+        if isinstance(rows, list):
+            return [row for row in rows if isinstance(row, dict)]
+    except json.JSONDecodeError:
+        pass
     rows = []
     for line in text.splitlines():
         stripped = line.strip()
