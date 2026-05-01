@@ -32,7 +32,7 @@ Train the scratch dense decoder without Python or PyTorch in the product path.
 - A native artifact inspect command must validate all index offsets and shapes.
 - Training speed reports median and p95 microstep time.
 
-## Current Smoke Implementation
+## Current Implementations
 
 - `lkjai-native-train --smoke --steps N` trains a tiny transition decoder from
   XML-action text.
@@ -40,3 +40,18 @@ Train the scratch dense decoder without Python or PyTorch in the product path.
   `${DATA_DIR}/../models/${MODEL_NAME}`.
 - The smoke model proves the artifact, load, and decode path. It is not a
   behavioral competency artifact.
+- `lkjai-native-train --train` runs the current corpus-backed native trainer.
+  It streams JSONL rows from `TRAIN_CORPUS_DIR/train` and
+  `TRAIN_COMMITTED_CORPUS_DIR`, updates a byte transition artifact, checkpoints
+  under `DATA_DIR/checkpoints`, exports under `DATA_DIR/exports/${MODEL_NAME}`,
+  and mirrors the served model under `${DATA_DIR}/../models/${MODEL_NAME}`.
+- The corpus-backed trainer is the current product training path in this repo.
+  It is real data-consuming training, but it is still the transition-model stage
+  before the planned dense-decoder forward/backward/optimizer implementation.
+
+## Deadline Runs
+
+Use `TRAIN_STOP_AT_UNIX` for wall-clock bounded jobs. The trainer checks this
+deadline every optimizer step, writes `latest`, `final`, export, fixed-eval
+metadata, behavioral-eval metadata, and `checkpoints/training-summary.json`
+before exiting.

@@ -18,6 +18,10 @@ Run one measurable long training job for the 3070-first 40M scratch model.
 - CUDA runs probe a safe microbatch automatically and adjust gradient
   accumulation to keep the target effective token batch.
 - Resume defaults to the newest complete `latest/` checkpoint snapshot.
+- The current native binary supports two modes:
+  `lkjai-native-train --smoke --steps N` and `lkjai-native-train --train`.
+  Compose keeps the smoke command as the service default for cheap health
+  checks; real corpus training must override the command with `--train`.
 
 ## Required Environment Knobs
 
@@ -77,6 +81,13 @@ Run one measurable long training job for the 3070-first 40M scratch model.
 - `TRAIN_FIXED_EVAL_THRESHOLD`: default `0.60` for fixed report metadata
 - `TRAIN_BEHAVIORAL_THRESHOLD`: default `0.35` until the next ladder is passed
 - `TRAIN_ENFORCE_COMPETENCY`: fail command when behavioral gates are missed
+- `TRAIN_STOP_AT_UNIX`: optional Unix timestamp deadline. The native trainer
+  exits after the current step once the timestamp is reached.
+- `TRAIN_STEP_MILLIS`: optional per-step throttle for deadline-shaped native
+  transition runs, default `20`.
+- `TRAIN_MAX_ROW_BYTES`: maximum bytes consumed from one JSONL row, default
+  `4096`.
+- `TRAIN_MAX_TRANSITIONS`: maximum transition-table entries, default `500000`.
 
 ## Required Artifacts
 
@@ -127,10 +138,24 @@ running the full long job:
 
 ```bash
 docker compose --profile train run --rm \
-  -e TRAIN_DATA_DIR=/app/data/train-start-check \
+  -e DATA_DIR=/app/data/train-start-check \
   -e TRAIN_MAX_OPTIMIZER_STEPS=1 \
   -e TRAIN_MAX_STEPS=1 \
   -e TRAIN_RESUME=never \
-  -e TRAIN_COMPILE=off \
-  train train-scratch --preset agent
+  train --train
 ```
+
+## Deadline Run
+
+Use this form for an unattended run that must finish around a specific time:
+
+```bash
+docker compose --profile train run -d \
+  --name lkjai-train-until-noon-20260503 \
+  -e DATA_DIR=/app/data/train-until-noon-20260503 \
+  -e TRAIN_RESUME=never \
+  -e TRAIN_STOP_AT_UNIX=1777777200 \
+  train --train
+```
+
+Monitor with `docker logs -f lkjai-train-until-noon-20260503`.

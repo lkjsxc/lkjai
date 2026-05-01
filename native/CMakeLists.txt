@@ -25,6 +25,8 @@ add_library(lkjai_native_core STATIC
   src/env.cpp
   src/json_min.cpp
   src/simple_model.cpp
+  src/train_data.cpp
+  src/train_real.cpp
 )
 target_include_directories(lkjai_native_core PUBLIC src)
 target_link_libraries(lkjai_native_core PUBLIC lkjai_cuda)

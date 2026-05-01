@@ -21,6 +21,10 @@ artifact inspection, and CUDA capability probing.
 - [simple_model.cpp](simple_model.cpp) and [simple_model.hpp](simple_model.hpp):
   compact model implementation.
 - [train_main.cpp](train_main.cpp): scratch training entrypoint.
+- [train_data.cpp](train_data.cpp) and [train_data.hpp](train_data.hpp):
+  JSONL corpus cursor and row extraction helpers.
+- [train_real.cpp](train_real.cpp) and [train_real.hpp](train_real.hpp):
+  corpus-backed native training loop used by non-smoke runs.
 
 ## Rules
 

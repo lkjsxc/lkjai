@@ -9,6 +9,7 @@
 #include "cuda_probe.hpp"
 #include "env.hpp"
 #include "simple_model.hpp"
+#include "train_real.hpp"
 
 namespace {
 
@@ -72,8 +73,15 @@ void export_smoke_artifacts(int steps) {
 int main(int argc, char** argv) {
   int steps = int_arg(argc, argv, "--steps", 2);
   auto cuda = lkjai::cuda_status();
+  if (has_flag(argc, argv, "--help")) {
+    std::cout << "usage: lkjai-native-train --smoke [--steps N] | --train\n";
+    return 0;
+  }
+  if (has_flag(argc, argv, "--train")) {
+    return lkjai::run_corpus_training();
+  }
   if (!has_flag(argc, argv, "--smoke")) {
-    std::cerr << "native trainer currently requires --smoke\n";
+    std::cerr << "native trainer requires --train or --smoke\n";
     return 2;
   }
   auto started = std::chrono::steady_clock::now();
