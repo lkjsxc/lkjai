@@ -14,17 +14,17 @@ Failed and quarantined staging shards were not promoted.
 
 ## Current Report
 
-- Rows: `400`
-- Approximate tokens: `50809`
-- Supervised approximate tokens: `41729`
-- Split rows: train `348`, val `28`, holdout `24`
-- Template families: `100` rows each for direct finish, read-only retrieval,
+- Rows: `784`
+- Approximate tokens: `100523`
+- Supervised approximate tokens: `82400`
+- Split rows: train `688`, val `48`, holdout `48`
+- Template families: `196` rows each for direct finish, read-only retrieval,
   mutation confirmation, and failure/safety/recovery
-- Gold stop reasons: `300` finish rows, `100` confirmation-required rows
-- Resource tool rows: `13` search, `2` fetch, `2` history
+- Gold stop reasons: `588` finish rows, `196` confirmation-required rows
+- Resource tool rows: `31` search, `2` fetch, `2` history, `1` preview
 - Validation flags: none
-- Duplicate rate: `0.0025`
-- Near-duplicate rate: `0.005`
+- Duplicate rate: `0.006377551020408163`
+- Near-duplicate rate: `0.008928571428571428`
 
 This is a real Kimi-generated pilot slice, not the full 1M-token pilot target.
 The direct Moonshot HTTP keys available locally failed authentication; generation
