@@ -9,10 +9,10 @@ Describe the on-disk dataset artifacts used by training and evaluation.
 - Editable source corpus: `corpus/sources/*.json`
 - Public pretraining corpus:
   `data/public-corpus/{train,val,holdout}/*.jsonl`
-- Historical Kimi corpus:
-  `corpus/generated/kimi-full-v1/{train,val,holdout}/*.jsonl`
-- Kimi API pilot corpus:
-  `corpus/generated/kimi-sft-pilot-v1/{train,val,holdout}/*.jsonl`
+- Accepted Kimi SFT v2 corpus:
+  `corpus/generated/kimi-sft-60m-v2/{train,val,holdout}/*.jsonl`
+- Preference pairs:
+  `corpus/generated/pref-v1/pairs/*.jsonl`
 - Canonical combined corpus: `data/train/datasets/corpus.jsonl`
 - Canonical train split: `data/train/datasets/train.jsonl`
 - Canonical validation split: `data/train/datasets/val.jsonl`
@@ -56,13 +56,15 @@ Describe the on-disk dataset artifacts used by training and evaluation.
 - Public pretraining rows must not include source `prompt` or `seed_data`
   values.
 - Validation must fail on missing split labels or missing provenance fields.
-- Validation must fail on GPT, Kimi, Claude, or generic LLM-authored default
-  rows.
+- Validation must fail on GPT, Claude, or generic LLM-authored default rows.
+- Kimi-generated SFT rows are allowed only when runtime-contract validated,
+  fixture-executed, and marked `kimi-generated`.
 - Validation must fail when assistant content is not valid XML.
 - Validation must fail when a resource mutation lacks prior confirmation.
 - Validation must fail when a scenario family appears in multiple splits.
 - Validation must fail when duplicate rows exceed 1%.
-- Validation proves shape only, not quality.
+- Validation proves runtime contract and fixture shape; behavioral quality is
+  still gated by model eval.
 
 ## Split Policy
 

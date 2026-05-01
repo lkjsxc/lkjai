@@ -1,6 +1,6 @@
 # Full Corpus Status
 
-## Historical Kimi Chunks
+## Deleted Kimi V1 Chunks
 
 - Path: `corpus/generated/kimi-full-v1/`.
 - Rows: `176345`.
@@ -8,11 +8,14 @@
 - Validation rows: `17539`.
 - Holdout rows: `17548`.
 - JSONL chunks: `178`.
-- Disk size: about `180M`.
+- Disk size before deletion: about `180M`.
+- Status: deleted from active tree.
+- Reason: v1 over-trained everyday chat and preference critique traces while
+  barely covering runtime-sensitive tool contracts.
 
 ## Validation Report
 
-- Report: `corpus/generated/kimi-full-v1/validation-report.json`.
+- Former report: `corpus/generated/kimi-full-v1/validation-report.json`.
 - Token count reported by local validator: `25962822`.
 - Duplicate rate: `0.0`.
 - XML validity rate: `1.0`.
@@ -22,12 +25,13 @@
 
 ## Active Release-Pack Gap
 
-The historical Kimi corpus is valid by its old checks but is no longer the
-active full training pack. The active target is now:
+The historical Kimi corpus was valid by old structural checks but is no longer
+an active training pack. The active target is now:
 
 - `500000000` Cosmopedia `text`-only public pretraining tokens under
   `data/public-corpus/`.
 - `60000000` first-party XML-action SFT tokens.
+- `corpus/generated/kimi-sft-60m-v2/` as the accepted SFT destination.
 - At least `450000000` deduplicated tokenizer tokens across the release pack.
 
 ## Public Pretrain Materialization

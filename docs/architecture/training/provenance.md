@@ -30,7 +30,8 @@ or pinned permissive public pretraining sources.
 - Inactive packs must not be read by `prepare-corpus`.
 - Kimi source packs may be promoted only with `kimi-generated` metadata.
 - Kimi API keys must never be committed or written unredacted to manifests.
-- Kimi-only teacher-data restrictions are removed; Kimi rows are optional.
+- Kimi rows are optional and active only after runtime-contract and fixture
+  validation.
 
 ## Artifact Rule
 
@@ -50,7 +51,7 @@ The mainline 60,000 row corpus uses this approximate provenance mix:
 - `public-import`: ~0% (not available locally; redistributed to repo-derived)
 - `public-pretrain`: 500M-token Cosmopedia `text`-only English corpus under
   `data/public-corpus/`
-- `kimi-generated`: optional SFT/tool corpus outside the pretraining target
+- `kimi-generated`: validated SFT/tool corpus outside the pretraining target
 
 ## Public Dataset Policy
 

@@ -50,7 +50,7 @@ def run_case(image: str, run_id: str, case: str, repeat: int, base_env: dict, sa
     env.update(
         {
             "DATA_DIR": "/app/data/perf-runs/" + f"{run_id}/{case}/repeat-{repeat:02d}",
-            "TRAIN_COMMITTED_CORPUS_DIR": "/workspace/corpus/generated/kimi-full-v1",
+            "TRAIN_COMMITTED_CORPUS_DIR": "/workspace/corpus/generated/kimi-sft-60m-v2",
         }
     )
     command = [

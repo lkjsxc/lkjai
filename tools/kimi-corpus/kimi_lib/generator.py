@@ -78,7 +78,7 @@ class CorpusGenerator:
             sections += ["## Workflow Blocker", "", f"- `{type(error).__name__}`: `{str(error)}`", ""]
             print(json.dumps({"event": "sample_first_blocked", "error": str(error)}), flush=True)
         report = self.run_dir / "sample_report.md"
-        cmd = "`bash tools/kimi-corpus/launch_background.sh --config configs/corpus/kimi_sft_60m.yaml --target-tokens 60000000 --mode sft --parallelism 2 --output-dir corpus/generated/kimi-sft-60m-v1 --full`"
+        cmd = "`bash tools/kimi-corpus/launch_background.sh --config configs/corpus/kimi_sft_60m.yaml --target-tokens 60000000 --mode sft --parallelism 2 --output-dir corpus/generated/kimi-sft-60m-v2 --full`"
         sections += ["## Background Launch Command", "", cmd, ""]
         report.parent.mkdir(parents=True, exist_ok=True)
         report.write_text("\n".join(sections) + "\n", encoding="utf-8")

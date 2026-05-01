@@ -7,7 +7,7 @@ api_provider: kimi-api
 api_base_url: https://api.moonshot.ai/v1
 api_model: kimi-k2.6
 prompt_dir: tools/kimi-corpus/prompts
-prompt_version: api-v1
+prompt_version: api-v2
 batch_documents: 8
 max_calls: 10
 parallelism: 2

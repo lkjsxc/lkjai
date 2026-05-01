@@ -15,9 +15,9 @@ Cosmopedia `text` only.
 - Pilot SFT tokenizer tokens: `1000000`.
 - Full SFT tokenizer tokens: `60000000`.
 - Chunk size: about `1000` JSONL rows.
-- Pilot location: `corpus/generated/kimi-sft-pilot-v1/`.
-- Committed location: `corpus/generated/kimi-sft-60m-v1/`.
-- Runtime staging location: `data/kimi-corpus/` for optional Kimi rows.
+- Pilot staging location: `data/kimi_synthetic/pilot-v2/`.
+- Committed location: `corpus/generated/kimi-sft-60m-v2/`.
+- Runtime staging location: `data/kimi_synthetic/` for optional Kimi rows.
 
 ## Mix
 
@@ -29,7 +29,10 @@ Cosmopedia `text` only.
 ## Quality Gates
 
 - XML validity rate: `>= 0.995`.
-- Last assistant action is `agent.finish`: `1.0`.
+- Completed traces end with `agent.finish`: `1.0`.
+- Confirmation-planning traces end with `agent.request_confirmation`.
+- Runtime contract parse rate: `1.0`.
+- Replayable confirmation rate: `1.0`.
 - Duplicate rate: `<= 0.01`.
 - Generic final-answer rate: `<= 0.005`.
 - `Completed task for ...` rate in everyday-chat rows: `0`.
@@ -42,7 +45,7 @@ Cosmopedia `text` only.
 
 - Base URL: `https://api.moonshot.ai/v1`.
 - Default model: `kimi-k2.6`.
-- Use structured JSON output for row objects.
+- Use JSON object output with top-level `rows`.
 - Use `thinking={"type":"disabled"}` for canonical rows.
 - Use `/tokenizers/estimate-token-count` before large shard requests.
 - Use all discovered API keys in parallel and redact them everywhere.

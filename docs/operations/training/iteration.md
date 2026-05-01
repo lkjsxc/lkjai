@@ -23,8 +23,8 @@ Materialize the ignored corpus after downloading Cosmopedia to
 `data/raw/cosmopedia/`:
 
 ```bash
-docker compose --profile corpus run --rm corpus download-public-pretrain
-docker compose --profile corpus run --rm corpus prepare-public-pretrain
+docker compose --profile train run --rm train download-public-pretrain
+docker compose --profile train run --rm train prepare-public-pretrain
 ```
 
 ## Iteration Command

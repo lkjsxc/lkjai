@@ -2,16 +2,16 @@
 
 ## Paths
 
-Historical committed corpus:
+Deleted invalid corpora:
 
 ```text
 corpus/generated/kimi-full-v1/
-  README.md
-  manifest.json
-  train/train-*.jsonl
-  val/val-*.jsonl
-  holdout/holdout-*.jsonl
+corpus/generated/kimi-sft-pilot-v1/
 ```
+
+These paths were removed from active training because their rows mixed
+preference traces into SFT, used invented fixtures, and drifted from runtime
+tool argument contracts.
 
 Runtime staging:
 
@@ -22,26 +22,34 @@ data/kimi_synthetic/
   quarantine/
 ```
 
-Pilot committed corpus:
+Accepted v2 SFT corpus:
 
 ```text
-corpus/generated/kimi-sft-pilot-v1/
+corpus/generated/kimi-sft-60m-v2/
   README.md
-  manifest.jsonl
+  manifest.json
   validation-report.json
   train/train-*.jsonl
   val/val-*.jsonl
   holdout/holdout-*.jsonl
 ```
 
-`kimi-full-v1` remains the active training input until the pilot is validated.
+Preference artifacts:
+
+```text
+corpus/generated/pref-v1/
+  README.md
+  manifest.json
+  pairs/*.jsonl
+```
+
 Runtime staging is an operator workspace for fresh Kimi API generation before
-validation and normalization.
+validation and normalization. Staging data is not active training data.
 
 ## Active Committed Row
 
-Each JSONL line in committed Kimi SFT corpora uses the XML-action SFT schema.
-Active rows must be English-only.
+Each JSONL line in committed Kimi SFT corpora uses `lkjai-agent-jsonl-v3`.
+Active rows must be English-only and fixture-grounded.
 
 ```json
 {
@@ -55,21 +63,28 @@ Active rows must be English-only.
   "meta": {
     "id": "kimi-full-v1-train-000001",
     "split": "train",
-    "source": "lkjai-docs",
+    "schema": "lkjai-agent-jsonl-v3",
     "license": "project-local",
     "template_family": "read_only_retrieval",
     "scenario_family_id": "docs-readme-summary",
     "intent": "workspace.read_doc",
     "tool_sequence": ["fs.read", "agent.finish"],
     "confirmation_required": false,
-    "grounding_source": "docs/README.md",
+    "grounding_source": "repo_fixture",
+    "source_ref": "docs/README.md",
+    "fixture_id": "lkjai-docs-readme-v1",
+    "contract_validated": true,
+    "fixture_executed": true,
     "gold_stop_reason": "finish"
   }
 }
 ```
 
-Every assistant message must contain exactly one XML `<action>`. In SFT rows,
-the final assistant action must be `agent.finish`.
+Every assistant message must contain exactly one XML `<action>`. Completed SFT
+rows end with `agent.finish`. Mutation-planning rows may end with
+`agent.request_confirmation` only when `gold_stop_reason` is
+`confirmation_required` and the pending mutation can be replayed from stored
+fields.
 
 ## SFT Row
 
@@ -97,13 +112,16 @@ Staging SFT rows use the existing chat row format:
     "license": "project-local",
     "source_ref": "kimi_synthetic:v2",
     "mode": "sft",
-    "prompt_version": "api-v1",
+    "prompt_version": "api-v2",
     "template_family": "direct_finish",
     "scenario_family_id": "direct-greeting",
     "intent": "direct_answer.greeting",
     "tool_sequence": ["agent.finish"],
     "confirmation_required": false,
-    "grounding_source": "synthetic",
+    "grounding_source": "repo_fixture",
+    "fixture_id": "direct-greeting-v1",
+    "contract_validated": true,
+    "fixture_executed": true,
     "gold_stop_reason": "finish"
   }
 }

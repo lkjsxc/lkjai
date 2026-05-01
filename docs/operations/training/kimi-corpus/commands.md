@@ -27,7 +27,7 @@ python3 tools/kimi-corpus/generate_kimi_corpus.py \
 python3 tools/kimi-corpus/generate_kimi_corpus.py \
   --config configs/corpus/kimi_debug.yaml \
   --api-provider kimi-api \
-  --api-key-file /home/lkjsxc/private/password.md \
+  --api-key-file /home/lkjsxc/password.md \
   --target-tokens 50000 \
   --mode sft \
   --parallelism 4 \
@@ -52,21 +52,21 @@ docker compose --progress quiet --profile verify up --build --abort-on-container
 
 ```bash
 python3 tools/kimi-corpus/score_corpus.py \
-  corpus/generated/kimi-full-v1 \
+  corpus/generated/kimi-sft-60m-v2 \
   --summary-only
 ```
 
-## Pilot
+## Bounded Pilot
 
 ```bash
 python3 tools/kimi-corpus/generate_kimi_corpus.py \
   --config configs/corpus/kimi_sft_60m.yaml \
   --api-provider kimi-api \
-  --api-key-file /home/lkjsxc/private/password.md \
+  --api-key-file /home/lkjsxc/password.md \
   --target-tokens 1000000 \
   --mode sft \
   --parallelism 8 \
-  --output-dir corpus/generated/kimi-sft-pilot-v1 \
+  --output-dir data/kimi_synthetic/pilot-v2 \
   --run-dir runs/kimi_corpus \
   --resume
 ```
@@ -75,10 +75,10 @@ Then score the pilot:
 
 ```bash
 python3 tools/kimi-corpus/score_corpus.py \
-  corpus/generated/kimi-sft-pilot-v1 \
-  --manifest corpus/generated/kimi-sft-pilot-v1/manifest.jsonl \
+  data/kimi_synthetic/pilot-v2 \
+  --manifest data/kimi_synthetic/pilot-v2/manifest.jsonl \
   --markdown runs/kimi_corpus/pilot_score.md \
-  --output corpus/generated/kimi-sft-pilot-v1/validation-report.json
+  --output data/kimi_synthetic/pilot-v2/validation-report.json
 ```
 
 ## Stop

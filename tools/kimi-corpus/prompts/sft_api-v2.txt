@@ -1,0 +1,67 @@
+You generate fixture-grounded SFT rows for lkjai.
+
+Return ONE JSON object only:
+{"rows":[...]}
+
+Every row must have keys: messages, tags, meta.
+
+Hard rules:
+- English only.
+- Every assistant message is exactly one XML <action> block.
+- XML tags have no attributes.
+- Include <reasoning>, <tool>, and exact tool-specific child fields.
+- Use only tools from the provided contract.
+- Do not invent files, projects, resources, memories, dates, or APIs.
+- Ground every row in supplied fixture snippets or source references.
+- Do not generate generic geography, trivia, or placeholder app examples.
+- Completed traces end with agent.finish.
+- Mutation-planning traces end with agent.request_confirmation.
+- agent.request_confirmation includes summary, operation, pending_tool, and all
+  pending tool fields needed for replay.
+- Never emit disabled default tools: shell.exec, web.fetch, fs.write,
+  memory.write.
+- Do not emit resource.create_note, resource.create_media, or
+  resource.update_resource directly in SFT unless the row includes a later user
+  confirmation turn and tool execution fixture.
+
+Canonical field rules:
+- resource.search uses query or q, never tag or type.
+- resource.fetch and resource.history use ref or id, never resource_id.
+- resource.preview_markdown uses body and optional current_resource_id.
+- resource.create_note uses body and optional alias, is_favorite, is_private.
+- resource.create_media uses path and optional alias, is_favorite, is_private.
+- resource.update_resource uses ref or id, body, and optional alias,
+  is_favorite, is_private.
+- agent.finish uses content.
+
+Required meta:
+- provenance: "kimi-generated"
+- author_type: "external-agent-generated"
+- author_model: "kimi-k2.6"
+- quality_tier: "high"
+- license: "project-local"
+- mode: "sft"
+- prompt_version: "api-v2"
+- language: "en"
+- template_family: direct_finish, read_only_retrieval,
+  mutation_confirmation, or failure_safety_recovery
+- scenario_family_id
+- intent
+- tool_sequence
+- confirmation_required
+- grounding_source: "repo_fixture"
+- source_ref
+- fixture_id
+- contract_validated: false
+- fixture_executed: false
+- gold_stop_reason: "finish" or "confirmation_required"
+
+Batch request:
+- mode: {{MODE}}
+- documents: {{DOCUMENTS}}
+- sample: {{SAMPLE_NOTE}}
+- languages: {{LANGUAGE_PLAN}}
+- domains: {{DOMAIN_PLAN}}
+- difficulties: {{DIFFICULTY_PLAN}}
+
+Return the JSON object now.

@@ -113,7 +113,8 @@ The refreshed Kimi API SFT target uses four template families:
 - Mutation with confirmation: `25%`.
 - Failure, safety, and recovery: `25%`.
 
-Preference comparisons are separate artifacts and must not dominate active SFT.
+Preference comparisons are separate artifacts and must never appear as active
+SFT rows.
 
 ## Public Pretraining Layout
 
@@ -141,15 +142,18 @@ Materialize ignored shards with:
 
 ```bash
 HF_TOKEN=<hugging-face-token-if-needed> \
-docker compose --profile corpus run --rm corpus download-public-pretrain
+docker compose --profile train run --rm train download-public-pretrain
 
 TRAIN_PUBLIC_DATA_DIR=/app/data/raw/cosmopedia \
 TRAIN_CORPUS_DIR=/app/data/public-corpus \
-docker compose --profile corpus run --rm corpus prepare-public-pretrain
+docker compose --profile train run --rm train prepare-public-pretrain
 ```
 
 `manifest.json` records schema, row counts, split counts, token counts, selected
 fields, source budgets, checksums, and source/license distribution.
+
+The current Compose file does not expose a `corpus` profile. Until that service
+exists, public pretraining preparation is part of the `train` profile tooling.
 
 ## Rejection Patterns
 

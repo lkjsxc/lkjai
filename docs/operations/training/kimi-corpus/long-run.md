@@ -2,17 +2,17 @@
 
 ## Launch
 
-Run the pilot after sample quality and verification pass:
+Run a bounded pilot after sample quality and verification pass:
 
 ```bash
 python3 tools/kimi-corpus/generate_kimi_corpus.py \
   --config configs/corpus/kimi_sft_60m.yaml \
   --api-provider kimi-api \
-  --api-key-file /home/lkjsxc/private/password.md \
+  --api-key-file /home/lkjsxc/password.md \
   --target-tokens 1000000 \
   --mode sft \
   --parallelism 8 \
-  --output-dir corpus/generated/kimi-sft-pilot-v1 \
+  --output-dir data/kimi_synthetic/pilot-v2 \
   --run-dir runs/kimi_corpus \
   --resume
 ```
@@ -43,6 +43,6 @@ Commit generated shards after validation:
 - A large committed corpus increases repository size.
 
 If generation stops early, keep valid shards, update
-`corpus/generated/kimi-sft-pilot-v1/README.md`, and commit the current status.
-After pilot acceptance, repeat with `--target-tokens 60000000` and
-`--output-dir corpus/generated/kimi-sft-60m-v1`.
+`runs/kimi_corpus/sample_report.md`, and commit source changes only. After
+pilot acceptance, repeat with `--target-tokens 60000000` and
+`--output-dir corpus/generated/kimi-sft-60m-v2`.
