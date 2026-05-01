@@ -40,7 +40,7 @@ class KimiRunner:
             with stdout_path.open("w", encoding="utf-8") as out, stderr_path.open("w", encoding="utf-8") as err:
                 proc = None
                 try:
-                    proc = subprocess.Popen(command, cwd=self.logs_dir, stdin=subprocess.PIPE if stdin is not None else None, text=True, stdout=out, stderr=err, start_new_session=True)
+                    proc = subprocess.Popen(command, cwd=Path.cwd(), stdin=subprocess.PIPE if stdin is not None else None, text=True, stdout=out, stderr=err, start_new_session=True)
                     proc.communicate(input=stdin, timeout=timeout_seconds)
                     returncode = proc.returncode
                 except subprocess.TimeoutExpired:
@@ -55,11 +55,14 @@ class KimiRunner:
         return KimiResult(1, stdout_path, stderr_path, self.variant, 0.0)
 
     def command(self, prompt: str) -> tuple[list[str], str | None]:
+        base = [self.executable, "--no-thinking"]
+        if self.variant == "stream_json_prompt":
+            return base + ["--print", "--output-format", "stream-json", "-p", prompt], None
         if self.variant == "quiet_prompt":
-            return [self.executable, "--quiet", "-p", prompt], None
+            return base + ["--quiet", "-p", prompt], None
         if self.variant == "print_final_prompt":
-            return [self.executable, "--print", "--output-format", "text", "--final-message-only", "-p", prompt], None
-        return [self.executable, "--print", "--output-format", "text", "--final-message-only"], prompt
+            return base + ["--print", "--output-format", "text", "--final-message-only", "-p", prompt], None
+        return base + ["--print", "--output-format", "stream-json"], prompt
 
 
 def discover_kimi() -> str:
@@ -75,6 +78,8 @@ def kimi_help(executable: str) -> str:
 
 
 def choose_variant(help_text: str) -> str:
+    if "stream-js" in help_text and "-p" in help_text:
+        return "stream_json_prompt"
     if "--quiet" in help_text and "-p" in help_text:
         return "quiet_prompt"
     if "--print" in help_text and "--final-message" in help_text and "-p" in help_text:

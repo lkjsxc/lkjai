@@ -24,14 +24,29 @@ TRANSIENT_TYPES = {
 class KimiApiRunner:
     def __init__(self, logs_dir: Path, config: dict, args):
         self.logs_dir = logs_dir
-        self.base_url = str(getattr(args, "api_base_url", None) or config.get("api_base_url"))
-        self.base_url = self.base_url.rstrip("/") or "https://api.moonshot.ai/v1"
-        self.model = str(getattr(args, "api_model", None) or config.get("api_model") or "kimi-k2.6")
         self.keys = load_api_keys(getattr(args, "api_key_file", ""))
+        self.base_url = self.resolve_base_url(config, args)
+        self.model = self.resolve_model(config, args)
         self.next_key = 0
         self.key_lock = threading.Lock()
         self.variant = "kimi_api"
         self.executable = f"{self.base_url}/chat/completions"
+
+    def is_code_key(self) -> bool:
+        return any(key.startswith("sk-kimi-") for key in self.keys)
+
+    def resolve_base_url(self, config: dict, args) -> str:
+        explicit = getattr(args, "api_base_url", None)
+        value = explicit or config.get("api_base_url") or ""
+        if self.is_code_key() and not explicit:
+            value = "https://api.kimi.com/coding/v1"
+        return str(value or "https://api.moonshot.ai/v1").rstrip("/")
+
+    def resolve_model(self, config: dict, args) -> str:
+        explicit = getattr(args, "api_model", None)
+        if self.is_code_key() and not explicit:
+            return "kimi-for-coding"
+        return str(explicit or config.get("api_model") or "kimi-k2.6")
 
     def invoke(self, prompt: str, call_id: str, timeout_seconds: int, max_retries: int) -> KimiResult:
         self.logs_dir.mkdir(parents=True, exist_ok=True)
@@ -77,8 +92,9 @@ class KimiApiRunner:
             "response_format": row_schema(),
             "max_completion_tokens": 8192,
             "prompt_cache_key": f"lkjai:{self.model}:sft",
-            "thinking": {"type": "disabled"},
         }
+        if not self.is_code_key():
+            body["thinking"] = {"type": "disabled"}
         data = self._post("/chat/completions", body, key, timeout_seconds)
         content = data["choices"][0]["message"]["content"]
         return rows_to_jsonl(content)

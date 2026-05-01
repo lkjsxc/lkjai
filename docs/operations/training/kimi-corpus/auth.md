@@ -15,7 +15,10 @@ The generator loads keys from:
 - an explicit `--api-key-file`
 - `/home/lkjsxc/private/archived/security/password.md`
 
-Only tokens matching `sk-...` are treated as API keys. Logs and reports may
+Only tokens matching `sk-...` are treated as API keys. Keys starting with
+`sk-kimi-` are routed to the Kimi Code OpenAI-compatible endpoint
+`https://api.kimi.com/coding/v1` with model `kimi-for-coding`. Other keys use
+the Moonshot Open Platform endpoint unless overridden. Logs and reports may
 print SHA-256 fingerprints, never raw keys.
 
 ## Fingerprint Check

@@ -6,6 +6,8 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+from .row_repair import repair_sft_record
+
 
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -16,23 +18,42 @@ def approx_tokens(text: str) -> int:
 
 
 def parse_jsonl_payload(text: str) -> list[dict]:
-    try:
-        parsed = json.loads(text)
-        rows = parsed.get("rows") or parsed.get("documents") if isinstance(parsed, dict) else parsed
-        if isinstance(rows, list):
-            return [row for row in rows if isinstance(row, dict)]
-    except json.JSONDecodeError:
-        pass
+    rows = parse_json_container(text)
+    if rows:
+        return rows
     rows = []
     for line in text.splitlines():
         stripped = line.strip()
         if not stripped or stripped.startswith("```") or not stripped.startswith("{"):
             continue
         try:
-            rows.append(json.loads(stripped))
+            parsed = json.loads(stripped)
         except json.JSONDecodeError:
             continue
+        if isinstance(parsed, dict) and isinstance(parsed.get("content"), str):
+            rows.extend(parse_json_container(parsed["content"]))
+        elif isinstance(parsed, dict):
+            rows.append(parsed)
     return rows
+
+
+def parse_json_container(text: str) -> list[dict]:
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        cleaned = re.sub(r"^```[a-zA-Z]*\s*", "", cleaned)
+        cleaned = re.sub(r"\s*```$", "", cleaned)
+    try:
+        parsed = json.loads(cleaned)
+    except json.JSONDecodeError:
+        start, end = cleaned.find("{"), cleaned.rfind("}")
+        if start < 0 or end <= start:
+            return []
+        try:
+            parsed = json.loads(cleaned[start : end + 1])
+        except json.JSONDecodeError:
+            return []
+    rows = parsed.get("rows") or parsed.get("documents") if isinstance(parsed, dict) else parsed
+    return [row for row in rows if isinstance(row, dict)] if isinstance(rows, list) else []
 
 
 def normalize_record(record: dict, mode: str, index: int, prompt_version: str, split: str) -> dict:
@@ -85,6 +106,7 @@ def normalize_record(record: dict, mode: str, index: int, prompt_version: str, s
     }
     for key, value in defaults.items():
         meta.setdefault(key, value)
+    repair_sft_record(record)
     return record
 
 

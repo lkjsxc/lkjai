@@ -16,6 +16,8 @@ normalization, and manifest handling.
 - [manifest.py](manifest.py): shard manifest accounting.
 - [prompts.py](prompts.py): prompt template rendering.
 - [records.py](records.py): JSONL parsing and row normalization.
+- [row_repair.py](row_repair.py): deterministic XML trace realization for
+  Kimi scenario rows.
 - [sample_report.py](sample_report.py): sample-report formatting.
 - [score.py](score.py): corpus scoring entrypoint.
 - [score_agent.py](score_agent.py): XML-action SFT validation.
