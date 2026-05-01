@@ -65,7 +65,7 @@ def iter_jsonl_files(paths) -> list[Path]:
             files.extend(sorted(path.rglob("*.jsonl")))
         elif path.exists():
             files.append(path)
-    return sorted({file for file in files if file.name != "manifest.jsonl"})
+    return sorted({file for file in files if file.name != "manifest.jsonl" and "quarantine" not in file.parts})
 
 
 def valid_xml(content: str) -> bool:
