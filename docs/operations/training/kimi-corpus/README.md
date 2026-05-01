@@ -20,7 +20,8 @@ same runtime validator and fixture gates as the full corpus.
 2. [quality.md](quality.md): validation and scoring gates.
 3. [workflow.md](workflow.md): sample-first and prompt-refinement flow.
 4. [commands.md](commands.md): exact local commands.
-5. [long-run.md](long-run.md): 60M-token background operation.
+5. [auth.md](auth.md): redacted API-key discovery and smoke checks.
+6. [long-run.md](long-run.md): 60M-token background operation.
 
 ## Rules
 
