@@ -1,12 +1,13 @@
 use crate::model_client::ModelMessage;
 
-use super::{memory::MemoryStore, Event};
+use super::{memory::MemoryStore, tool_registry, Event};
 
 pub fn build(
     run_id: &str,
     events: &[Event],
     step: usize,
     memory: &MemoryStore,
+    profile: &str,
 ) -> Vec<ModelMessage> {
     let latest = events
         .last()
@@ -17,7 +18,7 @@ pub fn build(
     vec![
         ModelMessage {
             role: "system".into(),
-            content: system_prompt(),
+            content: system_prompt(profile),
         },
         ModelMessage {
             role: "user".into(),
@@ -61,8 +62,14 @@ fn compact_events(events: &[Event]) -> Vec<Event> {
     compacted
 }
 
-fn system_prompt() -> String {
-    include_str!("../../prompts/codex-40m-system.txt")
+fn system_prompt(profile: &str) -> String {
+    let mut text = include_str!("../../prompts/codex-40m-system.txt")
         .trim()
-        .to_string()
+        .replace("{{TOOLS}}", tool_registry::tool_list(profile));
+    if profile == "mutable" {
+        text.push_str(
+            "\n\nMUTABLE PROFILE\nUse agent.request_confirmation before kjxlkj mutations.",
+        );
+    }
+    text
 }

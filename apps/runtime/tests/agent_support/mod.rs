@@ -56,6 +56,7 @@ pub fn test_config(root: &Path, url: &str) -> Config {
         model_temperature: 0.0,
         agent_max_steps: 6,
         agent_repair_attempts: 1,
+        agent_tool_profile: "readonly".into(),
         tool_workspace_dir: root.join("data/workspace"),
         tool_timeout_secs: 20,
         tool_output_limit: 12_000,

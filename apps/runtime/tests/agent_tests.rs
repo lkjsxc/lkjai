@@ -115,7 +115,8 @@ async fn absolute_file_paths_are_rejected_but_loop_can_finish() {
 async fn confirmation_request_stops_without_running_mutation() {
     let root = temp_root();
     let (url, server) = model_server(vec![confirm_action()]).await;
-    let config = test_config(&root, &url);
+    let mut config = test_config(&root, &url);
+    config.agent_tool_profile = "mutable".into();
     let agent = Agent::new(config.clone(), ModelClient::from_config(&config));
     let response = agent.chat(request("update release notes", 2)).await;
     assert_eq!(response.stop_reason, "confirmation_required");

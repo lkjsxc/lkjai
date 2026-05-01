@@ -1,3 +1,5 @@
+use crate::config::Config;
+
 use super::{confirmation, event, tools, Event};
 
 pub(super) fn model_stop_reason(error: &str) -> String {
@@ -75,11 +77,12 @@ pub(super) fn think_action(
 pub(super) fn confirm_action(
     action: super::Action,
     step: usize,
+    config: &Config,
     events: &mut Vec<Event>,
     assistant: &mut String,
     stop_reason: &mut String,
 ) -> bool {
-    match confirmation::handle(action, step, events) {
+    match confirmation::handle(action, step, &config.agent_tool_profile, events) {
         Ok(message) => {
             *assistant = message;
             *stop_reason = "confirmation_required".into();

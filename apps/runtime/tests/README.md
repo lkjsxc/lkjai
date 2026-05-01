@@ -10,6 +10,7 @@ tool behavior.
 - [agent_support/README.md](agent_support/README.md): shared test helpers.
 - [agent_tests.rs](agent_tests.rs): agent loop and local-tool behavior.
 - [config_tests.rs](config_tests.rs): environment default behavior.
+- [profile_tests.rs](profile_tests.rs): runtime tool profile behavior.
 - [resource_tests.rs](resource_tests.rs): `kjxlkj` resource tool behavior.
 
 ## Rules

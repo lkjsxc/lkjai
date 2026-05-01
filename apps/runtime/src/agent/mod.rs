@@ -28,10 +28,9 @@ pub use transcript::TranscriptStore;
 
 pub fn validate_action_text(text: &str) -> Result<String, String> {
     let action = action::parse(text)?;
-    tool_registry::require_enabled(&action.tool)?;
+    tool_registry::require_trainable(&action.tool)?;
     if action.tool == "agent.request_confirmation" {
-        let mut events = Vec::new();
-        confirmation::handle(action, 1, &mut events)?;
+        confirmation::validate(action)?;
         return Ok("agent.request_confirmation".into());
     }
     let call = tools::ToolCall::from_fields(&action)?;
@@ -89,7 +88,7 @@ impl Agent {
         events: &mut Vec<Event>,
     ) -> Result<(), String> {
         let tool = action.tool.clone();
-        tool_registry::require_enabled(&tool)?;
+        tool_registry::require_enabled(&tool, &self.config.agent_tool_profile)?;
         let call = tools::ToolCall::from_fields(&action)?;
         let result = tool_runner::run(call, &self.config, &self.memory, run_id, step, events).await;
         events.push(event("observation", result, Some(tool), Some(step)));
@@ -97,7 +96,13 @@ impl Agent {
     }
 
     fn prompt(&self, run_id: &str, events: &[Event], step: usize) -> Vec<ModelMessage> {
-        prompt::build(run_id, events, step, &self.memory)
+        prompt::build(
+            run_id,
+            events,
+            step,
+            &self.memory,
+            &self.config.agent_tool_profile,
+        )
     }
 
     fn persist(&self, run_id: &str, events: &[Event]) {

@@ -13,7 +13,8 @@ async fn direct_resource_mutation_is_blocked_without_confirmation() {
         &[("ref", "release-notes"), ("body", "# Updated")],
     )])
     .await;
-    let config = test_config(&root, &url);
+    let mut config = test_config(&root, &url);
+    config.agent_tool_profile = "mutable".into();
     let agent = Agent::new(config.clone(), ModelClient::from_config(&config));
     let response = agent.chat(request("update release notes", 1)).await;
     assert_eq!(response.stop_reason, "confirmation_required");
@@ -31,6 +32,7 @@ async fn confirmed_resource_mutation_executes_stored_pending_tool() {
     let (model_url, model) = model_server(vec![confirm_action()]).await;
     let (resource_url, seen, resource) = resource_server().await;
     let mut config = test_config(&root, &model_url);
+    config.agent_tool_profile = "mutable".into();
     config.kjxlkj_api_url = resource_url;
     let agent = Agent::new(config.clone(), ModelClient::from_config(&config));
     let first = agent.chat(request("update release notes", 2)).await;

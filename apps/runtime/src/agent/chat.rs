@@ -128,9 +128,14 @@ impl Agent {
                 events,
                 stop_reason,
             ),
-            "agent.request_confirmation" => {
-                chat_actions::confirm_action(action, step, events, assistant, stop_reason)
-            }
+            "agent.request_confirmation" => chat_actions::confirm_action(
+                action,
+                step,
+                &self.config,
+                events,
+                assistant,
+                stop_reason,
+            ),
             _ => {
                 self.tool_action(
                     action,

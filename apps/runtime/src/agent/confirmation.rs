@@ -18,7 +18,25 @@ pub struct Pending {
     pub fields: BTreeMap<String, String>,
 }
 
-pub fn handle(action: Action, step: usize, events: &mut Vec<Event>) -> Result<String, String> {
+pub fn handle(
+    action: Action,
+    step: usize,
+    profile: &str,
+    events: &mut Vec<Event>,
+) -> Result<String, String> {
+    tool_registry::require_enabled("agent.request_confirmation", profile)?;
+    let pending = validate(action)?;
+    tool_registry::require_enabled(&pending.pending_tool, profile)?;
+    events.push(event(
+        "confirmation_request",
+        serde_json::to_string(&pending).map_err(|error| error.to_string())?,
+        Some(pending.pending_tool.clone()),
+        Some(step),
+    ));
+    Ok(pending.summary)
+}
+
+pub fn validate(action: Action) -> Result<Pending, String> {
     let summary = action
         .field("summary")
         .ok_or_else(|| "request_confirmation missing summary".to_string())?;
@@ -33,23 +51,16 @@ pub fn handle(action: Action, step: usize, events: &mut Vec<Event>) -> Result<St
             "confirmation pending_tool must be a mutation: {pending_tool}"
         ));
     }
-    tool_registry::require_enabled(&pending_tool)?;
+    tool_registry::require_trainable(&pending_tool)?;
     let pending_action = Action::new(pending_tool.clone(), action.fields());
     ToolCall::from_fields(&pending_action)
         .map_err(|error| format!("confirmation pending operation invalid: {error}"))?;
-    let pending = Pending {
+    Ok(Pending {
         summary: summary.clone(),
         operation,
         pending_tool: pending_tool.clone(),
         fields: action.fields(),
-    };
-    events.push(event(
-        "confirmation_request",
-        serde_json::to_string(&pending).map_err(|error| error.to_string())?,
-        Some(pending_tool),
-        Some(step),
-    ));
-    Ok(summary)
+    })
 }
 
 pub fn pending(events: &[Event]) -> Option<Pending> {

@@ -1,6 +1,8 @@
 use crate::config::Config;
 
-use super::{confirmation, event, memory::MemoryStore, tool_runner, tools, Action, Event};
+use super::{
+    confirmation, event, memory::MemoryStore, tool_registry, tool_runner, tools, Action, Event,
+};
 
 pub async fn respond(
     message: &str,
@@ -22,6 +24,13 @@ pub async fn respond(
                 ))
             }
         };
+        if let Err(error) = tool_registry::require_enabled(call.name(), &config.agent_tool_profile)
+        {
+            return Some(finish(
+                events,
+                format!("Pending operation is disabled: {error}"),
+            ));
+        }
         let result = tool_runner::run(call, config, memory, run_id, 1, events).await;
         events.push(event(
             "observation",

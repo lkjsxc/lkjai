@@ -49,6 +49,7 @@ services:
       DATA_DIR: ${DATA_DIR:-/app/data}
       MODEL_API_URL: ${MODEL_API_URL:-http://inference:8081/v1/chat/completions}
       MODEL_NAME: ${MODEL_NAME:-lkjai-scratch-40m}
+      AGENT_TOOL_PROFILE: ${AGENT_TOOL_PROFILE:-readonly}
       TOOL_WORKSPACE_DIR: ${TOOL_WORKSPACE_DIR:-/app/data/workspace}
       KJXLKJ_API_URL: ${KJXLKJ_API_URL:-http://host.docker.internal:8080}
       KJXLKJ_SESSION_COOKIE: ${KJXLKJ_SESSION_COOKIE:-}

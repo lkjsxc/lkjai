@@ -11,6 +11,7 @@ pub struct Config {
     pub model_temperature: f32,
     pub agent_max_steps: usize,
     pub agent_repair_attempts: usize,
+    pub agent_tool_profile: String,
     pub tool_workspace_dir: PathBuf,
     pub tool_timeout_secs: u64,
     pub tool_output_limit: usize,
@@ -32,6 +33,8 @@ impl Config {
             model_temperature: env_parse("MODEL_TEMPERATURE", 0.2),
             agent_max_steps: env_parse("AGENT_MAX_STEPS", 6),
             agent_repair_attempts: env_parse("AGENT_REPAIR_ATTEMPTS", 1),
+            agent_tool_profile: env::var("AGENT_TOOL_PROFILE")
+                .unwrap_or_else(|_| "readonly".into()),
             tool_workspace_dir: env_path("TOOL_WORKSPACE_DIR", "/app/data/workspace"),
             tool_timeout_secs: env_parse("TOOL_TIMEOUT_SECS", 20),
             tool_output_limit: env_parse("TOOL_OUTPUT_LIMIT", 12_000),
