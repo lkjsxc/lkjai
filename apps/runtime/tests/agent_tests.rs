@@ -24,11 +24,8 @@ fn transcript_round_trips_events() {
 #[tokio::test]
 async fn agent_runs_real_tool_then_finishes() {
     let root = temp_root();
-    let (url, server) = model_server(vec![
-        action("memory.write", &[("content", "user likes concise plans")]),
-        finish("Noted."),
-    ])
-    .await;
+    let (url, server) =
+        model_server(vec![action("fs.list", &[("path", ".")]), finish("Noted.")]).await;
     let config = test_config(&root, &url);
     let agent = Agent::new(config.clone(), ModelClient::from_config(&config));
     let response = agent
@@ -44,7 +41,7 @@ async fn agent_runs_real_tool_then_finishes() {
     assert!(response
         .events
         .iter()
-        .any(|event| event.kind == "memory_write"));
+        .any(|event| event.kind == "tool_result"));
     assert!(response
         .events
         .iter()
@@ -75,9 +72,8 @@ async fn agent_think_is_plan_without_tool_noise() {
 }
 
 #[tokio::test]
-async fn shell_runs_inside_tool_workspace() {
+async fn shell_is_disabled_in_default_profile() {
     let root = temp_root();
-    let workspace = root.join("data/workspace").display().to_string();
     let (url, server) = model_server(vec![
         action("shell.exec", &[("command", "pwd")]),
         finish("done"),
@@ -85,12 +81,12 @@ async fn shell_runs_inside_tool_workspace() {
     .await;
     let config = test_config(&root, &url);
     let agent = Agent::new(config.clone(), ModelClient::from_config(&config));
-    let response = agent.chat(request("where am I?", 2)).await;
-    assert_eq!(response.stop_reason, "finish");
+    let response = agent.chat(request("where am I?", 1)).await;
+    assert_eq!(response.stop_reason, "invalid_action");
     assert!(response
         .events
         .iter()
-        .any(|event| event.kind == "tool_result" && event.content.contains(&workspace)));
+        .any(|event| event.kind == "error" && event.content.contains("disabled")));
     server.abort();
     std::fs::remove_dir_all(root).unwrap();
 }

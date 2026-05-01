@@ -134,15 +134,4 @@ def system_prompt() -> str:
 
 
 def row_schema() -> dict:
-    return {
-        "type": "json_schema",
-        "json_schema": {
-            "name": "lkjai_kimi_rows",
-            "schema": {
-                "type": "object",
-                "properties": {"rows": {"type": "array", "items": {"type": "object"}}},
-                "required": ["rows"],
-                "additionalProperties": False,
-            },
-        },
-    }
+    return {"type": "json_object"}

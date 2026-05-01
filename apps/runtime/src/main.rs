@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand};
 use lkjai::{cli, config::Config, web};
+use std::path::PathBuf;
 use tracing::info;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -21,6 +22,10 @@ enum Command {
         #[command(subcommand)]
         action: QualityCommand,
     },
+    Corpus {
+        #[command(subcommand)]
+        action: CorpusCommand,
+    },
 }
 
 #[derive(Subcommand)]
@@ -35,6 +40,11 @@ enum QualityCommand {
     NoNode,
 }
 
+#[derive(Subcommand)]
+enum CorpusCommand {
+    ValidateActions { paths: Vec<PathBuf> },
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     init_tracing();
@@ -46,6 +56,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Some(Command::Quality { action }) => match action {
             QualityCommand::CheckLines => cli::quality::check_lines()?,
             QualityCommand::NoNode => cli::quality::no_node()?,
+        },
+        Some(Command::Corpus { action }) => match action {
+            CorpusCommand::ValidateActions { paths } => cli::corpus::validate_actions(&paths)?,
         },
         None => {
             let config = Config::from_env();

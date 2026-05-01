@@ -1,14 +1,42 @@
 # Agent Tool Contract
 
+## Default Tool Profile
+
+The default runtime profile is `core`. It exposes only tools with enough
+contract coverage for ordinary agent use.
+
+Enabled by default:
+
+- `fs.read`
+- `fs.list`
+- `memory.search`
+- `resource.search`
+- `resource.fetch`
+- `resource.history`
+- `resource.preview_markdown`
+- `resource.create_note`
+- `resource.create_media`
+- `resource.update_resource`
+- `agent.request_confirmation`
+- `agent.think`
+- `agent.finish`
+
+Disabled by default until coverage gates pass:
+
+- `shell.exec`
+- `web.fetch`
+- `fs.write`
+- `memory.write`
+
 ## Tool Names
 
-- `shell.exec`: run a command inside the data workspace.
-- `web.fetch`: fetch website text.
+- `shell.exec`: run a command inside the data workspace; disabled by default.
+- `web.fetch`: fetch website text; disabled by default.
 - `fs.read`: read a workspace file.
-- `fs.write`: write a workspace file.
+- `fs.write`: write a workspace file; disabled by default.
 - `fs.list`: list a workspace directory.
 - `memory.search`: search durable agent memory.
-- `memory.write`: write durable agent memory.
+- `memory.write`: write durable agent memory; disabled by default.
 - `resource.search`: search `kjxlkj` resources.
 - `resource.fetch`: fetch a `kjxlkj` resource.
 - `resource.history`: fetch `kjxlkj` resource history.
@@ -24,6 +52,7 @@
 
 - The model selects tools by XML action tags.
 - The runtime validates tool names and argument shapes.
+- The runtime rejects tools outside the active profile before execution.
 - Slash commands may remain as debug shortcuts.
 - Ambiguous natural-language requests are resolved by the model loop.
 - The model must call `agent.finish` to return the final answer.
@@ -31,7 +60,7 @@
 
 ## YOLO Policy
 
-- Local filesystem, shell, web, and read-only resource tools run without
+- Local read-only filesystem and read-only resource tools run without
   confirmation.
 - `kjxlkj` mutations require `agent.request_confirmation` and a later user
   confirmation before execution.

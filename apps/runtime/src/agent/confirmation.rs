@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
-use super::{action::Action, event, Event};
+use super::{action::Action, event, tool_registry, tools::ToolCall, Event};
 
 const MUTATIONS: &[&str] = &[
     "resource.create_note",
@@ -33,6 +33,10 @@ pub fn handle(action: Action, step: usize, events: &mut Vec<Event>) -> Result<St
             "confirmation pending_tool must be a mutation: {pending_tool}"
         ));
     }
+    tool_registry::require_enabled(&pending_tool)?;
+    let pending_action = Action::new(pending_tool.clone(), action.fields());
+    ToolCall::from_fields(&pending_action)
+        .map_err(|error| format!("confirmation pending operation invalid: {error}"))?;
     let pending = Pending {
         summary: summary.clone(),
         operation,

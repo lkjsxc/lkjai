@@ -7,8 +7,8 @@ schema.
 
 ## Files
 
-- Canonical system prompt: `prompts/codex-40m-system.txt`
-- Inactive YOLO supplement: `prompts/codex-40m-yolo.txt`
+- Canonical system prompt: `apps/runtime/prompts/codex-40m-system.txt`
+- Inactive YOLO supplement: `apps/runtime/prompts/codex-40m-yolo.txt`
 - Runtime loader: `apps/runtime/src/agent/prompt.rs`
 
 ## Contract
@@ -23,6 +23,8 @@ schema.
   `<tool>agent.request_confirmation</tool>`.
 - The model must not repeat the same failed non-terminal action without new
   information.
+- The default prompt lists only the `core` tool profile. Disabled tools are not
+  prompted and are rejected by runtime if emitted.
 
 ## YOLO
 

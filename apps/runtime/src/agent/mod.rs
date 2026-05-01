@@ -8,6 +8,7 @@ mod prompt;
 mod schema;
 mod tool_fields;
 mod tool_local;
+mod tool_registry;
 mod tool_remote;
 mod tool_runner;
 mod tool_summary;
@@ -24,6 +25,18 @@ use action::Action;
 use memory::MemoryStore;
 pub use schema::{event, filter_events, response, ChatRequest, ChatResponse, Event};
 pub use transcript::TranscriptStore;
+
+pub fn validate_action_text(text: &str) -> Result<String, String> {
+    let action = action::parse(text)?;
+    tool_registry::require_enabled(&action.tool)?;
+    if action.tool == "agent.request_confirmation" {
+        let mut events = Vec::new();
+        confirmation::handle(action, 1, &mut events)?;
+        return Ok("agent.request_confirmation".into());
+    }
+    let call = tools::ToolCall::from_fields(&action)?;
+    Ok(call.name().into())
+}
 
 #[derive(Clone)]
 pub struct Agent {
@@ -76,6 +89,7 @@ impl Agent {
         events: &mut Vec<Event>,
     ) -> Result<(), String> {
         let tool = action.tool.clone();
+        tool_registry::require_enabled(&tool)?;
         let call = tools::ToolCall::from_fields(&action)?;
         let result = tool_runner::run(call, &self.config, &self.memory, run_id, step, events).await;
         events.push(event("observation", result, Some(tool), Some(step)));
