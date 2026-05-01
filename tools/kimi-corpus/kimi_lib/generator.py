@@ -101,7 +101,15 @@ class CorpusGenerator:
         path = self.output_dir / mode / split / f"shard_{shard_id:06d}.jsonl"
         if path.exists() and self.args.resume:
             return path
-        prompt, retries = render_prompt(self.config, mode, int(self.config.get("batch_documents", 12)), sample), 0
+        prompt = render_prompt(self.config, mode, int(self.config.get("batch_documents", 12)), sample)
+        prompt += (
+            f"\nShard diversity seed: {shard_id:06d}.\n"
+            "Use this seed in scenario_family_id values. Do not reuse canonical "
+            "example wording from earlier shards. Vary nouns, paths, resource "
+            "aliases, intents, and failure situations while staying inside the "
+            "approved tool contract.\n"
+        )
+        retries = 0
         for attempt in range(int(self.config.get("max_retries", 2)) + 1):
             retries = attempt
             result = self.kimi.invoke(prompt, f"{mode}-{shard_id:06d}-try{attempt}", int(self.config.get("timeout_seconds", 240)), 0)

@@ -20,7 +20,8 @@ For each row:
 Required meta fields:
 - template_family: one of direct_finish, read_only_retrieval,
   mutation_confirmation, failure_safety_recovery
-- scenario_family_id: unique short slug
+- scenario_family_id: unique short slug that includes the shard seed when
+  provided
 - intent: short intent label
 - tool_sequence: one of:
   - ["agent.finish"]
@@ -48,4 +49,6 @@ Batch:
 - domains: {{DOMAIN_PLAN}}
 
 Balance the batch across the four template families. Make user requests
-specific, short, and grounded in lkjai workspace/resource tasks.
+specific, short, and grounded in lkjai workspace/resource tasks. Avoid repeated
+generic requests such as simply listing the root, reading README.md, or saying
+hello unless the shard seed makes the row meaningfully distinct.
