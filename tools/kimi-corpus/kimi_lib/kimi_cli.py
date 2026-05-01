@@ -33,14 +33,16 @@ class KimiRunner:
         prompt_path = self.logs_dir / f"{call_id}.prompt.txt"
         stdout_path = self.logs_dir / f"{call_id}.stdout.log"
         stderr_path = self.logs_dir / f"{call_id}.stderr.log"
+        work_dir = (self.logs_dir / f"{call_id}.work").resolve()
+        work_dir.mkdir(parents=True, exist_ok=True)
         prompt_path.write_text(prompt, encoding="utf-8")
         for attempt in range(max_retries + 1):
             started = time.perf_counter()
-            command, stdin = self.command(prompt)
+            command, stdin = self.command(prompt, work_dir)
             with stdout_path.open("w", encoding="utf-8") as out, stderr_path.open("w", encoding="utf-8") as err:
                 proc = None
                 try:
-                    proc = subprocess.Popen(command, cwd=Path.cwd(), stdin=subprocess.PIPE if stdin is not None else None, text=True, stdout=out, stderr=err, start_new_session=True)
+                    proc = subprocess.Popen(command, cwd=work_dir, stdin=subprocess.PIPE if stdin is not None else None, text=True, stdout=out, stderr=err, start_new_session=True)
                     proc.communicate(input=stdin, timeout=timeout_seconds)
                     returncode = proc.returncode
                 except subprocess.TimeoutExpired:
@@ -48,14 +50,15 @@ class KimiRunner:
                         terminate_group(proc)
                     err.write(f"kimi invocation timed out after {timeout_seconds} seconds\n")
                     returncode = 75
+            self.harvest_written_json(work_dir, stdout_path)
             result = KimiResult(returncode, stdout_path, stderr_path, self.variant, time.perf_counter() - started)
             if returncode == 0 or not is_transient_result(result) or attempt >= max_retries:
                 return result
             time.sleep(2**attempt)
         return KimiResult(1, stdout_path, stderr_path, self.variant, 0.0)
 
-    def command(self, prompt: str) -> tuple[list[str], str | None]:
-        base = [self.executable, "--no-thinking"]
+    def command(self, prompt: str, work_dir: Path) -> tuple[list[str], str | None]:
+        base = [self.executable, "--no-thinking", "--work-dir", str(work_dir)]
         if self.variant == "stream_json_prompt":
             return base + ["--print", "--output-format", "stream-json", "-p", prompt], None
         if self.variant == "quiet_prompt":
@@ -63,6 +66,17 @@ class KimiRunner:
         if self.variant == "print_final_prompt":
             return base + ["--print", "--output-format", "text", "--final-message-only", "-p", prompt], None
         return base + ["--print", "--output-format", "stream-json"], prompt
+
+    def harvest_written_json(self, work_dir: Path, stdout_path: Path) -> None:
+        current = stdout_path.read_text(encoding="utf-8", errors="replace")
+        if current.strip():
+            return
+        chunks = []
+        for path in sorted(work_dir.rglob("*")):
+            if path.is_file() and path.suffix.lower() in {".json", ".jsonl"}:
+                chunks.append(path.read_text(encoding="utf-8", errors="replace"))
+        if chunks:
+            stdout_path.write_text("\n".join(chunks) + "\n", encoding="utf-8")
 
 
 def discover_kimi() -> str:
