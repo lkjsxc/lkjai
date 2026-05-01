@@ -78,10 +78,10 @@ def kimi_help(executable: str) -> str:
 
 
 def choose_variant(help_text: str) -> str:
-    if "stream-js" in help_text and "-p" in help_text:
-        return "stream_json_prompt"
     if "--quiet" in help_text and "-p" in help_text:
         return "quiet_prompt"
+    if "stream-js" in help_text and "-p" in help_text:
+        return "stream_json_prompt"
     if "--print" in help_text and "--final-message" in help_text and "-p" in help_text:
         return "print_final_prompt"
     return "stdin_print_final"

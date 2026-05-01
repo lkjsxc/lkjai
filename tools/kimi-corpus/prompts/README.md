@@ -13,6 +13,7 @@ rows for local validation.
   prompt.
 - [sft_api-v1.txt](sft_api-v1.txt): historical API SFT prompt.
 - [sft_api-v2.txt](sft_api-v2.txt): current API SFT prompt.
+- [sft_code-v1.txt](sft_code-v1.txt): compact Kimi Code CLI SFT prompt.
 - [sft_v1.txt](sft_v1.txt): historical CLI SFT prompt.
 - [sft_v2.txt](sft_v2.txt): current CLI SFT prompt.
 
