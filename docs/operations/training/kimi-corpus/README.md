@@ -30,7 +30,8 @@ same runtime validator and fixture gates as the full corpus.
 - Keep raw request metadata and redacted response logs under
   `runs/kimi_corpus/logs/`.
 - Load API keys from `MOONSHOT_API_KEY`, `MOONSHOT_API_KEYS`, or an explicit
-  local key file such as `/home/lkjsxc/password.md`.
+  local key file such as
+  `/home/lkjsxc/private/archived/security/password.md`.
 - Treat every discovered key as usable in parallel and redact keys from all
   logs, manifests, and reports.
 - Generate English rows only.

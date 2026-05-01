@@ -19,12 +19,13 @@ schema.
 - Simple greetings, thanks, and ordinary questions should finish directly with
   `<tool>agent.finish</tool>`.
 - Multi-step work may use `<tool>agent.think</tool>` for a visible plan.
-- Any `kjxlkj` mutation must first use
+- The default `readonly` profile does not expose mutation tools.
+- When `AGENT_TOOL_PROFILE=mutable`, any `kjxlkj` mutation must first use
   `<tool>agent.request_confirmation</tool>`.
 - The model must not repeat the same failed non-terminal action without new
   information.
-- The default prompt lists only the `core` tool profile. Disabled tools are not
-  prompted and are rejected by runtime if emitted.
+- The default prompt lists only tools available to the active runtime profile.
+  Disabled tools are not prompted and are rejected by runtime if emitted.
 
 ## YOLO
 

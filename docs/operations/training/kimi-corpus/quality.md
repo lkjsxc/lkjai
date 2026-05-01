@@ -15,6 +15,9 @@
   `gold_stop_reason`.
 - Resource mutation rows contain `agent.request_confirmation` before
   `resource.create_note`, `resource.create_media`, or `resource.update_resource`.
+- `agent.request_confirmation` rows may include replay fields required by the
+  pending mutation tool; validators must check those fields against
+  `pending_tool`, not reject them as unknown confirmation fields.
 - Scenario families and near-duplicate clusters stay inside one split.
 - Duplicate and near-duplicate rates stay low.
 - Repetition, boilerplate, wrapper leakage, unsafe operational text, and API log

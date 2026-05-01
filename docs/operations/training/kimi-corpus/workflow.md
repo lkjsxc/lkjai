@@ -11,7 +11,9 @@
 7. Regenerate a second sample.
 8. Score the second sample.
 9. Generate the 1M-token pilot only after sample quality is acceptable.
-10. Launch the full long run only after pilot quality is acceptable.
+10. Promote the 1M pilot only after scoring, split-leakage, duplicate,
+    disabled-tool, and fixture gates pass.
+11. Launch the full long run only after pilot quality is acceptable.
 
 ## Prompt Refinement
 

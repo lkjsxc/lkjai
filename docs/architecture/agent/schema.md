@@ -56,6 +56,10 @@ transcript. A later explicit user confirmation executes that exact pending
 operation without asking the model to reconstruct it. A cancellation or topic
 change clears the pending mutation without execution.
 
+`agent.request_confirmation` is available only when
+`AGENT_TOOL_PROFILE=mutable`. The default `readonly` profile rejects
+confirmation and mutation tools before execution.
+
 ## Event Kinds
 
 - `user`

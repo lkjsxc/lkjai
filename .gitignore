@@ -38,6 +38,7 @@ target/
 /tmp/
 /data/*
 !/data/.gitkeep
+!/data/README.md
 /runs/*
 !/runs/.gitkeep
 artifacts/*

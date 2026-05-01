@@ -27,7 +27,7 @@ python3 tools/kimi-corpus/generate_kimi_corpus.py \
 python3 tools/kimi-corpus/generate_kimi_corpus.py \
   --config configs/corpus/kimi_debug.yaml \
   --api-provider kimi-api \
-  --api-key-file /home/lkjsxc/password.md \
+  --api-key-file /home/lkjsxc/private/archived/security/password.md \
   --target-tokens 50000 \
   --mode sft \
   --parallelism 4 \
@@ -62,7 +62,7 @@ python3 tools/kimi-corpus/score_corpus.py \
 python3 tools/kimi-corpus/generate_kimi_corpus.py \
   --config configs/corpus/kimi_sft_60m.yaml \
   --api-provider kimi-api \
-  --api-key-file /home/lkjsxc/password.md \
+  --api-key-file /home/lkjsxc/private/archived/security/password.md \
   --target-tokens 1000000 \
   --mode sft \
   --parallelism 8 \

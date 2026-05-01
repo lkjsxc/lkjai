@@ -93,7 +93,8 @@ is not accepted for chat, even when fixed artifact checks pass.
 - Datasets: `data/train/datasets`
 - Active full corpus: `data/public-corpus`
 - Active first-party SFT corpus: `corpus/generated/kimi-sft-60m-v2` after it
-  reaches `60000000` validated tokens. No v1 Kimi corpus is active.
+  reaches `60000000` validated tokens. A promoted 1M-token v2 pilot is the
+  required intermediate gate. No v1 Kimi corpus is active.
 - Tokenizer: `data/train/tokenizer`
 - Checkpoints: `data/train/checkpoints`
 - Native exports: `data/models/lkjai-scratch-40m`

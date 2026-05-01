@@ -7,9 +7,13 @@
 - Shell, Python, Rust, CSS, JavaScript, TOML, and Markdown source files are
   checked unless explicitly excluded.
 
-## Docs Topology
+## README Topology
 
-- Every docs directory has exactly one `README.md`.
+- Every durable tracked directory has exactly one `README.md`.
+- Each `README.md` acts as the local table of contents for LLM agents.
+- Durable source directories list immediate source files and child directories.
+- Generated shard leaves, caches, and ignored runtime output directories are
+  excluded from topology checks.
 - Every docs directory has at least two children besides `README.md`.
 - Parent TOCs must link immediate children.
 

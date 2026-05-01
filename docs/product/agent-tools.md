@@ -2,11 +2,13 @@
 
 ## Default Tool Profile
 
-The default runtime profile is `core`. It exposes only tools with enough
-contract coverage for ordinary agent use.
+The default runtime profile is `readonly`. It exposes only tools that can run
+without changing project, memory, or `kjxlkj` state.
 
 Enabled by default:
 
+- `agent.think`
+- `agent.finish`
 - `fs.read`
 - `fs.list`
 - `memory.search`
@@ -14,19 +16,24 @@ Enabled by default:
 - `resource.fetch`
 - `resource.history`
 - `resource.preview_markdown`
+
+Disabled in the readonly profile:
+
+- `agent.request_confirmation`
 - `resource.create_note`
 - `resource.create_media`
 - `resource.update_resource`
-- `agent.request_confirmation`
-- `agent.think`
-- `agent.finish`
 
-Disabled by default until coverage gates pass:
+Disabled in all active profiles until coverage gates pass:
 
 - `shell.exec`
 - `web.fetch`
 - `fs.write`
 - `memory.write`
+
+Set `AGENT_TOOL_PROFILE=mutable` to expose confirmation and confirmed
+`kjxlkj` mutation tools. The mutable profile still requires
+`agent.request_confirmation` before execution.
 
 ## Tool Names
 
@@ -41,10 +48,14 @@ Disabled by default until coverage gates pass:
 - `resource.fetch`: fetch a `kjxlkj` resource.
 - `resource.history`: fetch `kjxlkj` resource history.
 - `resource.preview_markdown`: preview a `kjxlkj` markdown mutation.
-- `resource.create_note`: create a `kjxlkj` note after confirmation.
-- `resource.create_media`: create a `kjxlkj` media resource after confirmation.
-- `resource.update_resource`: update a `kjxlkj` resource after confirmation.
-- `agent.request_confirmation`: stop and ask before a `kjxlkj` mutation.
+- `resource.create_note`: create a `kjxlkj` note after confirmation; mutable
+  profile only.
+- `resource.create_media`: create a `kjxlkj` media resource after confirmation;
+  mutable profile only.
+- `resource.update_resource`: update a `kjxlkj` resource after confirmation;
+  mutable profile only.
+- `agent.request_confirmation`: stop and ask before a `kjxlkj` mutation;
+  mutable profile only.
 - `agent.think`: record a non-terminating visible plan.
 - `agent.finish`: terminate successfully with the user-facing answer.
 
@@ -52,7 +63,7 @@ Disabled by default until coverage gates pass:
 
 - The model selects tools by XML action tags.
 - The runtime validates tool names and argument shapes.
-- The runtime rejects tools outside the active profile before execution.
+- The runtime rejects tools outside `AGENT_TOOL_PROFILE` before execution.
 - Slash commands may remain as debug shortcuts.
 - Ambiguous natural-language requests are resolved by the model loop.
 - The model must call `agent.finish` to return the final answer.
@@ -62,8 +73,8 @@ Disabled by default until coverage gates pass:
 
 - Local read-only filesystem and read-only resource tools run without
   confirmation.
-- `kjxlkj` mutations require `agent.request_confirmation` and a later user
-  confirmation before execution.
+- `kjxlkj` mutations require `AGENT_TOOL_PROFILE=mutable`,
+  `agent.request_confirmation`, and a later user confirmation before execution.
 - Command execution is not sandboxed by the application.
 - File and shell tools are bounded to `TOOL_WORKSPACE_DIR`.
 - The container must not mount host `/` for agent tools.
