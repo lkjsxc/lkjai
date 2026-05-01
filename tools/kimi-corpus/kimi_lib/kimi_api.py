@@ -87,7 +87,7 @@ class KimiApiRunner:
         request = urllib.request.Request(
             self.base_url + path,
             data=json.dumps(body).encode("utf-8"),
-            headers={"authorization": f"Bearer {key}", "content-type": "application/json"},
+            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
             method="POST",
         )
         try:

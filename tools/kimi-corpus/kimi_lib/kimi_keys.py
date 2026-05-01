@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 
 
-KEY_RE = re.compile(r"sk-[A-Za-z0-9_-]{20,}|[A-Za-z0-9_-]{32,}")
+KEY_RE = re.compile(r"sk-[A-Za-z0-9_.-]{20,}")
 
 
 def load_api_keys(path: str = "") -> list[str]:
