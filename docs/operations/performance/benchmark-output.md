@@ -13,6 +13,7 @@ The report includes:
 
 - `schema_version`
 - `trainer_mode`
+- `model_kind`
 - `precision_mode`
 - `master_dtype`
 - `shadow_dtype`
@@ -27,6 +28,9 @@ The report includes:
 - `config_digest`
 - `dataset_path`
 - `dataset_digest`
+- transformer shape fields when `model_kind=transformer`: `layers`, `heads`,
+  `kv_heads`, `hidden_size`, `head_dim`, `ffn_size`, and `context`
+- `parameter_count`
 - `optimizer_steps`
 - `microsteps`
 - `tokens_seen`
@@ -46,6 +50,7 @@ Each summary includes:
 
 - `schema_version`
 - `trainer_mode`
+- `model_kind`
 - `optimizer_steps`
 - `microsteps`
 - `tokens_seen`

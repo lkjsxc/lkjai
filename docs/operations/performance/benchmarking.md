@@ -9,7 +9,8 @@ Every performance run records:
 - GPU name and compute capability,
 - driver, CUDA, cuDNN, and native build versions,
 - training preset and JSON config path,
-- batch size, gradient accumulation, launch mode, and current trainer mode,
+- batch size, gradient accumulation, launch mode, current trainer mode, and
+  `model_kind`,
 - median optimizer-step seconds from `train-report.json`,
 - median input tokens/sec,
 - loader wait, H2D, forward, backward, and optimizer timing.
@@ -35,10 +36,15 @@ The current bounded matrix uses supported native trainer modes only:
 - `lkjai-native-train --smoke --steps N` for reproducible dense CUDA smoke.
 - Bounded `lkjai-native-train --train` packed-cache cases when a matching
   packed cache is present.
+- Bounded `lkjai-native-train --train --mode transformer` cases only when the
+  emitted `train-report.json` declares `model_kind=transformer` and includes
+  transformer timing and checksum fields.
 - Batch size and gradient accumulation values that the native trainer reports.
 
 Benchmark tooling consumes `DATA_DIR/runs/train-report.json` or the stdout JSON
-with the same schema. It does not require or parse `perf-steps.jsonl`.
+with the same schema. It aggregates transformer-specific timing and checksum
+fields only from emitted reports. It does not require or parse
+`perf-steps.jsonl`.
 
 Attention backend, FP16/AMP, activation checkpoint, and CUDA Graph sweeps are
 roadmap benchmarks after those switches are implemented in the native trainer.
