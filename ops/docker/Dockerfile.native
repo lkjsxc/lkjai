@@ -24,6 +24,7 @@ RUN apt-get update \
 COPY --from=build /build/lkjai-native-server /usr/local/bin/lkjai-native-server
 COPY --from=build /build/lkjai-native-train /usr/local/bin/lkjai-native-train
 COPY --from=build /build/lkjai-native-inspect /usr/local/bin/lkjai-native-inspect
+COPY --from=build /build/lkjai-native-infer /usr/local/bin/lkjai-native-infer
 COPY --from=build /build/lkjai-native-dense-check /usr/local/bin/lkjai-native-dense-check
 COPY --from=build /build/lkjai-native-device-check /usr/local/bin/lkjai-native-device-check
 COPY --from=build /build/lkjai-native-logits-check /usr/local/bin/lkjai-native-logits-check
