@@ -15,6 +15,7 @@ trajectory supervision, CUDA behavior, and export behavior.
 - [tokenizer.md](tokenizer.md): atomic XML-like tag tokenizer contract
 - [source-corpus.md](source-corpus.md): editable JSON source-entry contract
 - [pipeline.md](pipeline.md): tokenizer, scratch training, eval, and export pipeline
+- [packed-cache.md](packed-cache.md): `uint16` token cache format and loader rules
 - [cuda.md](cuda.md): GPU-first training behavior
 - [dataset.md](dataset.md): dataset schema, generation, and validation
 - [evaluation.md](evaluation.md): fixed eval and competency gate contract

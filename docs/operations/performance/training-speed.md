@@ -23,7 +23,8 @@ marked as a separate preset.
   `2.5.1+cu124`.
 - Prior long SFT run recorded about `37695` input tokens/sec.
 - Prior short matrix showed `torch.compile` post-warm as the strongest
-  measured direction.
+  measured direction in the historical PyTorch path. Native work treats that as
+  background data, not a product optimization knob.
 
 ## Current Speed Smoke
 
@@ -41,7 +42,7 @@ marked as a separate preset.
 2. Use the native CUDA image for this project.
 3. Prefer library attention paths before custom kernels.
 4. Rebuild packed caches as `uint16` because the vocabulary fits in 13 bits.
-5. Sweep batch size, checkpointing, AMP, compile mode, and attention backend.
+5. Sweep batch size, checkpointing, AMP, launch mode, and attention backend.
 6. Promote the fastest stable setting into the committed training config.
 7. Run the full training pipeline in a fresh data directory.
 
@@ -50,8 +51,8 @@ marked as a separate preset.
 - Packed cache format: `lkjai-packed-cache-v2`.
 - Packed token dtype: `uint16`.
 - Default real loader candidate: batch-oriented mapped cache loading.
-- Default compile mode for non-quick CUDA runs: `reduce-overhead`, unless the
-  benchmark matrix selects a faster stable option.
+- Default native launch mode: plain launches until graph replay is measured for
+  stable buckets.
 - BF16 remains preferred when CUDA reports support.
 - Serving decode reuses preallocated KV cache storage; training speed remains
   the first-order objective.

@@ -39,6 +39,8 @@
 - Product Python training and inference are removed in favor of native
   C++/CUDA binaries.
 - Native model artifacts use `lkjai-native-artifact-v1` flat binary weights.
+- Native serving failures are surfaced as non-success responses, not valid
+  fallback XML actions.
 
 ## Rationale
 

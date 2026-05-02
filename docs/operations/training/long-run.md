@@ -64,9 +64,7 @@ Run one measurable long training job for the 3070-first 40M scratch model.
 - `TRAIN_VALIDATION_BATCHES`: default `8`
 - `TRAIN_RESUME`: `auto`, `never`, or `required`
 - `TRAIN_AMP`: `auto`, `bf16`, or `fp16`
-- `TRAIN_COMPILE`: `off`, `auto`, `default`, `reduce-overhead`,
-  `max-autotune`, or `max-autotune-no-cudagraphs`; default `auto`
-- `TRAIN_COMPILE_WARMUP_MICROSTEPS`: default `2`
+- `TRAIN_LAUNCH_MODE`: `plain` or `cuda_graph`; default `plain`
 - `TRAIN_STATIC_SHAPES`: default `true`
 - `TRAIN_ACTIVATION_CHECKPOINT`: `off`, `all`, or `every_n`; default `off`
 - `TRAIN_ACTIVATION_CHECKPOINT_EVERY_N`: default `2`
@@ -94,7 +92,9 @@ Run one measurable long training job for the 3070-first 40M scratch model.
 - `data/train/datasets/metadata.json`
 - `data/train/tokenizer/manifest.json`
 - `data/train/checkpoints/manifest.json`
-- `data/train/checkpoints/latest/model.pt`
+- `data/train/checkpoints/latest/manifest.json`
+- `data/train/checkpoints/latest/weights.index.json`
+- `data/train/checkpoints/latest/weights.lkjw`
 - `data/train/exports/manifest.json`
 - `data/train/runs/fixed-eval.json`
 - `data/train/runs/behavioral-eval.json`

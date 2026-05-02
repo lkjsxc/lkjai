@@ -22,13 +22,16 @@ evaluation.
 
 ## Runtime Rules
 
-- Required files: `manifest.json`, `config.json`, `tokenizer.json`, `model.pt`.
+- Required files: `manifest.json`, `config.json`, `tokenizer.json`,
+  `weights.index.json`, and `weights.lkjw`.
 - Serving loads the exported checkpoint and generates tokens directly.
 - Decode must reuse preallocated KV cache storage across generated tokens.
 - Stop detection uses tokenizer ids for canonical XML tags and decodes text
   once after generation.
 - No supervised action index, prompt lookup table, or policy-file fallback is
   allowed in the accepted runtime path.
+- If decode cannot produce one complete `</action>`, the server returns a
+  non-success response instead of wrapping the failure in a valid action.
 - Adapter seams are allowed for future backends, but the 3070-first backend is
   the native path.
 

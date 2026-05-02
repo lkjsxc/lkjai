@@ -9,7 +9,7 @@ Every performance run records:
 - GPU name and compute capability,
 - driver, CUDA, cuDNN, and native build versions,
 - training preset and JSON config path,
-- batch size, gradient accumulation, AMP, compile mode, attention backend,
+- batch size, gradient accumulation, AMP, launch mode, attention backend,
 - median and p95 microstep seconds,
 - median input tokens/sec,
 - loader wait, H2D, forward, backward, and optimizer timing.
@@ -31,12 +31,13 @@ outside `artifacts/`.
 
 The bounded matrix must include at least:
 
-- `sdpa`, `sdpa_flash`, and `auto` attention backends,
+- `auto`, `library`, and `custom_decode` attention backends when implemented,
 - BF16, FP16, and AMP off,
-- compile off, `reduce-overhead`, and `max-autotune-no-cudagraphs`,
+- plain launches and CUDA Graph replay for stable native buckets,
 - activation checkpoint off and every-n,
 - batch sizes that fit the active GPU,
-- legacy, mapped, and batch-mapped data loading.
+- JSONL scaffold loading and packed-cache loading until JSONL leaves the train
+  path.
 
 ## Full-Run Rule
 

@@ -71,17 +71,16 @@ docker compose --profile train run --rm \
   -e TRAIN_MAX_OPTIMIZER_STEPS=1 \
   -e TRAIN_MAX_STEPS=1 \
   -e TRAIN_RESUME=never \
-  -e TRAIN_COMPILE=off \
-  train train-scratch --preset agent
+  train --train
 ```
 
 Expected training artifacts:
 
 - `data/train/tokenizer/`: local byte-level BPE tokenizer.
-- `data/train/checkpoints/final/`: scratch model weights and config.
+- `data/train/checkpoints/final/`: native artifact checkpoint.
 - `data/train/runs/fixed-eval.json`: evaluation report.
 - `data/train/runs/behavioral-eval.json`: generated response competency report.
-- `data/train/exports/manifest.json`: serving metadata.
+- `data/train/exports/lkjai-scratch-40m/`: serving artifact export.
 
 ## Inspect Runtime Outputs
 
