@@ -25,8 +25,11 @@ native artifact, runtime, and verification boundaries stable.
 - Embeddings, QKV/O projections, MLP projections, norms, and LM head are native
   tensors in `weights.lkjw`.
 - QKV, output, and FFN projections use cuBLASLt first in the CUDA path.
-- Attention uses a correctness-first causal GQA fallback in this slice.
-- cuDNN SDPA is future work until cudnn-frontend headers are available.
+- Attention uses cuDNN SDPA when the frontend headers, runtime, dtype, compute
+  capability, head dimension, and mask mode are eligible.
+- A correctness-first causal GQA fallback is allowed only until cuDNN SDPA is
+  wired for the active shape.
+- The active `head_dim=72` is BF16 SDPA-eligible because it is a multiple of `8`.
 
 ## Training State
 
@@ -44,9 +47,11 @@ The transformer path is accepted only when all of these are true:
 - Packed-cache training consumes `lkjai-packed-cache-v2`.
 - `lkjai-native-logits-check` validates finite `[1,V]` logits from an exported
   artifact.
-- Native server loads the artifact and returns explicit unsupported-decode for
-  chat until the autoregressive decode slice.
+- Native server loads the artifact. Until decode lands, chat returns explicit
+  unsupported-decode JSON for transformer artifacts.
 - GPU-required Compose verify passes on the native transformer smoke.
+- Capability JSON reports device CC, BF16 support, cuBLASLt, cuDNN, and SDPA
+  eligibility.
 
 ## Non-Goals
 

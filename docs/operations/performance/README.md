@@ -17,6 +17,8 @@ This subtree is the canonical performance contract for `lkjai`.
 - [profiling.md](profiling.md): Nsight and NVTX protocol for native work.
 - [kernel-roadmap.md](kernel-roadmap.md): library, compiler, Triton, and CUDA
   escalation order.
+- [validation.md](validation.md): numerical, resume, and server acceptance
+  matrix for CUDA work.
 
 ## Active Priority
 

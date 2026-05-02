@@ -3,10 +3,11 @@
 ## Escalation Order
 
 1. cuBLASLt for dense projections.
-2. cuDNN graph or CUTLASS paths for stable fused patterns.
-3. Custom CUDA for measured cache, decode, sampler, and fusion hotspots.
-4. CUDA Graph replay for stable decode and train buckets.
-5. NCCL only after single-GPU native acceptance passes.
+2. cuDNN frontend SDPA for eligible attention shapes.
+3. CUTLASS paths for exact-shape fused patterns only after measurement.
+4. Custom CUDA for measured cache, decode, sampler, and fusion hotspots.
+5. CUDA Graph replay for stable decode and train buckets.
+6. NCCL only after single-GPU native acceptance passes.
 
 ## Library Rules
 
@@ -14,6 +15,8 @@
   unavailable or wrong for the shape.
 - Prefer cuBLASLt, cuDNN, and CUTLASS for standard dense math.
 - Keep native CPU/reference checks for correctness, not product execution.
+- A custom attention kernel is not accepted until cuDNN SDPA parity and timing
+  have been measured for the active GQA shape.
 
 ## Triton Entry Points
 

@@ -33,6 +33,8 @@ the product path.
 - A native artifact inspect command must validate all index offsets and shapes.
 - Training reports finite loss, `transformer_path=true`, phase timings, a
   logits checksum, and `non_embedding_weight_changed=true`.
+- Capability reporting must show whether the run used CUDA, native BF16,
+  cuBLASLt, cuDNN, and SDPA-eligible shapes.
 
 ## Current Implementations
 
@@ -50,8 +52,8 @@ the product path.
 - `lkjai-native-packed-cache --migrate-v1-to-v2` wraps compatible v1 binary
   cache files as v2 after validating metadata, token width, masks, starts, vocab,
   and context compatibility.
-- cuDNN SDPA integration remains future work until cudnn-frontend headers are
-  available in the native build image.
+- cuDNN SDPA integration is the preferred attention path after the device
+  substrate and capability probe are in place.
 
 ## Deadline Runs
 

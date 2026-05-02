@@ -25,6 +25,17 @@ Serve the scratch model through one native C++/CUDA HTTP process.
 - The smoke artifact is a transformer artifact with named tensors. It is a
   numerics and artifact gate, not a behavioral competency artifact.
 
+## Decode Target
+
+The accepted transformer decode slice must provide:
+
+- prefill from prompt tokens,
+- contiguous KV cache for the first implementation,
+- zero steady-state device allocations per generated token,
+- on-device temperature, top-k/top-p, and argmax or multinomial sampling,
+- stop-token and `</action>` completion detection,
+- paged KV cache only after continuous batching is introduced.
+
 ## Environment
 
 - `INFERENCE_HOST=0.0.0.0`

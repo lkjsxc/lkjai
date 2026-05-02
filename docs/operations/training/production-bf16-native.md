@@ -69,6 +69,10 @@ The native CTest suite checks CUDA BF16 capability, packed-cache consumption,
 finite loss, backward and AdamW weight changes, checkpoint resume, artifact
 inspection, runtime loading, cache migration, and finite logits checksum.
 
+The dense CUDA check must emit capability JSON with device name, compute
+capability, BF16 support, cuBLASLt availability, cuDNN availability, and SDPA
+eligibility for the active BF16 GQA shape.
+
 ## Manual 40M Smoke
 
 Do not add this to routine verification:
@@ -85,5 +89,5 @@ lkjai-native-train --train \
 
 ## Limitations
 
-Autoregressive chat/KV decode is not part of this slice. cuDNN SDPA remains
-deferred until cudnn-frontend headers are available in the native image.
+Autoregressive chat/KV decode is not part of this slice. cuDNN SDPA is the next
+attention target after the reusable device substrate and capability probe.
