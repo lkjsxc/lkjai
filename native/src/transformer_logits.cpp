@@ -45,6 +45,7 @@ bool transformer_logits_check(const std::filesystem::path& model_dir,
   }
   *json = "{\"status\":\"pass\",\"shape\":[1," +
           std::to_string(state.cfg.vocab_size) + "],\"finite\":true,"
+          "\"validation_target\":\"exported_bf16_weights\","
           "\"checksum\":\"" + checksum_logits(fwd.next_logits) + "\"}";
   return true;
 }

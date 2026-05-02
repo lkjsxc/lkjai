@@ -73,6 +73,8 @@ def run_train(train_bin: str, root: Path, repo: Path, steps: int, extra=None):
     assert persisted["cuda_probe_passed"] is True
     assert persisted["logits_check"]["validation_target"] == "exported_bf16_weights"
     assert persisted["logits_check"]["status"] == "pass"
+    assert persisted["logits_check"]["reference_check"] == "pass"
+    assert persisted["logits_check"]["max_abs_diff"] <= persisted["logits_check"]["tolerance"]
     return payload
 
 
@@ -152,7 +154,26 @@ def main():
     payload = json.loads(result.stdout)
     assert payload["finite"] is True, result.stdout
     assert payload["shape"] == [1, 256], result.stdout
+    assert payload["reference_check"] == "not_requested", result.stdout
     first_logits_checksum = payload["checksum"]
+    result = subprocess.run(
+        [
+            logits_bin,
+            "--model-dir",
+            str(artifact),
+            "--tokens",
+            "1,2,3",
+            "--reference-checkpoint",
+            str(root / "checkpoints" / "latest"),
+        ],
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    ref_payload = json.loads(result.stdout)
+    assert ref_payload["reference_check"] == "pass", result.stdout
+    assert ref_payload["max_abs_diff"] <= ref_payload["tolerance"], result.stdout
+    assert ref_payload["mean_abs_diff"] <= ref_payload["tolerance"], result.stdout
     result = subprocess.run(
         [logits_bin, "--model-dir", str(artifact), "--tokens", "1,2,3"],
         text=True, capture_output=True, check=True)

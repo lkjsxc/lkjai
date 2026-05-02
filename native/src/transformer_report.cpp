@@ -142,11 +142,11 @@ void append_transformer(std::ostringstream* out,
        << "\",\"served_path\":\"" << json_escape(report.served_dir.string())
        << "\",\"logits_checksum\":\""
        << json_escape(report.logits_check_checksum) << "\""
-       << ",\"logits_check\":{\"status\":\""
-       << (report.logits_check_passed ? "pass" : "fail")
-       << "\",\"validation_target\":\"exported_bf16_weights\""
-       << ",\"checksum\":\"" << json_escape(report.logits_check_checksum)
-       << "\"}"
+       << ",\"logits_check\":"
+       << (report.logits_check_json.empty()
+               ? "{\"status\":\"fail\",\"validation_target\":"
+                 "\"exported_bf16_weights\",\"checksum\":\"\"}"
+               : report.logits_check_json)
        << ",\"timings\":{\"batch_load\":" << report.batch_load_seconds
        << ",\"h2d\":" << report.h2d_seconds
        << ",\"forward\":" << report.forward_seconds

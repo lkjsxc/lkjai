@@ -151,14 +151,15 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
     std::string logits_json;
     std::string logits_error;
     report->logits_check_passed =
-        dense_cuda_logits_check(report->export_dir, "1,2,3", &logits_json,
-                                &logits_error);
+        dense_cuda_logits_check_against_checkpoint(
+            report->export_dir, report->checkpoint_dir, "1,2,3", &logits_json,
+            &logits_error);
     report->logits_check_json = logits_json;
     report->logits_check_checksum =
         report->logits_check_passed ? json_first_string(logits_json, "checksum")
                                     : "";
     if (!report->logits_check_passed) {
-      *error = "exported BF16 logits check failed: " + logits_error;
+      *error = "exported BF16 logits reference check failed: " + logits_error;
       return false;
     }
     report->elapsed_seconds = dense_seconds_since(started);

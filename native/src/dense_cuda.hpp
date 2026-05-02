@@ -35,5 +35,9 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
 bool dense_cuda_logits_check(const std::filesystem::path& model_dir,
                              const std::string& token_csv, std::string* json,
                              std::string* error);
+bool dense_cuda_logits_check_against_checkpoint(
+    const std::filesystem::path& model_dir,
+    const std::filesystem::path& reference_checkpoint,
+    const std::string& token_csv, std::string* json, std::string* error);
 
 }  // namespace lkjai

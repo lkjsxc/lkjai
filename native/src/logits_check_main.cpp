@@ -20,8 +20,10 @@ std::string value(int argc, char** argv, const std::string& name) {
 int main(int argc, char** argv) {
   auto dir = value(argc, argv, "--model-dir");
   auto tokens = value(argc, argv, "--tokens");
+  auto reference_checkpoint = value(argc, argv, "--reference-checkpoint");
   if (dir.empty() || tokens.empty()) {
-    std::cerr << "usage: lkjai-native-logits-check --model-dir DIR --tokens CSV\n";
+    std::cerr << "usage: lkjai-native-logits-check --model-dir DIR --tokens "
+                 "CSV [--reference-checkpoint DIR]\n";
     return 2;
   }
   std::string json;
@@ -29,8 +31,18 @@ int main(int argc, char** argv) {
   auto manifest = lkjai::read_text(std::filesystem::path(dir) / "manifest.json");
   bool ok = false;
   if (lkjai::contains_json_string(manifest, "kind", "dense")) {
-    ok = lkjai::dense_cuda_logits_check(dir, tokens, &json, &error);
+    if (reference_checkpoint.empty()) {
+      ok = lkjai::dense_cuda_logits_check(dir, tokens, &json, &error);
+    } else {
+      ok = lkjai::dense_cuda_logits_check_against_checkpoint(
+          dir, reference_checkpoint, tokens, &json, &error);
+    }
   } else {
+    if (!reference_checkpoint.empty()) {
+      std::cerr << "native logits check failed: --reference-checkpoint is only "
+                   "supported for dense artifacts\n";
+      return 2;
+    }
     ok = lkjai::transformer_logits_check(dir, tokens, &json, &error);
   }
   if (!ok) {
