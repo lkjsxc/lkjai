@@ -15,6 +15,8 @@ struct CpuDenseForward {
   std::vector<float> logits;
 };
 
+struct DenseMatmulPlan;
+
 class DenseCudaState {
  public:
   DenseCudaState(const DenseConfig& cfg, const DenseTrainState& host,
@@ -30,6 +32,7 @@ class DenseCudaState {
  private:
   void zero_gradients();
   void ensure_batch_buffers(size_t token_count, size_t mask_count);
+  void ensure_step_buffers(int rows);
   void gemm(const DeviceTensor& hidden, DeviceTensor& out, int rows);
   void gemm_head_grad(const DeviceTensor& grad_logits,
                       const DeviceTensor& hidden, int rows);
@@ -49,6 +52,11 @@ class DenseCudaState {
   DeviceTensor v_emb_;
   DeviceTensor m_head_;
   DeviceTensor v_head_;
+  DeviceTensor step_hidden_;
+  DeviceTensor step_out_;
+  DeviceTensor step_grad_logits_;
+  DeviceTensor step_loss_;
+  int step_rows_ = 0;
   uint16_t* host_tokens_ = nullptr;
   uint8_t* host_mask_ = nullptr;
   uint16_t* device_tokens_ = nullptr;
@@ -57,7 +65,12 @@ class DenseCudaState {
   size_t host_mask_capacity_ = 0;
   size_t device_token_capacity_ = 0;
   size_t device_mask_capacity_ = 0;
+  DenseMatmulPlan* logits_plan_ = nullptr;
+  DenseMatmulPlan* head_grad_plan_ = nullptr;
+  DenseMatmulPlan* hidden_grad_plan_ = nullptr;
 };
+
+void destroy_dense_matmul_plan(DenseMatmulPlan* plan);
 
 double dense_seconds_since(std::chrono::steady_clock::time_point start);
 float dense_step_lr(const DenseTrainOptions& opt, int step);

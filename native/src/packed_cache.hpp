@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <filesystem>
+#include <fstream>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -35,6 +36,26 @@ struct PackedBatch {
 bool load_packed_batch(const std::filesystem::path& dir, int first_window,
                        int batch_size, int sequence_len, PackedBatch* batch,
                        std::string* error);
+
+class PackedCacheReader {
+ public:
+  PackedCacheReader() = default;
+  PackedCacheReader(const PackedCacheReader&) = delete;
+  PackedCacheReader& operator=(const PackedCacheReader&) = delete;
+
+  bool open(const std::filesystem::path& dir, int sequence_len,
+            int max_vocab_size, std::string* error);
+  bool load_batch(uint64_t first_window, int batch_size, PackedBatch* batch,
+                  std::string* error);
+  const PackedCacheStatus& status() const { return status_; }
+
+ private:
+  PackedCacheStatus status_;
+  std::ifstream starts_;
+  std::ifstream tokens_;
+  std::ifstream mask_;
+};
+
 bool migrate_packed_cache_v1_to_v2(const std::filesystem::path& in,
                                    const std::filesystem::path& out,
                                    const std::filesystem::path& config,

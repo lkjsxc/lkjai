@@ -17,12 +17,12 @@ __global__ void gather_kernel(const uint16_t* tokens, const __nv_bfloat16* emb,
                               __nv_bfloat16* hidden, int batch, int seq,
                               int vocab, int hidden_size) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  int total = batch * (seq - 1) * hidden_size;
+  int total = batch * seq * hidden_size;
   if (idx >= total) return;
   int h = idx % hidden_size;
   int row_pos = idx / hidden_size;
-  int row = row_pos / (seq - 1);
-  int pos = row_pos % (seq - 1);
+  int row = row_pos / seq;
+  int pos = row_pos % seq;
   int token = static_cast<int>(tokens[row * seq + pos]) % vocab;
   hidden[idx] = emb[token * hidden_size + h];
 }
@@ -32,13 +32,13 @@ __global__ void loss_kernel(const float* logits, const uint16_t* tokens,
                             float* loss_out, int batch, int seq, int vocab,
                             int supervised, float grad_scale) {
   int row_pos = blockIdx.x * blockDim.x + threadIdx.x;
-  int rows = batch * (seq - 1);
+  int rows = batch * seq;
   if (row_pos >= rows) return;
-  int row = row_pos / (seq - 1);
-  int pos = row_pos % (seq - 1);
+  int row = row_pos / seq;
+  int pos = row_pos % seq;
   int token_base = row * seq + pos;
   auto* row_grad = grad_logits + static_cast<size_t>(row_pos) * vocab;
-  if (mask[token_base + 1] == 0 || supervised <= 0) {
+  if (pos + 1 >= seq || mask[token_base + 1] == 0 || supervised <= 0) {
     for (int v = 0; v < vocab; ++v) row_grad[v] = 0.0f;
     return;
   }
@@ -80,12 +80,12 @@ __global__ void emb_grad_kernel(const float* grad_logits,
                                 int batch, int seq, int vocab,
                                 int hidden_size) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  int rows = batch * (seq - 1);
+  int rows = batch * seq;
   if (idx >= rows * hidden_size) return;
   int h = idx % hidden_size;
   int row_pos = idx / hidden_size;
-  int row = row_pos / (seq - 1);
-  int pos = row_pos % (seq - 1);
+  int row = row_pos / seq;
+  int pos = row_pos % seq;
   int token = static_cast<int>(tokens[row * seq + pos]) % vocab;
   float sum = 0.0f;
   for (int v = 0; v < vocab; ++v) {
@@ -116,7 +116,7 @@ __global__ void adamw_kernel(float* weight, float* m, float* v, const float* gra
 void dense_launch_gather(const uint16_t* tokens, const void* emb, void* hidden,
                          int batch, int seq, int vocab, int hidden_size,
                          cudaStream_t stream) {
-  int n = batch * (seq - 1) * hidden_size;
+  int n = batch * seq * hidden_size;
   gather_kernel<<<(n + 255) / 256, 256, 0, stream>>>(
       tokens, static_cast<const __nv_bfloat16*>(emb),
       static_cast<__nv_bfloat16*>(hidden), batch, seq, vocab, hidden_size);
@@ -128,7 +128,7 @@ void dense_launch_loss_grad(const float* logits, const uint16_t* tokens,
                             float* loss, int batch, int seq, int vocab,
                             int supervised, float grad_scale,
                             cudaStream_t stream) {
-  int rows = batch * (seq - 1);
+  int rows = batch * seq;
   loss_kernel<<<(rows + 127) / 128, 128, 0, stream>>>(
       logits, tokens, mask, grad_logits, loss, batch, seq, vocab, supervised,
       grad_scale);
@@ -149,7 +149,7 @@ void dense_launch_emb_grad(const float* grad_logits, const void* head,
                            const uint16_t* tokens, float* grad_emb, int batch,
                            int seq, int vocab, int hidden_size,
                            cudaStream_t stream) {
-  int n = batch * (seq - 1) * hidden_size;
+  int n = batch * seq * hidden_size;
   emb_grad_kernel<<<(n + 255) / 256, 256, 0, stream>>>(
       grad_logits, static_cast<const __nv_bfloat16*>(head), tokens, grad_emb,
       batch, seq, vocab, hidden_size);

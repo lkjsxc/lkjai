@@ -27,9 +27,11 @@ artifact inspection, and CUDA capability probing.
   [dense_cuda_kernels.cu](dense_cuda_kernels.cu),
   [dense_cuda_logits.cpp](dense_cuda_logits.cpp),
   [dense_cuda_logits_reference.cpp](dense_cuda_logits_reference.cpp),
-  [dense_cuda_state.cu](dense_cuda_state.cu), and
+  [dense_cuda_state.cu](dense_cuda_state.cu),
+  [dense_cuda_step.cu](dense_cuda_step.cu), and
   [dense_cuda_train.cpp](dense_cuda_train.cpp): dense BF16 CUDA trainer,
-  logits check, GEMM wrapper, kernels, and state management.
+  logits check, GEMM wrapper, kernels, reusable step buffers, and state
+  management.
 - [dense_checkpoint.cpp](dense_checkpoint.cpp): dense optimizer checkpoint
   restore and compatibility checks.
 - [dense_check_main.cpp](dense_check_main.cpp): dense CUDA check binary.
@@ -48,12 +50,15 @@ artifact inspection, and CUDA capability probing.
 - [http_server.cpp](http_server.cpp) and [http_server.hpp](http_server.hpp):
   minimal HTTP server.
 - [inspect_main.cpp](inspect_main.cpp): artifact inspection binary.
+- [infer_main.cpp](infer_main.cpp): dense BF16 export logits inference binary.
 - [json_min.cpp](json_min.cpp) and [json_min.hpp](json_min.hpp): small JSON
   helpers.
 - [logits_check_main.cpp](logits_check_main.cpp): dense and transformer artifact
   logits probe, including dense BF16 export parity against FP32 checkpoints.
 - [packed_cache.cpp](packed_cache.cpp) and [packed_cache.hpp](packed_cache.hpp):
   packed-cache v2 validation and compatible v1 migration.
+- [packed_cache_reader.cpp](packed_cache_reader.cpp): persistent packed-cache
+  reader for dense training batches.
 - [packed_cache_validate.cpp](packed_cache_validate.cpp): packed-cache metadata,
   file size, and row-bound validation.
 - [packed_cache_main.cpp](packed_cache_main.cpp): packed-cache migration CLI.

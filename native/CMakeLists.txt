@@ -52,6 +52,7 @@ add_library(lkjai_native_core STATIC
   src/env.cpp
   src/json_min.cpp
   src/packed_cache.cpp
+  src/packed_cache_reader.cpp
   src/packed_cache_validate.cpp
   src/train_data.cpp
   src/train_report.cpp
@@ -63,6 +64,7 @@ add_library(lkjai_native_core STATIC
   src/dense_cuda_logits.cpp
   src/dense_cuda_logits_reference.cpp
   src/dense_cuda_state.cu
+  src/dense_cuda_step.cu
   src/dense_cuda_train.cpp
   src/dense_train.cpp
   src/dense_train_artifact.cpp
@@ -98,6 +100,9 @@ target_link_libraries(lkjai-native-train PRIVATE lkjai_native_core)
 add_executable(lkjai-native-inspect src/inspect_main.cpp)
 target_link_libraries(lkjai-native-inspect PRIVATE lkjai_native_core)
 
+add_executable(lkjai-native-infer src/infer_main.cpp)
+target_link_libraries(lkjai-native-infer PRIVATE lkjai_native_core)
+
 add_executable(lkjai-native-dense-check src/dense_check_main.cpp)
 target_link_libraries(lkjai-native-dense-check PRIVATE lkjai_native_core)
 
@@ -110,6 +115,13 @@ target_link_libraries(lkjai-native-logits-check PRIVATE lkjai_native_core)
 add_executable(lkjai-native-packed-cache src/packed_cache_main.cpp)
 target_link_libraries(lkjai-native-packed-cache PRIVATE lkjai_native_core)
 
+add_executable(lkjai-native-packed-cache-reader-check
+  tests/packed_cache_reader_check.cpp
+)
+target_link_libraries(lkjai-native-packed-cache-reader-check
+  PRIVATE lkjai_native_core
+)
+
 enable_testing()
 add_test(NAME native_inspect_missing COMMAND lkjai-native-inspect --model-dir /missing)
 set_tests_properties(native_inspect_missing PROPERTIES WILL_FAIL TRUE)
@@ -120,8 +132,16 @@ add_test(
 add_test(NAME native_dense_cuda_parity COMMAND lkjai-native-dense-check)
 add_test(NAME native_device_tensor_check COMMAND lkjai-native-device-check)
 add_test(
+  NAME native_packed_cache_reader_check
+  COMMAND lkjai-native-packed-cache-reader-check
+)
+add_test(
   NAME native_packed_train_contract
   COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/packed_train_contract.py $<TARGET_FILE:lkjai-native-train> $<TARGET_FILE:lkjai-native-logits-check> $<TARGET_FILE:lkjai-native-inspect>
+)
+add_test(
+  NAME native_dense_infer_contract
+  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/dense_infer_contract.py $<TARGET_FILE:lkjai-native-train> $<TARGET_FILE:lkjai-native-infer>
 )
 add_test(
   NAME native_packed_cache_migration_contract

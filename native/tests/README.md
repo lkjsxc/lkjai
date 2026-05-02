@@ -12,6 +12,11 @@ This directory contains test helpers for native CTest cases.
   packed-cache v2 dataset, checks dense CUDA training, artifact schema, logits,
   BF16 export parity against FP32 checkpoint masters, true checkpoint resume,
   and deterministic continuation.
+- [packed_cache_reader_check.cpp](packed_cache_reader_check.cpp): checks the
+  persistent packed-cache reader, wraparound, mismatch, corrupt starts, and
+  truncated file rejection.
+- [dense_infer_contract.py](dense_infer_contract.py): checks dense BF16 export
+  logits inference JSON and invalid artifact/token rejection.
 - [packed_cache_migration_contract.py](packed_cache_migration_contract.py):
   checks v1-to-v2 cache migration and trains from the migrated cache.
 - [transformer_train_contract.py](transformer_train_contract.py): checks the

@@ -98,6 +98,7 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << ",\"accumulation_dtype\":\"f32\""
        << ",\"export_dtype\":\"bf16\""
        << ",\"dense_cuda_path\":true"
+       << ",\"loader_backend\":\"persistent_packed_cache_reader\",\"row_layout\":\"dense_physical_bxseq_masked_final_token\",\"matmul_plan_cache_enabled\":true,\"buffer_reuse_enabled\":true,\"timing_source\":\"cuda_events_with_boundary_sync\""
        << ",\"cuda_available\":" << (cuda.available ? "true" : "false")
        << ",\"cuda_device_name\":\"" << json_escape(cuda.device) << "\""
        << ",\"cuda_arch_flags\":\"" << json_escape(LKJAI_CUDA_ARCH_FLAGS)

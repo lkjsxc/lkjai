@@ -18,19 +18,28 @@ float bf16_to_float(uint16_t value) {
   return out;
 }
 
-std::vector<int> parse_tokens(const std::string& csv) {
-  std::vector<int> tokens;
+bool parse_tokens(const std::string& csv, std::vector<int>* tokens,
+                  std::string* error) {
   size_t pos = 0;
   while (pos < csv.size()) {
     size_t comma = csv.find(',', pos);
     auto part = csv.substr(pos, comma == std::string::npos
                                     ? std::string::npos
                                     : comma - pos);
-    tokens.push_back(std::stoi(part));
+    if (part.empty()) {
+      *error = "token list contains an empty item";
+      return false;
+    }
+    try {
+      tokens->push_back(std::stoi(part));
+    } catch (...) {
+      *error = "token list must contain integer token ids";
+      return false;
+    }
     if (comma == std::string::npos) break;
     pos = comma + 1;
   }
-  return tokens;
+  return true;
 }
 
 }  // namespace
@@ -45,12 +54,19 @@ bool dense_logits_for_tokens(const DenseConfig& cfg,
     *error = "dense tensor shape does not match config";
     return false;
   }
-  auto tokens = parse_tokens(token_csv);
+  std::vector<int> tokens;
+  if (!parse_tokens(token_csv, &tokens, error)) return false;
   if (tokens.empty() || static_cast<int>(tokens.size()) > cfg.context) {
     *error = "token list must fit dense model context";
     return false;
   }
-  int token = tokens.back() % cfg.vocab_size;
+  for (int id : tokens) {
+    if (id < 0 || id >= cfg.vocab_size) {
+      *error = "token id outside dense model vocab";
+      return false;
+    }
+  }
+  int token = tokens.back();
   logits->assign(static_cast<size_t>(cfg.vocab_size), 0.0f);
   auto* h = emb.data() + static_cast<size_t>(token) * cfg.hidden_size;
   for (int v = 0; v < cfg.vocab_size; ++v) {

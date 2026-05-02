@@ -12,6 +12,11 @@ def summarize_train_report(report: dict) -> dict:
         "model_kind": report.get("model_kind", "dense"),
         "accepted_cuda_training": bool(report.get("accepted_cuda_training", False)),
         "implementation_status": report.get("implementation_status", ""),
+        "loader_backend": report.get("loader_backend", ""),
+        "row_layout": report.get("row_layout", ""),
+        "matmul_plan_cache_enabled": bool(report.get("matmul_plan_cache_enabled", False)),
+        "buffer_reuse_enabled": bool(report.get("buffer_reuse_enabled", False)),
+        "timing_source": report.get("timing_source", ""),
         "optimizer_steps": steps,
         "microsteps": int(report.get("microsteps", 0)),
         "tokens_seen": int(report.get("tokens_seen", report.get("input_tokens", 0))),
@@ -48,6 +53,16 @@ def dense_promotion_errors(report: dict) -> list[str]:
         errors.append("status must be success")
     if report.get("run_purpose") == "bounded_compatibility_start_check":
         errors.append("run_purpose bounded_compatibility_start_check is not promotable")
+    if report.get("loader_backend") != "persistent_packed_cache_reader":
+        errors.append("loader_backend must be persistent_packed_cache_reader")
+    if report.get("row_layout") != "dense_physical_bxseq_masked_final_token":
+        errors.append("row_layout must be dense_physical_bxseq_masked_final_token")
+    if report.get("matmul_plan_cache_enabled") is not True:
+        errors.append("matmul_plan_cache_enabled must be true")
+    if report.get("buffer_reuse_enabled") is not True:
+        errors.append("buffer_reuse_enabled must be true")
+    if report.get("timing_source") != "cuda_events_with_boundary_sync":
+        errors.append("timing_source must be cuda_events_with_boundary_sync")
     try:
         if not float(report.get("loss")) < float(report.get("initial_loss")):
             errors.append("loss must be lower than initial_loss")
@@ -99,6 +114,11 @@ def is_promotable_dense_summary(row: dict) -> bool:
             row.get("implementation_status") == "accepted",
             row.get("status") == "success",
             row.get("run_purpose", "") != "bounded_compatibility_start_check",
+            row.get("loader_backend") == "persistent_packed_cache_reader",
+            row.get("row_layout") == "dense_physical_bxseq_masked_final_token",
+            row.get("matmul_plan_cache_enabled") is True,
+            row.get("buffer_reuse_enabled") is True,
+            row.get("timing_source") == "cuda_events_with_boundary_sync",
             float(row.get("loss", 0.0)) < float(row.get("initial_loss", 0.0)),
             bool(row.get("checkpoint_checksum")),
             bool(row.get("export_checksum")),

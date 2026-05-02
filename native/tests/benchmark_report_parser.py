@@ -24,6 +24,11 @@ def main() -> None:
         "model_kind": "dense",
         "accepted_cuda_training": True,
         "implementation_status": "accepted",
+        "loader_backend": "persistent_packed_cache_reader",
+        "row_layout": "dense_physical_bxseq_masked_final_token",
+        "matmul_plan_cache_enabled": True,
+        "buffer_reuse_enabled": True,
+        "timing_source": "cuda_events_with_boundary_sync",
         "optimizer_steps": 2,
         "microsteps": 2,
         "tokens_seen": 32,
@@ -62,6 +67,8 @@ def main() -> None:
         assert summary["model_kind"] == "dense"
         assert summary["accepted_cuda_training"] is True
         assert summary["implementation_status"] == "accepted"
+        assert summary["loader_backend"] == "persistent_packed_cache_reader"
+        assert summary["matmul_plan_cache_enabled"] is True
         assert summary["optimizer_steps"] == 2
         assert summary["median_step_seconds"] == 0.125
         assert summary["median_tokens_per_second"] == 128.0
@@ -128,6 +135,10 @@ def main() -> None:
         bad_logits["logits_check"]["tolerance"] = 0.01
         errors = dense_promotion_errors(bad_logits)
         assert "logits_check max_abs_diff exceeds tolerance" in errors
+        missing_loader = dict(payload)
+        missing_loader["loader_backend"] = ""
+        errors = dense_promotion_errors(missing_loader)
+        assert "loader_backend must be persistent_packed_cache_reader" in errors
 
 
 if __name__ == "__main__":

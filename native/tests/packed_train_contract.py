@@ -56,12 +56,18 @@ def run_train(train_bin: str, root: Path, repo: Path, steps: int, extra=None):
     assert persisted["schema_version"] == payload["schema_version"] == 3
     assert persisted["trainer_mode"] == payload["trainer_mode"] == "train"
     assert persisted["run_purpose"] == payload["run_purpose"] == "accepted_training"
-    assert persisted["precision_mode"] == "fp32-master-bf16-shadow-bf16-export"
-    assert persisted["master_dtype"] == "f32"
-    assert persisted["shadow_dtype"] == "bf16"
-    assert persisted["accumulation_dtype"] == "f32"
-    assert persisted["export_dtype"] == "bf16"
+    expected = {"precision_mode": "fp32-master-bf16-shadow-bf16-export",
+                "master_dtype": "f32", "shadow_dtype": "bf16",
+                "accumulation_dtype": "f32", "export_dtype": "bf16"}
+    for key, expected in expected.items():
+        assert persisted[key] == expected
     assert persisted["dense_cuda_path"] is True
+    expected = {"loader_backend": "persistent_packed_cache_reader",
+                "row_layout": "dense_physical_bxseq_masked_final_token",
+                "matmul_plan_cache_enabled": True, "buffer_reuse_enabled": True,
+                "timing_source": "cuda_events_with_boundary_sync"}
+    for key, expected in expected.items():
+        assert persisted[key] == expected
     assert persisted["accepted_cuda_training"] is True
     assert persisted["implementation_status"] == "accepted"
     assert persisted["forward_backend"] == "cuda_bf16_cublaslt"
@@ -93,14 +99,9 @@ def check_schema(artifact: Path, inspect_bin: str):
     assert (checkpoint / "optimizer.index.json").is_file()
     opt_index = json.loads((checkpoint / "optimizer.index.json").read_text())
     opt_names = {tensor["name"] for tensor in opt_index["tensors"]}
-    assert {
-        "master.tok_embeddings",
-        "adam_m.tok_embeddings",
-        "adam_v.tok_embeddings",
-        "master.lm_head",
-        "adam_m.lm_head",
-        "adam_v.lm_head",
-    } <= opt_names
+    assert {"master.tok_embeddings", "adam_m.tok_embeddings",
+            "adam_v.tok_embeddings", "master.lm_head",
+            "adam_m.lm_head", "adam_v.lm_head"} <= opt_names
     broken = artifact.parent / "broken-schema"
     if broken.exists():
         shutil.rmtree(broken)

@@ -19,15 +19,6 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
   DenseConfig cfg;
   if (!load_dense_config(opt.config_path, &cfg, error)) return false;
   if (opt.seed >= 0) cfg.seed = opt.seed;
-  auto cache = inspect_packed_cache(opt.packed_cache);
-  if (!cache.ok) {
-    *error = cache.error;
-    return false;
-  }
-  if (cache.vocab_size > cfg.vocab_size) {
-    *error = "packed cache vocab_size exceeds dense config vocab_size";
-    return false;
-  }
   int seq_len = opt.seq_len > 0 ? opt.seq_len : cfg.context;
   if (opt.batch_size <= 0 || opt.grad_accum <= 0 || opt.max_steps <= 0) {
     *error = "batch_size, grad_accum, and max_steps must be positive";
@@ -37,10 +28,8 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
     *error = "requested seq_len exceeds dense config context";
     return false;
   }
-  if (seq_len != cache.sequence_len) {
-    *error = "requested seq_len must match packed cache sequence_len";
-    return false;
-  }
+  PackedCacheReader reader;
+  if (!reader.open(opt.packed_cache, seq_len, cfg.vocab_size, error)) return false;
   try {
     report->train_config_path = opt.train_config_path;
     report->run_purpose = opt.run_purpose;
@@ -76,7 +65,7 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
         int first = ((report->start_step + local - 1) * opt.grad_accum +
                      micro) * opt.batch_size;
         phase = std::chrono::steady_clock::now();
-        if (!load_packed_batch(opt.packed_cache, first, opt.batch_size, seq_len,
+        if (!reader.load_batch(static_cast<uint64_t>(first), opt.batch_size,
                                &batch, error)) return false;
         report->batch_load_seconds += dense_seconds_since(phase);
         double h2d = 0.0, fwd = 0.0, bwd = 0.0;

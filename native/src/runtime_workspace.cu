@@ -12,6 +12,7 @@ DeviceWorkspace::DeviceWorkspace(cudaStream_t stream) : stream_(stream) {
 DeviceWorkspace::~DeviceWorkspace() { reset(); }
 
 void* DeviceWorkspace::allocate(size_t bytes) {
+  if (data_ && bytes <= bytes_reserved_) return data_;
   reset();
   if (bytes == 0) return nullptr;
   bytes_reserved_ = bytes;

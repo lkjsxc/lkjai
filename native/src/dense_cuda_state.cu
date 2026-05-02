@@ -45,6 +45,9 @@ DenseCudaState::DenseCudaState(const DenseConfig& cfg,
 }
 
 DenseCudaState::~DenseCudaState() {
+  destroy_dense_matmul_plan(logits_plan_);
+  destroy_dense_matmul_plan(head_grad_plan_);
+  destroy_dense_matmul_plan(hidden_grad_plan_);
   if (host_tokens_) cudaFreeHost(host_tokens_);
   if (host_mask_) cudaFreeHost(host_mask_);
   if (device_tokens_) cudaFree(device_tokens_);
@@ -89,74 +92,6 @@ void DenseCudaState::zero_gradients() {
                  "zero dense tensor");
   }
   require_cuda(cudaStreamSynchronize(ctx_->stream()), "zero dense sync");
-}
-
-double DenseCudaState::forward_backward(const PackedBatch& batch,
-                                        std::vector<float>* logits,
-                                        double* h2d_seconds,
-                                        double* fwd_seconds,
-                                        double* bwd_seconds,
-                                        float grad_scale,
-                                        bool reset_grads) {
-  int rows = batch.batch_size * (batch.sequence_len - 1);
-  int h = cfg_.hidden_size;
-  int v = cfg_.vocab_size;
-  ensure_batch_buffers(batch.tokens.size(), batch.loss_mask.size());
-  DeviceTensor hidden({DeviceDType::bf16, {rows, h}}, ctx_->stream());
-  DeviceTensor out({DeviceDType::f32, {rows, v}}, ctx_->stream());
-  DeviceTensor grad_logits({DeviceDType::f32, {rows, v}}, ctx_->stream());
-  DeviceTensor loss({DeviceDType::f32, {1}}, ctx_->stream());
-  auto phase = std::chrono::steady_clock::now();
-  std::copy(batch.tokens.begin(), batch.tokens.end(), host_tokens_);
-  std::copy(batch.loss_mask.begin(), batch.loss_mask.end(), host_mask_);
-  require_cuda(cudaMemcpyAsync(device_tokens_, host_tokens_,
-                               batch.tokens.size() * sizeof(uint16_t),
-                               cudaMemcpyHostToDevice, ctx_->stream()),
-               "tokens H2D");
-  require_cuda(cudaMemcpyAsync(device_mask_, host_mask_, batch.loss_mask.size(),
-                               cudaMemcpyHostToDevice, ctx_->stream()),
-               "mask H2D");
-  require_cuda(cudaStreamSynchronize(ctx_->stream()), "batch H2D sync");
-  if (h2d_seconds) *h2d_seconds += dense_seconds_since(phase);
-  require_cuda(cudaMemsetAsync(loss.data(), 0, sizeof(float), ctx_->stream()),
-               "loss memset");
-  if (reset_grads) {
-    require_cuda(cudaMemsetAsync(grad_emb_.data(), 0, grad_emb_.bytes(),
-                                 ctx_->stream()),
-                 "grad emb memset");
-    require_cuda(cudaMemsetAsync(grad_head_.data(), 0, grad_head_.bytes(),
-                                 ctx_->stream()),
-                 "grad head memset");
-  }
-  phase = std::chrono::steady_clock::now();
-  dense_launch_gather(device_tokens_, emb_shadow_.data(),
-                      hidden.data(), batch.batch_size, batch.sequence_len, v, h,
-                      ctx_->stream());
-  gemm(hidden, out, rows);
-  dense_launch_loss_grad(static_cast<float*>(out.data()),
-                         device_tokens_, device_mask_,
-                         static_cast<float*>(grad_logits.data()),
-                         static_cast<float*>(loss.data()), batch.batch_size,
-                         batch.sequence_len, v, dense_supervised_count(batch),
-                         grad_scale, ctx_->stream());
-  require_cuda(cudaStreamSynchronize(ctx_->stream()), "forward sync");
-  if (fwd_seconds) *fwd_seconds += dense_seconds_since(phase);
-  phase = std::chrono::steady_clock::now();
-  dense_launch_head_grad(static_cast<float*>(grad_logits.data()), hidden.data(),
-                         static_cast<float*>(grad_head_.data()), rows, v, h,
-                         ctx_->stream());
-  dense_launch_emb_grad(static_cast<float*>(grad_logits.data()),
-                        head_shadow_.data(), device_tokens_,
-                        static_cast<float*>(grad_emb_.data()), batch.batch_size,
-                        batch.sequence_len, v, h, ctx_->stream());
-  require_cuda(cudaStreamSynchronize(ctx_->stream()), "backward sync");
-  if (bwd_seconds) *bwd_seconds += dense_seconds_since(phase);
-  auto loss_host = loss.copy_to_host_f32(ctx_->stream());
-  if (logits) {
-    auto all = out.copy_to_host_f32(ctx_->stream());
-    logits->assign(all.end() - v, all.end());
-  }
-  return loss_host.empty() ? 0.0 : loss_host[0];
 }
 
 void DenseCudaState::adamw(float lr, int step) {
