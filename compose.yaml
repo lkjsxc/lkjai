@@ -110,6 +110,13 @@ services:
       - ./data:/workspace/data
       - verify-cargo:/usr/local/cargo/registry
       - verify-target:/target
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
 
 volumes:
   verify-cargo:

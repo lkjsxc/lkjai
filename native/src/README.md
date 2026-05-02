@@ -9,8 +9,13 @@ artifact inspection, and CUDA capability probing.
 
 - [artifact.cpp](artifact.cpp) and [artifact.hpp](artifact.hpp): native artifact
   read/write helpers.
-- [cuda_probe.cu](cuda_probe.cu), [cuda_probe.hpp](cuda_probe.hpp), and
-  [cuda_probe_stub.cpp](cuda_probe_stub.cpp): CUDA availability checks.
+- [cuda_probe.cu](cuda_probe.cu) and [cuda_probe.hpp](cuda_probe.hpp): CUDA
+  availability checks.
+- [dense_cuda.cu](dense_cuda.cu) and [dense_cuda.hpp](dense_cuda.hpp):
+  BF16/cuBLASLt/cuDNN smoke checks.
+- [dense_check_main.cpp](dense_check_main.cpp): dense CUDA check binary.
+- [dense_model.cpp](dense_model.cpp) and [dense_model.hpp](dense_model.hpp):
+  dense smoke artifact and decode helpers.
 - [env.cpp](env.cpp) and [env.hpp](env.hpp): environment parsing helpers.
 - [http_server.cpp](http_server.cpp) and [http_server.hpp](http_server.hpp):
   minimal HTTP server.
@@ -18,8 +23,6 @@ artifact inspection, and CUDA capability probing.
 - [json_min.cpp](json_min.cpp) and [json_min.hpp](json_min.hpp): small JSON
   helpers.
 - [server_main.cpp](server_main.cpp): OpenAI-compatible inference entrypoint.
-- [simple_model.cpp](simple_model.cpp) and [simple_model.hpp](simple_model.hpp):
-  compact model implementation.
 - [train_main.cpp](train_main.cpp): scratch training entrypoint.
 - [train_data.cpp](train_data.cpp) and [train_data.hpp](train_data.hpp):
   JSONL corpus cursor and row extraction helpers.

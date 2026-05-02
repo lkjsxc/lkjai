@@ -58,7 +58,7 @@ def main():
         data = json.loads(text)
         content = data["choices"][0]["message"]["content"]
         assert content.startswith("<action>"), content
-        assert "native smoke complete" in content, content
+        assert "native dense complete" in content, content
 
         body["max_tokens"] = 1
         status, text = request(port, "POST", "/v1/chat/completions", body)

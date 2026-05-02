@@ -1,15 +1,17 @@
-FROM rust:1.93-slim
+FROM nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04
 
-ENV PATH="/usr/local/cargo/bin:${PATH}"
+ENV PATH="/root/.cargo/bin:/usr/local/cargo/bin:${PATH}"
 
 WORKDIR /workspace
 
-RUN rustup component add rustfmt
-
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-      build-essential ca-certificates cmake ninja-build git python3 \
+      build-essential ca-certificates cmake curl git ninja-build pkg-config python3 \
     && rm -rf /var/lib/apt/lists/*
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+    | sh -s -- -y --profile minimal \
+    && /root/.cargo/bin/rustup component add rustfmt
 
 COPY ops/verify.sh /verify.sh
 RUN chmod +x /verify.sh

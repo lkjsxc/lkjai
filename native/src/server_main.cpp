@@ -2,10 +2,10 @@
 
 #include "artifact.hpp"
 #include "cuda_probe.hpp"
+#include "dense_model.hpp"
 #include "env.hpp"
 #include "http_server.hpp"
 #include "json_min.hpp"
-#include "simple_model.hpp"
 
 using lkjai::HttpRequest;
 using lkjai::HttpResponse;
@@ -66,8 +66,8 @@ HttpResponse chat_json(const HttpRequest& request,
   auto max_chars = lkjai::json_int_value(request.body, "max_tokens", 512);
   if (max_chars < 1) max_chars = 1;
   if (max_chars > 4096) max_chars = 4096;
-  auto decoded = lkjai::generate_transition_text(
-      artifact.model_dir / "weights.lkjw", prompt_seed(request), max_chars);
+  auto decoded = lkjai::dense_generate_action(
+      artifact.model_dir, prompt_seed(request), max_chars);
   auto start = decoded.rfind("<action>");
   auto end = start == std::string::npos ? std::string::npos
                                         : decoded.find("</action>", start);

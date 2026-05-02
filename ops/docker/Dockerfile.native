@@ -23,6 +23,7 @@ RUN apt-get update \
 COPY --from=build /build/lkjai-native-server /usr/local/bin/lkjai-native-server
 COPY --from=build /build/lkjai-native-train /usr/local/bin/lkjai-native-train
 COPY --from=build /build/lkjai-native-inspect /usr/local/bin/lkjai-native-inspect
+COPY --from=build /build/lkjai-native-dense-check /usr/local/bin/lkjai-native-dense-check
 
 ENV MODEL_ROOT=/models
 ENV MODEL_NAME=lkjai-scratch-40m

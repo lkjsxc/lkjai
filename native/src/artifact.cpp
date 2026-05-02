@@ -45,6 +45,26 @@ bool validate_weight_index(std::string_view text, uint64_t weight_bytes,
     *error = "weights.index.json missing tensors field";
     return false;
   }
+  const char* required[] = {
+      "tok_embeddings",
+      "layers.0.attn.q_proj",
+      "layers.0.attn.k_proj",
+      "layers.0.attn.v_proj",
+      "layers.0.attn.o_proj",
+      "layers.0.mlp.gate_proj",
+      "layers.0.mlp.up_proj",
+      "layers.0.mlp.down_proj",
+      "layers.0.attn_norm",
+      "layers.0.mlp_norm",
+      "final_norm",
+      "lm_head",
+  };
+  for (const char* name : required) {
+    if (!contains_json_string(text, "name", name)) {
+      *error = std::string("weights.index.json missing tensor ") + name;
+      return false;
+    }
+  }
   size_t pos = 0;
   int tensors = 0;
   while ((pos = text.find("\"byte_offset\"", pos)) != std::string_view::npos) {
@@ -109,8 +129,8 @@ bool inspect_artifact(const std::filesystem::path& model_dir,
   const auto weights = model_dir / "weights.lkjw";
   auto manifest_text = read_text(manifest);
   if (!contains_json_string(manifest_text, "format",
-                            "lkjai-native-artifact-v1")) {
-    *error = "manifest format must be lkjai-native-artifact-v1";
+                            "lkjai-native-artifact-v2")) {
+    *error = "manifest format must be lkjai-native-artifact-v2";
     return false;
   }
   auto index_text = read_text(index);
