@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "apps/runtime",
+  "tools/packed-cache-builder",
   "tools/packed-reader",
 ]
 resolver = "2"

@@ -23,14 +23,28 @@ Make training consume tokenizer output, not raw JSONL, during real runs.
 - `format`,
 - `split`,
 - `objective`,
-- `sequence_len`,
+- `sequence_len` and `seq_len`,
 - `vocab_size`,
 - `token_dtype`,
-- `row_count`,
+- `row_count` and `sequence_count`,
+- `example_count`,
 - `token_count`,
-- source corpus fingerprints,
-- tokenizer fingerprint,
-- creation command and commit SHA when available.
+- `tokenizer_digest`,
+- `config_digest`,
+- `source_digest`,
+- `seed`,
+- `run_id`,
+- `max_token_id`,
+- `tokens_checksum`,
+- `loss_mask_checksum`,
+- `starts_checksum`,
+- `packed_data_checksum`.
+
+The deterministic builder is
+`cargo run -p lkjai_packed_cache_builder -- build ...`. It loads the
+HuggingFace `tokenizer.json`, extracts JSONL string fields named `text` and
+`content` in document order, and writes fixed non-overlapping windows. It does
+not use a byte fallback or duplicate tokenizer logic in C++.
 
 ## Loader Rules
 
@@ -50,3 +64,7 @@ Make training consume tokenizer output, not raw JSONL, during real runs.
 - Do not read v1 caches in product training.
 - Validation fails when `vocab_size > 65536` or when any token id exceeds the
   active tokenizer vocabulary.
+- Builder validation also rejects tokenizer/config vocab mismatches,
+  sequence-length/config mismatches, stale checksums, corrupt binary sizes,
+  invalid fixed-window starts, and token ids outside the tokenizer or native
+  config vocabulary.

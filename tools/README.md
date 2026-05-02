@@ -10,6 +10,8 @@ Support tooling lives here. These are not production runtime entry points.
 - [diagnostics/](diagnostics/): local diagnostic collection utilities.
 - [experiments/](experiments/): experimental scripts.
 - [kimi-corpus/](kimi-corpus/): Kimi API synthetic corpus generator.
+- [packed-cache-builder/](packed-cache-builder/): Rust deterministic packed
+  cache builder using HuggingFace `tokenizer.json`.
 - [packed-reader/](packed-reader/): Rust packed-token reader utility.
 - [reports/](reports/): helpers that write generated reports under
   `artifacts/reports/`.
