@@ -9,6 +9,7 @@ namespace lkjai {
 
 std::vector<std::filesystem::path> collect_jsonl(const std::filesystem::path& root);
 std::string extract_json_string(const std::string& line, const std::string& key);
+std::string training_text_from_jsonl(const std::string& line);
 
 class CorpusCursor {
  public:

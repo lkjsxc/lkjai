@@ -135,9 +135,7 @@ int run_corpus_training() {
     if (opt.stop_at_unix > 0 && std::time(nullptr) >= opt.stop_at_unix) break;
     std::string line;
     if (!corpus.next(&line)) break;
-    auto text = extract_json_string(line, "text");
-    if (text.empty()) text = extract_json_string(line, "content");
-    if (text.empty()) text = line;
+    auto text = training_text_from_jsonl(line);
     if (text.size() > static_cast<size_t>(opt.max_row_bytes)) text.resize(opt.max_row_bytes);
     update_transitions(&transitions, text, 16, opt.max_transitions);
     ++step;
