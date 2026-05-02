@@ -6,6 +6,7 @@ This directory owns the C++/CUDA product path.
 
 - [CMakeLists.txt](CMakeLists.txt): native build graph.
 - [src/](src/): server, trainer, artifact, and CUDA probe code.
+- [tests/](tests/README.md): native CTest helper scripts.
 
 ## Build
 

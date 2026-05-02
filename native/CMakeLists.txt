@@ -48,3 +48,7 @@ add_test(
   NAME native_smoke_export
   COMMAND sh -c "rm -rf /tmp/lkjai-native-ctest && DATA_DIR=/tmp/lkjai-native-ctest MODEL_NAME=smoke ./lkjai-native-train --smoke --steps 2 && ./lkjai-native-inspect --model-dir /tmp/lkjai-native-ctest/exports/smoke"
 )
+add_test(
+  NAME native_server_chat_contract
+  COMMAND sh -c "rm -rf /tmp/lkjai-native-server-test && DATA_DIR=/tmp/lkjai-native-server-test/train MODEL_NAME=smoke ./lkjai-native-train --smoke --steps 2 && python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/server_chat_contract.py $<TARGET_FILE:lkjai-native-server> /tmp/lkjai-native-server-test/models smoke"
+)

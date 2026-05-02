@@ -5,6 +5,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <algorithm>
+#include <cctype>
 #include <cstring>
 #include <iostream>
 
@@ -28,9 +30,31 @@ HttpRequest parse_request(const std::string& raw) {
   return request;
 }
 
+size_t content_length(const std::string& raw) {
+  auto split = raw.find("\r\n\r\n");
+  auto head = raw.substr(0, split == std::string::npos ? raw.size() : split);
+  std::transform(head.begin(), head.end(), head.begin(), [](unsigned char ch) {
+    return static_cast<char>(std::tolower(ch));
+  });
+  const std::string needle = "content-length:";
+  auto pos = head.find(needle);
+  if (pos == std::string::npos) return 0;
+  pos += needle.size();
+  while (pos < head.size() && std::isspace(static_cast<unsigned char>(head[pos]))) {
+    ++pos;
+  }
+  try {
+    return static_cast<size_t>(std::stoul(head.substr(pos)));
+  } catch (...) {
+    return 0;
+  }
+}
+
 std::string reason(int status) {
   if (status == 200) return "OK";
+  if (status == 400) return "Bad Request";
   if (status == 404) return "Not Found";
+  if (status == 422) return "Unprocessable Content";
   if (status == 503) return "Service Unavailable";
   return "Internal Server Error";
 }
@@ -71,7 +95,17 @@ int serve_http(const std::string& host, int port, const Handler& handler) {
     char buffer[65536];
     ssize_t size = ::recv(client, buffer, sizeof(buffer), 0);
     if (size > 0) {
-      auto response = handler(parse_request(std::string(buffer, size)));
+      std::string raw(buffer, size);
+      auto split = raw.find("\r\n\r\n");
+      if (split != std::string::npos) {
+        auto needed = split + 4 + content_length(raw);
+        while (raw.size() < needed) {
+          size = ::recv(client, buffer, sizeof(buffer), 0);
+          if (size <= 0) break;
+          raw.append(buffer, size);
+        }
+      }
+      auto response = handler(parse_request(raw));
       write_response(client, response);
     }
     ::close(client);

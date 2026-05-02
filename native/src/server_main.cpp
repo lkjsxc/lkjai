@@ -16,6 +16,20 @@ std::string error_json(std::string_view error) {
   return "{\"error\":\"" + lkjai::json_escape(error) + "\"}";
 }
 
+std::string prompt_seed(const HttpRequest& request) {
+  auto contents = lkjai::json_string_values(request.body, "content");
+  std::string prompt;
+  for (const auto& content : contents) {
+    if (!prompt.empty()) prompt += "\n";
+    prompt += content;
+  }
+  constexpr size_t kPromptTail = 4096;
+  if (prompt.size() > kPromptTail) {
+    prompt = prompt.substr(prompt.size() - kPromptTail);
+  }
+  return prompt + "\n<assistant_action>\n<action>\n<reasoning>";
+}
+
 std::string health_json(const lkjai::ArtifactStatus& artifact,
                         const lkjai::CudaStatus& cuda) {
   std::ostringstream out;
@@ -40,17 +54,30 @@ std::string models_json(const std::string& model, const lkjai::CudaStatus& cuda)
   return out.str();
 }
 
-std::string chat_json(const lkjai::ArtifactStatus& artifact) {
-  auto text = lkjai::generate_transition_text(artifact.model_dir / "weights.lkjw",
-                                              "<action>\n<reasoning>", 512);
-  if (text.empty() || text.find("</action>") == std::string::npos) {
-    text =
-        "<action>\n<reasoning>The native model could not complete decode.</reasoning>\n"
-        "<tool>agent.finish</tool>\n<content>native decode incomplete</content>\n"
-        "</action>";
+HttpResponse chat_json(const HttpRequest& request,
+                       const lkjai::ArtifactStatus& artifact) {
+  auto requested_model = lkjai::json_first_string(request.body, "model");
+  if (!requested_model.empty() && requested_model != artifact.model_name) {
+    return {404, error_json("requested model is not loaded")};
   }
-  return "{\"choices\":[{\"message\":{\"role\":\"assistant\",\"content\":\"" +
-         lkjai::json_escape(text) + "\"}}]}";
+  if (lkjai::json_string_values(request.body, "content").empty()) {
+    return {400, error_json("chat request must include message content")};
+  }
+  auto max_chars = lkjai::json_int_value(request.body, "max_tokens", 512);
+  if (max_chars < 1) max_chars = 1;
+  if (max_chars > 4096) max_chars = 4096;
+  auto decoded = lkjai::generate_transition_text(
+      artifact.model_dir / "weights.lkjw", prompt_seed(request), max_chars);
+  auto start = decoded.rfind("<action>");
+  auto end = start == std::string::npos ? std::string::npos
+                                        : decoded.find("</action>", start);
+  if (decoded.empty() || start == std::string::npos ||
+      end == std::string::npos || end < start) {
+    return {422, error_json("native decode did not produce a complete action")};
+  }
+  auto text = decoded.substr(start, end + std::string("</action>").size() - start);
+  return {200, "{\"choices\":[{\"message\":{\"role\":\"assistant\",\"content\":\"" +
+                   lkjai::json_escape(text) + "\"}}]}"};
 }
 
 HttpResponse route(const HttpRequest& request,
@@ -65,7 +92,7 @@ HttpResponse route(const HttpRequest& request,
   }
   if (request.method == "POST" && request.path == "/v1/chat/completions") {
     if (!artifact.loaded) return {503, error_json(artifact.error)};
-    return {200, chat_json(artifact)};
+    return chat_json(request, artifact);
   }
   return {404, error_json("not found")};
 }
