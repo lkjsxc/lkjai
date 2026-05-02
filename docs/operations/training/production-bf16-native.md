@@ -2,8 +2,9 @@
 
 ## Architecture
 
-The active native dense CUDA path consumes `lkjai-packed-cache-v2` batches and exports
-`lkjai-native-artifact-v2`. Stable layouts are:
+The active accepted native CUDA path is dense BF16 CUDA. It consumes
+`lkjai-packed-cache-v2` batches and exports `lkjai-native-artifact-v2`. Stable
+layouts are:
 
 - Tokens: `[B,S]` as little-endian `uint16`.
 - Activations: `[B*(S-1),H]` for the current embedding-to-LM-head trainer.
@@ -62,8 +63,10 @@ Use `--export-artifact DIR` to write an additional serving artifact outside the
 default `OUT/exports/${MODEL_NAME}` location.
 
 Every successful smoke or train run writes `OUT/runs/train-report.json` and
-prints compact JSON with the same schema. The report identifies the precision
-mode as FP32 master, BF16 CUDA shadow, FP32 accumulation, and BF16 export.
+prints compact JSON with schema version `3`. Dense reports identify the
+precision mode as FP32 master, BF16 CUDA shadow, FP32 accumulation, and BF16
+export, and must declare `accepted_cuda_training=true`. Transformer reports are
+experimental and must declare `accepted_cuda_training=false`.
 
 ## Verification
 
@@ -78,6 +81,11 @@ finite loss, backward and AdamW weight changes, checkpoint resume, artifact
 inspection, runtime loading, cache migration, and finite logits checksum.
 Resume coverage verifies that resumed training matches uninterrupted dense
 training for the same seed/config/dataset.
+
+`lkjai-native-logits-check --reference-checkpoint DIR` compares an exported
+dense BF16 artifact with the FP32 master checkpoint used to create it. The JSON
+result reports max/mean absolute logits differences and the configured
+tolerance.
 
 The dense CUDA check must emit capability JSON with device name, compute
 capability, BF16 support, cuBLASLt availability, cuDNN availability, and SDPA
@@ -114,5 +122,7 @@ lkjai-native-train --train \
 
 ## Limitations
 
-Autoregressive chat/KV decode is not part of this slice. cuDNN SDPA is the next
-attention target after the reusable device substrate and capability probe.
+Autoregressive chat/KV decode is not part of this slice. Transformer mode is
+host/reference and experimental until device-resident forward/backward kernels
+replace the current implementation. cuDNN SDPA is target transformer work, not
+accepted dense training behavior.

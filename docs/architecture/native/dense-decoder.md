@@ -38,7 +38,8 @@ autoregressive decode in the accepted product path yet.
 
 - Embeddings and LM head are native tensors in the current dense artifacts.
 - QKV/O projections, MLP projections, and norms are target transformer tensors.
-- QKV, output, and FFN projections use cuBLASLt first in the CUDA path.
+- QKV, output, and FFN projections are target transformer work and will use
+  cuBLASLt first when that path becomes accepted CUDA training.
 - Attention uses cuDNN SDPA when the frontend headers, runtime, dtype, compute
   capability, head dimension, and mask mode are eligible.
 - A correctness-first causal GQA fallback is allowed only until cuDNN SDPA is
@@ -70,9 +71,9 @@ The current dense CUDA path is accepted only when all of these are true:
 - Capability JSON reports device CC, BF16 support, cuBLASLt, cuDNN, and SDPA
   eligibility.
 
-The transformer path remains a roadmap target until projections, attention,
-MLP, norms, backward, optimizer state, and decode pass the same artifact and
-runtime checks.
+The transformer path remains experimental until device-resident projections,
+attention, MLP, norms, backward, optimizer state, and decode pass the same
+artifact and runtime checks.
 
 ## Non-Goals
 

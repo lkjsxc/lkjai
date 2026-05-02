@@ -3,9 +3,9 @@
 ## Goal
 
 Train native BF16 CUDA models without Python or PyTorch in the product path.
-Dense remains the default production milestone. Transformer training is accepted
-only through the explicit native transformer mode and only for the verified tiny
-debug shape until larger runs are separately measured.
+The current accepted CUDA training path is dense BF16 CUDA only. Transformer
+mode remains available for reference plumbing, but it is experimental until its
+forward and backward kernels are device-resident.
 
 ## Owned By Native Code
 
@@ -15,9 +15,8 @@ debug shape until larger runs are separately measured.
 - Packed cache read and write.
 - Pinned host batch staging.
 - Dense CUDA forward, backward, AdamW, checkpoint, and export.
-- Minimal native transformer CUDA training for the debug shape: token and
-  learned positional embeddings, decoder layers, causal attention, SwiGLU MLP,
-  norms, residuals, AdamW, checkpoints, export, and logits checks.
+- Experimental transformer host/reference training with a CUDA capability
+  probe, checkpoints, export, and logits checks.
 - Stable training reports and benchmark records.
 
 ## Data Flow
@@ -37,18 +36,17 @@ debug shape until larger runs are separately measured.
   dense CUDA trainer and export a valid `lkjai-native-artifact-v2` directory.
   `lkjai-native-train --smoke` is always dense unless a future milestone states
   otherwise.
-- `lkjai-native-train --train --mode transformer` is accepted only when native
-  CUDA forward/backward, checkpoint/resume, BF16 export, inspect, and logits
-  checks pass for the transformer debug config. The retained CPU/reference
-  transformer path is not counted as completed training.
+- `lkjai-native-train --train --mode transformer` must remain callable, but its
+  report must declare `accepted_cuda_training=false`,
+  `implementation_status=experimental`, and host/reference backends. It is not
+  accepted CUDA training.
 - A native artifact inspect command must validate all index offsets and shapes.
 - Training persists `DATA_DIR/runs/train-report.json` and prints compact JSON
   with schema version, `model_kind`, finite decreasing loss, precision mode,
   dtype fields, phase timings, config and packed-cache digests, batch size,
   sequence length, gradient accumulation, optimizer steps, microsteps, token
   counts, BF16 export logits-check result, artifact paths/checksums, `status`,
-  `failure_reason`, and `weight_changed=true`. Dense reports preserve
-  `dense_cuda_path=true` for existing consumers.
+  `failure_reason`, and `weight_changed=true`.
 - Capability reporting must show whether the run used CUDA, native BF16,
   cuBLASLt, cuDNN, and SDPA-eligible shapes.
 - Chat and autoregressive decode remain out of scope. Native server
@@ -69,14 +67,14 @@ debug shape until larger runs are separately measured.
   checkpoints under `DATA_DIR/checkpoints`, exports under
   `DATA_DIR/exports/${MODEL_NAME}`, and mirrors the served model under
   `${DATA_DIR}/../models/${MODEL_NAME}`.
-- `lkjai-native-train --train --mode transformer` runs the native transformer
-  debug trainer. It uses `TRAIN_MODEL_KIND=transformer` or
+- `lkjai-native-train --train --mode transformer` runs the experimental
+  transformer debug trainer. It uses `TRAIN_MODEL_KIND=transformer` or
   `TRAIN_CONFIG.model_kind=transformer` when the CLI flag is absent. Dense is
-  still the default.
+  still the default and the only accepted CUDA training mode.
 - `--resume DIR` is true dense checkpoint restore. It loads FP32 master weights
   and Adam moments from `optimizer.lkjw`, validates checkpoint compatibility,
   and rebuilds BF16 CUDA shadows before the next forward pass.
-- Transformer `--resume DIR` requires a transformer checkpoint artifact with
+- Experimental transformer `--resume DIR` requires a transformer checkpoint with
   `optimizer.index.json` and `optimizer.lkjw`. It restores `master.*`,
   `adam_m.*`, and `adam_v.*` tensors for every trainable tensor, rebuilds BF16
   shadows, and rejects manifest kind, config, tensor shape, vocab, seed, batch,
@@ -85,10 +83,12 @@ debug shape until larger runs are separately measured.
   token embeddings, learned positional embeddings, per-layer RMSNorm, Q/K/V/O
   projections, SwiGLU gate/up/down projections, final norm, and LM head.
 - The first transformer milestone requires `tie_embeddings=false`. Transformer
-  mode fails loudly if a config requests tied embeddings. It uses correctness
-  first custom CUDA kernels and FP32 accumulation; Tensor Core, cuDNN SDPA,
-  cuBLASLt projection, RoPE, and larger 40M acceptance remain roadmap work until
-  separately measured.
+  mode fails loudly if a config requests tied embeddings. It currently reports
+  `forward_backend=host_reference`, `backward_backend=host_surrogate`,
+  `optimizer_backend=host_adamw_fp32`, and `transformer_cuda_probe=true`.
+  Tensor Core, cuDNN SDPA, cuBLASLt transformer projection, RoPE, and accepted
+  transformer CUDA training remain roadmap work until real kernels replace the
+  reference path.
 - `lkjai-native-packed-cache --migrate-v1-to-v2` wraps compatible v1 binary
   cache files as v2 after validating metadata, token width, masks, starts, vocab,
   token count, row count, file sizes, row bounds, vocab, and context
@@ -133,10 +133,20 @@ files and are the validation target for `lkjai-native-logits-check`.
 
 ## Report Schema
 
-Transformer reports use schema version `2` and add transformer shape fields:
-`layers`, `heads`, `kv_heads`, `hidden_size`, `head_dim`, `ffn_size`, `context`,
-`parameter_count`, `model_kind`, precision fields, CUDA capability, losses,
-tokens/sec, artifact checksums, logits-check status, `status`, and
-`failure_reason`. Dense reports retain their compatibility fields, including
-`dense_cuda_path=true`, `trainer_mode`, `mode`, `steps`, `optimizer_steps`,
-`tokens_seen`, and `timings`.
+All native train reports use schema version `3`. Common fields include
+`model_kind`, `accepted_cuda_training`, `implementation_status`,
+`forward_backend`, `backward_backend`, `optimizer_backend`,
+`cuda_probe_passed`, precision fields, `limitations`, artifact paths/checksums,
+losses, timings, and capability.
+
+Dense reports declare `accepted_cuda_training=true`,
+`implementation_status=accepted`, `dense_cuda_path=true`,
+`forward_backend=cuda_bf16_cublaslt`,
+`backward_backend=cuda_custom_or_gemm`, and
+`optimizer_backend=cuda_adamw_fp32`.
+
+Transformer reports declare `accepted_cuda_training=false`,
+`implementation_status=experimental`, `transformer_status=experimental`,
+`transformer_cuda_path=false`, `transformer_cuda_probe=true`,
+`forward_backend=host_reference`, `backward_backend=host_surrogate`, and
+`optimizer_backend=host_adamw_fp32`.

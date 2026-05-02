@@ -39,12 +39,15 @@ The repository currently has:
 - AdamW parameter updates,
 - native artifact export and logits inspection,
 - a CUDA BF16/library capability smoke,
-- a dtype-aware CUDA tensor substrate with BF16 round-trip coverage.
+- a dtype-aware CUDA tensor substrate with BF16 round-trip coverage,
+- an experimental transformer reference path that reports
+  `accepted_cuda_training=false`.
 
 That slice is useful for contracts, but it is not the final trainer.
 
 ## Next Code Target
 
-The next implementation target is full dense decoder transformer parity:
-cuBLASLt projections, fused pointwise kernels, cuDNN SDPA, transformer backward,
-and then decode. NCCL stays after single-GPU correctness and profiling.
+The next implementation target is accepted transformer CUDA training:
+device-resident cuBLASLt projections, fused pointwise kernels, cuDNN SDPA,
+transformer backward, and then decode. NCCL stays after single-GPU correctness
+and profiling.

@@ -16,7 +16,7 @@ not by finite loss alone.
 | Backward | finite-difference checks on small layers |
 | Optimizer | one optimizer step decreases or preserves tiny-batch loss trend |
 | Resume | restart equivalence for counters, LR, optimizer state, and checksums |
-| Export | load/save round trip and tokenizer/config checksum match |
+| Export | load/save round trip, tokenizer/config checksum match, and dense BF16 export logits parity against FP32 checkpoint masters |
 | Server | `/v1/models`, unsupported decode, and later real decode contracts |
 
 ## Metrics
@@ -25,7 +25,7 @@ Benchmark reports must include:
 
 - training tokens/sec,
 - p50 and p95 microstep latency,
-- batch load, H2D, forward, backward, optimizer, and checkpoint timing,
+- batch load, H2D, forward, backward, optimizer, checkpoint, and export timing,
 - peak and steady device memory,
 - prefill tokens/sec after decode lands,
 - decode ms/token at batch `1`, `4`, and `8` after decode lands.
