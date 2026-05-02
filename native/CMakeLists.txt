@@ -36,6 +36,12 @@ add_library(lkjai_native_core STATIC
   src/dense_train.cpp
   src/dense_train_artifact.cpp
   src/dense_train_math.cpp
+  src/transformer_artifact.cpp
+  src/transformer_config.cpp
+  src/transformer_forward.cpp
+  src/transformer_init.cpp
+  src/transformer_optim.cpp
+  src/transformer_train.cpp
   src/train_real.cpp
 )
 target_include_directories(lkjai_native_core PUBLIC src)
@@ -53,6 +59,12 @@ target_link_libraries(lkjai-native-inspect PRIVATE lkjai_native_core)
 add_executable(lkjai-native-dense-check src/dense_check_main.cpp)
 target_link_libraries(lkjai-native-dense-check PRIVATE lkjai_native_core)
 
+add_executable(lkjai-native-logits-check src/logits_check_main.cpp)
+target_link_libraries(lkjai-native-logits-check PRIVATE lkjai_native_core)
+
+add_executable(lkjai-native-packed-cache src/packed_cache_main.cpp)
+target_link_libraries(lkjai-native-packed-cache PRIVATE lkjai_native_core)
+
 enable_testing()
 add_test(NAME native_inspect_missing COMMAND lkjai-native-inspect --model-dir /missing)
 set_tests_properties(native_inspect_missing PROPERTIES WILL_FAIL TRUE)
@@ -60,11 +72,11 @@ add_test(NAME native_train_smoke COMMAND lkjai-native-train --smoke --steps 2)
 add_test(NAME native_dense_cuda_check COMMAND lkjai-native-dense-check)
 add_test(
   NAME native_packed_train_contract
-  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/packed_train_contract.py $<TARGET_FILE:lkjai-native-train>
+  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/packed_train_contract.py $<TARGET_FILE:lkjai-native-train> $<TARGET_FILE:lkjai-native-logits-check> $<TARGET_FILE:lkjai-native-packed-cache> $<TARGET_FILE:lkjai-native-inspect>
 )
 add_test(
   NAME native_smoke_export
-  COMMAND sh -c "rm -rf /tmp/lkjai-native-ctest && DATA_DIR=/tmp/lkjai-native-ctest MODEL_NAME=smoke ./lkjai-native-train --smoke --steps 2 && ./lkjai-native-inspect --model-dir /tmp/lkjai-native-ctest/exports/smoke"
+  COMMAND sh -c "rm -rf /tmp/lkjai-native-ctest && DATA_DIR=/tmp/lkjai-native-ctest MODEL_NAME=smoke ./lkjai-native-train --smoke --steps 2 && ./lkjai-native-inspect --model-dir /tmp/lkjai-native-ctest/exports/smoke && ./lkjai-native-logits-check --model-dir /tmp/lkjai-native-ctest/exports/smoke --tokens 1,2,3"
 )
 add_test(
   NAME native_server_chat_contract

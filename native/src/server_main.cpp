@@ -63,6 +63,10 @@ HttpResponse chat_json(const HttpRequest& request,
   if (lkjai::json_string_values(request.body, "content").empty()) {
     return {400, error_json("chat request must include message content")};
   }
+  auto manifest = lkjai::read_text(artifact.model_dir / "manifest.json");
+  if (lkjai::contains_json_string(manifest, "kind", "transformer")) {
+    return {422, error_json("native transformer autoregressive decode is unsupported")};
+  }
   auto max_chars = lkjai::json_int_value(request.body, "max_tokens", 512);
   if (max_chars < 1) max_chars = 1;
   if (max_chars > 4096) max_chars = 4096;

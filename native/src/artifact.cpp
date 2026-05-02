@@ -41,32 +41,33 @@ bool read_u64_after(std::string_view text, std::string_view key, size_t start,
   }
 }
 
-bool validate_weight_index(std::string_view text, uint64_t weight_bytes,
-                           std::string* error) {
+bool require_tensor(std::string_view text, const std::string& name,
+                    std::string* error) {
+  if (contains_json_string(text, "name", name)) return true;
+  *error = "weights.index.json missing tensor " + name;
+  return false;
+}
+
+bool validate_weight_index(std::string_view text, std::string_view config,
+                           uint64_t weight_bytes, std::string* error) {
   if (text.find("\"tensors\"") == std::string_view::npos) {
     *error = "weights.index.json missing tensors field";
     return false;
   }
-  const char* required[] = {
-      "tok_embeddings",
-      "layers.0.attn.q_proj",
-      "layers.0.attn.k_proj",
-      "layers.0.attn.v_proj",
-      "layers.0.attn.o_proj",
-      "layers.0.mlp.gate_proj",
-      "layers.0.mlp.up_proj",
-      "layers.0.mlp.down_proj",
-      "layers.0.attn_norm",
-      "layers.0.mlp_norm",
-      "final_norm",
-      "lm_head",
-  };
-  for (const char* name : required) {
-    if (!contains_json_string(text, "name", name)) {
-      *error = std::string("weights.index.json missing tensor ") + name;
-      return false;
+  if (!require_tensor(text, "tok_embeddings", error)) return false;
+  int layers = json_int_value(config, "layers", 1);
+  for (int layer = 0; layer < layers; ++layer) {
+    auto p = "layers." + std::to_string(layer) + ".";
+    for (const auto& name : {p + "attn.q_proj", p + "attn.k_proj",
+                             p + "attn.v_proj", p + "attn.o_proj",
+                             p + "mlp.gate_proj", p + "mlp.up_proj",
+                             p + "mlp.down_proj", p + "attn_norm",
+                             p + "mlp_norm"}) {
+      if (!require_tensor(text, name, error)) return false;
     }
   }
+  if (!require_tensor(text, "final_norm", error)) return false;
+  if (!require_tensor(text, "lm_head", error)) return false;
   size_t pos = 0;
   int tensors = 0;
   while ((pos = text.find("\"byte_offset\"", pos)) != std::string_view::npos) {
@@ -129,6 +130,7 @@ bool inspect_artifact(const std::filesystem::path& model_dir,
   const auto manifest = model_dir / "manifest.json";
   const auto index = model_dir / "weights.index.json";
   const auto weights = model_dir / "weights.lkjw";
+  const auto config = model_dir / "config.json";
   auto manifest_text = read_text(manifest);
   if (!contains_json_string(manifest_text, "format",
                             "lkjai-native-artifact-v2")) {
@@ -136,12 +138,15 @@ bool inspect_artifact(const std::filesystem::path& model_dir,
     return false;
   }
   auto index_text = read_text(index);
+  auto config_text = read_text(config);
   auto weight_bytes = std::filesystem::file_size(weights);
   if (weight_bytes == 0) {
     *error = "weights.lkjw is empty";
     return false;
   }
-  if (!validate_weight_index(index_text, weight_bytes, error)) return false;
+  if (!validate_weight_index(index_text, config_text, weight_bytes, error)) {
+    return false;
+  }
   return true;
 }
 

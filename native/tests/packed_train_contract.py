@@ -7,17 +7,17 @@ import sys
 from pathlib import Path
 
 
-def write_cache(root: Path):
+def write_cache(root: Path, version: str = "lkjai-packed-cache-v2"):
     cache = root / "datasets" / "packed" / "train-causal_lm_full-seq1024"
     cache.mkdir(parents=True)
     (cache / "metadata.json").write_text(
         json.dumps(
             {
-                "format": "lkjai-packed-cache-v2",
+                "format": version,
                 "split": "train",
                 "objective": "causal_lm_full",
                 "sequence_len": 8,
-                "vocab_size": 8192,
+                "vocab_size": 256,
                 "token_dtype": "uint16",
                 "row_count": 1,
                 "token_count": 8,
@@ -31,6 +31,9 @@ def write_cache(root: Path):
 
 def main():
     train_bin = sys.argv[1]
+    logits_bin = sys.argv[2]
+    migrate_bin = sys.argv[3]
+    inspect_bin = sys.argv[4]
     repo = Path(__file__).resolve().parents[2]
     root = Path("/tmp/lkjai-packed-train")
     if root.exists():
@@ -51,7 +54,7 @@ def main():
             train_bin,
             "--train",
             "--config",
-            str(repo / "configs" / "native" / "dense_debug_bf16.json"),
+            str(repo / "configs" / "native" / "native_debug_bf16.json"),
             "--seq-len",
             "8",
             "--max-steps",
@@ -65,16 +68,28 @@ def main():
     payload = json.loads(result.stdout)
     assert payload["status"] == "pass", result.stdout
     assert payload["loss_finite"] is True, result.stdout
-    assert payload["weight_changed"] is True, result.stdout
+    assert payload["transformer_path"] is True, result.stdout
+    assert payload["non_embedding_weight_changed"] is True, result.stdout
     assert payload["logits_checksum"], result.stdout
     manifest = root / "exports" / "packed-smoke" / "manifest.json"
     assert "lkjai-native-artifact-v2" in manifest.read_text()
+    artifact = root / "exports" / "packed-smoke"
+    subprocess.run([inspect_bin, "--model-dir", str(artifact)], check=True)
+    result = subprocess.run(
+        [logits_bin, "--model-dir", str(artifact), "--tokens", "1,2,3"],
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    payload = json.loads(result.stdout)
+    assert payload["finite"] is True, result.stdout
+    assert payload["shape"] == [1, 256], result.stdout
     result = subprocess.run(
         [
             train_bin,
             "--train",
             "--config",
-            str(repo / "configs" / "native" / "dense_debug_bf16.json"),
+            str(repo / "configs" / "native" / "native_debug_bf16.json"),
             "--seq-len",
             "8",
             "--max-steps",
@@ -90,6 +105,44 @@ def main():
     payload = json.loads(result.stdout)
     assert payload["start_step"] == 2, result.stdout
     assert payload["steps"] == 3, result.stdout
+    v1 = root / "v1"
+    write_cache(v1, "lkjai-packed-cache-v1")
+    v2 = root / "v2"
+    subprocess.run(
+        [
+            migrate_bin,
+            "--migrate-v1-to-v2",
+            "--in",
+            str(v1 / "datasets" / "packed" / "train-causal_lm_full-seq1024"),
+            "--out",
+            str(v2),
+            "--config",
+            str(repo / "configs" / "native" / "native_debug_bf16.json"),
+            "--link-mode",
+            "hardlink",
+        ],
+        check=True,
+    )
+    assert "lkjai-packed-cache-v2" in (v2 / "metadata.json").read_text()
+    result = subprocess.run(
+        [
+            train_bin,
+            "--train",
+            "--packed-cache",
+            str(v2),
+            "--config",
+            str(repo / "configs" / "native" / "native_debug_bf16.json"),
+            "--seq-len",
+            "8",
+            "--max-steps",
+            "1",
+        ],
+        env=env,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    assert json.loads(result.stdout)["transformer_path"] is True
 
 
 if __name__ == "__main__":

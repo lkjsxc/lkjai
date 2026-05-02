@@ -54,11 +54,8 @@ def main():
             "temperature": 0.2,
         }
         status, text = request(port, "POST", "/v1/chat/completions", body)
-        assert status == 200, text
-        data = json.loads(text)
-        content = data["choices"][0]["message"]["content"]
-        assert content.startswith("<action>"), content
-        assert "native dense complete" in content, content
+        assert status == 422, text
+        assert "unsupported" in text, text
 
         body["max_tokens"] = 1
         status, text = request(port, "POST", "/v1/chat/completions", body)

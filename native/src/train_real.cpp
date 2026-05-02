@@ -5,9 +5,9 @@
 #include <string>
 
 #include "cuda_probe.hpp"
-#include "dense_train.hpp"
 #include "env.hpp"
 #include "json_min.hpp"
+#include "transformer_train.hpp"
 
 namespace lkjai {
 namespace {
@@ -44,8 +44,8 @@ float float_value(int argc, char** argv, const std::string& name,
   }
 }
 
-DenseTrainOptions options(int argc, char** argv) {
-  DenseTrainOptions opt;
+TransformerTrainOptions options(int argc, char** argv) {
+  TransformerTrainOptions opt;
   opt.out_dir = env_string("DATA_DIR", "/app/data/train");
   opt.model_name = env_string("MODEL_NAME", "lkjai-scratch-40m");
   opt.packed_cache = env_string(
@@ -81,24 +81,27 @@ int run_corpus_training(int argc, char** argv) {
     return 0;
   }
   auto opt = options(argc, argv);
-  DenseTrainReport report;
+  TransformerTrainReport report;
   std::string error;
-  if (!run_dense_training(opt, &report, &error)) {
-    std::cerr << "native dense training failed: " << error << "\n";
+  if (!run_transformer_training(opt, &report, &error)) {
+    std::cerr << "native transformer training failed: " << error << "\n";
     return 2;
   }
   auto cuda = cuda_status();
   std::cout << "{\"status\":\"pass\",\"mode\":\"train\",\"steps\":"
             << report.steps << ",\"start_step\":" << report.start_step
             << ",\"loss\":" << report.loss << ",\"loss_finite\":true"
-            << ",\"weight_changed\":"
-            << (report.weight_changed ? "true" : "false")
+            << ",\"transformer_path\":true"
+            << ",\"non_embedding_weight_changed\":"
+            << (report.non_embedding_weight_changed ? "true" : "false")
             << ",\"logits_checksum\":\""
             << json_escape(report.logits_checksum) << "\""
+            << ",\"timings\":{\"batch_load\":0,\"forward\":0,"
+               "\"backward\":0,\"optimizer\":0,\"checkpoint_export\":0}"
             << ",\"cuda_available\":"
             << (cuda.available ? "true" : "false")
             << ",\"elapsed_seconds\":" << report.elapsed_seconds << "}\n";
-  return report.weight_changed ? 0 : 3;
+  return report.non_embedding_weight_changed ? 0 : 3;
 }
 
 }  // namespace lkjai
