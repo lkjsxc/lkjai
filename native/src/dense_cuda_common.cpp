@@ -20,10 +20,14 @@ float dense_step_lr(const DenseTrainOptions& opt, int step) {
   return opt.lr * static_cast<float>(step) / static_cast<float>(opt.warmup_steps);
 }
 
-float dense_round_bf16(float value) {
+uint16_t dense_pack_bf16(float value) {
   uint32_t bits = 0;
   std::memcpy(&bits, &value, sizeof(bits));
-  bits = (bits + 0x8000u) & 0xffff0000u;
+  return static_cast<uint16_t>((bits + 0x8000u) >> 16);
+}
+
+float dense_round_bf16(float value) {
+  uint32_t bits = static_cast<uint32_t>(dense_pack_bf16(value)) << 16;
   std::memcpy(&value, &bits, sizeof(value));
   return value;
 }

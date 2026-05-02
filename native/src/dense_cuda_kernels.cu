@@ -1,5 +1,8 @@
 #include "dense_cuda_internal.hpp"
 
+#include <cmath>
+#include <cstdint>
+
 #include <cuda_bf16.h>
 
 namespace lkjai {
@@ -72,11 +75,10 @@ __global__ void emb_scatter_kernel(const float* d_hidden,
 }
 
 __global__ void adamw_kernel(float* weight, float* m, float* v, const float* grad,
-                             __nv_bfloat16* shadow, int n, float lr, int step) {
+                             __nv_bfloat16* shadow, int n, float lr, float bc1,
+                             float bc2) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i >= n) return;
-  float bc1 = 1.0f - powf(kB1, static_cast<float>(step));
-  float bc2 = 1.0f - powf(kB2, static_cast<float>(step));
   float mi = kB1 * m[i] + (1.0f - kB1) * grad[i];
   float vi = kB2 * v[i] + (1.0f - kB2) * grad[i] * grad[i];
   m[i] = mi;
@@ -84,7 +86,8 @@ __global__ void adamw_kernel(float* weight, float* m, float* v, const float* gra
   float update = (mi / bc1) / (sqrtf(vi / bc2) + kEps);
   float next = weight[i] - lr * (update + kWd * weight[i]);
   weight[i] = next;
-  shadow[i] = __float2bfloat16(next);
+  reinterpret_cast<uint16_t*>(shadow)[i] =
+      static_cast<uint16_t>((__float_as_uint(next) + 0x8000u) >> 16);
 }
 
 }  // namespace
@@ -123,8 +126,11 @@ void dense_launch_emb_scatter(const float* d_hidden, const uint16_t* tokens,
 void dense_launch_adamw(float* weight, float* m, float* v, const float* grad,
                         void* shadow, int n, float lr, int step,
                         cudaStream_t stream) {
+  float bc1 = 1.0f - std::pow(kB1, static_cast<float>(step));
+  float bc2 = 1.0f - std::pow(kB2, static_cast<float>(step));
   adamw_kernel<<<(n + 255) / 256, 256, 0, stream>>>(
-      weight, m, v, grad, static_cast<__nv_bfloat16*>(shadow), n, lr, step);
+      weight, m, v, grad, static_cast<__nv_bfloat16*>(shadow), n, lr, bc1,
+      bc2);
   require_cuda(cudaGetLastError(), "adamw_kernel");
 }
 

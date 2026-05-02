@@ -1,6 +1,5 @@
 #include "dense_train_internal.hpp"
 
-#include <bit>
 #include <cstdint>
 #include <fstream>
 #include <sstream>
@@ -10,11 +9,6 @@
 
 namespace lkjai {
 namespace {
-
-uint16_t bf16(float value) {
-  auto bits = std::bit_cast<uint32_t>(value);
-  return static_cast<uint16_t>((bits + 0x8000u) >> 16);
-}
 
 std::string hex64(uint64_t value) {
   std::ostringstream out;
@@ -35,7 +29,7 @@ void pad_256(std::ofstream& out) {
 
 void write_bf16(std::ofstream& out, const std::vector<float>& values) {
   for (float value : values) {
-    auto packed = bf16(value);
+    auto packed = dense_pack_bf16(value);
     out.write(reinterpret_cast<const char*>(&packed), sizeof(packed));
   }
 }
@@ -58,7 +52,9 @@ void append_named(std::ofstream& weights, std::ostringstream* index,
   }
   *index << "],\"byte_offset\":" << offset << ",\"byte_length\":" << bytes
          << "}";
-  for (float value : values) *hash = (*hash ^ bf16(value)) * 1099511628211ull;
+  for (float value : values) {
+    *hash = (*hash ^ dense_pack_bf16(value)) * 1099511628211ull;
+  }
 }
 
 void append_f32(std::ofstream& weights, std::ostringstream* index,

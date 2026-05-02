@@ -2,6 +2,7 @@
 
 #include <cuda_bf16.h>
 
+#include <cstdint>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -11,7 +12,10 @@ namespace {
 
 __global__ void f32_to_bf16(const float* in, __nv_bfloat16* out, size_t n) {
   size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-  if (i < n) out[i] = __float2bfloat16(in[i]);
+  if (i < n) {
+    reinterpret_cast<uint16_t*>(out)[i] =
+        static_cast<uint16_t>((__float_as_uint(in[i]) + 0x8000u) >> 16);
+  }
 }
 
 __global__ void bf16_to_f32(const __nv_bfloat16* in, float* out, size_t n) {
@@ -143,7 +147,8 @@ void DeviceTensor::copy_from_host_f32(const std::vector<float>& host,
   require_cuda(cudaMemcpyAsync(temp, host.data(), host.size() * sizeof(float),
                                cudaMemcpyHostToDevice, stream),
                "cudaMemcpyAsync H2D temp");
-  f32_to_bf16<<<static_cast<unsigned>((host.size() + 255) / 256), 256>>>(
+  f32_to_bf16<<<static_cast<unsigned>((host.size() + 255) / 256), 256, 0,
+                stream>>>(
       temp, static_cast<__nv_bfloat16*>(data_), host.size());
   require_cuda(cudaGetLastError(), "f32_to_bf16");
   free_temp(temp, stream, async);
@@ -167,7 +172,8 @@ std::vector<float> DeviceTensor::copy_to_host_f32(cudaStream_t stream) const {
   bool async = false;
   temp = static_cast<float*>(allocate_temp(host.size() * sizeof(float), stream,
                                           &async));
-  bf16_to_f32<<<static_cast<unsigned>((host.size() + 255) / 256), 256>>>(
+  bf16_to_f32<<<static_cast<unsigned>((host.size() + 255) / 256), 256, 0,
+                stream>>>(
       static_cast<const __nv_bfloat16*>(data_), temp, host.size());
   require_cuda(cudaGetLastError(), "bf16_to_f32");
   require_cuda(cudaMemcpyAsync(host.data(), temp, host.size() * sizeof(float),

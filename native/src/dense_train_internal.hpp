@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -32,6 +33,8 @@ struct DenseCheckpointMetadata {
 };
 
 void init_dense_state(const DenseConfig& cfg, DenseTrainState* state);
+uint16_t dense_pack_bf16(float value);
+float dense_round_bf16(float value);
 double dense_forward_backward(const PackedBatch& batch, DenseTrainState* state);
 void dense_adamw(std::vector<float>* weight, std::vector<float>* m,
                  std::vector<float>* v, const std::vector<float>& grad,

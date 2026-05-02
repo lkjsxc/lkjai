@@ -61,7 +61,6 @@ class DenseCudaState {
 
 double dense_seconds_since(std::chrono::steady_clock::time_point start);
 float dense_step_lr(const DenseTrainOptions& opt, int step);
-float dense_round_bf16(float value);
 double dense_max_abs_diff(const std::vector<float>& a,
                           const std::vector<float>& b);
 std::string dense_checksum_floats(const std::vector<float>& values);
