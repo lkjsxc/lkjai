@@ -26,6 +26,7 @@ artifact inspection, and CUDA capability probing.
   [dense_cuda_internal.hpp](dense_cuda_internal.hpp),
   [dense_cuda_kernels.cu](dense_cuda_kernels.cu),
   [dense_cuda_logits.cpp](dense_cuda_logits.cpp),
+  [dense_cuda_logits_reference.cpp](dense_cuda_logits_reference.cpp),
   [dense_cuda_state.cu](dense_cuda_state.cu), and
   [dense_cuda_train.cpp](dense_cuda_train.cpp): dense BF16 CUDA trainer,
   logits check, GEMM wrapper, kernels, and state management.

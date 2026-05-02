@@ -11,20 +11,17 @@ from pathlib import Path
 def write_cache(root: Path, version: str = "lkjai-packed-cache-v2"):
     cache = root / "datasets" / "packed" / "train-causal_lm_full-seq1024"
     cache.mkdir(parents=True)
-    (cache / "metadata.json").write_text(
-        json.dumps(
-            {
-                "format": version,
-                "split": "train",
-                "objective": "causal_lm_full",
-                "sequence_len": 8,
-                "vocab_size": 256,
-                "token_dtype": "uint16",
-                "row_count": 1,
-                "token_count": 8,
-            }
-        )
-    )
+    meta = {
+        "format": version,
+        "split": "train",
+        "objective": "causal_lm_full",
+        "sequence_len": 8,
+        "vocab_size": 256,
+        "token_dtype": "uint16",
+        "row_count": 1,
+        "token_count": 8,
+    }
+    (cache / "metadata.json").write_text(json.dumps(meta))
     (cache / "tokens.bin").write_bytes(struct.pack("<8H", *range(8)))
     (cache / "loss_mask.bin").write_bytes(bytes([1] * 8))
     (cache / "starts.bin").write_bytes(struct.pack("<Q", 0))
@@ -96,12 +93,8 @@ def check_schema(artifact: Path, inspect_bin: str):
     assert ckpt_manifest["kind"] == "dense"
     assert ckpt_manifest["artifact_kind"] == "checkpoint"
     assert (checkpoint / "optimizer.index.json").is_file()
-    opt_names = {
-        tensor["name"]
-        for tensor in json.loads((checkpoint / "optimizer.index.json").read_text())[
-            "tensors"
-        ]
-    }
+    opt_index = json.loads((checkpoint / "optimizer.index.json").read_text())
+    opt_names = {tensor["name"] for tensor in opt_index["tensors"]}
     assert {
         "master.tok_embeddings",
         "adam_m.tok_embeddings",
@@ -156,20 +149,10 @@ def main():
     assert payload["shape"] == [1, 256], result.stdout
     assert payload["reference_check"] == "not_requested", result.stdout
     first_logits_checksum = payload["checksum"]
-    result = subprocess.run(
-        [
-            logits_bin,
-            "--model-dir",
-            str(artifact),
-            "--tokens",
-            "1,2,3",
-            "--reference-checkpoint",
-            str(root / "checkpoints" / "latest"),
-        ],
-        text=True,
-        capture_output=True,
-        check=True,
-    )
+    result = subprocess.run([
+        logits_bin, "--model-dir", str(artifact), "--tokens", "1,2,3",
+        "--reference-checkpoint", str(root / "checkpoints" / "latest"),
+    ], text=True, capture_output=True, check=True)
     ref_payload = json.loads(result.stdout)
     assert ref_payload["reference_check"] == "pass", result.stdout
     assert ref_payload["max_abs_diff"] <= ref_payload["tolerance"], result.stdout
@@ -196,23 +179,13 @@ def main():
     repeated_payload = run_train(train_bin, repeated, repo, 2)
     assert repeated_payload["export_checksum"]
     assert repeated_payload["logits_checksum"] == first_logits_checksum
-    bad = subprocess.run(
-        [
-            train_bin,
-            "--train",
-            "--config",
-            str(repo / "configs" / "native" / "native_40m_bf16.json"),
-            "--seq-len",
-            "8",
-            "--max-steps",
-            "1",
-            "--resume",
-            str(root / "checkpoints" / "latest"),
-        ],
-        env={**os.environ.copy(), "DATA_DIR": str(root)},
-        text=True,
-        capture_output=True,
-    )
+    bad = subprocess.run([
+        train_bin, "--train", "--config",
+        str(repo / "configs" / "native" / "native_40m_bf16.json"),
+        "--seq-len", "8", "--max-steps", "1", "--resume",
+        str(root / "checkpoints" / "latest"),
+    ], env={**os.environ.copy(), "DATA_DIR": str(root)}, text=True,
+        capture_output=True)
     assert bad.returncode != 0
     assert "mismatch" in bad.stderr
 

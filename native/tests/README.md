@@ -14,5 +14,7 @@ This directory contains test helpers for native CTest cases.
   and deterministic continuation.
 - [packed_cache_migration_contract.py](packed_cache_migration_contract.py):
   checks v1-to-v2 cache migration and trains from the migrated cache.
+- [transformer_train_contract.py](transformer_train_contract.py): checks the
+  experimental transformer training contract and report status.
 - [benchmark_report_parser.py](benchmark_report_parser.py): checks benchmark
   parsing of the stable native train-report JSON contract.
