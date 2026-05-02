@@ -20,7 +20,7 @@ struct DenseConfig {
 
 struct DenseTrainOptions {
   std::filesystem::path packed_cache;
-  std::filesystem::path config_path = "configs/native/dense_debug_bf16.json";
+  std::filesystem::path config_path = "configs/native/native_debug_bf16.json";
   std::filesystem::path out_dir;
   std::filesystem::path resume_dir;
   std::filesystem::path export_artifact;

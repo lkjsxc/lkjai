@@ -29,5 +29,10 @@ struct PackedBatch {
 bool load_packed_batch(const std::filesystem::path& dir, int first_window,
                        int batch_size, int sequence_len, PackedBatch* batch,
                        std::string* error);
+bool migrate_packed_cache_v1_to_v2(const std::filesystem::path& in,
+                                   const std::filesystem::path& out,
+                                   const std::filesystem::path& config,
+                                   const std::string& link_mode,
+                                   std::string* error);
 
 }  // namespace lkjai

@@ -9,5 +9,9 @@
   "kv_heads": 2,
   "head_dim": 72,
   "ffn_size": 1536,
+  "activation": "swiglu",
+  "rope_theta": 10000,
+  "rms_norm_eps": 0.00001,
+  "tie_embeddings": true,
   "seed": 20260502
 }
