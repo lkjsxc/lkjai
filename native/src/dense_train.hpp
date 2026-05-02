@@ -37,10 +37,17 @@ struct DenseTrainOptions {
 struct DenseTrainReport {
   int steps = 0;
   int start_step = 0;
+  double initial_loss = 0.0;
   double loss = 0.0;
   bool weight_changed = false;
   std::string logits_checksum;
   double elapsed_seconds = 0.0;
+  double batch_load_seconds = 0.0;
+  double forward_seconds = 0.0;
+  double backward_seconds = 0.0;
+  double optimizer_seconds = 0.0;
+  double checkpoint_seconds = 0.0;
+  double export_seconds = 0.0;
 };
 
 bool load_dense_config(const std::filesystem::path& path, DenseConfig* config,

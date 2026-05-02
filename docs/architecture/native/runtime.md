@@ -11,20 +11,22 @@ Serve the scratch model through one native C++/CUDA HTTP process.
   name, and warning.
 - `POST /v1/chat/completions` accepts `model`, `messages`, `max_tokens`, and
   `temperature`.
-- Chat responses keep `choices[0].message.content`.
+- Successful chat responses keep `choices[0].message.content`.
 - Non-success responses include a JSON `error` string.
 - Capability fields follow [capability.md](capability.md).
 
 ## Inference Contract
 
 - Load native artifacts from `MODEL_ROOT/MODEL_NAME`.
-- Transformer artifacts load through `/v1/models`; autoregressive chat decode
-  returns an explicit unsupported-decode error until the decode slice lands.
+- Dense and transformer artifacts load through `/v1/models`; autoregressive chat
+  decode returns an explicit unsupported-decode error until the decode slice
+  lands.
 - `lkjai-native-logits-check` is the accepted inference proof for this slice.
 - Do not use supervised lookup, canned responses, or prompt lookup tables.
-- CPU execution is allowed only as a visible degraded mode.
-- The smoke artifact is a transformer artifact with named tensors. It is a
-  numerics and artifact gate, not a behavioral competency artifact.
+- CPU execution is allowed only as a visible degraded mode outside dense CUDA
+  training.
+- The smoke artifact is a dense artifact with named tensors. It is a numerics
+  and artifact gate, not a behavioral competency artifact.
 
 ## Decode Target
 

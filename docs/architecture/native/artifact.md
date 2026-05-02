@@ -30,7 +30,8 @@ Each exported model directory contains:
 `manifest.json` records:
 
 - `format`: always `lkjai-native-artifact-v2`.
-- `kind`: model family, currently `transformer`.
+- `kind`: model family, currently `dense` for active training exports or
+  `transformer` for the retained transformer artifact path.
 - `artifact_kind`: `export` for serving or `checkpoint` for resume state.
 - `config_checksum`: checksum of `config.json`.
 - `tokenizer_checksum`: checksum of `tokenizer.json`.
@@ -38,7 +39,17 @@ Each exported model directory contains:
 The tokenizer checksum may be a placeholder while the tokenizer remains minimal,
 but it must still match the bytes written in the artifact directory.
 
-## Required Tensor Names
+## Dense Required Tensor Names
+
+Dense artifacts require:
+
+- `tok_embeddings`
+- `lm_head`
+
+Dense checkpoints also require FP32 optimizer tensors for `master.*`,
+`adam_m.*`, and `adam_v.*` for both dense tensors.
+
+## Transformer Required Tensor Names
 
 - `tok_embeddings`
 - `layers.N.attn.q_proj`
@@ -62,17 +73,26 @@ Optimizer tensors are reserved for FP32 master weights, Adam moments, scheduler
 counters, RNG state, and resume metadata. Serving exports omit optimizer tensors
 by default.
 
+## Dense Slice
+
+`manifest.json.kind` is `dense` for the active native BF16 CUDA milestone. The
+exported weights are BF16 tensors for token embeddings and LM head. The config
+records `vocab_size`, `context`, `hidden_size`, `heads`, `kv_heads`, `head_dim`,
+`ffn_size`, and `seed`.
+
+`lkjai-native-logits-check --model-dir DIR --tokens 1,2,3` loads dense or
+transformer artifacts, validates finite `[1,V]` next-token logits, and emits a
+JSON checksum.
+
 ## Transformer Slice
 
-`manifest.json.kind` is `transformer` for the native BF16 slice. The exported
+`manifest.json.kind` is `transformer` for the retained BF16 slice. The exported
 weights are BF16 tensors for token embeddings, every configured layer, final
 RMSNorm, and LM head. The config records `vocab_size`, `context`, `layers`,
 `hidden_size`, `heads`, `kv_heads`, `head_dim`, `ffn_size`, `activation`,
 `rope_theta`, `rms_norm_eps`, `tie_embeddings`, and `seed`.
 
-`lkjai-native-logits-check --model-dir DIR --tokens 1,2,3` loads those tensors,
-runs the transformer forward path, validates finite `[1,V]` next-token logits,
-and emits a JSON checksum.
+Transformer chat decode remains unsupported until the decode milestone lands.
 
 ## Compatibility
 

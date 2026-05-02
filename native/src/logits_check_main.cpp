@@ -1,6 +1,9 @@
+#include <filesystem>
 #include <iostream>
 #include <string>
 
+#include "dense_cuda.hpp"
+#include "json_min.hpp"
 #include "transformer_train.hpp"
 
 namespace {
@@ -23,7 +26,14 @@ int main(int argc, char** argv) {
   }
   std::string json;
   std::string error;
-  if (!lkjai::transformer_logits_check(dir, tokens, &json, &error)) {
+  auto manifest = lkjai::read_text(std::filesystem::path(dir) / "manifest.json");
+  bool ok = false;
+  if (lkjai::contains_json_string(manifest, "kind", "dense")) {
+    ok = lkjai::dense_cuda_logits_check(dir, tokens, &json, &error);
+  } else {
+    ok = lkjai::transformer_logits_check(dir, tokens, &json, &error);
+  }
+  if (!ok) {
     std::cerr << "native logits check failed: " << error << "\n";
     return 2;
   }

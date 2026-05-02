@@ -48,8 +48,8 @@ The transformer path is accepted only when all of these are true:
 - `lkjai-native-logits-check` validates finite `[1,V]` logits from an exported
   artifact.
 - Native server loads the artifact. Until decode lands, chat returns explicit
-  unsupported-decode JSON for transformer artifacts.
-- GPU-required Compose verify passes on the native transformer smoke.
+  unsupported-decode JSON for dense and transformer artifacts.
+- GPU-required Compose verify passes on the native dense CUDA smoke.
 - Capability JSON reports device CC, BF16 support, cuBLASLt, cuDNN, and SDPA
   eligibility.
 

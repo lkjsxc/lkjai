@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cmath>
 
+#include "dense_cuda.hpp"
 #include "dense_train_internal.hpp"
 #include "json_min.hpp"
 #include "packed_cache.hpp"
@@ -54,83 +55,7 @@ bool load_dense_config(const std::filesystem::path& path, DenseConfig* config,
 
 bool run_dense_training(const DenseTrainOptions& opt, DenseTrainReport* report,
                         std::string* error) {
-  DenseConfig cfg;
-  if (!load_dense_config(opt.config_path, &cfg, error)) return false;
-  auto cache = inspect_packed_cache(opt.packed_cache);
-  if (!cache.ok) {
-    *error = cache.error;
-    return false;
-  }
-  if (cache.vocab_size > cfg.vocab_size) {
-    *error = "packed cache vocab_size exceeds dense config vocab_size";
-    return false;
-  }
-  DenseTrainState state;
-  init_dense_state(cfg, &state);
-  report->start_step = resume_step(opt.resume_dir);
-  int seq_len = opt.seq_len > 0 ? opt.seq_len : cfg.context;
-  if (seq_len > cfg.context) {
-    *error = "requested seq_len exceeds dense config context";
-    return false;
-  }
-  auto before = state.emb.front();
-  auto started = std::chrono::steady_clock::now();
-  for (int local = 1; local <= opt.max_steps; ++local) {
-    PackedBatch batch;
-    auto first = (report->start_step + local - 1) * opt.batch_size;
-    if (!load_packed_batch(opt.packed_cache, first, opt.batch_size, seq_len,
-                           &batch, error)) {
-      return false;
-    }
-    report->loss = dense_forward_backward(batch, &state);
-    if (!std::isfinite(report->loss)) {
-      *error = "dense training produced non-finite loss";
-      return false;
-    }
-    int step = report->start_step + local;
-    float lr = opt.lr;
-    if (opt.warmup_steps > 0 && step <= opt.warmup_steps) {
-      lr *= static_cast<float>(step) / static_cast<float>(opt.warmup_steps);
-    }
-    dense_adamw(&state.emb, &state.m_emb, &state.v_emb, state.grad_emb, lr, step);
-    dense_adamw(&state.head, &state.m_head, &state.v_head, state.grad_head,
-                lr, step);
-    if (opt.checkpoint_interval > 0 && step % opt.checkpoint_interval == 0 &&
-        !write_dense_train_artifact(opt.out_dir / "checkpoints" / "latest",
-                                    state, step, report->loss, true,
-                                    &report->logits_checksum)) {
-      *error = "failed to write latest checkpoint";
-      return false;
-    }
-    report->steps = step;
-  }
-  report->weight_changed = std::fabs(state.emb.front() - before) > 0.0f;
-  auto export_dir = opt.out_dir / "exports" / opt.model_name;
-  auto served_dir = opt.out_dir.parent_path() / "models" / opt.model_name;
-  bool ok = write_dense_train_artifact(opt.out_dir / "checkpoints" / "latest",
-                                       state, report->steps, report->loss, true,
-                                       &report->logits_checksum) &&
-            write_dense_train_artifact(opt.out_dir / "checkpoints" / "final",
-                                       state, report->steps, report->loss, true,
-                                       &report->logits_checksum) &&
-            write_dense_train_artifact(export_dir, state, report->steps,
-                                       report->loss, false,
-                                       &report->logits_checksum) &&
-            write_dense_train_artifact(served_dir, state, report->steps,
-                                       report->loss, false,
-                                       &report->logits_checksum);
-  if (ok && !opt.export_artifact.empty()) {
-    ok = write_dense_train_artifact(opt.export_artifact, state, report->steps,
-                                    report->loss, false,
-                                    &report->logits_checksum);
-  }
-  if (!ok) {
-    *error = "failed to write dense artifact";
-    return false;
-  }
-  report->elapsed_seconds = std::chrono::duration<double>(
-      std::chrono::steady_clock::now() - started).count();
-  return true;
+  return run_dense_cuda_training(opt, report, error);
 }
 
 }  // namespace lkjai

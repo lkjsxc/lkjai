@@ -3,9 +3,9 @@
 #include <bit>
 #include <cstdint>
 #include <fstream>
-#include <numeric>
 #include <sstream>
 
+#include "artifact.hpp"
 #include "json_min.hpp"
 
 namespace lkjai {
@@ -81,38 +81,27 @@ void append_f32(std::ofstream& weights, std::ostringstream* index,
          << "}";
 }
 
-void append_fill(std::ofstream& weights, std::ostringstream* index,
-                 const std::string& name, const std::vector<int>& shape,
-                 float value, bool* first, uint64_t* hash) {
-  auto total = std::accumulate(shape.begin(), shape.end(), uint64_t{1},
-                               [](uint64_t a, int b) { return a * b; });
-  append_named(weights, index, name, shape,
-               std::vector<float>(static_cast<size_t>(total), value), first,
-               hash);
+std::string config_json(const DenseConfig& c) {
+  std::ostringstream out;
+  out << "{\"model\":\"" << json_escape(c.model) << "\",\"dtype\":\"bf16\","
+      << "\"vocab_size\":" << c.vocab_size << ",\"context\":" << c.context
+      << ",\"layers\":" << c.layers << ",\"hidden_size\":" << c.hidden_size
+      << ",\"heads\":" << c.heads << ",\"kv_heads\":" << c.kv_heads
+      << ",\"head_dim\":" << c.head_dim << ",\"ffn_size\":" << c.ffn_size
+      << ",\"seed\":" << c.seed << "}\n";
+  return out.str();
 }
 
-void append_layer(std::ofstream& weights, std::ostringstream* index,
-                  const DenseConfig& c, int layer, bool* first,
-                  uint64_t* hash) {
-  auto p = "layers." + std::to_string(layer) + ".";
-  append_fill(weights, index, p + "attn.q_proj", {c.hidden_size, c.hidden_size},
-              0.001f, first, hash);
-  append_fill(weights, index, p + "attn.k_proj", {c.hidden_size, c.hidden_size},
-              0.001f, first, hash);
-  append_fill(weights, index, p + "attn.v_proj", {c.hidden_size, c.hidden_size},
-              0.001f, first, hash);
-  append_fill(weights, index, p + "attn.o_proj", {c.hidden_size, c.hidden_size},
-              0.001f, first, hash);
-  append_fill(weights, index, p + "mlp.gate_proj", {c.hidden_size, c.ffn_size},
-              0.001f, first, hash);
-  append_fill(weights, index, p + "mlp.up_proj", {c.hidden_size, c.ffn_size},
-              0.001f, first, hash);
-  append_fill(weights, index, p + "mlp.down_proj", {c.ffn_size, c.hidden_size},
-              0.001f, first, hash);
-  append_fill(weights, index, p + "attn_norm", {c.hidden_size}, 1.0f, first,
-              hash);
-  append_fill(weights, index, p + "mlp_norm", {c.hidden_size}, 1.0f, first,
-              hash);
+std::string manifest_json(const std::string& artifact_kind,
+                          std::string_view config,
+                          std::string_view tokenizer) {
+  std::ostringstream out;
+  out << "{\"format\":\"lkjai-native-artifact-v2\",\"kind\":\"dense\","
+      << "\"artifact_kind\":\"" << artifact_kind << "\","
+      << "\"config_checksum\":\"" << artifact_text_checksum(config) << "\","
+      << "\"tokenizer_checksum\":\"" << artifact_text_checksum(tokenizer)
+      << "\"}\n";
+  return out.str();
 }
 
 }  // namespace
@@ -131,28 +120,20 @@ bool write_dense_train_artifact(const std::filesystem::path& dir,
   index << "{\"tensors\":[";
   append_named(weights, &index, "tok_embeddings",
                {c.vocab_size, c.hidden_size}, state.emb, &first, &hash);
-  for (int layer = 0; layer < c.layers; ++layer) {
-    append_layer(weights, &index, c, layer, &first, &hash);
-  }
-  append_fill(weights, &index, "final_norm", {c.hidden_size}, 1.0f, &first,
-              &hash);
   append_named(weights, &index, "lm_head", {c.vocab_size, c.hidden_size},
                state.head, &first, &hash);
   index << "]}\n";
   weights.close();
   *checksum = hex64(hash);
   write_text(dir / "weights.index.json", index.str());
+  auto config = config_json(c);
+  auto tokenizer = "{\"format\":\"uint16-packed-cache\",\"vocab_size\":" +
+                   std::to_string(c.vocab_size) + "}\n";
   write_text(dir / "manifest.json",
-             "{\"format\":\"lkjai-native-artifact-v2\",\"kind\":\"dense\"}\n");
-  write_text(dir / "config.json",
-             "{\"model\":\"" + json_escape(c.model) +
-                 "\",\"layers\":" + std::to_string(c.layers) +
-                 ",\"hidden_size\":" + std::to_string(c.hidden_size) +
-                 ",\"vocab_size\":" + std::to_string(c.vocab_size) +
-                 ",\"context\":" + std::to_string(c.context) + "}\n");
-  write_text(dir / "tokenizer.json",
-             "{\"format\":\"uint16-packed-cache\",\"vocab_size\":" +
-                 std::to_string(c.vocab_size) + "}\n");
+             manifest_json(checkpoint ? "checkpoint" : "export", config,
+                           tokenizer));
+  write_text(dir / "config.json", config);
+  write_text(dir / "tokenizer.json", tokenizer);
   write_text(dir / "trainer_state.json",
              "{\"optimizer_steps\":" + std::to_string(step) +
                  ",\"loss\":" + std::to_string(loss) +

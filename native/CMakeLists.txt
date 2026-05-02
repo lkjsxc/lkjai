@@ -13,7 +13,6 @@ find_library(CUDNN_LIBRARY cudnn REQUIRED)
 
 add_library(lkjai_cuda STATIC
   src/cuda_probe.cu
-  src/dense_cuda.cu
   src/runtime_errors.cu
   src/runtime_device.cu
   src/runtime_workspace.cu
@@ -32,12 +31,20 @@ target_compile_definitions(lkjai_cuda PUBLIC LKJAI_WITH_CUDA=1)
 add_library(lkjai_native_core STATIC
   src/artifact.cpp
   src/artifact_manifest.cpp
+  src/artifact_validate.cpp
   src/capability_json.cpp
   src/dense_model.cpp
   src/env.cpp
   src/json_min.cpp
   src/packed_cache.cpp
   src/train_data.cpp
+  src/dense_cuda.cu
+  src/dense_cuda_common.cpp
+  src/dense_cuda_gemm.cu
+  src/dense_cuda_kernels.cu
+  src/dense_cuda_logits.cpp
+  src/dense_cuda_state.cu
+  src/dense_cuda_train.cpp
   src/dense_train.cpp
   src/dense_train_artifact.cpp
   src/dense_train_math.cpp
@@ -76,8 +83,11 @@ target_link_libraries(lkjai-native-packed-cache PRIVATE lkjai_native_core)
 enable_testing()
 add_test(NAME native_inspect_missing COMMAND lkjai-native-inspect --model-dir /missing)
 set_tests_properties(native_inspect_missing PROPERTIES WILL_FAIL TRUE)
-add_test(NAME native_train_smoke COMMAND lkjai-native-train --smoke --steps 2)
-add_test(NAME native_dense_cuda_check COMMAND lkjai-native-dense-check)
+add_test(
+  NAME native_train_smoke
+  COMMAND sh -c "$<TARGET_FILE:lkjai-native-train> --smoke --steps 2 > /tmp/lkjai-native-smoke.json && python3 -c 'import json; p=json.load(open(\"/tmp/lkjai-native-smoke.json\")); assert p[\"dense_cuda_path\"] is True and p[\"loss\"] < p[\"initial_loss\"]'"
+)
+add_test(NAME native_dense_cuda_parity COMMAND lkjai-native-dense-check)
 add_test(NAME native_device_tensor_check COMMAND lkjai-native-device-check)
 add_test(
   NAME native_packed_train_contract

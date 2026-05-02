@@ -6,9 +6,9 @@
 
 #include "cuda_probe.hpp"
 #include "capability_json.hpp"
+#include "dense_train.hpp"
 #include "env.hpp"
 #include "json_min.hpp"
-#include "transformer_train.hpp"
 
 namespace lkjai {
 namespace {
@@ -45,8 +45,8 @@ float float_value(int argc, char** argv, const std::string& name,
   }
 }
 
-TransformerTrainOptions options(int argc, char** argv) {
-  TransformerTrainOptions opt;
+DenseTrainOptions options(int argc, char** argv) {
+  DenseTrainOptions opt;
   opt.out_dir = env_string("DATA_DIR", "/app/data/train");
   opt.model_name = env_string("MODEL_NAME", "lkjai-scratch-40m");
   opt.packed_cache = env_string(
@@ -82,32 +82,34 @@ int run_corpus_training(int argc, char** argv) {
     return 0;
   }
   auto opt = options(argc, argv);
-  TransformerTrainReport report;
+  DenseTrainReport report;
   std::string error;
-  if (!run_transformer_training(opt, &report, &error)) {
-    std::cerr << "native transformer training failed: " << error << "\n";
+  if (!run_dense_training(opt, &report, &error)) {
+    std::cerr << "native dense CUDA training failed: " << error << "\n";
     return 2;
   }
   auto cuda = cuda_status();
   std::cout << "{\"status\":\"pass\",\"mode\":\"train\",\"steps\":"
             << report.steps << ",\"start_step\":" << report.start_step
+            << ",\"initial_loss\":" << report.initial_loss
             << ",\"loss\":" << report.loss << ",\"loss_finite\":true"
-            << ",\"transformer_path\":true"
-            << ",\"non_embedding_weight_changed\":"
-            << (report.non_embedding_weight_changed ? "true" : "false")
+            << ",\"dense_cuda_path\":true"
+            << ",\"weight_changed\":"
+            << (report.weight_changed ? "true" : "false")
             << ",\"logits_checksum\":\""
             << json_escape(report.logits_checksum) << "\""
             << ",\"timings\":{\"batch_load\":"
             << report.batch_load_seconds << ",\"forward\":"
             << report.forward_seconds << ",\"backward\":"
             << report.backward_seconds << ",\"optimizer\":"
-            << report.optimizer_seconds << ",\"checkpoint_export\":"
-            << report.checkpoint_export_seconds << "}"
+            << report.optimizer_seconds << ",\"checkpoint\":"
+            << report.checkpoint_seconds << ",\"export\":"
+            << report.export_seconds << "}"
             << ",\"cuda_available\":"
             << (cuda.available ? "true" : "false")
             << ",\"capability\":{" << capability_json_fields(cuda) << "}"
             << ",\"elapsed_seconds\":" << report.elapsed_seconds << "}\n";
-  return report.non_embedding_weight_changed ? 0 : 3;
+  return report.weight_changed ? 0 : 3;
 }
 
 }  // namespace lkjai

@@ -8,8 +8,9 @@
 
 #include "cuda_probe.hpp"
 #include "capability_json.hpp"
+#include "dense_train.hpp"
 #include "env.hpp"
-#include "transformer_train.hpp"
+#include "json_min.hpp"
 #include "train_real.hpp"
 
 namespace {
@@ -49,7 +50,7 @@ void prepare_smoke_fixture(const std::filesystem::path& root,
   std::ofstream tokens(*cache / "tokens.bin", std::ios::binary);
   std::ofstream mask(*cache / "loss_mask.bin", std::ios::binary);
   for (int i = 0; i < 32; ++i) {
-    write_u16(tokens, static_cast<uint16_t>(i % 251));
+    write_u16(tokens, static_cast<uint16_t>((i % 2) + 1));
     mask.put('\1');
   }
   std::ofstream starts(*cache / "starts.bin", std::ios::binary);
@@ -65,24 +66,25 @@ void prepare_smoke_fixture(const std::filesystem::path& root,
          "\"tie_embeddings\":true,\"seed\":1337}\n";
 }
 
-void run_smoke_training(int steps) {
+lkjai::DenseTrainReport run_smoke_training(int steps) {
   auto data = std::filesystem::path(lkjai::env_string("DATA_DIR", "/tmp/lkjai-native-smoke"));
   auto model = lkjai::env_string("MODEL_NAME", "lkjai-scratch-40m");
   std::filesystem::path cache;
   std::filesystem::path config;
   prepare_smoke_fixture(data, &cache, &config);
-  lkjai::TransformerTrainOptions opt;
+  lkjai::DenseTrainOptions opt;
   opt.packed_cache = cache;
   opt.config_path = config;
   opt.out_dir = data;
   opt.model_name = model;
   opt.seq_len = 16;
   opt.max_steps = steps;
-  lkjai::TransformerTrainReport report;
+  lkjai::DenseTrainReport report;
   std::string error;
-  if (!lkjai::run_transformer_training(opt, &report, &error)) {
+  if (!lkjai::run_dense_training(opt, &report, &error)) {
     throw std::runtime_error(error);
   }
+  return report;
 }
 
 }  // namespace
@@ -105,14 +107,30 @@ int main(int argc, char** argv) {
   auto started = std::chrono::steady_clock::now();
   for (int step = 1; step <= steps; ++step) {
     std::this_thread::sleep_for(std::chrono::milliseconds(2));
-    std::cerr << "{\"event\":\"native_transformer_smoke_step\",\"step\":" << step
+    std::cerr << "{\"event\":\"native_dense_cuda_smoke_step\",\"step\":" << step
               << "}\n";
   }
-  run_smoke_training(steps);
+  auto report = run_smoke_training(steps);
   auto elapsed = std::chrono::duration<double>(
       std::chrono::steady_clock::now() - started).count();
   std::cout << "{\"status\":\"pass\",\"mode\":\"smoke\",\"steps\":" << steps
-            << ",\"transformer_path\":true"
+            << ",\"optimizer_steps\":" << report.steps
+            << ",\"start_step\":" << report.start_step
+            << ",\"initial_loss\":" << report.initial_loss
+            << ",\"loss\":" << report.loss
+            << ",\"loss_finite\":true"
+            << ",\"dense_cuda_path\":true"
+            << ",\"weight_changed\":"
+            << (report.weight_changed ? "true" : "false")
+            << ",\"logits_checksum\":\""
+            << lkjai::json_escape(report.logits_checksum) << "\""
+            << ",\"timings\":{\"batch_load\":"
+            << report.batch_load_seconds << ",\"forward\":"
+            << report.forward_seconds << ",\"backward\":"
+            << report.backward_seconds << ",\"optimizer\":"
+            << report.optimizer_seconds << ",\"checkpoint\":"
+            << report.checkpoint_seconds << ",\"export\":"
+            << report.export_seconds << "}"
             << ",\"cuda_available\":" << (cuda.available ? "true" : "false")
             << ",\"capability\":{" << lkjai::capability_json_fields(cuda)
             << "}"

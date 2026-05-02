@@ -21,6 +21,11 @@ int main() {
             << (check.sdpa_eligible ? "true" : "false")
             << ",\"async_alloc_supported\":"
             << (check.async_alloc_supported ? "true" : "false")
+            << ",\"loss\":" << check.loss
+            << ",\"cpu_loss\":" << check.cpu_loss
+            << ",\"max_logit_diff\":" << check.max_logit_diff
+            << ",\"max_grad_diff\":" << check.max_grad_diff
+            << ",\"max_update_diff\":" << check.max_update_diff
             << ",\"error\":\"" << lkjai::json_escape(check.error)
             << "\"}\n";
   return check.ok ? 0 : 1;

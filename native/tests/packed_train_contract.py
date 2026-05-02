@@ -33,16 +33,34 @@ def write_cache(root: Path, version: str = "lkjai-packed-cache-v2"):
 def check_schema(artifact: Path, inspect_bin: str):
     manifest = json.loads((artifact / "manifest.json").read_text())
     assert manifest["format"] == "lkjai-native-artifact-v2"
+    assert manifest["kind"] == "dense"
     assert manifest["artifact_kind"] == "export"
     assert manifest["config_checksum"]
     assert manifest["tokenizer_checksum"]
     index = json.loads((artifact / "weights.index.json").read_text())
+    names = {tensor["name"] for tensor in index["tensors"]}
+    assert {"tok_embeddings", "lm_head"} <= names
     first = index["tensors"][0]
     assert {"name", "dtype", "shape", "byte_offset", "byte_length"} <= set(first)
     checkpoint = artifact.parents[1] / "checkpoints" / "latest"
     ckpt_manifest = json.loads((checkpoint / "manifest.json").read_text())
+    assert ckpt_manifest["kind"] == "dense"
     assert ckpt_manifest["artifact_kind"] == "checkpoint"
     assert (checkpoint / "optimizer.index.json").is_file()
+    opt_names = {
+        tensor["name"]
+        for tensor in json.loads((checkpoint / "optimizer.index.json").read_text())[
+            "tensors"
+        ]
+    }
+    assert {
+        "master.tok_embeddings",
+        "adam_m.tok_embeddings",
+        "adam_v.tok_embeddings",
+        "master.lm_head",
+        "adam_m.lm_head",
+        "adam_v.lm_head",
+    } <= opt_names
     broken = artifact.parent / "broken-schema"
     if broken.exists():
         shutil.rmtree(broken)
@@ -60,10 +78,7 @@ def check_schema(artifact: Path, inspect_bin: str):
 
 
 def main():
-    train_bin = sys.argv[1]
-    logits_bin = sys.argv[2]
-    migrate_bin = sys.argv[3]
-    inspect_bin = sys.argv[4]
+    train_bin, logits_bin, migrate_bin, inspect_bin = sys.argv[1:5]
     repo = Path(__file__).resolve().parents[2]
     root = Path("/tmp/lkjai-packed-train")
     if root.exists():
@@ -96,11 +111,14 @@ def main():
         check=True,
     )
     payload = json.loads(result.stdout)
-    assert payload["status"] == "pass", result.stdout
+    assert payload["status"] == "pass" and payload["dense_cuda_path"] is True
+    assert "transformer_path" not in payload, result.stdout
+    assert payload["initial_loss"] > payload["loss"], result.stdout
     assert payload["loss_finite"] is True, result.stdout
-    assert payload["transformer_path"] is True, result.stdout
-    assert payload["non_embedding_weight_changed"] is True, result.stdout
+    assert payload["weight_changed"] is True, result.stdout
     assert payload["logits_checksum"], result.stdout
+    for key in ["batch_load", "forward", "backward", "optimizer", "checkpoint", "export"]:
+        assert key in payload["timings"], result.stdout
     manifest = root / "exports" / "packed-smoke" / "manifest.json"
     assert "lkjai-native-artifact-v2" in manifest.read_text()
     artifact = root / "exports" / "packed-smoke"
@@ -173,7 +191,8 @@ def main():
         capture_output=True,
         check=True,
     )
-    assert json.loads(result.stdout)["transformer_path"] is True
+    payload = json.loads(result.stdout)
+    assert payload["dense_cuda_path"] is True and "transformer_path" not in payload
 
 
 if __name__ == "__main__":

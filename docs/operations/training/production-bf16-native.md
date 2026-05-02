@@ -2,7 +2,7 @@
 
 ## Architecture
 
-The native transformer path consumes `lkjai-packed-cache-v2` batches and exports
+The active native dense CUDA path consumes `lkjai-packed-cache-v2` batches and exports
 `lkjai-native-artifact-v2`. Stable layouts are:
 
 - Tokens: `[B,S]` as little-endian `uint16`.

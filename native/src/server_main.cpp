@@ -3,7 +3,6 @@
 #include "artifact.hpp"
 #include "capability_json.hpp"
 #include "cuda_probe.hpp"
-#include "dense_model.hpp"
 #include "env.hpp"
 #include "http_server.hpp"
 #include "json_min.hpp"
@@ -15,20 +14,6 @@ namespace {
 
 std::string error_json(std::string_view error) {
   return "{\"error\":\"" + lkjai::json_escape(error) + "\"}";
-}
-
-std::string prompt_seed(const HttpRequest& request) {
-  auto contents = lkjai::json_string_values(request.body, "content");
-  std::string prompt;
-  for (const auto& content : contents) {
-    if (!prompt.empty()) prompt += "\n";
-    prompt += content;
-  }
-  constexpr size_t kPromptTail = 4096;
-  if (prompt.size() > kPromptTail) {
-    prompt = prompt.substr(prompt.size() - kPromptTail);
-  }
-  return prompt + "\n<assistant_action>\n<action>\n<reasoning>";
 }
 
 std::string health_json(const lkjai::ArtifactStatus& artifact,
@@ -62,21 +47,10 @@ HttpResponse chat_json(const HttpRequest& request,
   if (lkjai::contains_json_string(manifest, "kind", "transformer")) {
     return {422, error_json("native transformer autoregressive decode is unsupported")};
   }
-  auto max_chars = lkjai::json_int_value(request.body, "max_tokens", 512);
-  if (max_chars < 1) max_chars = 1;
-  if (max_chars > 4096) max_chars = 4096;
-  auto decoded = lkjai::dense_generate_action(
-      artifact.model_dir, prompt_seed(request), max_chars);
-  auto start = decoded.rfind("<action>");
-  auto end = start == std::string::npos ? std::string::npos
-                                        : decoded.find("</action>", start);
-  if (decoded.empty() || start == std::string::npos ||
-      end == std::string::npos || end < start) {
-    return {422, error_json("native decode did not produce a complete action")};
+  if (lkjai::contains_json_string(manifest, "kind", "dense")) {
+    return {422, error_json("native dense autoregressive decode is unsupported")};
   }
-  auto text = decoded.substr(start, end + std::string("</action>").size() - start);
-  return {200, "{\"choices\":[{\"message\":{\"role\":\"assistant\",\"content\":\"" +
-                   lkjai::json_escape(text) + "\"}}]}"};
+  return {422, error_json("native autoregressive decode is unsupported")};
 }
 
 HttpResponse route(const HttpRequest& request,
