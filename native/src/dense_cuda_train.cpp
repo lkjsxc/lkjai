@@ -78,9 +78,11 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
         if (!load_packed_batch(opt.packed_cache, first, opt.batch_size, seq_len,
                                &batch, error)) return false;
         report->batch_load_seconds += dense_seconds_since(phase);
-        double fwd = 0.0, bwd = 0.0;
+        double h2d = 0.0, fwd = 0.0, bwd = 0.0;
         double loss = state.forward_backward(
-            batch, &logits, &fwd, &bwd, 1.0f / opt.grad_accum, micro == 0);
+            batch, &logits, &h2d, &fwd, &bwd, 1.0f / opt.grad_accum,
+            micro == 0);
+        report->h2d_seconds += h2d;
         report->forward_seconds += fwd;
         report->backward_seconds += bwd;
         loss_sum += loss;

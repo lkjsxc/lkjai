@@ -1,28 +1,11 @@
 #include "dense_cuda_internal.hpp"
 
+#include <algorithm>
+
 #include <cublasLt.h>
 #include <cuda_runtime.h>
 
 namespace lkjai {
-namespace {
-
-class DeviceBuffer {
- public:
-  explicit DeviceBuffer(size_t bytes) {
-    if (bytes > 0) require_cuda(cudaMalloc(&ptr_, bytes), "cudaMalloc buffer");
-  }
-  DeviceBuffer(const DeviceBuffer&) = delete;
-  DeviceBuffer& operator=(const DeviceBuffer&) = delete;
-  ~DeviceBuffer() {
-    if (ptr_) cudaFree(ptr_);
-  }
-  void* data() const { return ptr_; }
-
- private:
-  void* ptr_ = nullptr;
-};
-
-}  // namespace
 
 DenseCudaState::DenseCudaState(const DenseConfig& cfg,
                                const DenseTrainState& host,
@@ -61,6 +44,45 @@ DenseCudaState::DenseCudaState(const DenseConfig& cfg,
   zero_gradients();
 }
 
+DenseCudaState::~DenseCudaState() {
+  if (host_tokens_) cudaFreeHost(host_tokens_);
+  if (host_mask_) cudaFreeHost(host_mask_);
+  if (device_tokens_) cudaFree(device_tokens_);
+  if (device_mask_) cudaFree(device_mask_);
+}
+
+void DenseCudaState::ensure_batch_buffers(size_t token_count,
+                                          size_t mask_count) {
+  if (token_count > host_token_capacity_) {
+    if (host_tokens_) cudaFreeHost(host_tokens_);
+    require_cuda(cudaMallocHost(reinterpret_cast<void**>(&host_tokens_),
+                                token_count * sizeof(uint16_t)),
+                 "cudaMallocHost tokens");
+    host_token_capacity_ = token_count;
+  }
+  if (mask_count > host_mask_capacity_) {
+    if (host_mask_) cudaFreeHost(host_mask_);
+    require_cuda(cudaMallocHost(reinterpret_cast<void**>(&host_mask_),
+                                mask_count),
+                 "cudaMallocHost mask");
+    host_mask_capacity_ = mask_count;
+  }
+  if (token_count > device_token_capacity_) {
+    if (device_tokens_) cudaFree(device_tokens_);
+    require_cuda(cudaMalloc(reinterpret_cast<void**>(&device_tokens_),
+                            token_count * sizeof(uint16_t)),
+                 "cudaMalloc device tokens");
+    device_token_capacity_ = token_count;
+  }
+  if (mask_count > device_mask_capacity_) {
+    if (device_mask_) cudaFree(device_mask_);
+    require_cuda(cudaMalloc(reinterpret_cast<void**>(&device_mask_),
+                            mask_count),
+                 "cudaMalloc device mask");
+    device_mask_capacity_ = mask_count;
+  }
+}
+
 void DenseCudaState::zero_gradients() {
   for (auto* t : {&grad_emb_, &grad_head_}) {
     require_cuda(cudaMemsetAsync(t->data(), 0, t->bytes(), ctx_->stream()),
@@ -71,6 +93,7 @@ void DenseCudaState::zero_gradients() {
 
 double DenseCudaState::forward_backward(const PackedBatch& batch,
                                         std::vector<float>* logits,
+                                        double* h2d_seconds,
                                         double* fwd_seconds,
                                         double* bwd_seconds,
                                         float grad_scale,
@@ -78,20 +101,23 @@ double DenseCudaState::forward_backward(const PackedBatch& batch,
   int rows = batch.batch_size * (batch.sequence_len - 1);
   int h = cfg_.hidden_size;
   int v = cfg_.vocab_size;
-  DeviceBuffer tokens(batch.tokens.size() * sizeof(uint16_t));
-  DeviceBuffer mask(batch.loss_mask.size());
+  ensure_batch_buffers(batch.tokens.size(), batch.loss_mask.size());
   DeviceTensor hidden({DeviceDType::bf16, {rows, h}}, ctx_->stream());
   DeviceTensor out({DeviceDType::f32, {rows, v}}, ctx_->stream());
   DeviceTensor grad_logits({DeviceDType::f32, {rows, v}}, ctx_->stream());
   DeviceTensor loss({DeviceDType::f32, {1}}, ctx_->stream());
-  require_cuda(cudaMemcpyAsync(tokens.data(), batch.tokens.data(),
+  auto phase = std::chrono::steady_clock::now();
+  std::copy(batch.tokens.begin(), batch.tokens.end(), host_tokens_);
+  std::copy(batch.loss_mask.begin(), batch.loss_mask.end(), host_mask_);
+  require_cuda(cudaMemcpyAsync(device_tokens_, host_tokens_,
                                batch.tokens.size() * sizeof(uint16_t),
                                cudaMemcpyHostToDevice, ctx_->stream()),
                "tokens H2D");
-  require_cuda(cudaMemcpyAsync(mask.data(), batch.loss_mask.data(),
-                               batch.loss_mask.size(), cudaMemcpyHostToDevice,
-                               ctx_->stream()),
+  require_cuda(cudaMemcpyAsync(device_mask_, host_mask_, batch.loss_mask.size(),
+                               cudaMemcpyHostToDevice, ctx_->stream()),
                "mask H2D");
+  require_cuda(cudaStreamSynchronize(ctx_->stream()), "batch H2D sync");
+  if (h2d_seconds) *h2d_seconds += dense_seconds_since(phase);
   require_cuda(cudaMemsetAsync(loss.data(), 0, sizeof(float), ctx_->stream()),
                "loss memset");
   if (reset_grads) {
@@ -102,14 +128,13 @@ double DenseCudaState::forward_backward(const PackedBatch& batch,
                                  ctx_->stream()),
                  "grad head memset");
   }
-  auto phase = std::chrono::steady_clock::now();
-  dense_launch_gather(static_cast<uint16_t*>(tokens.data()), emb_shadow_.data(),
+  phase = std::chrono::steady_clock::now();
+  dense_launch_gather(device_tokens_, emb_shadow_.data(),
                       hidden.data(), batch.batch_size, batch.sequence_len, v, h,
                       ctx_->stream());
   gemm(hidden, out, rows);
   dense_launch_loss_grad(static_cast<float*>(out.data()),
-                         static_cast<uint16_t*>(tokens.data()),
-                         static_cast<uint8_t*>(mask.data()),
+                         device_tokens_, device_mask_,
                          static_cast<float*>(grad_logits.data()),
                          static_cast<float*>(loss.data()), batch.batch_size,
                          batch.sequence_len, v, dense_supervised_count(batch),
@@ -122,7 +147,7 @@ double DenseCudaState::forward_backward(const PackedBatch& batch,
                          ctx_->stream());
   dense_launch_emb_grad(static_cast<float*>(grad_logits.data()),
                         head_shadow_.data(),
-                        static_cast<uint16_t*>(tokens.data()),
+                        device_tokens_,
                         static_cast<float*>(grad_emb_.data()), batch.batch_size,
                         batch.sequence_len, v, h, ctx_->stream());
   require_cuda(cudaStreamSynchronize(ctx_->stream()), "backward sync");

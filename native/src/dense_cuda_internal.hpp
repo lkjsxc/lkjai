@@ -19,15 +19,17 @@ class DenseCudaState {
  public:
   DenseCudaState(const DenseConfig& cfg, const DenseTrainState& host,
                  CudaExecutionContext* ctx);
+  ~DenseCudaState();
   double forward_backward(const PackedBatch& batch, std::vector<float>* logits,
-                          double* forward_seconds, double* backward_seconds,
-                          float grad_scale = 1.0f,
+                          double* h2d_seconds, double* forward_seconds,
+                          double* backward_seconds, float grad_scale = 1.0f,
                           bool reset_grads = true);
   void adamw(float lr, int step);
   DenseTrainState copy_to_host();
 
  private:
   void zero_gradients();
+  void ensure_batch_buffers(size_t token_count, size_t mask_count);
   void gemm(const DeviceTensor& hidden, DeviceTensor& out, int rows);
 
   DenseConfig cfg_;
@@ -43,6 +45,14 @@ class DenseCudaState {
   DeviceTensor v_emb_;
   DeviceTensor m_head_;
   DeviceTensor v_head_;
+  uint16_t* host_tokens_ = nullptr;
+  uint8_t* host_mask_ = nullptr;
+  uint16_t* device_tokens_ = nullptr;
+  uint8_t* device_mask_ = nullptr;
+  size_t host_token_capacity_ = 0;
+  size_t host_mask_capacity_ = 0;
+  size_t device_token_capacity_ = 0;
+  size_t device_mask_capacity_ = 0;
 };
 
 double dense_seconds_since(std::chrono::steady_clock::time_point start);

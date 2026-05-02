@@ -73,7 +73,8 @@ DenseCudaCheck run_dense_cuda_check() {
     CudaExecutionContext ctx;
     DenseCudaState state(cfg, master, &ctx);
     std::vector<float> logits;
-    check.loss = state.forward_backward(batch, &logits, nullptr, nullptr);
+    check.loss =
+        state.forward_backward(batch, &logits, nullptr, nullptr, nullptr);
     state.adamw(1.0e-3f, 1);
     auto got = state.copy_to_host();
     check.cpu_loss = cpu_out.loss;
