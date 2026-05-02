@@ -137,13 +137,15 @@ All native train reports use schema version `3`. Common fields include
 `model_kind`, `accepted_cuda_training`, `implementation_status`,
 `forward_backend`, `backward_backend`, `optimizer_backend`,
 `cuda_probe_passed`, precision fields, `limitations`, artifact paths/checksums,
-losses, timings, and capability.
+losses, timings, and capability. `timings.h2d` is separate from
+`timings.forward`.
 
 Dense reports declare `accepted_cuda_training=true`,
 `implementation_status=accepted`, `dense_cuda_path=true`,
 `forward_backend=cuda_bf16_cublaslt`,
 `backward_backend=cuda_custom_or_gemm`, and
-`optimizer_backend=cuda_adamw_fp32`.
+`optimizer_backend=cuda_adamw_fp32`. Dense logits checks compare BF16 exports
+against FP32 checkpoint masters when a reference checkpoint is available.
 
 Transformer reports declare `accepted_cuda_training=false`,
 `implementation_status=experimental`, `transformer_status=experimental`,

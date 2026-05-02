@@ -48,8 +48,10 @@ The report includes:
 - `export_checksum`
 - `logits_check`
 
-`capability` uses the reusable native capability JSON shape. `logits_check`
-validates exported BF16 weights.
+`timings` includes `batch_load`, `h2d`, `forward`, `backward`, `optimizer`,
+`checkpoint`, and `export`. `capability` uses the reusable native capability
+JSON shape. Dense `logits_check` validates exported BF16 weights and, for train
+runs, records FP32 checkpoint reference tolerance fields.
 
 Dense accepted reports set `accepted_cuda_training=true`. Transformer reports
 are retained as experimental records with `accepted_cuda_training=false` and are

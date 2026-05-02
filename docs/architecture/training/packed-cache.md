@@ -38,8 +38,9 @@ Make training consume tokenizer output, not raw JSONL, during real runs.
 - JSONL row streaming is allowed only for scaffold and corpus-construction
   commands.
 - Loader code memory-maps packed files when the platform supports it.
-- CUDA runs stage batches through pinned host buffers and overlap H2D copies
-  with compute.
+- Dense CUDA runs stage token and mask batches through pinned host buffers and
+  report H2D copy time separately from forward time. Overlap with compute is
+  target optimization work.
 - Bucket boundaries must be stable enough for CUDA Graph capture.
 
 ## Rebuild Rules

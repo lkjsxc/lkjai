@@ -50,7 +50,7 @@ artifact inspection, and CUDA capability probing.
 - [json_min.cpp](json_min.cpp) and [json_min.hpp](json_min.hpp): small JSON
   helpers.
 - [logits_check_main.cpp](logits_check_main.cpp): dense and transformer artifact
-  logits probe.
+  logits probe, including dense BF16 export parity against FP32 checkpoints.
 - [packed_cache.cpp](packed_cache.cpp) and [packed_cache.hpp](packed_cache.hpp):
   packed-cache v2 validation and compatible v1 migration.
 - [packed_cache_validate.cpp](packed_cache_validate.cpp): packed-cache metadata,
@@ -79,7 +79,7 @@ artifact inspection, and CUDA capability probing.
   [transformer_state.hpp](transformer_state.hpp),
   [transformer_train.cpp](transformer_train.cpp),
   [transformer_train.hpp](transformer_train.hpp), and
-  [transformer_util.cpp](transformer_util.cpp): explicit native transformer
+  [transformer_util.cpp](transformer_util.cpp): experimental transformer
   training, artifact, checkpoint, report, and logits-check implementation.
 
 ## Rules
