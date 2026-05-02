@@ -1,5 +1,7 @@
 FROM rust:1.93-slim
 
+ENV PATH="/usr/local/cargo/bin:${PATH}"
+
 WORKDIR /workspace
 
 RUN rustup component add rustfmt
