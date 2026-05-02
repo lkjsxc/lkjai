@@ -22,6 +22,8 @@ artifact inspection, and CUDA capability probing.
 - [inspect_main.cpp](inspect_main.cpp): artifact inspection binary.
 - [json_min.cpp](json_min.cpp) and [json_min.hpp](json_min.hpp): small JSON
   helpers.
+- [packed_cache.cpp](packed_cache.cpp) and [packed_cache.hpp](packed_cache.hpp):
+  packed-cache v2 validation.
 - [server_main.cpp](server_main.cpp): OpenAI-compatible inference entrypoint.
 - [train_main.cpp](train_main.cpp): scratch training entrypoint.
 - [train_data.cpp](train_data.cpp) and [train_data.hpp](train_data.hpp):

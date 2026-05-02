@@ -76,13 +76,13 @@ Run one measurable long training job for the 3070-first 40M scratch model.
   `legacy` for quick; `mapped` remains a benchmark comparison path
 - `TRAIN_DATALOADER_BENCHMARK`: optional benchmark logging flag
 - `TRAIN_CORPUS_SIZE`: default `120000`
+- `TRAIN_PACKED_CACHE_DIR`: packed-cache v2 directory, default
+  `${DATA_DIR}/datasets/packed/train-causal_lm_full-seq1024`
 - `TRAIN_FIXED_EVAL_THRESHOLD`: default `0.60` for fixed report metadata
 - `TRAIN_BEHAVIORAL_THRESHOLD`: default `0.35` until the next ladder is passed
 - `TRAIN_ENFORCE_COMPETENCY`: fail command when behavioral gates are missed
 - `TRAIN_STOP_AT_UNIX`: optional Unix timestamp deadline. The native trainer
   exits after the current step once the timestamp is reached.
-- `TRAIN_MAX_ROW_BYTES`: maximum bytes consumed from one JSONL row during
-  scaffold corpus preparation, default `4096`.
 
 ## Required Artifacts
 

@@ -31,6 +31,7 @@ add_library(lkjai_native_core STATIC
   src/dense_model.cpp
   src/env.cpp
   src/json_min.cpp
+  src/packed_cache.cpp
   src/train_data.cpp
   src/train_real.cpp
 )
@@ -54,6 +55,10 @@ add_test(NAME native_inspect_missing COMMAND lkjai-native-inspect --model-dir /m
 set_tests_properties(native_inspect_missing PROPERTIES WILL_FAIL TRUE)
 add_test(NAME native_train_smoke COMMAND lkjai-native-train --smoke --steps 2)
 add_test(NAME native_dense_cuda_check COMMAND lkjai-native-dense-check)
+add_test(
+  NAME native_packed_train_contract
+  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/packed_train_contract.py $<TARGET_FILE:lkjai-native-train>
+)
 add_test(
   NAME native_smoke_export
   COMMAND sh -c "rm -rf /tmp/lkjai-native-ctest && DATA_DIR=/tmp/lkjai-native-ctest MODEL_NAME=smoke ./lkjai-native-train --smoke --steps 2 && ./lkjai-native-inspect --model-dir /tmp/lkjai-native-ctest/exports/smoke"

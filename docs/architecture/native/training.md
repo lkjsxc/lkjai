@@ -6,7 +6,7 @@ Train the scratch dense decoder without Python or PyTorch in the product path.
 
 ## Owned By Native Code
 
-- JSONL corpus reading.
+- JSONL corpus reading for corpus preparation.
 - Prompt and target serialization.
 - Byte-level BPE tokenization from `tokenizer.json`.
 - Packed cache read and write.
