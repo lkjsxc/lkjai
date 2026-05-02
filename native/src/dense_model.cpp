@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "json_min.hpp"
+#include "artifact.hpp"
 
 namespace lkjai {
 namespace {
@@ -105,6 +106,12 @@ std::string action_text(std::string_view prompt) {
          std::to_string(hash % 1000) + "</content>\n</action>";
 }
 
+std::string action_text(std::string_view prompt,
+                        const std::filesystem::path& model_dir) {
+  auto checksum = artifact_logits_checksum(model_dir);
+  return action_text(prompt) + "\n<!-- logits:" + checksum + " -->";
+}
+
 }  // namespace
 
 bool write_dense_smoke_artifact(const std::filesystem::path& dir, int steps,
@@ -139,7 +146,7 @@ std::string dense_generate_action(const std::filesystem::path& model_dir,
   if (!contains_json_string(manifest, "format", "lkjai-native-artifact-v2")) {
     return "";
   }
-  auto text = action_text(prompt);
+  auto text = action_text(prompt, model_dir);
   if (max_chars < static_cast<int>(text.size())) return "";
   return text;
 }

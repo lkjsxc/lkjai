@@ -43,11 +43,12 @@ int main(int argc, char** argv) {
   int steps = int_arg(argc, argv, "--steps", 2);
   auto cuda = lkjai::cuda_status();
   if (has_flag(argc, argv, "--help")) {
-    std::cout << "usage: lkjai-native-train --smoke [--steps N] | --train\n";
+    std::cout << "usage: lkjai-native-train --smoke [--steps N] | --train "
+                 "[--packed-cache DIR] [--config FILE]\n";
     return 0;
   }
   if (has_flag(argc, argv, "--train")) {
-    return lkjai::run_corpus_training();
+    return lkjai::run_corpus_training(argc, argv);
   }
   if (!has_flag(argc, argv, "--smoke")) {
     std::cerr << "native trainer requires --train or --smoke\n";

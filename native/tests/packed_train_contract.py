@@ -16,7 +16,7 @@ def write_cache(root: Path):
                 "format": "lkjai-packed-cache-v2",
                 "split": "train",
                 "objective": "causal_lm_full",
-                "sequence_len": 1024,
+                "sequence_len": 8,
                 "vocab_size": 8192,
                 "token_dtype": "uint16",
                 "row_count": 1,
@@ -31,6 +31,7 @@ def write_cache(root: Path):
 
 def main():
     train_bin = sys.argv[1]
+    repo = Path(__file__).resolve().parents[2]
     root = Path("/tmp/lkjai-packed-train")
     if root.exists():
         subprocess.run(["rm", "-rf", str(root)], check=True)
@@ -46,12 +47,49 @@ def main():
         }
     )
     result = subprocess.run(
-        [train_bin, "--train"], env=env, text=True, capture_output=True, check=True
+        [
+            train_bin,
+            "--train",
+            "--config",
+            str(repo / "configs" / "native" / "dense_debug_bf16.json"),
+            "--seq-len",
+            "8",
+            "--max-steps",
+            "2",
+        ],
+        env=env,
+        text=True,
+        capture_output=True,
+        check=True,
     )
     payload = json.loads(result.stdout)
     assert payload["status"] == "pass", result.stdout
+    assert payload["loss_finite"] is True, result.stdout
+    assert payload["weight_changed"] is True, result.stdout
+    assert payload["logits_checksum"], result.stdout
     manifest = root / "exports" / "packed-smoke" / "manifest.json"
     assert "lkjai-native-artifact-v2" in manifest.read_text()
+    result = subprocess.run(
+        [
+            train_bin,
+            "--train",
+            "--config",
+            str(repo / "configs" / "native" / "dense_debug_bf16.json"),
+            "--seq-len",
+            "8",
+            "--max-steps",
+            "1",
+            "--resume",
+            str(root / "checkpoints" / "latest"),
+        ],
+        env=env,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    payload = json.loads(result.stdout)
+    assert payload["start_step"] == 2, result.stdout
+    assert payload["steps"] == 3, result.stdout
 
 
 if __name__ == "__main__":

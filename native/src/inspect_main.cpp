@@ -28,6 +28,9 @@ int main(int argc, char** argv) {
     return 1;
   }
   std::cout << "{\"status\":\"pass\",\"model_dir\":\""
-            << lkjai::json_escape(dir.string()) << "\"}\n";
+            << lkjai::json_escape(dir.string())
+            << "\",\"logits_checksum\":\""
+            << lkjai::json_escape(lkjai::artifact_logits_checksum(dir))
+            << "\"}\n";
   return 0;
 }

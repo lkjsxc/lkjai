@@ -18,5 +18,6 @@ ArtifactStatus load_artifact(const std::filesystem::path& root,
                              const std::string& model_name);
 bool inspect_artifact(const std::filesystem::path& model_dir,
                       std::string* error);
+std::string artifact_logits_checksum(const std::filesystem::path& model_dir);
 
 }  // namespace lkjai

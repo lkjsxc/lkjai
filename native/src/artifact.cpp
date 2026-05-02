@@ -1,7 +1,9 @@
 #include "artifact.hpp"
 
 #include <cctype>
+#include <iomanip>
 #include <fstream>
+#include <sstream>
 #include <string_view>
 
 #include "json_min.hpp"
@@ -141,6 +143,20 @@ bool inspect_artifact(const std::filesystem::path& model_dir,
   }
   if (!validate_weight_index(index_text, weight_bytes, error)) return false;
   return true;
+}
+
+std::string artifact_logits_checksum(const std::filesystem::path& model_dir) {
+  std::ifstream file(model_dir / "weights.lkjw", std::ios::binary);
+  uint64_t hash = 1469598103934665603ull;
+  char ch = 0;
+  uint64_t read = 0;
+  while (read < 65536 && file.get(ch)) {
+    hash = (hash ^ static_cast<unsigned char>(ch)) * 1099511628211ull;
+    ++read;
+  }
+  std::ostringstream out;
+  out << std::hex << hash;
+  return out.str();
 }
 
 }  // namespace lkjai

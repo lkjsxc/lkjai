@@ -12,6 +12,8 @@ gating, and operator-facing acceptance flow.
 ## Child Index
 
 - [long-run.md](long-run.md): real training runtime contract and environment knobs
+- [production-bf16-native.md](production-bf16-native.md): native BF16 dense
+  trainer config, packed-cache, checkpoint, export, and verification guide
 - [competency-gate.md](competency-gate.md): fixed-eval threshold and acceptance policy
 - [iteration.md](iteration.md): baseline, pass-rate ladder, and accepted-run log
 - [kimi-corpus-smoke.md](kimi-corpus-smoke.md): latest Kimi smoke report

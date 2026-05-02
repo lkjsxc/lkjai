@@ -16,6 +16,10 @@ artifact inspection, and CUDA capability probing.
 - [dense_check_main.cpp](dense_check_main.cpp): dense CUDA check binary.
 - [dense_model.cpp](dense_model.cpp) and [dense_model.hpp](dense_model.hpp):
   dense smoke artifact and decode helpers.
+- [dense_train.cpp](dense_train.cpp), [dense_train_artifact.cpp](dense_train_artifact.cpp),
+  [dense_train_math.cpp](dense_train_math.cpp), [dense_train.hpp](dense_train.hpp),
+  and [dense_train_internal.hpp](dense_train_internal.hpp): packed-cache dense
+  trainer, optimizer, checkpoint, and artifact export implementation.
 - [env.cpp](env.cpp) and [env.hpp](env.hpp): environment parsing helpers.
 - [http_server.cpp](http_server.cpp) and [http_server.hpp](http_server.hpp):
   minimal HTTP server.

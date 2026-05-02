@@ -1,116 +1,104 @@
 #include "train_real.hpp"
 
-#include <chrono>
-#include <cstdlib>
-#include <ctime>
 #include <filesystem>
-#include <fstream>
 #include <iostream>
-#include <stdexcept>
 #include <string>
-#include <vector>
 
 #include "cuda_probe.hpp"
-#include "dense_model.hpp"
+#include "dense_train.hpp"
 #include "env.hpp"
 #include "json_min.hpp"
-#include "packed_cache.hpp"
 
 namespace lkjai {
 namespace {
 
-struct Options {
-  std::filesystem::path data_dir = env_string("DATA_DIR", "/app/data/train");
-  std::filesystem::path cache_dir = env_string(
-      "TRAIN_PACKED_CACHE_DIR",
-      env_string("DATA_DIR", "/app/data/train") +
-          "/datasets/packed/train-causal_lm_full-seq1024");
-  std::string model_name = env_string("MODEL_NAME", "lkjai-scratch-40m");
-  int max_steps = env_int("TRAIN_MAX_OPTIMIZER_STEPS",
-                          env_int("TRAIN_MAX_STEPS", 1000000000));
-  int log_every = env_int("TRAIN_LOG_EVERY_OPTIMIZER_STEPS", 1000);
-  int save_every = env_int("TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS", 10000);
-  long long stop_at_unix = 0;
-};
+bool flag(int argc, char** argv, const std::string& name) {
+  for (int i = 1; i < argc; ++i) {
+    if (argv[i] == name) return true;
+  }
+  return false;
+}
 
-long long env_ll(const char* name, long long fallback) {
-  const char* value = std::getenv(name);
-  if (value == nullptr || value[0] == '\0') return fallback;
+std::string value(int argc, char** argv, const std::string& name,
+                  const std::string& fallback) {
+  for (int i = 1; i + 1 < argc; ++i) {
+    if (argv[i] == name) return argv[i + 1];
+  }
+  return fallback;
+}
+
+int int_value(int argc, char** argv, const std::string& name, int fallback) {
   try {
-    return std::stoll(value);
+    return std::stoi(value(argc, argv, name, std::to_string(fallback)));
   } catch (...) {
     return fallback;
   }
 }
 
-void write_text(const std::filesystem::path& path, const std::string& text) {
-  std::filesystem::create_directories(path.parent_path());
-  std::ofstream out(path);
-  out << text;
-}
-
-void write_artifact(const std::filesystem::path& dir, const Options& opt,
-                    int step, long long rows, bool final) {
-  (void)opt;
-  if (!write_dense_smoke_artifact(dir, step, rows, final)) {
-    throw std::runtime_error("failed to write dense artifact");
+float float_value(int argc, char** argv, const std::string& name,
+                  float fallback) {
+  try {
+    return std::stof(value(argc, argv, name, std::to_string(fallback)));
+  } catch (...) {
+    return fallback;
   }
 }
 
-void write_run_reports(const Options& opt, int step, long long rows, double elapsed) {
-  auto ckpt = opt.data_dir / "checkpoints";
-  write_text(ckpt / "manifest.json", "{\"latest\":\"latest\",\"final\":\"final\"}\n");
-  write_text(opt.data_dir / "exports" / "manifest.json",
-             "{\"model\":\"" + json_escape(opt.model_name) + "\"}\n");
-  write_text(opt.data_dir / "runs" / "fixed-eval.json",
-             "{\"status\":\"recorded\",\"mode\":\"native-dense-corpus\"}\n");
-  write_text(opt.data_dir / "runs" / "behavioral-eval.json",
-             "{\"status\":\"not-run\",\"reason\":\"training-only command\"}\n");
-  write_text(ckpt / "training-summary.json",
-             "{\"optimizer_steps\":" + std::to_string(step) +
-                 ",\"corpus_rows_seen\":" + std::to_string(rows) +
-                 ",\"elapsed_seconds\":" + std::to_string(elapsed) + "}\n");
+DenseTrainOptions options(int argc, char** argv) {
+  DenseTrainOptions opt;
+  opt.out_dir = env_string("DATA_DIR", "/app/data/train");
+  opt.model_name = env_string("MODEL_NAME", "lkjai-scratch-40m");
+  opt.packed_cache = env_string(
+      "TRAIN_PACKED_CACHE_DIR",
+      opt.out_dir.string() + "/datasets/packed/train-causal_lm_full-seq1024");
+  opt.max_steps = env_int("TRAIN_MAX_OPTIMIZER_STEPS",
+                          env_int("TRAIN_MAX_STEPS", opt.max_steps));
+  opt.checkpoint_interval =
+      env_int("TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS",
+              opt.checkpoint_interval);
+  opt.config_path = value(argc, argv, "--config", opt.config_path.string());
+  opt.packed_cache = value(argc, argv, "--packed-cache", opt.packed_cache.string());
+  opt.out_dir = value(argc, argv, "--out", opt.out_dir.string());
+  opt.batch_size = int_value(argc, argv, "--batch-size", opt.batch_size);
+  opt.seq_len = int_value(argc, argv, "--seq-len", opt.seq_len);
+  opt.grad_accum = int_value(argc, argv, "--grad-accum", opt.grad_accum);
+  opt.max_steps = int_value(argc, argv, "--max-steps", opt.max_steps);
+  opt.warmup_steps = int_value(argc, argv, "--warmup-steps", opt.warmup_steps);
+  opt.checkpoint_interval =
+      int_value(argc, argv, "--checkpoint-interval", opt.checkpoint_interval);
+  opt.lr = float_value(argc, argv, "--lr", opt.lr);
+  opt.resume_dir = value(argc, argv, "--resume", "");
+  opt.export_artifact = value(argc, argv, "--export-artifact", "");
+  return opt;
 }
 
 }  // namespace
 
-int run_corpus_training() {
-  Options opt;
-  opt.stop_at_unix = env_ll("TRAIN_STOP_AT_UNIX", 0);
-  auto cache = inspect_packed_cache(opt.cache_dir);
-  if (!cache.ok) {
-    std::cerr << "invalid packed cache: " << cache.error << "\n";
+int run_corpus_training(int argc, char** argv) {
+  if (flag(argc, argv, "--help")) {
+    std::cout << "usage: lkjai-native-train --train --packed-cache DIR "
+                 "--config FILE --out DIR [--max-steps N]\n";
+    return 0;
+  }
+  auto opt = options(argc, argv);
+  DenseTrainReport report;
+  std::string error;
+  if (!run_dense_training(opt, &report, &error)) {
+    std::cerr << "native dense training failed: " << error << "\n";
     return 2;
   }
   auto cuda = cuda_status();
-  auto started = std::chrono::steady_clock::now();
-  int step = 0;
-  while (step < opt.max_steps) {
-    if (opt.stop_at_unix > 0 && std::time(nullptr) >= opt.stop_at_unix) break;
-    ++step;
-    if (step % opt.log_every == 0) {
-      std::cerr << "{\"event\":\"native_train_step\",\"step\":" << step
-                << ",\"packed_windows\":" << cache.windows << "}\n";
-    }
-    if (step % opt.save_every == 0) {
-      write_artifact(opt.data_dir / "checkpoints" / "latest", opt, step,
-                     static_cast<long long>(cache.windows), false);
-    }
-  }
-  auto elapsed = std::chrono::duration<double>(
-      std::chrono::steady_clock::now() - started).count();
-  auto rows = static_cast<long long>(cache.windows);
-  write_artifact(opt.data_dir / "checkpoints" / "latest", opt, step, rows, false);
-  write_artifact(opt.data_dir / "checkpoints" / "final", opt, step, rows, true);
-  write_artifact(opt.data_dir / "exports" / opt.model_name, opt, step, rows, true);
-  write_artifact(opt.data_dir.parent_path() / "models" / opt.model_name, opt, step,
-                 rows, true);
-  write_run_reports(opt, step, rows, elapsed);
-  std::cout << "{\"status\":\"pass\",\"mode\":\"train\",\"steps\":" << step
-            << ",\"packed_windows\":" << cache.windows
-            << ",\"cuda_available\":" << (cuda.available ? "true" : "false")
-            << ",\"elapsed_seconds\":" << elapsed << "}\n";
-  return 0;
+  std::cout << "{\"status\":\"pass\",\"mode\":\"train\",\"steps\":"
+            << report.steps << ",\"start_step\":" << report.start_step
+            << ",\"loss\":" << report.loss << ",\"loss_finite\":true"
+            << ",\"weight_changed\":"
+            << (report.weight_changed ? "true" : "false")
+            << ",\"logits_checksum\":\""
+            << json_escape(report.logits_checksum) << "\""
+            << ",\"cuda_available\":"
+            << (cuda.available ? "true" : "false")
+            << ",\"elapsed_seconds\":" << report.elapsed_seconds << "}\n";
+  return report.weight_changed ? 0 : 3;
 }
 
 }  // namespace lkjai

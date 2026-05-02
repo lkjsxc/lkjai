@@ -1,0 +1,13 @@
+{
+  "model": "dense-debug-bf16",
+  "dtype": "bf16",
+  "vocab_size": 8192,
+  "context": 1024,
+  "layers": 1,
+  "hidden_size": 32,
+  "heads": 4,
+  "kv_heads": 1,
+  "head_dim": 8,
+  "ffn_size": 64,
+  "seed": 1337
+}

@@ -33,6 +33,9 @@ add_library(lkjai_native_core STATIC
   src/json_min.cpp
   src/packed_cache.cpp
   src/train_data.cpp
+  src/dense_train.cpp
+  src/dense_train_artifact.cpp
+  src/dense_train_math.cpp
   src/train_real.cpp
 )
 target_include_directories(lkjai_native_core PUBLIC src)
