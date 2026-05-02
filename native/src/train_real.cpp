@@ -173,13 +173,13 @@ int run_corpus_training(int argc, char** argv) {
       return 2;
     }
     auto cuda = cuda_status();
-    if (!write_transformer_train_report(transformer_report, cuda, "train", "pass",
-                                        "", &error)) {
+    if (!write_transformer_train_report(transformer_report, cuda, "train",
+                                        "success", "", &error)) {
       std::cerr << error << "\n";
       return 2;
     }
     std::cout << transformer_train_report_json(transformer_report, cuda, "train",
-                                               "pass", "")
+                                               "success", "")
               << "\n";
     return transformer_report.non_embedding_weight_changed ? 0 : 3;
   }
@@ -188,11 +188,11 @@ int run_corpus_training(int argc, char** argv) {
     return 2;
   }
   auto cuda = cuda_status();
-  if (!write_dense_train_report(report, cuda, "train", "pass", "", &error)) {
+  if (!write_dense_train_report(report, cuda, "train", "success", "", &error)) {
     std::cerr << error << "\n";
     return 2;
   }
-  std::cout << dense_train_report_json(report, cuda, "train", "pass", "")
+  std::cout << dense_train_report_json(report, cuda, "train", "success", "")
             << "\n";
   return report.weight_changed ? 0 : 3;
 }

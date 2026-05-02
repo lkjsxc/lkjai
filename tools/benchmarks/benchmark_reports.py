@@ -1,0 +1,110 @@
+def summarize_train_report(report: dict) -> dict:
+    timings = report.get("timings", {})
+    logits_check = report.get("logits_check", {})
+    elapsed = float(report.get("elapsed_seconds", 0.0))
+    steps = int(report.get("optimizer_steps", report.get("steps", 0)))
+    step_seconds = elapsed / steps if steps > 0 else 0.0
+    return {
+        "schema_version": report.get("schema_version", 0),
+        "trainer_mode": report.get("trainer_mode", report.get("mode", "")),
+        "status": report.get("status", ""),
+        "model_kind": report.get("model_kind", "dense"),
+        "accepted_cuda_training": bool(report.get("accepted_cuda_training", False)),
+        "implementation_status": report.get("implementation_status", ""),
+        "optimizer_steps": steps,
+        "microsteps": int(report.get("microsteps", 0)),
+        "tokens_seen": int(report.get("tokens_seen", report.get("input_tokens", 0))),
+        "initial_loss": float(report.get("initial_loss", 0.0)),
+        "loss": float(report.get("loss", 0.0)),
+        "median_step_seconds": step_seconds,
+        "median_tokens_per_second": float(report.get("tokens_per_second", 0.0)),
+        "mean_loader_wait_seconds": float(timings.get("batch_load", 0.0)),
+        "mean_h2d_seconds": float(timings.get("h2d", 0.0)),
+        "mean_forward_seconds": float(timings.get("forward", 0.0)),
+        "mean_backward_seconds": float(timings.get("backward", 0.0)),
+        "mean_optimizer_seconds": float(timings.get("optimizer", 0.0)),
+        "logits_checksum": report.get("logits_checksum", ""),
+        "checkpoint_checksum": report.get("checkpoint_checksum", ""),
+        "export_checksum": report.get("export_checksum", ""),
+        "logits_check_status": logits_check.get("status", ""),
+        "logits_reference_check": logits_check.get("reference_check", ""),
+        "logits_max_abs_diff": float(logits_check.get("max_abs_diff", 0.0)),
+        "logits_tolerance": float(logits_check.get("tolerance", 0.0)),
+    }
+
+
+def dense_promotion_errors(report: dict) -> list[str]:
+    errors = []
+    if report.get("schema_version") != 3:
+        errors.append("schema_version must be 3")
+    if report.get("model_kind") != "dense":
+        errors.append("model_kind must be dense")
+    if report.get("accepted_cuda_training") is not True:
+        errors.append("accepted_cuda_training must be true")
+    if report.get("implementation_status") != "accepted":
+        errors.append("implementation_status must be accepted")
+    if report.get("status") != "success":
+        errors.append("status must be success")
+    try:
+        if not float(report.get("loss")) < float(report.get("initial_loss")):
+            errors.append("loss must be lower than initial_loss")
+    except (TypeError, ValueError):
+        errors.append("loss and initial_loss must be numeric")
+    if not report.get("checkpoint_checksum"):
+        errors.append("checkpoint_checksum must be present")
+    if not report.get("export_checksum"):
+        errors.append("export_checksum must be present")
+    timings = report.get("timings", {})
+    try:
+        if float(timings.get("h2d")) < 0.0:
+            errors.append("timings.h2d must be non-negative")
+    except (TypeError, ValueError):
+        errors.append("timings.h2d must be numeric")
+    try:
+        if float(report.get("tokens_per_second")) <= 0.0:
+            errors.append("tokens_per_second must be positive")
+    except (TypeError, ValueError):
+        errors.append("tokens_per_second must be numeric")
+    logits_check = report.get("logits_check", {})
+    if logits_check.get("status") != "pass":
+        errors.append("logits_check.status must be pass")
+    if logits_check.get("reference_check") != "pass":
+        errors.append("logits_check.reference_check must be pass")
+    try:
+        max_abs_diff = float(logits_check.get("max_abs_diff"))
+        tolerance = float(logits_check.get("tolerance"))
+        if max_abs_diff > tolerance:
+            errors.append("logits_check max_abs_diff exceeds tolerance")
+    except (TypeError, ValueError):
+        errors.append("logits_check max_abs_diff and tolerance must be numeric")
+    return errors
+
+
+def validate_dense_promotion_report(report: dict) -> None:
+    errors = dense_promotion_errors(report)
+    if errors:
+        raise ValueError("; ".join(errors))
+
+
+def is_promotable_dense_summary(row: dict) -> bool:
+    try:
+        checks = [
+            row.get("returncode", 0) == 0,
+            row.get("schema_version") == 3,
+            row.get("model_kind") == "dense",
+            row.get("accepted_cuda_training") is True,
+            row.get("implementation_status") == "accepted",
+            row.get("status") == "success",
+            float(row.get("loss", 0.0)) < float(row.get("initial_loss", 0.0)),
+            bool(row.get("checkpoint_checksum")),
+            bool(row.get("export_checksum")),
+            float(row.get("mean_h2d_seconds", -1.0)) >= 0.0,
+            float(row.get("median_tokens_per_second", 0.0)) > 0.0,
+            row.get("logits_check_status") == "pass",
+            row.get("logits_reference_check") == "pass",
+            float(row.get("logits_max_abs_diff", 0.0))
+            <= float(row.get("logits_tolerance", 0.0)),
+        ]
+        return all(checks)
+    except (TypeError, ValueError):
+        return False

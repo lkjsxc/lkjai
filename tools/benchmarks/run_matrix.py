@@ -13,6 +13,7 @@ from run_support import (
     build_image,
     load_train_report,
     prepare_data_dir,
+    is_promotable_dense_summary,
     run,
     summarize_train_report,
 )
@@ -123,10 +124,7 @@ def write_summary(run_id: str, rows: list[dict]) -> None:
         grouped.setdefault(row["case"], []).append(row)
     aggregate = []
     for case, case_rows in grouped.items():
-        accepted_rows = [
-            row for row in case_rows
-            if row.get("returncode") == 0 and row.get("accepted_cuda_training") is True
-        ]
+        accepted_rows = [row for row in case_rows if is_promotable_dense_summary(row)]
         medians = [row.get("median_step_seconds", 0.0) for row in accepted_rows]
         toks = [row.get("median_tokens_per_second", 0.0) for row in accepted_rows]
         aggregate.append(

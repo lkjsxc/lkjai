@@ -8,22 +8,37 @@ from pathlib import Path
 def main() -> None:
     repo = Path(__file__).resolve().parents[2]
     sys.path.insert(0, str(repo / "tools" / "benchmarks"))
-    from run_support import load_train_report, summarize_train_report
+    from run_support import (
+        dense_promotion_errors,
+        is_promotable_dense_summary,
+        load_train_report,
+        summarize_train_report,
+        validate_dense_promotion_report,
+    )
 
     payload = {
         "schema_version": 3,
         "trainer_mode": "smoke",
+        "status": "success",
         "model_kind": "dense",
         "accepted_cuda_training": True,
         "implementation_status": "accepted",
         "optimizer_steps": 2,
         "microsteps": 2,
         "tokens_seen": 32,
+        "initial_loss": 2.0,
+        "loss": 1.5,
         "elapsed_seconds": 0.25,
         "tokens_per_second": 128.0,
         "logits_checksum": "abc",
         "checkpoint_checksum": "def",
         "export_checksum": "123",
+        "logits_check": {
+            "status": "pass",
+            "reference_check": "pass",
+            "max_abs_diff": 0.001,
+            "tolerance": 0.01,
+        },
         "timings": {
             "batch_load": 0.01,
             "h2d": 0.005,
@@ -41,6 +56,7 @@ def main() -> None:
         summary = summarize_train_report(loaded)
         assert summary["schema_version"] == 3
         assert summary["trainer_mode"] == "smoke"
+        assert summary["status"] == "success"
         assert summary["model_kind"] == "dense"
         assert summary["accepted_cuda_training"] is True
         assert summary["implementation_status"] == "accepted"
@@ -48,6 +64,10 @@ def main() -> None:
         assert summary["median_step_seconds"] == 0.125
         assert summary["median_tokens_per_second"] == 128.0
         assert summary["logits_checksum"] == "abc"
+        validate_dense_promotion_report(loaded)
+        promotable_row = dict(summary)
+        promotable_row["returncode"] = 0
+        assert is_promotable_dense_summary(promotable_row) is True
         assert not (root / "runs" / "perf-steps.jsonl").exists()
         log = root / "trainer.log"
         report.unlink()
@@ -73,6 +93,27 @@ def main() -> None:
         assert summary["model_kind"] == "transformer"
         assert summary["accepted_cuda_training"] is False
         assert summary["checkpoint_checksum"] == "def"
+        transformer_row = dict(summary)
+        transformer_row["returncode"] = 0
+        assert is_promotable_dense_summary(transformer_row) is False
+
+        failed = dict(payload)
+        failed["status"] = "fail"
+        failed_summary = summarize_train_report(failed)
+        failed_summary["returncode"] = 2
+        assert is_promotable_dense_summary(failed_summary) is False
+
+        missing_checksum = dict(payload)
+        missing_checksum["export_checksum"] = ""
+        errors = dense_promotion_errors(missing_checksum)
+        assert "export_checksum must be present" in errors
+
+        bad_logits = dict(payload)
+        bad_logits["logits_check"] = dict(payload["logits_check"])
+        bad_logits["logits_check"]["max_abs_diff"] = 0.02
+        bad_logits["logits_check"]["tolerance"] = 0.01
+        errors = dense_promotion_errors(bad_logits)
+        assert "logits_check max_abs_diff exceeds tolerance" in errors
 
 
 if __name__ == "__main__":

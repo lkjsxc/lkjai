@@ -130,12 +130,13 @@ int main(int argc, char** argv) {
   report.elapsed_seconds = std::chrono::duration<double>(
       std::chrono::steady_clock::now() - started).count();
   std::string write_error;
-  if (!lkjai::write_dense_train_report(report, cuda, "smoke", "pass", "",
+  if (!lkjai::write_dense_train_report(report, cuda, "smoke", "success", "",
                                        &write_error)) {
     std::cerr << write_error << "\n";
     return 2;
   }
-  std::cout << lkjai::dense_train_report_json(report, cuda, "smoke", "pass", "")
+  std::cout << lkjai::dense_train_report_json(report, cuda, "smoke", "success",
+                                               "")
             << "\n";
   return 0;
 }

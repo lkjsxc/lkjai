@@ -96,7 +96,7 @@ def main():
         shutil.rmtree(root)
     write_cache(root)
     payload = run_train(train_bin, root, repo, 3)
-    assert payload["status"] == "pass", payload
+    assert payload["status"] == "success", payload
     assert payload["initial_loss"] > payload["loss"], payload
     assert payload["weight_changed"] is True, payload
     artifact = root / "exports" / "transformer-smoke"

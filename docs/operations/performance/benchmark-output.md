@@ -13,6 +13,7 @@ The report includes:
 
 - `schema_version`
 - `trainer_mode`
+- `status`
 - `model_kind`
 - `accepted_cuda_training`
 - `implementation_status`
@@ -53,6 +54,10 @@ The report includes:
 JSON shape. Dense `logits_check` validates exported BF16 weights and, for train
 runs, records FP32 checkpoint reference tolerance fields.
 
+Successful schema v3 train reports use top-level `status=success`. Nested
+checks, including `logits_check.status` and `reference_check`, continue to use
+`pass` or `fail`.
+
 Dense accepted reports set `accepted_cuda_training=true`. Transformer reports
 are retained as experimental records with `accepted_cuda_training=false` and are
 excluded from accepted CUDA promotion aggregates.
@@ -63,12 +68,15 @@ Each summary includes:
 
 - `schema_version`
 - `trainer_mode`
+- `status`
 - `model_kind`
 - `accepted_cuda_training`
 - `implementation_status`
 - `optimizer_steps`
 - `microsteps`
 - `tokens_seen`
+- `initial_loss`
+- `loss`
 - `median_tokens_per_second`
 - `median_step_seconds`
 - `mean_h2d_seconds`
@@ -78,6 +86,18 @@ Each summary includes:
 - `logits_checksum`
 - `checkpoint_checksum`
 - `export_checksum`
+- `logits_check_status`
+- `logits_reference_check`
+- `logits_max_abs_diff`
+- `logits_tolerance`
+
+## Promotion Summary
+
+Dense debug promotions also write
+`artifacts/benchmarks/<run-id>/promotion-summary.json`. It records promotion
+status, device/backend, batch/sequence/hidden/vocab shape, parameter count,
+loss, throughput, elapsed time, H2D and phase timing fractions, artifact
+checksums, logits reference-check results, and resume-check results.
 
 CSV summaries use the same stable names for columns that fit flat tabular
 output. Nested capability fields are flattened with a `capability_` prefix.

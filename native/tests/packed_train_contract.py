@@ -127,7 +127,7 @@ def main():
         subprocess.run(["rm", "-rf", str(root)], check=True)
     write_cache(root)
     payload = run_train(train_bin, root, repo, 2)
-    assert payload["status"] == "pass" and payload["dense_cuda_path"] is True
+    assert payload["status"] == "success" and payload["dense_cuda_path"] is True
     assert "transformer_path" not in payload, payload
     assert payload["initial_loss"] > payload["loss"], payload
     assert payload["loss_finite"] is True, payload
