@@ -17,23 +17,19 @@ __global__ void f32_to_bf16(const float* in, __nv_bfloat16* out, size_t n) {
         static_cast<uint16_t>((__float_as_uint(in[i]) + 0x8000u) >> 16);
   }
 }
-
 __global__ void bf16_to_f32(const __nv_bfloat16* in, float* out, size_t n) {
   size_t i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i < n) out[i] = __bfloat162float(in[i]);
 }
-
 size_t dtype_size(DeviceDType dtype) {
   return dtype == DeviceDType::f32 ? sizeof(float) : sizeof(__nv_bfloat16);
 }
-
 bool async_alloc_supported() {
   int supported = 0;
   auto status = cudaDeviceGetAttribute(&supported,
                                        cudaDevAttrMemoryPoolsSupported, 0);
   return status == cudaSuccess && supported != 0;
 }
-
 void* allocate_temp(size_t bytes, cudaStream_t stream, bool* async) {
   void* ptr = nullptr;
   *async = async_alloc_supported();

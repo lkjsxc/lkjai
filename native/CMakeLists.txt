@@ -61,6 +61,7 @@ add_library(lkjai_native_core STATIC
   src/dense_cuda_gemm.cu
   src/dense_cuda_kernels.cu
   src/dense_cuda_logits.cpp
+  src/dense_cuda_logits_reference.cpp
   src/dense_cuda_state.cu
   src/dense_cuda_train.cpp
   src/dense_train.cpp

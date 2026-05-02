@@ -72,6 +72,16 @@ DenseConfig dense_config_from_artifact(const std::filesystem::path& dir);
 std::vector<float> read_dense_tensor(const std::filesystem::path& dir,
                                      const std::string& name,
                                      std::string* error);
+bool dense_logits_for_tokens(const DenseConfig& cfg,
+                             const std::vector<float>& emb,
+                             const std::vector<float>& head,
+                             const std::string& token_csv,
+                             std::vector<float>* logits, std::string* error);
+std::string dense_logits_check_json(const DenseConfig& cfg,
+                                    const std::vector<float>& logits,
+                                    const std::string& reference_status,
+                                    double max_abs_diff,
+                                    double mean_abs_diff, double tolerance);
 
 void dense_launch_gather(const uint16_t* tokens, const void* emb, void* hidden,
                          int batch, int seq, int vocab, int hidden_size,
