@@ -2,7 +2,7 @@
 
 ## Goal
 
-Replace the transition scaffold with a real dense decoder while keeping the
+Use a real dense decoder for native training and serving while keeping the
 native artifact, runtime, and verification boundaries stable.
 
 ## Active Shape
@@ -46,10 +46,11 @@ The dense path is accepted only when all of these are true:
 - Packed-cache training consumes `lkjai-packed-cache-v2`.
 - Native server generation uses the request messages and existing KV cache.
 - Decode failure returns a non-success response; it never emits a canned action.
-- Compose verify passes after the dense smoke is wired.
+- GPU-required Compose verify passes on the native dense smoke.
 
 ## Non-Goals
 
 - Do not write custom GEMM before measuring cuBLASLt.
 - Do not add tensor parallelism before single-GPU acceptance.
 - Do not support Python `model.pt` as a product serving artifact.
+- Do not keep transition-table generation in the product path.

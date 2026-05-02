@@ -60,7 +60,9 @@ docker compose --progress quiet --profile verify up --build --abort-on-container
 - The `train` service runs `lkjai-native-train`.
 - Training writes to `TRAIN_DATA_DIR`, default `/app/data/train`.
 - The default Compose command is a two-step smoke run.
-- Long native training must save `lkjai-native-artifact-v1` under `data/models`.
+- Long native training must save `lkjai-native-artifact-v2` under `data/models`.
+- The `verify` service requires NVIDIA GPU access and builds native code with
+  the real CUDA compiler.
 
 ## Presets
 

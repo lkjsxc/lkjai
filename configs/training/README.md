@@ -11,6 +11,6 @@ Training configs pin long-running scratch model settings.
 
 ## Rules
 
-- Keep defaults aligned with `training/package/lkjai_train/settings.py`.
+- Keep defaults aligned with the docs canon and native C++/CUDA trainer.
 - Intermediate checkpoint cadence for non-quick runs is `120000` optimizer
   steps unless the docs change first.

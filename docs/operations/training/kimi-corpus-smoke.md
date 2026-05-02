@@ -56,7 +56,8 @@ the active public pretraining path is Cosmopedia `text`-only English.
 
 - Docker verify must pass through `ops/verify.sh` after layout or corpus
   changes.
-- PyTorch/tokenizers not installed on host; token count falls back to character heuristic.
+- Native tokenizer tooling was not active for this historical run; token count
+  falls back to character heuristic.
 - Full 60M-token SFT generation requires Kimi access and significant disk/memory.
 
 ## Residual Risks

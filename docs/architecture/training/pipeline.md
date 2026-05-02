@@ -21,7 +21,7 @@ the same real tool loop that production will use.
 5. Write `lkjai-packed-cache-v2` train, val, and holdout caches.
 6. Train the causal-LM pretrain stage through native C++/CUDA.
 7. Train the XML-action SFT stage from accepted pretrain weights.
-8. Save atomic native checkpoints and `lkjai-native-artifact-v1` exports.
+8. Save atomic native checkpoints and `lkjai-native-artifact-v2` exports.
 9. Run native server generation checks and behavioral eval.
 10. Record pass-rate, invalid-XML, wrong-tool, and non-finish trends.
 
@@ -53,7 +53,7 @@ the same real tool loop that production will use.
 - `TRAIN_CHECKPOINT_RESUME_SOURCE=latest`
 - Native packed-cache reader for real non-quick runs
 - `TRAIN_STATIC_SHAPES=true`
-- `TRAIN_COMPILE` is not used in the native product path
+- `TRAIN_LAUNCH_MODE=plain`; `cuda_graph` is enabled after stable buckets
 - `TRAIN_ACTIVATION_CHECKPOINT=off`
 - `TRAIN_CHECKPOINT_PRESERVE_RNG=false`
 - `TRAIN_ATTENTION_BACKEND=auto`

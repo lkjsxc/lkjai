@@ -24,7 +24,7 @@
 - Scratch chat formatting is owned by this repository.
 - Fixed eval checks tokenizer, checkpoint, dataset, and loss artifacts.
 - Behavioral eval checks real generated responses and owns competency.
-- Immediate Compose verify is docs/test focused; training smoke is optional.
+- Compose verify is GPU-required and includes native dense smoke checks.
 - Agent corpus default is 6,000 rows until reviewed non-LLM data exists.
 - DPO is the first preference optimization phase.
 - Runtime tool access is bounded to `TOOL_WORKSPACE_DIR`.
@@ -38,9 +38,10 @@
   atomic tokens.
 - Product Python training and inference are removed in favor of native
   C++/CUDA binaries.
-- Native model artifacts use `lkjai-native-artifact-v1` flat binary weights.
+- Native model artifacts use `lkjai-native-artifact-v2` flat binary weights.
 - Native serving failures are surfaced as non-success responses, not valid
   fallback XML actions.
+- Transition-table train and serve code is removed from the product path.
 
 ## Rationale
 

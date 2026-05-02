@@ -21,33 +21,30 @@ Train the scratch dense decoder without Python or PyTorch in the product path.
 3. Tokenize through the native tokenizer.
 4. Write or reuse `lkjai-packed-cache-v2` files.
 5. Train using native C++/CUDA kernels and vendor libraries.
-6. Save `lkjai-native-artifact-v1`.
+6. Save `lkjai-native-artifact-v2`.
 7. Run fixed smoke generation against the native server.
 
 ## Acceptance
 
-- Compose verify must pass without product Python tests.
+- GPU-required Compose verify must pass without product Python tests.
 - A native smoke run must complete at least two optimizer steps and export a
-  valid `lkjai-native-artifact-v1` directory.
+  valid `lkjai-native-artifact-v2` directory.
 - A native artifact inspect command must validate all index offsets and shapes.
 - Training speed reports median and p95 microstep time.
 
 ## Current Implementations
 
-- `lkjai-native-train --smoke --steps N` trains a tiny transition decoder from
-  XML-action text.
+- `lkjai-native-train --smoke --steps N` runs a tiny dense native training loop
+  and exports named dense tensors.
 - The smoke export is written under `DATA_DIR/exports/${MODEL_NAME}` and
   `${DATA_DIR}/../models/${MODEL_NAME}`.
 - The smoke model proves the artifact, load, and decode path. It is not a
   behavioral competency artifact.
-- `lkjai-native-train --train` runs the current corpus-backed native trainer.
-  It streams JSONL rows from `TRAIN_CORPUS_DIR/train` and
-  `TRAIN_COMMITTED_CORPUS_DIR`, updates a byte transition artifact, checkpoints
-  under `DATA_DIR/checkpoints`, exports under `DATA_DIR/exports/${MODEL_NAME}`,
-  and mirrors the served model under `${DATA_DIR}/../models/${MODEL_NAME}`.
-- The corpus-backed trainer is the current product training path in this repo.
-  It is real data-consuming training, but it is still the transition-model stage
-  before the planned dense-decoder forward/backward/optimizer implementation.
+- `lkjai-native-train --train` runs the corpus-backed dense native trainer. It
+  consumes packed-cache v2 data, runs forward/backward/optimizer steps,
+  checkpoints under `DATA_DIR/checkpoints`, exports under
+  `DATA_DIR/exports/${MODEL_NAME}`, and mirrors the served model under
+  `${DATA_DIR}/../models/${MODEL_NAME}`.
 
 ## Deadline Runs
 

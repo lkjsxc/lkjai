@@ -6,7 +6,7 @@ Verification proves:
 
 - docs topology and line-limit constraints remain valid,
 - runtime and training code paths still compile and pass tests,
-- default checks stay lightweight enough for frequent Compose runs.
+- native CUDA checks run against the real GPU build.
 
 ## Mandatory Command
 
@@ -40,7 +40,8 @@ VERIFY_TAIL_LINES=80 docker compose --progress quiet --profile verify up --build
 
 ## Scope Boundary
 
-- Verify is deterministic and lightweight compared with long GPU training runs.
+- Verify requires NVIDIA GPU access, but remains bounded compared with long
+  training runs.
 - Verify does not prove final model quality by itself.
 - Scratch training acceptance is governed by the training runbook and eval
   artifacts.

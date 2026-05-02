@@ -2,7 +2,7 @@
 
 ## Format
 
-The product artifact format is `lkjai-native-artifact-v1`.
+The product artifact format is `lkjai-native-artifact-v2`.
 
 Each exported model directory contains:
 
@@ -24,16 +24,33 @@ Each exported model directory contains:
 - Index entries contain name, dtype, shape, byte offset, and byte length.
 - Supported dtypes are `u16`, `u32`, `f16`, `bf16`, and `f32`.
 
-## Smoke Artifact
+## Required Tensor Names
 
-The smoke trainer writes the same required file set with a transition table in
-`weights.lkjw`. This is a native plumbing artifact, not an accepted assistant
-model.
+- `tok_embeddings`
+- `layers.N.attn.q_proj`
+- `layers.N.attn.k_proj`
+- `layers.N.attn.v_proj`
+- `layers.N.attn.o_proj`
+- `layers.N.mlp.gate_proj`
+- `layers.N.mlp.up_proj`
+- `layers.N.mlp.down_proj`
+- `layers.N.attn_norm`
+- `layers.N.mlp_norm`
+- `final_norm`
+- `lm_head`
+
+`N` is zero-based and must match `config.json.layers`.
+
+## Training State
+
+Training checkpoints may add `optimizer.index.json` and `optimizer.lkjw`.
+Optimizer tensors are FP32 master weights, Adam moments, scheduler counters,
+RNG state, and an FP16 scaler only when the FP16 fallback path is active.
+Serving exports omit optimizer tensors by default.
 
 ## Compatibility
 
 - Native artifacts do not need to load Python `model.pt` checkpoints.
-- Exporters may read older data temporarily, but product serving reads only the
-  native format.
+- Product serving reads only `lkjai-native-artifact-v2`.
 - The tokenizer remains `tokenizer.json` because that file is part of the model
   behavior contract.

@@ -81,11 +81,8 @@ Run one measurable long training job for the 3070-first 40M scratch model.
 - `TRAIN_ENFORCE_COMPETENCY`: fail command when behavioral gates are missed
 - `TRAIN_STOP_AT_UNIX`: optional Unix timestamp deadline. The native trainer
   exits after the current step once the timestamp is reached.
-- `TRAIN_STEP_MILLIS`: optional per-step throttle for deadline-shaped native
-  transition runs, default `20`.
-- `TRAIN_MAX_ROW_BYTES`: maximum bytes consumed from one JSONL row, default
-  `4096`.
-- `TRAIN_MAX_TRANSITIONS`: maximum transition-table entries, default `500000`.
+- `TRAIN_MAX_ROW_BYTES`: maximum bytes consumed from one JSONL row during
+  scaffold corpus preparation, default `4096`.
 
 ## Required Artifacts
 
