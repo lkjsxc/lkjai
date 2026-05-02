@@ -84,19 +84,20 @@ void write_artifact(const std::filesystem::path& dir, const Options& opt,
                  std::to_string(opt.max_transitions) + "}\n");
   write_text(dir / "tokenizer.json",
              "{\"format\":\"byte-fallback-corpus\",\"seed\":\"corpus-jsonl\"}\n");
+  if (!write_transition_model(dir / "weights.lkjw", materialize(next))) {
+    throw std::runtime_error("failed to write weights.lkjw");
+  }
+  auto weight_bytes = std::filesystem::file_size(dir / "weights.lkjw");
   write_text(dir / "weights.index.json",
              "{\"tensors\":[{\"name\":\"transition_table\",\"dtype\":\"u32\","
              "\"shape\":[" + std::to_string(next.size()) +
              "],\"byte_offset\":0,\"byte_length\":" +
-             std::to_string(next.size()) + "}]}\n");
+             std::to_string(weight_bytes) + "}]}\n");
   write_text(dir / "trainer_state.json",
              "{\"status\":\"" + std::string(final ? "final" : "latest") +
                  "\",\"optimizer_steps\":" + std::to_string(step) +
                  ",\"corpus_rows_seen\":" + std::to_string(rows) +
                  ",\"transition_count\":" + std::to_string(next.size()) + "}\n");
-  if (!write_transition_model(dir / "weights.lkjw", materialize(next))) {
-    throw std::runtime_error("failed to write weights.lkjw");
-  }
 }
 
 void write_run_reports(const Options& opt, int step, long long rows, double elapsed) {

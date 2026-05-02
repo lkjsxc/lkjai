@@ -49,16 +49,18 @@ void write_artifact(const std::filesystem::path& dir, int steps) {
                  std::to_string(steps) + "}\n");
   write_text(dir / "tokenizer.json",
              "{\"format\":\"byte-fallback-smoke\",\"seed\":\"<action>\"}\n");
-  write_text(dir / "weights.index.json",
-             "{\"tensors\":[{\"name\":\"transition_table\",\"dtype\":\"u32\","
-             "\"shape\":[1],\"byte_offset\":0,\"byte_length\":1}]}\n");
-  write_text(dir / "trainer_state.json",
-             "{\"status\":\"smoke-trained\",\"optimizer_steps\":" +
-                 std::to_string(steps) + "}\n");
   auto transitions = lkjai::train_transitions(kSmokeAction);
   if (!lkjai::write_transition_model(dir / "weights.lkjw", transitions)) {
     throw std::runtime_error("failed to write weights.lkjw");
   }
+  auto weight_bytes = std::filesystem::file_size(dir / "weights.lkjw");
+  write_text(dir / "weights.index.json",
+             "{\"tensors\":[{\"name\":\"transition_table\",\"dtype\":\"u32\","
+             "\"shape\":[1],\"byte_offset\":0,\"byte_length\":" +
+                 std::to_string(weight_bytes) + "}]}\n");
+  write_text(dir / "trainer_state.json",
+             "{\"status\":\"smoke-trained\",\"optimizer_steps\":" +
+                 std::to_string(steps) + "}\n");
 }
 
 void export_smoke_artifacts(int steps) {
