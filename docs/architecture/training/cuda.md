@@ -33,5 +33,5 @@
 
 - CPU smoke runs may exist for local diagnosis only.
 - Full scratch training is expected to prefer CUDA.
-- Compose verify requires CUDA and fails when the native dense smoke cannot run
+- Compose verify requires CUDA and fails when the native transformer smoke cannot run
   on the detected GPU.

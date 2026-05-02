@@ -2,7 +2,7 @@
 
 ## Architecture
 
-The native dense path consumes `lkjai-packed-cache-v2` batches and exports
+The native transformer path consumes `lkjai-packed-cache-v2` batches and exports
 `lkjai-native-artifact-v2`. Stable layouts are:
 
 - Tokens: `[B,S]` as little-endian `uint16`.
@@ -10,17 +10,16 @@ The native dense path consumes `lkjai-packed-cache-v2` batches and exports
 - Q/K/V: `[B,S,heads,head_dim]`.
 - Logits: `[B*S,V]`.
 
-Routine verification uses `configs/native/dense_debug_bf16.json`. The 40M shape
-in `configs/native/dense_40m_bf16.json` is for manual smoke and production-like
+Routine verification uses `configs/native/native_debug_bf16.json`. The 40M shape
+in `configs/native/native_40m_bf16.json` is for manual smoke and production-like
 runs only.
 
 ## Precision
 
 Serving artifacts store model tensors as BF16. Training keeps FP32 master
-weights, gradients, and AdamW moments in checkpoints. The current accepted
-debug trainer executes a tensor-backed embedding and LM-head optimization slice;
-the transformer projection tensors are exported in the artifact schema and are
-reserved for the full CUDA transformer kernel path.
+weights, gradients, and AdamW moments in checkpoints. The accepted debug trainer
+executes the decoder-only transformer path with RMSNorm, RoPE, causal GQA
+attention, SwiGLU MLP, CE loss, optimizer, checkpoint/export, and logits probe.
 
 ## Packed Cache
 
@@ -34,7 +33,7 @@ contribute to cross entropy.
 ```sh
 lkjai-native-train --train \
   --packed-cache data/train/datasets/packed/train-causal_lm_full-seq1024 \
-  --config configs/native/dense_debug_bf16.json \
+  --config configs/native/native_debug_bf16.json \
   --out data/train \
   --batch-size 1 \
   --seq-len 8 \
@@ -48,7 +47,7 @@ Resume keeps optimizer step numbering:
 ```sh
 lkjai-native-train --train \
   --packed-cache data/train/datasets/packed/train-causal_lm_full-seq1024 \
-  --config configs/native/dense_debug_bf16.json \
+  --config configs/native/native_debug_bf16.json \
   --out data/train \
   --seq-len 8 \
   --max-steps 1 \
@@ -68,7 +67,7 @@ docker compose --progress quiet --profile verify run --rm verify
 
 The native CTest suite checks CUDA BF16 capability, packed-cache consumption,
 finite loss, backward and AdamW weight changes, checkpoint resume, artifact
-inspection, runtime loading, and a non-empty logits checksum.
+inspection, runtime loading, cache migration, and finite logits checksum.
 
 ## Manual 40M Smoke
 
@@ -77,7 +76,7 @@ Do not add this to routine verification:
 ```sh
 lkjai-native-train --train \
   --packed-cache data/train/datasets/packed/train-causal_lm_full-seq1024 \
-  --config configs/native/dense_40m_bf16.json \
+  --config configs/native/native_40m_bf16.json \
   --out data/train-40m-smoke \
   --batch-size 1 \
   --seq-len 8 \
@@ -86,6 +85,5 @@ lkjai-native-train --train \
 
 ## Limitations
 
-The custom CUDA causal-attention fallback and cuBLASLt transformer projections
-are still deferred behind the exported tensor contract. cuDNN SDPA remains
+Autoregressive chat/KV decode is not part of this slice. cuDNN SDPA remains
 deferred until cudnn-frontend headers are available in the native image.

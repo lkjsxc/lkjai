@@ -13,7 +13,7 @@ Use this subtree for the native C++/CUDA train and serve contracts.
 
 - [strategy.md](strategy.md): rewrite boundary and migration order
 - [artifact.md](artifact.md): native checkpoint and weight files
-- [dense-decoder.md](dense-decoder.md): native scratch decoder implementation contract
+- [dense-decoder.md](dense-decoder.md): native BF16 transformer contract
 - [runtime.md](runtime.md): HTTP server and inference behavior
 - [training.md](training.md): native trainer ownership and data flow
 - [kernels.md](kernels.md): CUDA library and custom-kernel rules

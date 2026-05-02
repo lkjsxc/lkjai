@@ -17,12 +17,13 @@ Serve the scratch model through one native C++/CUDA HTTP process.
 ## Inference Contract
 
 - Load native artifacts from `MODEL_ROOT/MODEL_NAME`.
-- Keep decode state and KV cache in native-owned memory.
-- Stop generation as soon as one complete `</action>` is produced.
+- Transformer artifacts load through `/v1/models`; autoregressive chat decode
+  returns an explicit unsupported-decode error until the decode slice lands.
+- `lkjai-native-logits-check` is the accepted inference proof for this slice.
 - Do not use supervised lookup, canned responses, or prompt lookup tables.
 - CPU execution is allowed only as a visible degraded mode.
-- The smoke artifact is a dense native artifact with named tensors. It is a
-  plumbing and numerics gate, not a behavioral competency artifact.
+- The smoke artifact is a transformer artifact with named tensors. It is a
+  numerics and artifact gate, not a behavioral competency artifact.
 
 ## Environment
 

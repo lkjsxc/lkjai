@@ -44,9 +44,21 @@ Each exported model directory contains:
 ## Training State
 
 Training checkpoints may add `optimizer.index.json` and `optimizer.lkjw`.
-Optimizer tensors are FP32 master weights, Adam moments, scheduler counters,
-RNG state, and an FP16 scaler only when the FP16 fallback path is active.
-Serving exports omit optimizer tensors by default.
+Optimizer tensors are reserved for FP32 master weights, Adam moments, scheduler
+counters, RNG state, and resume metadata. Serving exports omit optimizer tensors
+by default.
+
+## Transformer Slice
+
+`manifest.json.kind` is `transformer` for the native BF16 slice. The exported
+weights are BF16 tensors for token embeddings, every configured layer, final
+RMSNorm, and LM head. The config records `vocab_size`, `context`, `layers`,
+`hidden_size`, `heads`, `kv_heads`, `head_dim`, `ffn_size`, `activation`,
+`rope_theta`, `rms_norm_eps`, `tie_embeddings`, and `seed`.
+
+`lkjai-native-logits-check --model-dir DIR --tokens 1,2,3` loads those tensors,
+runs the transformer forward path, validates finite `[1,V]` next-token logits,
+and emits a JSON checksum.
 
 ## Compatibility
 

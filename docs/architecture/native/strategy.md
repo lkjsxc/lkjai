@@ -34,7 +34,8 @@ Optimize the RTX 3070 8GB path first:
 - compute capability `8.6`,
 - BF16 when supported, FP16 otherwise,
 - sequence length `1024`,
-- `scratch-40m` dense decoder shape.
+- `scratch-40m` decoder-only transformer shape.
 
-Vendor libraries handle standard dense math. Custom CUDA is reserved for cache,
-decode, sampler, and fusion work that the libraries do not cover cleanly.
+Vendor libraries handle standard linear math. Custom CUDA is reserved for
+attention fallback, cache, decode, sampler, and fusion work that the libraries
+do not cover cleanly.

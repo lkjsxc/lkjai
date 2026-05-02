@@ -4,7 +4,8 @@
 
 - GEMM and linear layers use cuBLASLt unless profiling proves a better local
   path.
-- cuDNN graph paths are allowed for stable fused patterns.
+- cuDNN SDPA is future work because the current native image does not ship
+  cudnn-frontend headers.
 - CUTLASS is allowed for custom epilogues and exact-shape experiments.
 - NCCL is not part of the first single-GPU acceptance gate.
 
@@ -14,8 +15,11 @@ Custom kernels are accepted for:
 
 - RMSNorm and residual fusion,
 - RoPE application,
-- KV cache append, trim, and layout conversion,
-- decode-time grouped-query attention,
+- correctness-first causal grouped-query attention,
+- embedding lookup and backward,
+- SwiGLU forward/backward,
+- CE loss and backward,
+- BF16/FP32 casts and AdamW,
 - logits filtering,
 - argmax or multinomial sampling,
 - stop-token and `</action>` detection.

@@ -8,7 +8,7 @@ Project configuration files that are intended to be committed live here.
 
 - [corpus/](corpus/): generation and corpus-size configuration.
 - [curriculum/](curriculum/): training curriculum configuration.
-- [native/](native/): native dense BF16 model shape configuration.
+- [native/](native/): native BF16 transformer shape configuration.
 - [training/](training/): scratch training run configuration.
 
 ## Rules

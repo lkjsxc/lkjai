@@ -4,7 +4,7 @@
 
 - Runtime orchestrator: Rust with axum.
 - Inference runtime: separate native C++/CUDA OpenAI-compatible service.
-- Serving model family: local scratch dense decoder.
+- Serving model family: local scratch decoder-only transformer.
 - Training scale: `scratch-40m` by default for the current corpus;
   `scratch-60m` remains a later target.
 - Training method: local native C++/CUDA from random initialization.
@@ -24,7 +24,7 @@
 - Scratch chat formatting is owned by this repository.
 - Fixed eval checks tokenizer, checkpoint, dataset, and loss artifacts.
 - Behavioral eval checks real generated responses and owns competency.
-- Compose verify is GPU-required and includes native dense smoke checks.
+- Compose verify is GPU-required and includes native transformer smoke checks.
 - Agent corpus default is 6,000 rows until reviewed non-LLM data exists.
 - DPO is the first preference optimization phase.
 - Runtime tool access is bounded to `TOOL_WORKSPACE_DIR`.
