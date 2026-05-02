@@ -9,6 +9,8 @@ Each step record includes:
 
 - `step`
 - `tokens`
+- `optimizer_steps`
+- `grad_accum`
 - `microstep_seconds`
 - `loader_seconds`
 - `h2d_seconds`
@@ -28,6 +30,8 @@ Each summary includes:
 - `config`
 - `preset`
 - `steps`
+- `microsteps`
+- `packed_cache_path`
 - `median_tokens_per_second`
 - `p95_microstep_seconds`
 - `capability`

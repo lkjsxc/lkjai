@@ -11,7 +11,8 @@ Serve the scratch model through one native C++/CUDA HTTP process.
   name, and warning.
 - `POST /v1/chat/completions` accepts `model`, `messages`, `max_tokens`, and
   `temperature`.
-- Successful chat responses keep `choices[0].message.content`.
+- Successful chat responses will keep `choices[0].message.content` after
+  decode lands.
 - Non-success responses include a JSON `error` string.
 - Capability fields follow [capability.md](capability.md).
 
@@ -19,8 +20,8 @@ Serve the scratch model through one native C++/CUDA HTTP process.
 
 - Load native artifacts from `MODEL_ROOT/MODEL_NAME`.
 - Dense and transformer artifacts load through `/v1/models`; autoregressive chat
-  decode returns an explicit unsupported-decode error until the decode slice
-  lands.
+  decode currently returns HTTP `422` with an explicit unsupported-decode error
+  and no `choices` field.
 - `lkjai-native-logits-check` is the accepted inference proof for this slice.
 - Do not use supervised lookup, canned responses, or prompt lookup tables.
 - CPU execution is allowed only as a visible degraded mode outside dense CUDA

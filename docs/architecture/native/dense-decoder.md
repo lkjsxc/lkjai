@@ -1,11 +1,25 @@
-# BF16 Transformer Native Contract
+# Dense BF16 Native Contract
 
 ## Goal
 
-Use a real decoder-only transformer for native training and serving while keeping the
-native artifact, runtime, and verification boundaries stable.
+Keep the current dense CUDA milestone honest while preserving the target
+decoder-only transformer roadmap.
 
-## Active Shape
+## Current Implemented Shape
+
+The implemented product path is intentionally minimal:
+
+- Token embedding table.
+- LM-head table.
+- BF16 exported weights with FP32 training state.
+- Packed-cache causal-LM batches.
+- CUDA forward, backward, AdamW, checkpoint, export, and logits check.
+- Native server artifact loading with explicit unsupported chat decode.
+
+There are no implemented attention blocks, MLP blocks, KV cache, or
+autoregressive decode in the accepted product path yet.
+
+## Target Shape
 
 - Preset: `scratch-40m`.
 - Vocabulary: `8192`.
@@ -20,10 +34,10 @@ native artifact, runtime, and verification boundaries stable.
 - Activation: SwiGLU.
 - Positional encoding: RoPE.
 
-## Library Ownership
+## Target Library Ownership
 
-- Embeddings, QKV/O projections, MLP projections, norms, and LM head are native
-  tensors in `weights.lkjw`.
+- Embeddings and LM head are native tensors in the current dense artifacts.
+- QKV/O projections, MLP projections, and norms are target transformer tensors.
 - QKV, output, and FFN projections use cuBLASLt first in the CUDA path.
 - Attention uses cuDNN SDPA when the frontend headers, runtime, dtype, compute
   capability, head dimension, and mask mode are eligible.
@@ -31,17 +45,17 @@ native artifact, runtime, and verification boundaries stable.
   wired for the active shape.
 - The active `head_dim=72` is BF16 SDPA-eligible because it is a multiple of `8`.
 
-## Training State
+## Current Training State
 
 - Optimizer: AdamW.
 - Optimizer state: FP32 master weights and FP32 moments.
-- Checkpoints include model tensors, optimizer tensors, scheduler counters,
-  resume metadata, and config.
+- Checkpoints include dense model tensors, optimizer tensors, trainer counters,
+  resume metadata, config, and checksums.
 - Exported serving artifacts omit optimizer tensors unless explicitly requested.
 
 ## Acceptance Milestone
 
-The transformer path is accepted only when all of these are true:
+The current dense CUDA path is accepted only when all of these are true:
 
 - A fixed synthetic batch trains forward and backward without NaN loss.
 - Packed-cache training consumes `lkjai-packed-cache-v2`.
@@ -52,6 +66,10 @@ The transformer path is accepted only when all of these are true:
 - GPU-required Compose verify passes on the native dense CUDA smoke.
 - Capability JSON reports device CC, BF16 support, cuBLASLt, cuDNN, and SDPA
   eligibility.
+
+The transformer path remains a roadmap target until projections, attention,
+MLP, norms, backward, optimizer state, and decode pass the same artifact and
+runtime checks.
 
 ## Non-Goals
 

@@ -8,6 +8,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY native ./native
+COPY configs ./configs
 
 RUN cmake -S native -B /build -G Ninja -DCMAKE_BUILD_TYPE=Release \
     && cmake --build /build --parallel
@@ -24,6 +25,9 @@ COPY --from=build /build/lkjai-native-server /usr/local/bin/lkjai-native-server
 COPY --from=build /build/lkjai-native-train /usr/local/bin/lkjai-native-train
 COPY --from=build /build/lkjai-native-inspect /usr/local/bin/lkjai-native-inspect
 COPY --from=build /build/lkjai-native-dense-check /usr/local/bin/lkjai-native-dense-check
+COPY --from=build /build/lkjai-native-device-check /usr/local/bin/lkjai-native-device-check
+COPY --from=build /build/lkjai-native-logits-check /usr/local/bin/lkjai-native-logits-check
+COPY --from=build /build/lkjai-native-packed-cache /usr/local/bin/lkjai-native-packed-cache
 
 ENV MODEL_ROOT=/models
 ENV MODEL_NAME=lkjai-scratch-40m

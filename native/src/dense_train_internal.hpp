@@ -28,7 +28,8 @@ void dense_adamw(std::vector<float>* weight, std::vector<float>* m,
                  float lr, int step);
 bool write_dense_train_artifact(const std::filesystem::path& dir,
                                 const DenseTrainState& state, int step,
-                                double loss, bool checkpoint,
-                                std::string* checksum);
+                                int microsteps, int batch_size, int seq_len,
+                                int grad_accum, double loss,
+                                bool checkpoint, std::string* checksum);
 
 }  // namespace lkjai

@@ -27,7 +27,7 @@ __global__ void gather_kernel(const uint16_t* tokens, const __nv_bfloat16* emb,
 __global__ void loss_kernel(const float* logits, const uint16_t* tokens,
                             const uint8_t* mask, float* grad_logits,
                             float* loss_out, int batch, int seq, int vocab,
-                            int supervised) {
+                            int supervised, float grad_scale) {
   int row_pos = blockIdx.x * blockDim.x + threadIdx.x;
   int rows = batch * (seq - 1);
   if (row_pos >= rows) return;
@@ -48,7 +48,7 @@ __global__ void loss_kernel(const float* logits, const uint16_t* tokens,
   float label_prob = fmaxf(expf(row_logits[label] - max_logit) / denom,
                            1.0e-20f);
   atomicAdd(loss_out, -logf(label_prob) / static_cast<float>(supervised));
-  float scale = 1.0f / static_cast<float>(supervised);
+  float scale = grad_scale / static_cast<float>(supervised);
   for (int v = 0; v < vocab; ++v) {
     float prob = expf(row_logits[v] - max_logit) / denom;
     row_grad[v] = (prob - (v == label ? 1.0f : 0.0f)) * scale;
@@ -68,7 +68,7 @@ __global__ void head_grad_kernel(const float* grad_logits,
     sum += grad_logits[static_cast<size_t>(n) * vocab + v] *
            __bfloat162float(hidden[static_cast<size_t>(n) * hidden_size + h]);
   }
-  grad_head[idx] = sum;
+  grad_head[idx] += sum;
 }
 
 __global__ void emb_grad_kernel(const float* grad_logits,
@@ -122,10 +122,12 @@ void dense_launch_gather(const uint16_t* tokens, const void* emb, void* hidden,
 void dense_launch_loss_grad(const float* logits, const uint16_t* tokens,
                             const uint8_t* mask, float* grad_logits,
                             float* loss, int batch, int seq, int vocab,
-                            int supervised, cudaStream_t stream) {
+                            int supervised, float grad_scale,
+                            cudaStream_t stream) {
   int rows = batch * (seq - 1);
   loss_kernel<<<(rows + 127) / 128, 128, 0, stream>>>(
-      logits, tokens, mask, grad_logits, loss, batch, seq, vocab, supervised);
+      logits, tokens, mask, grad_logits, loss, batch, seq, vocab, supervised,
+      grad_scale);
   require_cuda(cudaGetLastError(), "loss_grad_kernel");
 }
 

@@ -9,7 +9,7 @@ Every performance run records:
 - GPU name and compute capability,
 - driver, CUDA, cuDNN, and native build versions,
 - training preset and JSON config path,
-- batch size, gradient accumulation, AMP, launch mode, attention backend,
+- batch size, gradient accumulation, launch mode, and current trainer mode,
 - median and p95 microstep seconds,
 - median input tokens/sec,
 - loader wait, H2D, forward, backward, and optimizer timing.
@@ -29,15 +29,15 @@ outside `artifacts/`.
 
 ## Benchmark Matrix
 
-The bounded matrix must include at least:
+The current bounded matrix uses supported native trainer modes only:
 
-- `auto`, `library`, and `custom_decode` attention backends when implemented,
-- BF16, FP16, and AMP off,
-- plain launches and CUDA Graph replay for stable native buckets,
-- activation checkpoint off and every-n,
-- batch sizes that fit the active GPU,
-- JSONL scaffold loading and packed-cache loading until JSONL leaves the train
-  path.
+- `lkjai-native-train --smoke --steps N` for reproducible dense CUDA smoke.
+- Bounded `lkjai-native-train --train` packed-cache cases when a matching
+  packed cache is present.
+- Batch size and gradient accumulation values that the native trainer reports.
+
+Attention backend, FP16/AMP, activation checkpoint, and CUDA Graph sweeps are
+roadmap benchmarks after those switches are implemented in the native trainer.
 
 ## Full-Run Rule
 

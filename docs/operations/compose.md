@@ -16,11 +16,13 @@
 - Web waits for inference process health before serving traffic.
 - Model readiness is reported separately through `/api/model` and
   `GET /v1/models`.
-- Inference loads exported scratch checkpoints and generates actions directly.
+- Inference loads exported dense artifacts; chat decode currently returns HTTP
+  `422` unsupported with no `choices` field.
 - Inference must not use exact supervised lookup, prompt matching, or canned
   response tables.
 - Training writes datasets, tokenizer, checkpoints, exports, and logs under
   `/app/data/train`.
+- Training mounts committed configs at `/workspace/configs`.
 - Web writes transcripts and memory under `/app/data/agent`.
 - Web uses `/app/data/workspace` as the only filesystem root for tools.
 - Web must not mount the host root.
@@ -60,6 +62,8 @@ docker compose --progress quiet --profile verify up --build --abort-on-container
 - The `train` service runs `lkjai-native-train`.
 - Training writes to `TRAIN_DATA_DIR`, default `/app/data/train`.
 - The default Compose command is a two-step smoke run.
+- `TRAIN_CONFIG` selects the training-run JSON config.
+- `TRAIN_NATIVE_CONFIG` selects the native model-shape JSON config.
 - Long native training must save `lkjai-native-artifact-v2` under `data/models`.
 - The `verify` service requires NVIDIA GPU access and builds native code with
   the real CUDA compiler.

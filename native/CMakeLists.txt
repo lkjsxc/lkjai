@@ -7,7 +7,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CUDA_STANDARD 17)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
-set(CMAKE_CUDA_ARCHITECTURES 86-real 86-virtual 90-real 90-virtual)
+set(CMAKE_CUDA_ARCHITECTURES 86-real 86-virtual 89-real 89-virtual 90-real 90-virtual)
 find_package(CUDAToolkit REQUIRED)
 find_library(CUDNN_LIBRARY cudnn REQUIRED)
 
@@ -37,6 +37,7 @@ add_library(lkjai_native_core STATIC
   src/env.cpp
   src/json_min.cpp
   src/packed_cache.cpp
+  src/packed_cache_validate.cpp
   src/train_data.cpp
   src/dense_cuda.cu
   src/dense_cuda_common.cpp
@@ -55,6 +56,7 @@ add_library(lkjai_native_core STATIC
   src/transformer_optim.cpp
   src/transformer_train.cpp
   src/train_real.cpp
+  src/training_config.cpp
 )
 target_include_directories(lkjai_native_core PUBLIC src)
 target_link_libraries(lkjai_native_core PUBLIC lkjai_cuda)

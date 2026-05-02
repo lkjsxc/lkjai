@@ -6,9 +6,10 @@ The active native dense CUDA path consumes `lkjai-packed-cache-v2` batches and e
 `lkjai-native-artifact-v2`. Stable layouts are:
 
 - Tokens: `[B,S]` as little-endian `uint16`.
-- Activations: `[B*S,H]`.
-- Q/K/V: `[B,S,heads,head_dim]`.
+- Activations: `[B*(S-1),H]` for the current embedding-to-LM-head trainer.
 - Logits: `[B*S,V]`.
+- Q/K/V attention tensors are target transformer work, not current dense
+  trainer behavior.
 
 Routine verification uses `configs/native/native_debug_bf16.json`. The 40M shape
 in `configs/native/native_40m_bf16.json` is for manual smoke and production-like
@@ -18,15 +19,17 @@ runs only.
 
 Serving artifacts store model tensors as BF16. Training keeps FP32 master
 weights, gradients, and AdamW moments in checkpoints. The accepted debug trainer
-executes the decoder-only transformer path with RMSNorm, RoPE, causal GQA
-attention, SwiGLU MLP, CE loss, optimizer, checkpoint/export, and logits probe.
+executes dense token embedding plus LM-head CE loss, optimizer,
+checkpoint/export, and logits probe. RMSNorm, RoPE, causal GQA attention, and
+SwiGLU MLP are target transformer work.
 
 ## Packed Cache
 
 Training requires `metadata.json`, `tokens.bin`, `loss_mask.bin`, and
 `starts.bin`. The metadata `format` must be `lkjai-packed-cache-v2`, token dtype
-must fit the configured vocabulary, and `loss_mask` marks next-token labels that
-contribute to cross entropy.
+must be `uint16`, metadata counts must match file sizes, starts must stay within
+the token file, and `loss_mask` marks next-token labels that contribute to cross
+entropy.
 
 ## CLI
 
@@ -72,6 +75,21 @@ inspection, runtime loading, cache migration, and finite logits checksum.
 The dense CUDA check must emit capability JSON with device name, compute
 capability, BF16 support, cuBLASLt availability, cuDNN availability, and SDPA
 eligibility for the active BF16 GQA shape.
+
+## Verified Dense Smoke
+
+On 2026-05-02, the native image completed a two-step dense BF16 CUDA smoke on
+RTX 3070:
+
+- command: `lkjai-native-train --smoke --steps 2`
+- optimizer steps: `2`
+- microsteps: `2`
+- loss: `5.54436` to `5.54306`
+- training logits checksum: `75e9e99a57b13691`
+- dense logits-check checksum: `56f248148e361ab7`
+- inspect status: `pass`
+- server chat status: HTTP `422` unsupported dense autoregressive decode, with
+  no `choices` field
 
 ## Manual 40M Smoke
 

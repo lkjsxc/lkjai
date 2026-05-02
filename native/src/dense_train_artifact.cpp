@@ -94,10 +94,12 @@ std::string config_json(const DenseConfig& c) {
 
 std::string manifest_json(const std::string& artifact_kind,
                           std::string_view config,
-                          std::string_view tokenizer) {
+                          std::string_view tokenizer,
+                          const std::string& checksum) {
   std::ostringstream out;
   out << "{\"format\":\"lkjai-native-artifact-v2\",\"kind\":\"dense\","
       << "\"artifact_kind\":\"" << artifact_kind << "\","
+      << "\"weights_checksum\":\"" << json_escape(checksum) << "\","
       << "\"config_checksum\":\"" << artifact_text_checksum(config) << "\","
       << "\"tokenizer_checksum\":\"" << artifact_text_checksum(tokenizer)
       << "\"}\n";
@@ -108,8 +110,9 @@ std::string manifest_json(const std::string& artifact_kind,
 
 bool write_dense_train_artifact(const std::filesystem::path& dir,
                                 const DenseTrainState& state, int step,
-                                double loss, bool checkpoint,
-                                std::string* checksum) {
+                                int microsteps, int batch_size, int seq_len,
+                                int grad_accum, double loss,
+                                bool checkpoint, std::string* checksum) {
   std::filesystem::create_directories(dir);
   std::ofstream weights(dir / "weights.lkjw", std::ios::binary);
   if (!weights) return false;
@@ -131,11 +134,15 @@ bool write_dense_train_artifact(const std::filesystem::path& dir,
                    std::to_string(c.vocab_size) + "}\n";
   write_text(dir / "manifest.json",
              manifest_json(checkpoint ? "checkpoint" : "export", config,
-                           tokenizer));
+                           tokenizer, *checksum));
   write_text(dir / "config.json", config);
   write_text(dir / "tokenizer.json", tokenizer);
   write_text(dir / "trainer_state.json",
              "{\"optimizer_steps\":" + std::to_string(step) +
+                 ",\"microsteps\":" + std::to_string(microsteps) +
+                 ",\"batch_size\":" + std::to_string(batch_size) +
+                 ",\"seq_len\":" + std::to_string(seq_len) +
+                 ",\"grad_accum\":" + std::to_string(grad_accum) +
                  ",\"loss\":" + std::to_string(loss) +
                  ",\"logits_checksum\":\"" + *checksum +
                  "\",\"checkpoint\":" + (checkpoint ? "true" : "false") +

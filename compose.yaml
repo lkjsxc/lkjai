@@ -77,6 +77,7 @@ services:
       MODEL_NAME: ${MODEL_NAME:-lkjai-scratch-40m}
       TRAIN_PRESET: ${TRAIN_PRESET:-agent}
       TRAIN_CONFIG: ${TRAIN_CONFIG:-/workspace/configs/training/scratch_40m_12h.json}
+      TRAIN_NATIVE_CONFIG: ${TRAIN_NATIVE_CONFIG:-/workspace/configs/native/native_40m_bf16.json}
       TRAIN_BEHAVIORAL_CHECKPOINT: ${TRAIN_BEHAVIORAL_CHECKPOINT:-export}
       TRAIN_COMMITTED_CORPUS_DIR: ${TRAIN_COMMITTED_CORPUS_DIR:-/workspace/corpus/generated/kimi-sft-60m-v2}
       TRAIN_CORPUS_DIR: ${TRAIN_CORPUS_DIR:-/app/data/public-corpus}
@@ -88,6 +89,7 @@ services:
     volumes:
       - ./data:/app/data
       - ./corpus:/workspace/corpus:ro
+      - ./configs:/workspace/configs:ro
     deploy:
       resources:
         reservations:

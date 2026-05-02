@@ -32,7 +32,9 @@ the product path.
   dense CUDA trainer and export a valid `lkjai-native-artifact-v2` directory.
 - A native artifact inspect command must validate all index offsets and shapes.
 - Training reports finite decreasing loss, `dense_cuda_path=true`, phase
-  timings, a logits checksum, and `weight_changed=true`.
+  timings, config path, packed-cache path, batch size, sequence length,
+  gradient accumulation, optimizer steps, microsteps, token counts, a logits
+  checksum, artifact paths, and `weight_changed=true`.
 - Capability reporting must show whether the run used CUDA, native BF16,
   cuBLASLt, cuDNN, and SDPA-eligible shapes.
 
@@ -52,13 +54,17 @@ the product path.
   `${DATA_DIR}/../models/${MODEL_NAME}`.
 - `lkjai-native-packed-cache --migrate-v1-to-v2` wraps compatible v1 binary
   cache files as v2 after validating metadata, token width, masks, starts, vocab,
-  and context compatibility.
+  token count, row count, file sizes, row bounds, vocab, and context
+  compatibility.
 - The transformer implementation remains available in source, but routine
   native training and CTests exercise the dense CUDA milestone.
 
 ## Deadline Runs
 
-Use `TRAIN_STOP_AT_UNIX` for wall-clock bounded jobs. The trainer checks this
-deadline every optimizer step, writes `latest`, `final`, export, fixed-eval
-metadata, behavioral-eval metadata, and `checkpoints/training-summary.json`
-before exiting.
+`TRAIN_CONFIG` is the training-run config. `TRAIN_NATIVE_CONFIG` or `--config`
+selects the native model-shape config. CLI flags override environment
+variables, environment variables override `TRAIN_CONFIG`, and the JSON config
+overrides native defaults.
+
+Wall-clock stop, fixed eval, behavioral eval, and automatic tokenizer/corpus
+preparation remain target operations work, not current native trainer behavior.

@@ -10,7 +10,8 @@ The phase-one native stack is deliberately narrow:
 - CUDA Toolkit: `12.8.1`.
 - cuDNN: `9.x`, with `9.18.x` preferred until newer releases are profiled.
 - GEMM: cuBLASLt from the pinned CUDA toolkit.
-- Attention: cuDNN frontend SDPA when headers and runtime support are present.
+- Attention: cuDNN frontend SDPA is target transformer work after the dense
+  CUDA foundation.
 - Shape kernels: CUTLASS only after cuBLASLt/cuDNN measurements justify it.
 - Distributed: NCCL only after single-GPU acceptance passes.
 
@@ -18,7 +19,7 @@ The phase-one native stack is deliberately narrow:
 
 - Native BF16 requires compute capability `8.0+`.
 - RTX 3070 is compute capability `8.6` and is the first optimization target.
-- Older devices may use FP16 plus loss scaling or CPU diagnostics only.
+- Older devices may use CPU diagnostics only; FP16 loss scaling is roadmap work.
 - CPU fallback must be visible in health/model JSON and is not a performance
   acceptance path.
 
@@ -28,16 +29,17 @@ The phase-one native stack is deliberately narrow:
 - Reductions, softmax stats, loss stats, optimizer math, and checksums use FP32.
 - Training keeps FP32 master weights, FP32 gradients, and FP32 AdamW moments.
 - BF16 does not use a GradScaler.
-- FP16 fallback keeps GradScaler support because FP16 has narrower range.
+- FP16 fallback and GradScaler support are not implemented in the accepted dense
+  trainer.
 
 ## Vendor Library Ownership
 
-- cuBLASLt owns QKV, output, FFN, and LM-head GEMMs.
-- cuDNN SDPA owns training attention, prefill attention, and eligible decode
-  attention after frontend integration lands.
-- Custom CUDA owns RMSNorm, RoPE, residual routing, SwiGLU glue, CE loss,
-  optimizer refresh, KV-cache update, and sampling.
-- CUDA Graph replay is enabled only for stable static buckets.
+- Current dense CUDA owns token embedding, LM-head GEMM, CE loss, AdamW,
+  checkpoint, export, and logits check.
+- Target transformer work assigns QKV/output/FFN projections to cuBLASLt and
+  eligible attention to cuDNN SDPA before custom kernels replace measured
+  hotspots.
+- CUDA Graph replay is target work for stable static buckets.
 
 ## Upgrade Rule
 

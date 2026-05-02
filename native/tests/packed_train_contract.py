@@ -35,6 +35,7 @@ def check_schema(artifact: Path, inspect_bin: str):
     assert manifest["format"] == "lkjai-native-artifact-v2"
     assert manifest["kind"] == "dense"
     assert manifest["artifact_kind"] == "export"
+    assert manifest["weights_checksum"]
     assert manifest["config_checksum"]
     assert manifest["tokenizer_checksum"]
     index = json.loads((artifact / "weights.index.json").read_text())

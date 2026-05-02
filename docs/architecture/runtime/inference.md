@@ -20,8 +20,10 @@ honestly.
 ## Request And Response
 
 - Request fields: `model`, `messages`, `max_tokens`, `temperature`.
-- The Rust client consumes `choices[0].message.content`.
-- Every model step must return one XML action.
+- The Rust client consumes `choices[0].message.content` after decode lands.
+- Current dense artifacts return unsupported decode, so product chat quality
+  gates are blocked until the decode milestone.
+- Every accepted future model step must return one XML action.
 - The runtime system prompt is tracked in `prompts/codex-40m-system.txt` and
   loaded by `apps/runtime/src/agent/prompt.rs`.
 - The action contract uses `<tool>...`, not `<type>...`.
@@ -36,14 +38,15 @@ honestly.
   `model_error`.
 - Non-success status includes the status code and body text in the transcript.
 - Invalid model JSON stops the loop after repair attempts are exhausted.
-- CPU inference is allowed only as a visible degraded mode.
-- CUDA-unavailable CPU fallback must be reported in `/api/model` and the web UI.
+- CPU diagnostics are allowed only as a visible degraded mode.
+- CUDA-unavailable CPU diagnostics must be reported in `/api/model` and the web
+  UI.
 
 ## Performance Policy
 
 - Prefer CUDA when the native server reports a usable device.
-- Keep decode state in native-owned buffers during generation.
-- Stop generation as soon as one complete `</action>` is produced.
+- Target decode keeps state in native-owned buffers during generation.
+- Target decode stops as soon as one complete `</action>` is produced.
 - Do not use exact prompt lookup, supervised lookup, or canned response tables.
 
 ## Defaults

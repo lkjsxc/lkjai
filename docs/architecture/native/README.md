@@ -15,7 +15,8 @@ Use this subtree for the native C++/CUDA train and serve contracts.
 - [artifact.md](artifact.md): native checkpoint and weight files
 - [capability.md](capability.md): reusable CUDA capability JSON shape
 - [cuda-stack.md](cuda-stack.md): pinned CUDA, vendor library, and precision stack
-- [dense-decoder.md](dense-decoder.md): native BF16 transformer contract
+- [dense-decoder.md](dense-decoder.md): current dense CUDA milestone and
+  transformer roadmap
 - [device-tensor.md](device-tensor.md): device tensor ownership and copy rules
 - [failure-policy.md](failure-policy.md): unsupported, degraded, and failure behavior
 - [roadmap.md](roadmap.md): staged native implementation backlog

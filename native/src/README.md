@@ -12,12 +12,23 @@ artifact inspection, and CUDA capability probing.
 - [artifact_manifest.cpp](artifact_manifest.cpp) and
   [artifact_manifest.hpp](artifact_manifest.hpp): manifest checksum/schema
   validation.
+- [artifact_validate.cpp](artifact_validate.cpp) and
+  [artifact_validate.hpp](artifact_validate.hpp): artifact tensor range and
+  optimizer index validation.
 - [capability_json.cpp](capability_json.cpp) and
   [capability_json.hpp](capability_json.hpp): shared capability JSON fields.
 - [cuda_probe.cu](cuda_probe.cu) and [cuda_probe.hpp](cuda_probe.hpp): CUDA
   availability checks.
 - [dense_cuda.cu](dense_cuda.cu) and [dense_cuda.hpp](dense_cuda.hpp):
   dense CUDA parity and public training/logits entrypoints.
+- [dense_cuda_common.cpp](dense_cuda_common.cpp),
+  [dense_cuda_gemm.cu](dense_cuda_gemm.cu),
+  [dense_cuda_internal.hpp](dense_cuda_internal.hpp),
+  [dense_cuda_kernels.cu](dense_cuda_kernels.cu),
+  [dense_cuda_logits.cpp](dense_cuda_logits.cpp),
+  [dense_cuda_state.cu](dense_cuda_state.cu), and
+  [dense_cuda_train.cpp](dense_cuda_train.cpp): dense BF16 CUDA trainer,
+  logits check, GEMM wrapper, kernels, and state management.
 - [dense_check_main.cpp](dense_check_main.cpp): dense CUDA check binary.
 - [runtime_device.cu](runtime_device.cu), [runtime_workspace.cu](runtime_workspace.cu),
   [runtime_errors.cu](runtime_errors.cu), and [runtime_device.hpp](runtime_device.hpp):
@@ -40,6 +51,8 @@ artifact inspection, and CUDA capability probing.
   logits probe.
 - [packed_cache.cpp](packed_cache.cpp) and [packed_cache.hpp](packed_cache.hpp):
   packed-cache v2 validation and compatible v1 migration.
+- [packed_cache_validate.cpp](packed_cache_validate.cpp): packed-cache metadata,
+  file size, and row-bound validation.
 - [packed_cache_main.cpp](packed_cache_main.cpp): packed-cache migration CLI.
 - [server_main.cpp](server_main.cpp): OpenAI-compatible inference entrypoint.
 - [train_main.cpp](train_main.cpp): scratch training entrypoint.
@@ -47,6 +60,9 @@ artifact inspection, and CUDA capability probing.
   JSONL corpus cursor and row extraction helpers.
 - [train_real.cpp](train_real.cpp) and [train_real.hpp](train_real.hpp):
   corpus-backed native training loop used by non-smoke runs.
+- [training_config.cpp](training_config.cpp) and
+  [training_config.hpp](training_config.hpp): JSON training-run config loading
+  and CLI/environment precedence.
 - [transformer_artifact.cpp](transformer_artifact.cpp), [transformer_config.cpp](transformer_config.cpp),
   [transformer_forward.cpp](transformer_forward.cpp), [transformer_init.cpp](transformer_init.cpp),
   [transformer_optim.cpp](transformer_optim.cpp), [transformer_state.hpp](transformer_state.hpp),

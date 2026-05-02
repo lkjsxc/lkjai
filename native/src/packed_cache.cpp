@@ -35,26 +35,12 @@ PackedCacheStatus inspect_packed_cache(const std::filesystem::path& dir) {
     status.error = "metadata format must be lkjai-packed-cache-v2";
     return status;
   }
-  status.sequence_len = json_int_value(meta, "sequence_len", 0);
-  status.vocab_size = json_int_value(meta, "vocab_size", 0);
   auto token_bytes = byte_size(tokens);
   auto mask_bytes = byte_size(mask);
   auto start_bytes = byte_size(starts);
-  if (token_bytes == 0 || token_bytes % 2 != 0) {
-    status.error = "tokens.bin must contain uint16 tokens";
-    return status;
-  }
-  if (mask_bytes != token_bytes / 2) {
-    status.error = "loss_mask.bin must match token count";
-    return status;
-  }
-  if (start_bytes == 0 || start_bytes % 8 != 0) {
-    status.error = "starts.bin must contain uint64 offsets";
-    return status;
-  }
+  if (!validate_packed_cache_layout(dir, meta, token_bytes, mask_bytes,
+                                    start_bytes, &status)) return status;
   status.ok = true;
-  status.tokens = token_bytes / 2;
-  status.windows = start_bytes / 8;
   return status;
 }
 

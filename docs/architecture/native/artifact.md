@@ -33,6 +33,7 @@ Each exported model directory contains:
 - `kind`: model family, currently `dense` for active training exports or
   `transformer` for the retained transformer artifact path.
 - `artifact_kind`: `export` for serving or `checkpoint` for resume state.
+- `weights_checksum`: checksum of dense tensor payloads.
 - `config_checksum`: checksum of `config.json`.
 - `tokenizer_checksum`: checksum of `tokenizer.json`.
 
@@ -69,9 +70,10 @@ Dense checkpoints also require FP32 optimizer tensors for `master.*`,
 ## Training State
 
 Training checkpoints add `optimizer.index.json` and `optimizer.lkjw`.
-Optimizer tensors are reserved for FP32 master weights, Adam moments, scheduler
-counters, RNG state, and resume metadata. Serving exports omit optimizer tensors
-by default.
+Optimizer tensors are FP32 master weights and Adam moments for the current dense
+checkpoint. `trainer_state.json` records optimizer step, microsteps, batch size,
+sequence length, gradient accumulation, loss, checksum, and checkpoint/export
+kind. Scheduler counters and RNG state are target additions.
 
 ## Dense Slice
 
@@ -80,9 +82,10 @@ exported weights are BF16 tensors for token embeddings and LM head. The config
 records `vocab_size`, `context`, `hidden_size`, `heads`, `kv_heads`, `head_dim`,
 `ffn_size`, and `seed`.
 
-`lkjai-native-logits-check --model-dir DIR --tokens 1,2,3` loads dense or
-transformer artifacts, validates finite `[1,V]` next-token logits, and emits a
-JSON checksum.
+`lkjai-native-logits-check --model-dir DIR --tokens 1,2,3` loads dense
+artifacts, validates finite `[1,V]` next-token logits, and emits a JSON
+checksum. Transformer logits support is retained as source but is not the
+accepted training milestone.
 
 ## Transformer Slice
 

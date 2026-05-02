@@ -11,30 +11,8 @@ from run_support import ROOT, Telemetry, build_image, prepare_data_dir, run, sum
 
 
 CASES = {
-    "real_legacy": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "legacy"},
-    "real_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "mapped"},
-    "real_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped"},
-    "sdpa_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped", "TRAIN_ATTENTION_BACKEND": "sdpa"},
-    "sdpa_flash_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped", "TRAIN_ATTENTION_BACKEND": "sdpa_flash"},
-    "flash2_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped", "TRAIN_ATTENTION_BACKEND": "flash2"},
-    "synthetic_cpu": {"TRAIN_DATA_MODE": "synthetic_cpu", "TRAIN_DATALOADER_IMPL": "legacy"},
-    "synthetic_gpu": {"TRAIN_DATA_MODE": "synthetic_gpu", "TRAIN_DATALOADER_IMPL": "legacy"},
-    "bf16_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped", "TRAIN_AMP": "bf16"},
-    "fp16_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped", "TRAIN_AMP": "fp16"},
-    "amp_off_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped", "TRAIN_AMP": "off"},
-    "compile_batch_mapped": {
-        "TRAIN_DATA_MODE": "real",
-        "TRAIN_DATALOADER_IMPL": "batch_mapped",
-        "TRAIN_COMPILE": "reduce-overhead",
-        "TRAIN_COMPILE_WARMUP_MICROSTEPS": "2",
-    },
-    "batch2_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped", "TRAIN_BATCH_SIZE": "2"},
-    "batch4_batch_mapped": {"TRAIN_DATA_MODE": "real", "TRAIN_DATALOADER_IMPL": "batch_mapped", "TRAIN_BATCH_SIZE": "4"},
-    "no_checkpoint_batch_mapped": {
-        "TRAIN_DATA_MODE": "real",
-        "TRAIN_DATALOADER_IMPL": "batch_mapped",
-        "TRAIN_ACTIVATION_CHECKPOINT": "off",
-    },
+    "smoke_2": {"TRAIN_MAX_OPTIMIZER_STEPS": "2"},
+    "smoke_4": {"TRAIN_MAX_OPTIMIZER_STEPS": "4"},
 }
 
 
@@ -53,6 +31,7 @@ def run_case(image: str, run_id: str, case: str, repeat: int, base_env: dict, sa
             "TRAIN_COMMITTED_CORPUS_DIR": "/workspace/corpus/generated/kimi-sft-60m-v2",
         }
     )
+    steps = env.get("TRAIN_MAX_OPTIMIZER_STEPS", "2")
     command = [
         "docker",
         "run",
@@ -65,10 +44,12 @@ def run_case(image: str, run_id: str, case: str, repeat: int, base_env: dict, sa
         f"{ROOT / 'data'}:/app/data",
         "-v",
         f"{ROOT / 'corpus'}:/workspace/corpus:ro",
+        "-v",
+        f"{ROOT / 'configs'}:/workspace/configs:ro",
         image,
         "--smoke",
         "--steps",
-        env.get("TRAIN_MAX_OPTIMIZER_STEPS", "2"),
+        steps,
     ]
     docker_env = []
     for key, value in sorted(env.items()):
@@ -128,7 +109,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--run-id", default=time.strftime("%Y%m%d-%H%M%S"))
     parser.add_argument("--image", default="")
-    parser.add_argument("--cases", default="real_legacy,real_mapped,real_batch_mapped,sdpa_batch_mapped,sdpa_flash_batch_mapped,synthetic_gpu")
+    parser.add_argument("--cases", default="smoke_2,smoke_4")
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--sample-interval", type=float, default=0.5)
     parser.add_argument("--no-build", action="store_true")
@@ -145,20 +126,9 @@ def main() -> None:
         "MODEL_NAME": "lkjai-scratch-40m",
         "TRAIN_PRESET": "agent",
         "TRAIN_CONFIG": "/workspace/configs/training/scratch_40m_12h.json",
-        "TRAIN_MODEL_PRESET": "scratch-40m",
+        "TRAIN_NATIVE_CONFIG": "/workspace/configs/native/native_debug_bf16.json",
         "TRAIN_MAX_OPTIMIZER_STEPS": str(args.max_optimizer_steps),
-        "TRAIN_MAX_STEPS": str(args.max_optimizer_steps),
         "TRAIN_GRADIENT_ACCUMULATION": str(args.gradient_accumulation),
-        "TRAIN_VALIDATE_EVERY_OPTIMIZER_STEPS": "0",
-        "TRAIN_SAVE_EVERY_OPTIMIZER_STEPS": "0",
-        "TRAIN_INTERMEDIATE_SAVE_EVERY_OPTIMIZER_STEPS": "0",
-        "TRAIN_VALIDATION_BATCHES": "1",
-        "TRAIN_RESUME": "never",
-        "TRAIN_PROFILE_STEPS": str(args.profile_steps),
-        "TRAIN_BENCHMARK_WARMUP_MICROSTEPS": str(args.warmup_microsteps),
-        "TRAIN_AMP": "auto",
-        "TRAIN_ALLOW_TF32": "1",
-        "TRAIN_MATMUL_PRECISION": "high",
     }
     rows = []
     for case in [item.strip() for item in args.cases.split(",") if item.strip()]:

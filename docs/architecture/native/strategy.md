@@ -32,10 +32,10 @@ Replace:
 Optimize the RTX 3070 8GB path first:
 
 - compute capability `8.6`,
-- BF16 when supported, FP16 otherwise,
+- BF16-capable CUDA for accepted dense training; FP16 fallback is roadmap work,
 - sequence length `1024`,
 - `scratch-40m` decoder-only transformer shape.
 
-Vendor libraries handle standard linear math. Custom CUDA is reserved for
-attention fallback, cache, decode, sampler, and fusion work that the libraries
-do not cover cleanly.
+Current dense CUDA handles the embedding plus LM-head foundation. Vendor
+libraries and custom CUDA own the later transformer projections, attention,
+cache, decode, sampler, and fusion work after correctness gates exist.

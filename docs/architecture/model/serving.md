@@ -2,8 +2,8 @@
 
 ## Goal
 
-Serve exported scratch checkpoints through one raw-generation path that matches
-evaluation.
+Load exported scratch artifacts through one native service. Current artifacts
+prove load and logits, while raw generation is still a target decode milestone.
 
 ## Server
 
@@ -18,16 +18,20 @@ evaluation.
 - `POST /v1/chat/completions`
 - `GET /v1/models`
 - Request fields: `model`, `messages`, `max_tokens`, `temperature`.
-- Response field consumed by the Rust runtime: `choices[0].message.content`.
+- Successful decode responses will expose `choices[0].message.content`.
+- Current dense artifacts return HTTP `422` unsupported decode with no
+  `choices` field.
 
 ## Runtime Rules
 
 - Required files: `manifest.json`, `config.json`, `tokenizer.json`,
   `weights.index.json`, and `weights.lkjw`.
-- Serving loads the exported checkpoint and generates tokens directly.
-- Decode must reuse preallocated KV cache storage across generated tokens.
-- Stop detection uses tokenizer ids for canonical XML tags and decodes text
-  once after generation.
+- Serving currently loads dense exports and exposes readiness.
+- `lkjai-native-logits-check` is the accepted current inference proof.
+- Target decode must reuse preallocated KV cache storage across generated
+  tokens.
+- Target stop detection uses tokenizer ids for canonical XML tags and decodes
+  text once after generation.
 - No supervised action index, prompt lookup table, or policy-file fallback is
   allowed in the accepted runtime path.
 - If decode cannot produce one complete `</action>`, the server returns a

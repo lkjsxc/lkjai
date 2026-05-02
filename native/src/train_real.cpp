@@ -9,6 +9,7 @@
 #include "dense_train.hpp"
 #include "env.hpp"
 #include "json_min.hpp"
+#include "training_config.hpp"
 
 namespace lkjai {
 namespace {
@@ -45,52 +46,72 @@ float float_value(int argc, char** argv, const std::string& name,
   }
 }
 
-DenseTrainOptions options(int argc, char** argv) {
-  DenseTrainOptions opt;
-  opt.out_dir = env_string("DATA_DIR", "/app/data/train");
-  opt.model_name = env_string("MODEL_NAME", "lkjai-scratch-40m");
-  opt.packed_cache = env_string(
-      "TRAIN_PACKED_CACHE_DIR",
-      opt.out_dir.string() + "/datasets/packed/train-causal_lm_full-seq1024");
-  opt.max_steps = env_int("TRAIN_MAX_OPTIMIZER_STEPS",
-                          env_int("TRAIN_MAX_STEPS", opt.max_steps));
-  opt.checkpoint_interval =
-      env_int("TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS",
-              opt.checkpoint_interval);
-  opt.config_path = value(argc, argv, "--config", opt.config_path.string());
-  opt.packed_cache = value(argc, argv, "--packed-cache", opt.packed_cache.string());
-  opt.out_dir = value(argc, argv, "--out", opt.out_dir.string());
-  opt.batch_size = int_value(argc, argv, "--batch-size", opt.batch_size);
-  opt.seq_len = int_value(argc, argv, "--seq-len", opt.seq_len);
-  opt.grad_accum = int_value(argc, argv, "--grad-accum", opt.grad_accum);
-  opt.max_steps = int_value(argc, argv, "--max-steps", opt.max_steps);
-  opt.warmup_steps = int_value(argc, argv, "--warmup-steps", opt.warmup_steps);
-  opt.checkpoint_interval =
-      int_value(argc, argv, "--checkpoint-interval", opt.checkpoint_interval);
-  opt.lr = float_value(argc, argv, "--lr", opt.lr);
-  opt.resume_dir = value(argc, argv, "--resume", "");
-  opt.export_artifact = value(argc, argv, "--export-artifact", "");
-  return opt;
+float env_float(const char* name, float fallback) {
+  try {
+    return std::stof(env_string(name, std::to_string(fallback)));
+  } catch (...) {
+    return fallback;
+  }
 }
 
-}  // namespace
+bool options(int argc, char** argv, DenseTrainOptions* opt,
+             std::string* error) {
+  auto train_config = env_string("TRAIN_CONFIG", "");
+  if (!train_config.empty() &&
+      !apply_training_config(train_config, opt, error)) return false;
+  if (train_config.empty() &&
+      std::filesystem::is_regular_file("configs/training/scratch_40m_12h.json")) {
+    train_config = "configs/training/scratch_40m_12h.json";
+    if (!apply_training_config(train_config, opt, error)) return false;
+  }
+  opt->out_dir = env_string("DATA_DIR", opt->out_dir.empty()
+                                            ? "/app/data/train"
+                                            : opt->out_dir.string());
+  opt->model_name = env_string("MODEL_NAME", opt->model_name);
+  opt->config_path = env_string("TRAIN_NATIVE_CONFIG", opt->config_path.string());
+  opt->packed_cache = env_string(
+      "TRAIN_PACKED_CACHE_DIR",
+      opt->packed_cache.empty()
+          ? opt->out_dir.string() + "/datasets/packed/train-causal_lm_full-seq1024"
+          : opt->packed_cache.string());
+  opt->max_steps = env_int("TRAIN_MAX_OPTIMIZER_STEPS",
+                           env_int("TRAIN_MAX_STEPS", opt->max_steps));
+  opt->checkpoint_interval =
+      env_int("TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS",
+              opt->checkpoint_interval);
+  opt->batch_size = env_int("TRAIN_BATCH_SIZE", opt->batch_size);
+  opt->seq_len = env_int("TRAIN_SEQUENCE_LEN", opt->seq_len);
+  opt->grad_accum = env_int("TRAIN_GRADIENT_ACCUMULATION", opt->grad_accum);
+  opt->warmup_steps = env_int("TRAIN_WARMUP_STEPS", opt->warmup_steps);
+  opt->seed = env_int("TRAIN_SEED", opt->seed);
+  opt->lr = env_float("TRAIN_LEARNING_RATE", opt->lr);
+  opt->config_path = value(argc, argv, "--config", opt->config_path.string());
+  opt->packed_cache = value(argc, argv, "--packed-cache",
+                            opt->packed_cache.string());
+  opt->out_dir = value(argc, argv, "--out", opt->out_dir.string());
+  opt->batch_size = int_value(argc, argv, "--batch-size", opt->batch_size);
+  opt->seq_len = int_value(argc, argv, "--seq-len", opt->seq_len);
+  opt->grad_accum = int_value(argc, argv, "--grad-accum", opt->grad_accum);
+  opt->max_steps = int_value(argc, argv, "--max-steps", opt->max_steps);
+  opt->warmup_steps = int_value(argc, argv, "--warmup-steps", opt->warmup_steps);
+  opt->checkpoint_interval =
+      int_value(argc, argv, "--checkpoint-interval", opt->checkpoint_interval);
+  opt->lr = float_value(argc, argv, "--lr", opt->lr);
+  opt->resume_dir = value(argc, argv, "--resume", "");
+  opt->export_artifact = value(argc, argv, "--export-artifact", "");
+  return true;
+}
 
-int run_corpus_training(int argc, char** argv) {
-  if (flag(argc, argv, "--help")) {
-    std::cout << "usage: lkjai-native-train --train --packed-cache DIR "
-                 "--config FILE --out DIR [--max-steps N]\n";
-    return 0;
-  }
-  auto opt = options(argc, argv);
-  DenseTrainReport report;
-  std::string error;
-  if (!run_dense_training(opt, &report, &error)) {
-    std::cerr << "native dense CUDA training failed: " << error << "\n";
-    return 2;
-  }
-  auto cuda = cuda_status();
+void print_report(const DenseTrainReport& report, const CudaStatus& cuda) {
   std::cout << "{\"status\":\"pass\",\"mode\":\"train\",\"steps\":"
-            << report.steps << ",\"start_step\":" << report.start_step
+            << report.steps << ",\"optimizer_steps\":" << report.steps
+            << ",\"start_step\":" << report.start_step
+            << ",\"microsteps\":" << report.microsteps
+            << ",\"batch_size\":" << report.batch_size
+            << ",\"seq_len\":" << report.seq_len
+            << ",\"grad_accum\":" << report.grad_accum
+            << ",\"input_tokens\":" << report.input_tokens
+            << ",\"loss_tokens\":" << report.loss_tokens
             << ",\"initial_loss\":" << report.initial_loss
             << ",\"loss\":" << report.loss << ",\"loss_finite\":true"
             << ",\"dense_cuda_path\":true"
@@ -98,7 +119,17 @@ int run_corpus_training(int argc, char** argv) {
             << (report.weight_changed ? "true" : "false")
             << ",\"logits_checksum\":\""
             << json_escape(report.logits_checksum) << "\""
-            << ",\"timings\":{\"batch_load\":"
+            << ",\"train_config_path\":\""
+            << json_escape(report.train_config_path.string()) << "\""
+            << ",\"config_path\":\""
+            << json_escape(report.config_path.string()) << "\""
+            << ",\"packed_cache_path\":\""
+            << json_escape(report.packed_cache.string()) << "\""
+            << ",\"checkpoint_path\":\""
+            << json_escape(report.checkpoint_dir.string()) << "\""
+            << ",\"export_path\":\"" << json_escape(report.export_dir.string())
+            << "\",\"served_path\":\"" << json_escape(report.served_dir.string())
+            << "\",\"timings\":{\"batch_load\":"
             << report.batch_load_seconds << ",\"forward\":"
             << report.forward_seconds << ",\"backward\":"
             << report.backward_seconds << ",\"optimizer\":"
@@ -109,6 +140,29 @@ int run_corpus_training(int argc, char** argv) {
             << (cuda.available ? "true" : "false")
             << ",\"capability\":{" << capability_json_fields(cuda) << "}"
             << ",\"elapsed_seconds\":" << report.elapsed_seconds << "}\n";
+}
+
+}  // namespace
+
+int run_corpus_training(int argc, char** argv) {
+  if (flag(argc, argv, "--help")) {
+    std::cout << "usage: lkjai-native-train --train --packed-cache DIR "
+                 "--config FILE --out DIR [--max-steps N]\n";
+    return 0;
+  }
+  DenseTrainOptions opt;
+  DenseTrainReport report;
+  std::string error;
+  if (!options(argc, argv, &opt, &error)) {
+    std::cerr << "native training config failed: " << error << "\n";
+    return 2;
+  }
+  if (!run_dense_training(opt, &report, &error)) {
+    std::cerr << "native dense CUDA training failed: " << error << "\n";
+    return 2;
+  }
+  auto cuda = cuda_status();
+  print_report(report, cuda);
   return report.weight_changed ? 0 : 3;
 }
 

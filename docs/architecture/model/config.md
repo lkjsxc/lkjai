@@ -31,11 +31,12 @@ Keep one coherent contract for training, export, and serving on a local RTX
 ## Precision And Runtime
 
 - Training default: BF16 when the local CUDA stack supports it.
-- Training fallback: FP16 only when BF16 is unavailable or unstable.
-- FP16 training uses AMP gradient scaling.
-- Activation checkpointing is enabled for `scratch-40m` only when the active
-  JSON config or auto-batch policy requires it.
-- Serving default: native OpenAI-compatible runtime with KV-cache decode.
+- Current accepted training path requires CUDA BF16 capability.
+- FP16 fallback and AMP gradient scaling are roadmap items, not accepted dense
+  trainer behavior.
+- Activation checkpointing and auto-batch are roadmap items.
+- Serving default: native OpenAI-compatible runtime with artifact load,
+  readiness, dense logits checks, and explicit unsupported chat decode.
 - Runtime quality must come from real generation. No supervised exact-match
   lookup is allowed in the default path.
 

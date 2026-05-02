@@ -1,7 +1,8 @@
 #include "artifact.hpp"
 
-#include <iomanip>
+#include <cctype>
 #include <fstream>
+#include <iomanip>
 #include <sstream>
 #include <string_view>
 
@@ -22,6 +23,47 @@ const char* kRequired[] = {
 
 bool file_exists(const std::filesystem::path& path) {
   return std::filesystem::is_regular_file(path);
+}
+
+bool u64_after(std::string_view text, std::string_view key, size_t start,
+               uint64_t* out) {
+  auto pos = text.find(key, start);
+  if (pos == std::string_view::npos) return false;
+  pos = text.find(':', pos + key.size());
+  if (pos == std::string_view::npos) return false;
+  ++pos;
+  while (pos < text.size() && std::isspace(static_cast<unsigned char>(text[pos]))) {
+    ++pos;
+  }
+  try {
+    *out = static_cast<uint64_t>(std::stoull(std::string(text.substr(pos))));
+    return true;
+  } catch (...) {
+    return false;
+  }
+}
+
+std::string dense_weights_checksum(const std::filesystem::path& weights,
+                                   std::string_view index) {
+  std::ifstream file(weights, std::ios::binary);
+  uint64_t hash = 1469598103934665603ull;
+  size_t pos = 0;
+  while ((pos = index.find("\"byte_offset\"", pos)) != std::string_view::npos) {
+    uint64_t offset = 0;
+    uint64_t length = 0;
+    if (!u64_after(index, "\"byte_offset\"", pos, &offset) ||
+        !u64_after(index, "\"byte_length\"", pos, &length)) break;
+    file.seekg(static_cast<std::streamoff>(offset));
+    for (uint64_t i = 0; i + 1 < length; i += 2) {
+      uint16_t value = 0;
+      file.read(reinterpret_cast<char*>(&value), sizeof(value));
+      hash = (hash ^ value) * 1099511628211ull;
+    }
+    pos += 13;
+  }
+  std::ostringstream out;
+  out << std::hex << hash;
+  return out.str();
 }
 
 }  // namespace
@@ -84,8 +126,15 @@ bool inspect_artifact(const std::filesystem::path& model_dir,
     *error = "weights.lkjw is empty";
     return false;
   }
-  if (kind == "dense")
-    return validate_dense_weight_index(index_text, weight_bytes, error);
+  if (kind == "dense") {
+    if (!validate_dense_weight_index(index_text, weight_bytes, error)) return false;
+    if (!contains_json_string(manifest_text, "weights_checksum",
+                              dense_weights_checksum(weights, index_text))) {
+      *error = "manifest weights_checksum mismatch";
+      return false;
+    }
+    return true;
+  }
   if (!validate_transformer_weight_index(index_text, config_text, weight_bytes,
                                          error)) return false;
   return true;

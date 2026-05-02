@@ -5,29 +5,20 @@
 - Training uses CUDA when the native trainer detects a usable device.
 - Training stack uses local C++/CUDA scratch-model code.
 - Training containers target CUDA `12.8` and cuDNN `9`.
-- Mixed precision is enabled by default on CUDA.
-- `TRAIN_AMP=auto` chooses BF16 when supported and FP16 otherwise.
-- `TRAIN_AMP=fp16` uses native loss scaling.
-- Batch size 2 with gradient accumulation 4 is the default 40M path.
-- `TRAIN_BATCH_POLICY=oom_fallback` lets the 40M path reduce microbatch size
-  when an 8GB GPU cannot hold the configured shape.
-- Activation checkpointing is wired through `TRAIN_ACTIVATION_CHECKPOINT`.
-- Checkpoint wrappers use `TRAIN_CHECKPOINT_PRESERVE_RNG=false` unless a
-  dropout-sensitive experiment opts back in.
+- The current accepted trainer requires BF16-capable CUDA and reports failure
+  clearly when that capability is unavailable.
+- Batch size 2 with gradient accumulation 4 is the default 40M config.
+- `grad_accum` is implemented as multiple dense CUDA microsteps before one
+  AdamW optimizer step.
 - No pretrained base model or 4-bit adapter loading is used by default.
 
 ## Optional Acceleration
 
-- `TRAIN_COMPILE` is removed from the product path.
-- `TRAIN_ATTENTION_BACKEND=auto` lets the native trainer choose the fastest
-  supported vendor-library or custom CUDA path.
-- `TRAIN_ATTENTION_BACKEND=custom_decode` forces the native decode kernel for
-  serving benchmarks.
-- `TRAIN_ATTENTION_BACKEND=library` forces vendor-library attention paths.
-- Native CUDA and vendor-library attention paths own the mandatory baseline.
-- DataLoader pinned memory is enabled for CUDA runs.
-- Model training uses fused QKV and fused SwiGLU projections in the scratch
-  decoder.
+- `TRAIN_COMPILE`, `TRAIN_AMP`, `TRAIN_ATTENTION_BACKEND`, activation
+  checkpointing, auto-batch, and CUDA Graph switches are roadmap knobs until
+  the native trainer implements and reports them.
+- cuBLASLt projections, cuDNN SDPA, fused pointwise kernels, and CUDA Graphs are
+  target optimization work after the dense CUDA foundation is stable.
 
 ## Fallback
 

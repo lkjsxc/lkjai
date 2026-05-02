@@ -2,8 +2,8 @@
 
 ## Goal
 
-Replace the current CPU-reference transformer slice with a device-resident
-BF16 training and serving engine without changing the external Rust/runtime
+Grow the current dense BF16 CUDA foundation into a device-resident transformer
+training and serving engine without changing the external Rust/runtime
 contracts.
 
 ## Milestones
@@ -13,7 +13,7 @@ contracts.
 | 1 | Device substrate | dtype-aware tensors, stream/handle context, memory accounting, copy tests |
 | 2 | Capability probe | JSON reports CC, BF16, cuBLASLt, cuDNN, SDPA, and async allocation eligibility |
 | 3 | Typed artifacts | explicit tensor metadata, config checksum, optimizer checkpoint state |
-| 4 | Dense forward | cuBLASLt-backed projections with reference-logit parity on tiny models |
+| 4 | Dense foundation | BF16 embedding plus LM-head train/export/logits smoke |
 | 5 | Fused kernels | RMSNorm, RoPE, SwiGLU, CE loss, and cast kernels with tolerance tests |
 | 6 | Attention | cuDNN SDPA train/prefill path plus GQA/mask parity tests |
 | 7 | Real backward | projection, attention, norm, MLP, loss, and embedding gradients |
@@ -32,10 +32,11 @@ accepted by comments, TODOs, or benchmark scripts alone.
 
 The repository currently has:
 
-- a CPU reference-style transformer forward path,
-- a surrogate gradient trainer that proves artifact wiring,
+- dense BF16 CUDA embedding plus LM-head training,
+- real gradient accumulation for the dense trainer,
+- strict packed-cache v2 metadata and bounds validation,
 - packed-cache v2 ingestion,
-- AdamW-style parameter mutation for smoke verification,
+- AdamW parameter updates,
 - native artifact export and logits inspection,
 - a CUDA BF16/library capability smoke,
 - a dtype-aware CUDA tensor substrate with BF16 round-trip coverage.
@@ -44,6 +45,6 @@ That slice is useful for contracts, but it is not the final trainer.
 
 ## Next Code Target
 
-The next implementation target is typed artifacts plus reference-vs-native
-forward parity entrypoints for tiny debug configs. cuBLASLt replacement,
-cuDNN SDPA, true backward, and decode stay behind those contracts.
+The next implementation target is full dense decoder transformer parity:
+cuBLASLt projections, fused pointwise kernels, cuDNN SDPA, transformer backward,
+and then decode. NCCL stays after single-GPU correctness and profiling.

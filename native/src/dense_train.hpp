@@ -31,16 +31,30 @@ struct DenseTrainOptions {
   int max_steps = 2;
   int warmup_steps = 0;
   int checkpoint_interval = 1;
+  int seed = -1;
   float lr = 1.0e-3f;
+  std::filesystem::path train_config_path;
 };
 
 struct DenseTrainReport {
   int steps = 0;
   int start_step = 0;
+  int microsteps = 0;
+  int input_tokens = 0;
+  int loss_tokens = 0;
+  int batch_size = 0;
+  int seq_len = 0;
+  int grad_accum = 1;
   double initial_loss = 0.0;
   double loss = 0.0;
   bool weight_changed = false;
   std::string logits_checksum;
+  std::filesystem::path train_config_path;
+  std::filesystem::path config_path;
+  std::filesystem::path packed_cache;
+  std::filesystem::path checkpoint_dir;
+  std::filesystem::path export_dir;
+  std::filesystem::path served_dir;
   double elapsed_seconds = 0.0;
   double batch_load_seconds = 0.0;
   double forward_seconds = 0.0;

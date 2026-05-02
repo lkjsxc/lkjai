@@ -116,6 +116,12 @@ int main(int argc, char** argv) {
   std::cout << "{\"status\":\"pass\",\"mode\":\"smoke\",\"steps\":" << steps
             << ",\"optimizer_steps\":" << report.steps
             << ",\"start_step\":" << report.start_step
+            << ",\"microsteps\":" << report.microsteps
+            << ",\"batch_size\":" << report.batch_size
+            << ",\"seq_len\":" << report.seq_len
+            << ",\"grad_accum\":" << report.grad_accum
+            << ",\"input_tokens\":" << report.input_tokens
+            << ",\"loss_tokens\":" << report.loss_tokens
             << ",\"initial_loss\":" << report.initial_loss
             << ",\"loss\":" << report.loss
             << ",\"loss_finite\":true"
@@ -124,6 +130,14 @@ int main(int argc, char** argv) {
             << (report.weight_changed ? "true" : "false")
             << ",\"logits_checksum\":\""
             << lkjai::json_escape(report.logits_checksum) << "\""
+            << ",\"config_path\":\""
+            << lkjai::json_escape(report.config_path.string()) << "\""
+            << ",\"packed_cache_path\":\""
+            << lkjai::json_escape(report.packed_cache.string()) << "\""
+            << ",\"checkpoint_path\":\""
+            << lkjai::json_escape(report.checkpoint_dir.string()) << "\""
+            << ",\"export_path\":\""
+            << lkjai::json_escape(report.export_dir.string()) << "\""
             << ",\"timings\":{\"batch_load\":"
             << report.batch_load_seconds << ",\"forward\":"
             << report.forward_seconds << ",\"backward\":"

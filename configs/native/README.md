@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Native transformer trainer model configs live here. They are intentionally small JSON
-files so the C++ trainer can parse them without a third-party JSON dependency.
+Native model-shape configs live here. They are intentionally small JSON files
+so the C++ trainer can parse them without a third-party JSON dependency.
 
 ## Contents
 
-- [native_debug_bf16.json](native_debug_bf16.json): tiny 1-layer verification
-  model used by routine native checks.
+- [native_debug_bf16.json](native_debug_bf16.json): tiny verification shape
+  used by routine native dense checks.
 - [native_40m_bf16.json](native_40m_bf16.json): scratch 40M target shape for
   manual smoke runs and production-oriented experiments.
 

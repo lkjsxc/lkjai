@@ -69,7 +69,9 @@ void DenseCudaState::zero_moments() {
 double DenseCudaState::forward_backward(const PackedBatch& batch,
                                         std::vector<float>* logits,
                                         double* fwd_seconds,
-                                        double* bwd_seconds) {
+                                        double* bwd_seconds,
+                                        float grad_scale,
+                                        bool reset_grads) {
   int rows = batch.batch_size * (batch.sequence_len - 1);
   int h = cfg_.hidden_size;
   int v = cfg_.vocab_size;
@@ -89,12 +91,14 @@ double DenseCudaState::forward_backward(const PackedBatch& batch,
                "mask H2D");
   require_cuda(cudaMemsetAsync(loss.data(), 0, sizeof(float), ctx_->stream()),
                "loss memset");
-  require_cuda(cudaMemsetAsync(grad_emb_.data(), 0, grad_emb_.bytes(),
-                               ctx_->stream()),
-               "grad emb memset");
-  require_cuda(cudaMemsetAsync(grad_head_.data(), 0, grad_head_.bytes(),
-                               ctx_->stream()),
-               "grad head memset");
+  if (reset_grads) {
+    require_cuda(cudaMemsetAsync(grad_emb_.data(), 0, grad_emb_.bytes(),
+                                 ctx_->stream()),
+                 "grad emb memset");
+    require_cuda(cudaMemsetAsync(grad_head_.data(), 0, grad_head_.bytes(),
+                                 ctx_->stream()),
+                 "grad head memset");
+  }
   auto phase = std::chrono::steady_clock::now();
   dense_launch_gather(static_cast<uint16_t*>(tokens.data()), emb_shadow_.data(),
                       hidden.data(), batch.batch_size, batch.sequence_len, v, h,
@@ -106,7 +110,7 @@ double DenseCudaState::forward_backward(const PackedBatch& batch,
                          static_cast<float*>(grad_logits.data()),
                          static_cast<float*>(loss.data()), batch.batch_size,
                          batch.sequence_len, v, dense_supervised_count(batch),
-                         ctx_->stream());
+                         grad_scale, ctx_->stream());
   require_cuda(cudaStreamSynchronize(ctx_->stream()), "forward sync");
   if (fwd_seconds) *fwd_seconds += dense_seconds_since(phase);
   phase = std::chrono::steady_clock::now();

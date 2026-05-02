@@ -2,13 +2,14 @@
 
 ## Accepted Traits
 
-- The model is dense decoder-only.
-- Blocks use pre-norm residual structure.
-- Attention uses RoPE from precomputed per-layer tables.
-- Training uses fused QKV projection and fused SwiGLU gate/up projection.
-- Grouped-query attention is preferred.
-- Feed-forward layers use SwiGLU or a close gated MLP variant.
-- Norm layers use RMSNorm.
+- The current implemented model is a dense token embedding plus LM head.
+- The target model is dense decoder-only.
+- Target blocks use pre-norm residual structure.
+- Target attention uses RoPE from precomputed per-layer tables.
+- Target training uses fused QKV projection and fused SwiGLU gate/up projection.
+- Grouped-query attention is preferred for the target transformer.
+- Target feed-forward layers use SwiGLU or a close gated MLP variant.
+- Target norm layers use RMSNorm.
 - Tied embeddings are the default.
 - Weights are initialized locally; no pretrained tensors are loaded.
 

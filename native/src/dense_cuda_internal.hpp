@@ -20,7 +20,9 @@ class DenseCudaState {
   DenseCudaState(const DenseConfig& cfg, const DenseTrainState& host,
                  CudaExecutionContext* ctx);
   double forward_backward(const PackedBatch& batch, std::vector<float>* logits,
-                          double* forward_seconds, double* backward_seconds);
+                          double* forward_seconds, double* backward_seconds,
+                          float grad_scale = 1.0f,
+                          bool reset_grads = true);
   void adamw(float lr, int step);
   DenseTrainState copy_to_host();
 
@@ -64,7 +66,8 @@ void dense_launch_gather(const uint16_t* tokens, const void* emb, void* hidden,
 void dense_launch_loss_grad(const float* logits, const uint16_t* tokens,
                             const uint8_t* mask, float* grad_logits,
                             float* loss, int batch, int seq, int vocab,
-                            int supervised, cudaStream_t stream);
+                            int supervised, float grad_scale,
+                            cudaStream_t stream);
 void dense_launch_head_grad(const float* grad_logits, const void* hidden,
                             float* grad_head, int rows, int vocab,
                             int hidden_size, cudaStream_t stream);

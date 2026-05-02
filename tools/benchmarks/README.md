@@ -14,3 +14,4 @@ metrics.
 
 - Write outputs under ignored artifact directories.
 - Build training containers from `ops/docker/Dockerfile.native`.
+- Use only supported native modes: dense smoke and bounded packed-cache train.

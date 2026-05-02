@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace lkjai {
@@ -18,6 +19,11 @@ struct PackedCacheStatus {
 };
 
 PackedCacheStatus inspect_packed_cache(const std::filesystem::path& dir);
+bool validate_packed_cache_layout(const std::filesystem::path& dir,
+                                  std::string_view metadata,
+                                  uint64_t token_bytes, uint64_t mask_bytes,
+                                  uint64_t start_bytes,
+                                  PackedCacheStatus* status);
 
 struct PackedBatch {
   std::vector<uint16_t> tokens;
