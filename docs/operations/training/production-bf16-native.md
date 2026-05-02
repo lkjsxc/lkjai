@@ -65,8 +65,9 @@ default `OUT/exports/${MODEL_NAME}` location.
 Every successful smoke or train run writes `OUT/runs/train-report.json` and
 prints compact JSON with schema version `3`. Dense reports identify the
 precision mode as FP32 master, BF16 CUDA shadow, FP32 accumulation, and BF16
-export, and must declare `accepted_cuda_training=true`. Transformer reports are
-experimental and must declare `accepted_cuda_training=false`.
+export, include `run_purpose`, and must declare
+`accepted_cuda_training=true`. Transformer reports are experimental and must
+declare `accepted_cuda_training=false`.
 
 ## Verification
 
@@ -106,19 +107,22 @@ RTX 3070:
 - server chat status: HTTP `422` unsupported dense autoregressive decode, with
   no `choices` field
 
-## Manual 40M Smoke
+## Bounded 40M Compatibility
 
-Do not add this to routine verification:
+Do not add this to routine verification or promotion aggregates:
 
 ```sh
-lkjai-native-train --train \
-  --packed-cache data/train/datasets/packed/train-causal_lm_full-seq1024 \
-  --config configs/native/native_40m_bf16.json \
-  --out data/train-40m-smoke \
-  --batch-size 1 \
-  --seq-len 8 \
-  --max-steps 1
+python3 tools/benchmarks/run_dense_40m_compat.py \
+  --run-id RUN_ID \
+  --steps 4 \
+  --sequence-count 8 \
+  --sample-interval 0.25
 ```
+
+This uses `run_purpose=bounded_compatibility_start_check`, builds a true
+tokenizer-derived 8-window `seq_len=1024` cache, and checks only that the
+larger dense configuration can start, checkpoint, export, and pass the logits
+reference path over four optimizer steps.
 
 ## Limitations
 

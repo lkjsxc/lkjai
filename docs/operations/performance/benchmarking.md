@@ -46,6 +46,9 @@ with the same schema. Promotion aggregates use only reports with
 `model_kind=dense`, `accepted_cuda_training=true`, `implementation_status=accepted`,
 `status=success`, decreasing loss, artifact checksums, positive throughput,
 non-negative H2D timing, and passing logits/reference tolerance checks.
+Reports with `run_purpose=bounded_compatibility_start_check` are listed as
+compatibility diagnostics and are rejected by promotion aggregates even when
+loss decreases.
 Diagnostic summaries may still list experimental transformer timings and
 checksums. The tooling does not require or parse `perf-steps.jsonl`.
 
@@ -73,6 +76,26 @@ optimizer steps. It is not a 40M or production-scale performance baseline.
 
 Attention backend, FP16/AMP, activation checkpoint, and CUDA Graph sweeps are
 roadmap benchmarks after those switches are implemented in the native trainer.
+
+## Larger Dense Compatibility
+
+The 40M dense shape is checked with a bounded start-only command:
+
+```sh
+python3 tools/benchmarks/run_dense_40m_compat.py \
+  --run-id RUN_ID \
+  --steps 4 \
+  --sequence-count 8 \
+  --sample-interval 0.25
+```
+
+The runner builds and validates a deterministic cache under
+`data/perf-runs/<run-id>/packed/`, then runs dense CUDA with
+`native_40m_bf16`, `seq_len=1024`, batch size 1, gradient accumulation 1,
+four optimizer steps, checkpoint interval 4, and learning rate `0.0003`.
+Outputs are written to
+`artifacts/benchmarks/<run-id>/dense_40m_compat_4/repeat-01/`. This is
+compatibility-only until a later 40M run satisfies the promotion criteria.
 
 ## Full-Run Rule
 

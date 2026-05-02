@@ -13,6 +13,7 @@ The report includes:
 
 - `schema_version`
 - `trainer_mode`
+- `run_purpose`
 - `status`
 - `model_kind`
 - `accepted_cuda_training`
@@ -68,6 +69,7 @@ Each summary includes:
 
 - `schema_version`
 - `trainer_mode`
+- `run_purpose`
 - `status`
 - `model_kind`
 - `accepted_cuda_training`
@@ -98,6 +100,11 @@ Dense debug promotions also write
 status, device/backend, batch/sequence/hidden/vocab shape, parameter count,
 loss, throughput, elapsed time, H2D and phase timing fractions, artifact
 checksums, logits reference-check results, and resume-check results.
+
+Compatibility-only 40M start checks write
+`artifacts/benchmarks/<run-id>/dense_40m_compat_4/repeat-01/compatibility-summary.json`
+with `promotion_status=compatibility_only` and
+`run_purpose=bounded_compatibility_start_check`.
 
 CSV summaries use the same stable names for columns that fit flat tabular
 output. Nested capability fields are flattened with a `capability_` prefix.
