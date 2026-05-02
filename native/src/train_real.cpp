@@ -1,9 +1,7 @@
 #include "train_real.hpp"
-
 #include <filesystem>
 #include <iostream>
 #include <string>
-
 #include "cuda_probe.hpp"
 #include "capability_json.hpp"
 #include "dense_train.hpp"
@@ -12,17 +10,14 @@
 #include "training_config.hpp"
 #include "train_report.hpp"
 #include "transformer_train.hpp"
-
 namespace lkjai {
 namespace {
-
 bool flag(int argc, char** argv, const std::string& name) {
   for (int i = 1; i < argc; ++i) {
     if (argv[i] == name) return true;
   }
   return false;
 }
-
 std::string value(int argc, char** argv, const std::string& name,
                   const std::string& fallback) {
   for (int i = 1; i + 1 < argc; ++i) {
@@ -30,7 +25,6 @@ std::string value(int argc, char** argv, const std::string& name,
   }
   return fallback;
 }
-
 int int_value(int argc, char** argv, const std::string& name, int fallback) {
   try {
     return std::stoi(value(argc, argv, name, std::to_string(fallback)));
@@ -38,7 +32,6 @@ int int_value(int argc, char** argv, const std::string& name, int fallback) {
     return fallback;
   }
 }
-
 float float_value(int argc, char** argv, const std::string& name,
                   float fallback) {
   try {
@@ -98,6 +91,7 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
   opt->lr = env_float("TRAIN_LEARNING_RATE", opt->lr);
   auto env_kind = env_string("TRAIN_MODEL_KIND", "");
   if (!env_kind.empty()) opt->model_kind = env_kind;
+  opt->run_purpose = env_string("TRAIN_RUN_PURPOSE", opt->run_purpose);
   auto cli_config = value(argc, argv, "--config", "");
   if (!cli_config.empty()) {
     opt->config_path = cli_config;
@@ -125,6 +119,8 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
   opt->lr = float_value(argc, argv, "--lr", opt->lr);
   opt->resume_dir = value(argc, argv, "--resume", "");
   opt->export_artifact = value(argc, argv, "--export-artifact", "");
+  opt->run_purpose = value(argc, argv, "--run-purpose", opt->run_purpose);
+  if (opt->run_purpose.empty()) opt->run_purpose = "accepted_training";
   return true;
 }
 
@@ -137,6 +133,7 @@ TransformerTrainOptions transformer_options(const DenseTrainOptions& in) {
   out.export_artifact = in.export_artifact;
   out.model_name = in.model_name;
   out.model_kind = "transformer";
+  out.run_purpose = in.run_purpose;
   out.batch_size = in.batch_size;
   out.seq_len = in.seq_len;
   out.grad_accum = in.grad_accum;
@@ -155,7 +152,7 @@ int run_corpus_training(int argc, char** argv) {
   if (flag(argc, argv, "--help")) {
     std::cout << "usage: lkjai-native-train --train --packed-cache DIR "
                  "--config FILE --out DIR [--mode dense|transformer] "
-                 "[--max-steps N]\n";
+                 "[--max-steps N] [--run-purpose NAME]\n";
     return 0;
   }
   DenseTrainOptions opt;

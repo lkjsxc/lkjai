@@ -17,6 +17,7 @@ This directory contains test helpers for native CTest cases.
 - [transformer_train_contract.py](transformer_train_contract.py): checks the
   experimental transformer training contract and report status.
 - [benchmark_report_parser.py](benchmark_report_parser.py): checks benchmark
-  parsing of the stable native train-report JSON contract.
+  parsing of the stable native train-report JSON contract, including
+  compatibility-only run-purpose filtering.
 - [promote_dense_debug_validation.py](promote_dense_debug_validation.py):
   dry-checks dense debug promotion validation and summary shaping.

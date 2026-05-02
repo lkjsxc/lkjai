@@ -75,6 +75,7 @@ void append_transformer(std::ostringstream* out,
   *out << "{\"schema_version\":3"
        << ",\"trainer_mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"mode\":\"" << json_escape(trainer_mode) << "\""
+       << ",\"run_purpose\":\"" << json_escape(report.run_purpose) << "\""
        << ",\"model_kind\":\"transformer\""
        << ",\"accepted_cuda_training\":false"
        << ",\"implementation_status\":\"experimental\""
@@ -86,7 +87,11 @@ void append_transformer(std::ostringstream* out,
        << (cuda_required_ok(cuda) ? "true" : "false")
        << ",\"status\":\"" << json_escape(status) << "\""
        << ",\"failure_reason\":\"" << json_escape(failure_reason) << "\""
-       << ",\"limitations\":[\"experimental_not_accepted_cuda_training\","
+       << ",\"limitations\":["
+       << (report.run_purpose == "bounded_compatibility_start_check"
+               ? "\"bounded_compatibility_start_check\","
+               : "")
+       << "\"experimental_not_accepted_cuda_training\","
           "\"host_reference_forward\","
           "\"host_surrogate_backward\","
           "\"autoregressive_decode_unsupported\"]"

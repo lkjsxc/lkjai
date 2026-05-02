@@ -86,6 +86,7 @@ lkjai::DenseTrainReport run_smoke_training(int steps) {
   opt.config_path = config;
   opt.out_dir = data;
   opt.model_name = model;
+  opt.run_purpose = "smoke";
   opt.seq_len = 16;
   opt.max_steps = steps;
   lkjai::DenseTrainReport report;

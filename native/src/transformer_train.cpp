@@ -63,7 +63,8 @@ bool run_transformer_training(const TransformerTrainOptions& opt,
     return false;
   }
   TransformerState state;
-  report->train_config_path = opt.train_config_path;
+    report->train_config_path = opt.train_config_path;
+    report->run_purpose = opt.run_purpose;
   report->config_path = opt.config_path;
   report->packed_cache = opt.packed_cache;
   report->batch_size = opt.batch_size;

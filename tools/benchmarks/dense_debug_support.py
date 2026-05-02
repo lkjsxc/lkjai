@@ -142,6 +142,7 @@ def promotion_summary(
         "promotion_status": "promoted",
         "schema_version": report.get("schema_version"),
         "status": report.get("status"),
+        "run_purpose": report.get("run_purpose", ""),
         "model_kind": report.get("model_kind"),
         "accepted_cuda_training": report.get("accepted_cuda_training"),
         "implementation_status": report.get("implementation_status"),

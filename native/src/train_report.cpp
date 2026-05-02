@@ -1,28 +1,21 @@
 #include "train_report.hpp"
-
 #include <filesystem>
 #include <fstream>
 #include <sstream>
-
 #include "artifact.hpp"
 #include "capability_json.hpp"
 #include "json_min.hpp"
-
 #ifndef LKJAI_GIT_COMMIT
 #define LKJAI_GIT_COMMIT "unknown"
 #endif
-
 #ifndef LKJAI_BUILD_TYPE
 #define LKJAI_BUILD_TYPE "unknown"
 #endif
-
 #ifndef LKJAI_CUDA_ARCH_FLAGS
 #define LKJAI_CUDA_ARCH_FLAGS "unknown"
 #endif
-
 namespace lkjai {
 namespace {
-
 std::string file_digest(const std::filesystem::path& path) {
   std::ifstream in(path, std::ios::binary);
   uint64_t hash = 1469598103934665603ull;
@@ -81,6 +74,7 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
   *out << "{\"schema_version\":3"
        << ",\"trainer_mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"mode\":\"" << json_escape(trainer_mode) << "\""
+       << ",\"run_purpose\":\"" << json_escape(report.run_purpose) << "\""
        << ",\"model_kind\":\"dense\""
        << ",\"accepted_cuda_training\":true"
        << ",\"implementation_status\":\"accepted\""
@@ -91,7 +85,11 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << (cuda_required_ok(cuda) ? "true" : "false")
        << ",\"status\":\"" << json_escape(status) << "\""
        << ",\"failure_reason\":\"" << json_escape(failure_reason) << "\""
-       << ",\"limitations\":[\"single_gpu_only\","
+       << ",\"limitations\":["
+       << (report.run_purpose == "bounded_compatibility_start_check"
+               ? "\"bounded_compatibility_start_check\","
+               : "")
+       << "\"single_gpu_only\","
           "\"dense_embedding_lm_head_only\","
           "\"autoregressive_decode_unsupported\"]"
        << ",\"precision_mode\":\"fp32-master-bf16-shadow-bf16-export\""

@@ -6,9 +6,7 @@ import struct
 import subprocess
 import sys
 from pathlib import Path
-
-
-def write_cache(root: Path, version: str = "lkjai-packed-cache-v2"):
+def write_cache(root: Path, version: str = "lkjai-packed-cache-v2", vocab_size: int = 256):
     cache = root / "datasets" / "packed" / "train-causal_lm_full-seq1024"
     cache.mkdir(parents=True)
     meta = {
@@ -16,17 +14,18 @@ def write_cache(root: Path, version: str = "lkjai-packed-cache-v2"):
         "split": "train",
         "objective": "causal_lm_full",
         "sequence_len": 8,
-        "vocab_size": 256,
+        "seq_len": 8,
+        "vocab_size": vocab_size,
         "token_dtype": "uint16",
         "row_count": 1,
+        "sequence_count": 1,
         "token_count": 8,
+        "schema_version": 2,
     }
     (cache / "metadata.json").write_text(json.dumps(meta))
     (cache / "tokens.bin").write_bytes(struct.pack("<8H", *range(8)))
     (cache / "loss_mask.bin").write_bytes(bytes([1] * 8))
     (cache / "starts.bin").write_bytes(struct.pack("<Q", 0))
-
-
 def run_train(train_bin: str, root: Path, repo: Path, steps: int, extra=None):
     env = os.environ.copy()
     env.update(
@@ -56,6 +55,7 @@ def run_train(train_bin: str, root: Path, repo: Path, steps: int, extra=None):
     persisted = json.loads(report_path.read_text())
     assert persisted["schema_version"] == payload["schema_version"] == 3
     assert persisted["trainer_mode"] == payload["trainer_mode"] == "train"
+    assert persisted["run_purpose"] == payload["run_purpose"] == "accepted_training"
     assert persisted["precision_mode"] == "fp32-master-bf16-shadow-bf16-export"
     assert persisted["master_dtype"] == "f32"
     assert persisted["shadow_dtype"] == "bf16"
@@ -73,8 +73,6 @@ def run_train(train_bin: str, root: Path, repo: Path, steps: int, extra=None):
     assert persisted["logits_check"]["reference_check"] == "pass"
     assert persisted["logits_check"]["max_abs_diff"] <= persisted["logits_check"]["tolerance"]
     return payload
-
-
 def check_schema(artifact: Path, inspect_bin: str):
     manifest = json.loads((artifact / "manifest.json").read_text())
     assert manifest["format"] == "lkjai-native-artifact-v2"
@@ -110,15 +108,10 @@ def check_schema(artifact: Path, inspect_bin: str):
     bad = dict(manifest)
     bad["tokenizer_checksum"] = "bad"
     (broken / "manifest.json").write_text(json.dumps(bad))
-    result = subprocess.run(
-        [inspect_bin, "--model-dir", str(broken)],
-        text=True,
-        capture_output=True,
-    )
+    result = subprocess.run([inspect_bin, "--model-dir", str(broken)],
+                            text=True, capture_output=True)
     assert result.returncode != 0
     assert "checksum" in result.stderr
-
-
 def main():
     train_bin, logits_bin, inspect_bin = sys.argv[1:4]
     repo = Path(__file__).resolve().parents[2]
@@ -141,28 +134,28 @@ def main():
     artifact = root / "exports" / "packed-smoke"
     subprocess.run([inspect_bin, "--model-dir", str(artifact)], check=True)
     check_schema(artifact, inspect_bin)
-    result = subprocess.run(
-        [logits_bin, "--model-dir", str(artifact), "--tokens", "1,2,3"],
-        text=True, capture_output=True, check=True)
+    result = subprocess.run([logits_bin, "--model-dir", str(artifact),
+                             "--tokens", "1,2,3"],
+                            text=True, capture_output=True, check=True)
     payload = json.loads(result.stdout)
     assert payload["finite"] is True, result.stdout
     assert payload["shape"] == [1, 256], result.stdout
     assert payload["reference_check"] == "not_requested", result.stdout
     first_logits_checksum = payload["checksum"]
-    result = subprocess.run([
-        logits_bin, "--model-dir", str(artifact), "--tokens", "1,2,3",
-        "--reference-checkpoint", str(root / "checkpoints" / "latest"),
-    ], text=True, capture_output=True, check=True)
+    result = subprocess.run([logits_bin, "--model-dir", str(artifact),
+                             "--tokens", "1,2,3", "--reference-checkpoint",
+                             str(root / "checkpoints" / "latest")],
+                            text=True, capture_output=True, check=True)
     ref_payload = json.loads(result.stdout)
     assert ref_payload["reference_check"] == "pass", result.stdout
     assert ref_payload["max_abs_diff"] <= ref_payload["tolerance"], result.stdout
     assert ref_payload["mean_abs_diff"] <= ref_payload["tolerance"], result.stdout
-    result = subprocess.run(
-        [logits_bin, "--model-dir", str(artifact), "--tokens", "1,2,3"],
-        text=True, capture_output=True, check=True)
+    result = subprocess.run([logits_bin, "--model-dir", str(artifact),
+                             "--tokens", "1,2,3"],
+                            text=True, capture_output=True, check=True)
     assert json.loads(result.stdout)["checksum"] == first_logits_checksum
-    payload = run_train(
-        train_bin, root, repo, 1, ["--resume", str(root / "checkpoints" / "latest")])
+    payload = run_train(train_bin, root, repo, 1,
+                        ["--resume", str(root / "checkpoints" / "latest")])
     assert payload["start_step"] == 2, result.stdout
     assert payload["steps"] == 3, result.stdout
     mono = root.parent / "lkjai-packed-train-mono"
@@ -179,15 +172,28 @@ def main():
     repeated_payload = run_train(train_bin, repeated, repo, 2)
     assert repeated_payload["export_checksum"]
     assert repeated_payload["logits_checksum"] == first_logits_checksum
-    bad = subprocess.run([
-        train_bin, "--train", "--config",
-        str(repo / "configs" / "native" / "native_40m_bf16.json"),
-        "--seq-len", "8", "--max-steps", "1", "--resume",
-        str(root / "checkpoints" / "latest"),
-    ], env={**os.environ.copy(), "DATA_DIR": str(root)}, text=True,
-        capture_output=True)
+    bad = subprocess.run(
+        [train_bin, "--train", "--config",
+         str(repo / "configs" / "native" / "native_40m_bf16.json"),
+         "--seq-len", "8", "--max-steps", "1", "--resume",
+         str(root / "checkpoints" / "latest")],
+        env={**os.environ.copy(), "DATA_DIR": str(root)},
+        text=True, capture_output=True)
     assert bad.returncode != 0
     assert "mismatch" in bad.stderr
-
+    incompatible = root.parent / "lkjai-packed-train-incompatible-cache"
+    if incompatible.exists():
+        subprocess.run(["rm", "-rf", str(incompatible)], check=True)
+    write_cache(incompatible, vocab_size=300)
+    bad_cache = subprocess.run(
+        [train_bin, "--train", "--config",
+         str(repo / "configs" / "native" / "native_debug_bf16.json"),
+         "--packed-cache",
+         str(incompatible / "datasets" / "packed" / "train-causal_lm_full-seq1024"),
+         "--seq-len", "8", "--max-steps", "1"],
+        env={**os.environ.copy(), "DATA_DIR": str(incompatible)},
+        text=True, capture_output=True)
+    assert bad_cache.returncode != 0
+    assert "packed cache vocab_size exceeds" in bad_cache.stderr
 if __name__ == "__main__":
     main()

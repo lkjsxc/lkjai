@@ -19,6 +19,7 @@ def main() -> None:
     payload = {
         "schema_version": 3,
         "trainer_mode": "smoke",
+        "run_purpose": "accepted_training",
         "status": "success",
         "model_kind": "dense",
         "accepted_cuda_training": True,
@@ -56,6 +57,7 @@ def main() -> None:
         summary = summarize_train_report(loaded)
         assert summary["schema_version"] == 3
         assert summary["trainer_mode"] == "smoke"
+        assert summary["run_purpose"] == "accepted_training"
         assert summary["status"] == "success"
         assert summary["model_kind"] == "dense"
         assert summary["accepted_cuda_training"] is True
@@ -102,6 +104,18 @@ def main() -> None:
         failed_summary = summarize_train_report(failed)
         failed_summary["returncode"] = 2
         assert is_promotable_dense_summary(failed_summary) is False
+
+        compatibility = dict(payload)
+        compatibility["run_purpose"] = "bounded_compatibility_start_check"
+        compatibility["limitations"] = ["bounded_compatibility_start_check"]
+        compatibility_summary = summarize_train_report(compatibility)
+        compatibility_summary["returncode"] = 0
+        assert is_promotable_dense_summary(compatibility_summary) is False
+        errors = dense_promotion_errors(compatibility)
+        assert (
+            "run_purpose bounded_compatibility_start_check is not promotable"
+            in errors
+        )
 
         missing_checksum = dict(payload)
         missing_checksum["export_checksum"] = ""

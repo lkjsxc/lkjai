@@ -26,6 +26,7 @@ struct DenseTrainOptions {
   std::filesystem::path export_artifact;
   std::string model_name = "lkjai-scratch-40m";
   std::string model_kind = "dense";
+  std::string run_purpose;
   int batch_size = 1;
   int seq_len = 0;
   int grad_accum = 1;
@@ -54,6 +55,7 @@ struct DenseTrainReport {
   std::string logits_check_json;
   std::string logits_check_checksum;
   std::string failure_reason;
+  std::string run_purpose;
   std::filesystem::path train_config_path;
   std::filesystem::path config_path;
   std::filesystem::path packed_cache;

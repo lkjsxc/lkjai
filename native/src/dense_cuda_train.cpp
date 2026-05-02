@@ -43,6 +43,7 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
   }
   try {
     report->train_config_path = opt.train_config_path;
+    report->run_purpose = opt.run_purpose;
     report->config_path = opt.config_path;
     report->packed_cache = opt.packed_cache;
     report->batch_size = opt.batch_size;

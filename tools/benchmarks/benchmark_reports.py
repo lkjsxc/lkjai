@@ -7,6 +7,7 @@ def summarize_train_report(report: dict) -> dict:
     return {
         "schema_version": report.get("schema_version", 0),
         "trainer_mode": report.get("trainer_mode", report.get("mode", "")),
+        "run_purpose": report.get("run_purpose", ""),
         "status": report.get("status", ""),
         "model_kind": report.get("model_kind", "dense"),
         "accepted_cuda_training": bool(report.get("accepted_cuda_training", False)),
@@ -45,6 +46,8 @@ def dense_promotion_errors(report: dict) -> list[str]:
         errors.append("implementation_status must be accepted")
     if report.get("status") != "success":
         errors.append("status must be success")
+    if report.get("run_purpose") == "bounded_compatibility_start_check":
+        errors.append("run_purpose bounded_compatibility_start_check is not promotable")
     try:
         if not float(report.get("loss")) < float(report.get("initial_loss")):
             errors.append("loss must be lower than initial_loss")
@@ -95,6 +98,7 @@ def is_promotable_dense_summary(row: dict) -> bool:
             row.get("accepted_cuda_training") is True,
             row.get("implementation_status") == "accepted",
             row.get("status") == "success",
+            row.get("run_purpose", "") != "bounded_compatibility_start_check",
             float(row.get("loss", 0.0)) < float(row.get("initial_loss", 0.0)),
             bool(row.get("checkpoint_checksum")),
             bool(row.get("export_checksum")),
