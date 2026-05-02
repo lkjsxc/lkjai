@@ -14,6 +14,8 @@ Every performance run records:
 - median optimizer-step seconds from `train-report.json`,
 - median input tokens/sec,
 - loader wait, H2D, forward, backward, and optimizer timing.
+- dense loader backend, row layout, matmul plan cache flag, buffer reuse flag,
+  and timing source.
 
 ## Required Artifacts
 
@@ -44,8 +46,10 @@ The current bounded matrix uses supported native trainer modes only:
 Benchmark tooling consumes `DATA_DIR/runs/train-report.json` or the stdout JSON
 with the same schema. Promotion aggregates use only reports with
 `model_kind=dense`, `accepted_cuda_training=true`, `implementation_status=accepted`,
-`status=success`, decreasing loss, artifact checksums, positive throughput,
-non-negative H2D timing, and passing logits/reference tolerance checks.
+`status=success`, `loader_backend=persistent_packed_cache_reader`,
+`matmul_plan_cache_enabled=true`, `buffer_reuse_enabled=true`, decreasing loss,
+artifact checksums, positive throughput, non-negative CUDA-event timings, and
+passing logits/reference tolerance checks.
 Reports with `run_purpose=bounded_compatibility_start_check` are listed as
 compatibility diagnostics and are rejected by promotion aggregates even when
 loss decreases.

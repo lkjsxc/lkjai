@@ -15,6 +15,8 @@ forward and backward kernels are device-resident.
 - Packed cache read and write.
 - Pinned host batch staging.
 - Dense CUDA forward, backward, AdamW, checkpoint, and export.
+- Persistent dense packed-cache reads after one run-start validation pass.
+- Reusable dense CUDA step buffers and cached cuBLASLt plans for steady shapes.
 - Experimental transformer host/reference training with a CUDA capability
   probe, checkpoints, export, and logits checks.
 - Stable training reports and benchmark records.
@@ -27,7 +29,8 @@ forward and backward kernels are device-resident.
 4. Write or reuse `lkjai-packed-cache-v2` files.
 5. Train using the selected native CUDA model kind.
 6. Save `lkjai-native-artifact-v2`.
-7. Probe exported single-step logits with `lkjai-native-logits-check`.
+7. Probe exported single-step logits with `lkjai-native-infer`.
+8. Use `lkjai-native-logits-check` only for validation/reference checks.
 
 ## Acceptance
 
@@ -49,6 +52,9 @@ forward and backward kernels are device-resident.
   `failure_reason`, and `weight_changed=true`.
 - Capability reporting must show whether the run used CUDA, native BF16,
   cuBLASLt, cuDNN, and SDPA-eligible shapes.
+- Dense reports must state the persistent packed-cache reader, physical `B*S`
+  row layout with masked final-token loss, cuBLASLt plan cache, reusable step
+  buffers, and CUDA-event timing source.
 - Chat and autoregressive decode remain out of scope. Native server
   `/v1/chat/completions` continues to return HTTP `422` with no `choices` for
   dense and transformer artifacts until decode is implemented.
@@ -67,6 +73,9 @@ forward and backward kernels are device-resident.
   checkpoints under `DATA_DIR/checkpoints`, exports under
   `DATA_DIR/exports/${MODEL_NAME}`, and mirrors the served model under
   `${DATA_DIR}/../models/${MODEL_NAME}`.
+- `lkjai-native-infer --model-dir DIR --tokens CSV` loads dense BF16 exports
+  and emits stable logits JSON. It rejects missing, corrupt, transformer, and
+  out-of-range token inputs. It does not decode text.
 - `lkjai-native-train --train --mode transformer` runs the experimental
   transformer debug trainer. It uses `TRAIN_MODEL_KIND=transformer` or
   `TRAIN_CONFIG.model_kind=transformer` when the CLI flag is absent. Dense is
@@ -129,7 +138,7 @@ Successful runs write:
 Checkpoint artifacts include `manifest.json`, `config.json`, `tokenizer.json`,
 `weights.index.json`, `weights.lkjw`, `trainer_state.json`,
 `optimizer.index.json`, and `optimizer.lkjw`. Export artifacts omit optimizer
-files and are the validation target for `lkjai-native-logits-check`.
+files and are the validation target for dense infer and logits checks.
 
 ## Report Schema
 
@@ -144,8 +153,13 @@ Dense reports declare `accepted_cuda_training=true`,
 `implementation_status=accepted`, `dense_cuda_path=true`,
 `forward_backend=cuda_bf16_cublaslt`,
 `backward_backend=cuda_custom_or_gemm`, and
-`optimizer_backend=cuda_adamw_fp32`. Dense logits checks compare BF16 exports
-against FP32 checkpoint masters when a reference checkpoint is available.
+`optimizer_backend=cuda_adamw_fp32`. They also declare
+`loader_backend=persistent_packed_cache_reader`,
+`row_layout=dense_physical_bxseq_masked_final_token`,
+`matmul_plan_cache_enabled=true`, `buffer_reuse_enabled=true`, and
+`timing_source=cuda_events_with_boundary_sync`. Dense logits checks compare
+BF16 exports against FP32 checkpoint masters when a reference checkpoint is
+available.
 
 Transformer reports declare `accepted_cuda_training=false`,
 `implementation_status=experimental`, `transformer_status=experimental`,
