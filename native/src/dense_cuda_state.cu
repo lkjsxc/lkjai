@@ -105,6 +105,7 @@ double DenseCudaState::forward_backward(const PackedBatch& batch,
   DeviceTensor hidden({DeviceDType::bf16, {rows, h}}, ctx_->stream());
   DeviceTensor out({DeviceDType::f32, {rows, v}}, ctx_->stream());
   DeviceTensor grad_logits({DeviceDType::f32, {rows, v}}, ctx_->stream());
+  DeviceTensor d_hidden({DeviceDType::f32, {rows, h}}, ctx_->stream());
   DeviceTensor loss({DeviceDType::f32, {1}}, ctx_->stream());
   auto phase = std::chrono::steady_clock::now();
   std::copy(batch.tokens.begin(), batch.tokens.end(), host_tokens_);
@@ -142,14 +143,12 @@ double DenseCudaState::forward_backward(const PackedBatch& batch,
   require_cuda(cudaStreamSynchronize(ctx_->stream()), "forward sync");
   if (fwd_seconds) *fwd_seconds += dense_seconds_since(phase);
   phase = std::chrono::steady_clock::now();
-  dense_launch_head_grad(static_cast<float*>(grad_logits.data()), hidden.data(),
-                         static_cast<float*>(grad_head_.data()), rows, v, h,
-                         ctx_->stream());
-  dense_launch_emb_grad(static_cast<float*>(grad_logits.data()),
-                        head_shadow_.data(),
-                        device_tokens_,
-                        static_cast<float*>(grad_emb_.data()), batch.batch_size,
-                        batch.sequence_len, v, h, ctx_->stream());
+  gemm_head_grad(grad_logits, hidden, rows);
+  gemm_d_hidden(grad_logits, d_hidden, rows);
+  dense_launch_emb_scatter(static_cast<float*>(d_hidden.data()), device_tokens_,
+                           static_cast<float*>(grad_emb_.data()),
+                           batch.batch_size, batch.sequence_len, v, h,
+                           ctx_->stream());
   require_cuda(cudaStreamSynchronize(ctx_->stream()), "backward sync");
   if (bwd_seconds) *bwd_seconds += dense_seconds_since(phase);
   auto loss_host = loss.copy_to_host_f32(ctx_->stream());

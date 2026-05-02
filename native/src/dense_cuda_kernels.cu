@@ -55,26 +55,10 @@ __global__ void loss_kernel(const float* logits, const uint16_t* tokens,
   }
 }
 
-__global__ void head_grad_kernel(const float* grad_logits,
-                                 const __nv_bfloat16* hidden, float* grad_head,
-                                 int rows, int vocab, int hidden_size) {
-  int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  int total = vocab * hidden_size;
-  if (idx >= total) return;
-  int h = idx % hidden_size;
-  int v = idx / hidden_size;
-  float sum = 0.0f;
-  for (int n = 0; n < rows; ++n) {
-    sum += grad_logits[static_cast<size_t>(n) * vocab + v] *
-           __bfloat162float(hidden[static_cast<size_t>(n) * hidden_size + h]);
-  }
-  grad_head[idx] += sum;
-}
-
-__global__ void emb_grad_kernel(const float* grad_logits,
-                                const __nv_bfloat16* head,
-                                const uint16_t* tokens, float* grad_emb,
-                                int batch, int seq, int vocab, int hidden_size) {
+__global__ void emb_scatter_kernel(const float* d_hidden,
+                                   const uint16_t* tokens, float* grad_emb,
+                                   int batch, int seq, int vocab,
+                                   int hidden_size) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
   int rows = batch * (seq - 1);
   if (idx >= rows * hidden_size) return;
@@ -83,12 +67,8 @@ __global__ void emb_grad_kernel(const float* grad_logits,
   int row = row_pos / (seq - 1);
   int pos = row_pos % (seq - 1);
   int token = static_cast<int>(tokens[row * seq + pos]) % vocab;
-  float sum = 0.0f;
-  for (int v = 0; v < vocab; ++v) {
-    sum += grad_logits[static_cast<size_t>(row_pos) * vocab + v] *
-           __bfloat162float(head[static_cast<size_t>(v) * hidden_size + h]);
-  }
-  atomicAdd(grad_emb + static_cast<size_t>(token) * hidden_size + h, sum);
+  atomicAdd(grad_emb + static_cast<size_t>(token) * hidden_size + h,
+            d_hidden[static_cast<size_t>(row_pos) * hidden_size + h]);
 }
 
 __global__ void adamw_kernel(float* weight, float* m, float* v, const float* grad,
@@ -131,25 +111,13 @@ void dense_launch_loss_grad(const float* logits, const uint16_t* tokens,
   require_cuda(cudaGetLastError(), "loss_grad_kernel");
 }
 
-void dense_launch_head_grad(const float* grad_logits, const void* hidden,
-                            float* grad_head, int rows, int vocab,
-                            int hidden_size, cudaStream_t stream) {
-  int n = vocab * hidden_size;
-  head_grad_kernel<<<(n + 255) / 256, 256, 0, stream>>>(
-      grad_logits, static_cast<const __nv_bfloat16*>(hidden), grad_head, rows,
-      vocab, hidden_size);
-  require_cuda(cudaGetLastError(), "head_grad_kernel");
-}
-
-void dense_launch_emb_grad(const float* grad_logits, const void* head,
-                           const uint16_t* tokens, float* grad_emb, int batch,
-                           int seq, int vocab, int hidden_size,
-                           cudaStream_t stream) {
+void dense_launch_emb_scatter(const float* d_hidden, const uint16_t* tokens,
+                              float* grad_emb, int batch, int seq, int vocab,
+                              int hidden_size, cudaStream_t stream) {
   int n = batch * (seq - 1) * hidden_size;
-  emb_grad_kernel<<<(n + 255) / 256, 256, 0, stream>>>(
-      grad_logits, static_cast<const __nv_bfloat16*>(head), tokens, grad_emb,
-      batch, seq, vocab, hidden_size);
-  require_cuda(cudaGetLastError(), "emb_grad_kernel");
+  emb_scatter_kernel<<<(n + 255) / 256, 256, 0, stream>>>(
+      d_hidden, tokens, grad_emb, batch, seq, vocab, hidden_size);
+  require_cuda(cudaGetLastError(), "emb_scatter_kernel");
 }
 
 void dense_launch_adamw(float* weight, float* m, float* v, const float* grad,

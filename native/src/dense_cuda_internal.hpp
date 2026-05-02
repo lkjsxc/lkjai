@@ -31,6 +31,10 @@ class DenseCudaState {
   void zero_gradients();
   void ensure_batch_buffers(size_t token_count, size_t mask_count);
   void gemm(const DeviceTensor& hidden, DeviceTensor& out, int rows);
+  void gemm_head_grad(const DeviceTensor& grad_logits,
+                      const DeviceTensor& hidden, int rows);
+  void gemm_d_hidden(const DeviceTensor& grad_logits, DeviceTensor& d_hidden,
+                     int rows);
 
   DenseConfig cfg_;
   CudaExecutionContext* ctx_ = nullptr;
@@ -78,13 +82,9 @@ void dense_launch_loss_grad(const float* logits, const uint16_t* tokens,
                             float* loss, int batch, int seq, int vocab,
                             int supervised, float grad_scale,
                             cudaStream_t stream);
-void dense_launch_head_grad(const float* grad_logits, const void* hidden,
-                            float* grad_head, int rows, int vocab,
-                            int hidden_size, cudaStream_t stream);
-void dense_launch_emb_grad(const float* grad_logits, const void* head,
-                           const uint16_t* tokens, float* grad_emb, int batch,
-                           int seq, int vocab, int hidden_size,
-                           cudaStream_t stream);
+void dense_launch_emb_scatter(const float* d_hidden, const uint16_t* tokens,
+                              float* grad_emb, int batch, int seq, int vocab,
+                              int hidden_size, cudaStream_t stream);
 void dense_launch_adamw(float* weight, float* m, float* v, const float* grad,
                         void* shadow, int n, float lr, int step,
                         cudaStream_t stream);
