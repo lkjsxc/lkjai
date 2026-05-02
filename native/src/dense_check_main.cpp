@@ -19,6 +19,8 @@ int main() {
             << (check.cudnn_available ? "true" : "false")
             << ",\"sdpa_eligible\":"
             << (check.sdpa_eligible ? "true" : "false")
+            << ",\"async_alloc_supported\":"
+            << (check.async_alloc_supported ? "true" : "false")
             << ",\"error\":\"" << lkjai::json_escape(check.error)
             << "\"}\n";
   return check.ok ? 0 : 1;

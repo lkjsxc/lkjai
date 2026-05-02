@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import os
+import shutil
 import struct
 import subprocess
 import sys
@@ -27,6 +28,35 @@ def write_cache(root: Path, version: str = "lkjai-packed-cache-v2"):
     (cache / "tokens.bin").write_bytes(struct.pack("<8H", *range(8)))
     (cache / "loss_mask.bin").write_bytes(bytes([1] * 8))
     (cache / "starts.bin").write_bytes(struct.pack("<Q", 0))
+
+
+def check_schema(artifact: Path, inspect_bin: str):
+    manifest = json.loads((artifact / "manifest.json").read_text())
+    assert manifest["format"] == "lkjai-native-artifact-v2"
+    assert manifest["artifact_kind"] == "export"
+    assert manifest["config_checksum"]
+    assert manifest["tokenizer_checksum"]
+    index = json.loads((artifact / "weights.index.json").read_text())
+    first = index["tensors"][0]
+    assert {"name", "dtype", "shape", "byte_offset", "byte_length"} <= set(first)
+    checkpoint = artifact.parents[1] / "checkpoints" / "latest"
+    ckpt_manifest = json.loads((checkpoint / "manifest.json").read_text())
+    assert ckpt_manifest["artifact_kind"] == "checkpoint"
+    assert (checkpoint / "optimizer.index.json").is_file()
+    broken = artifact.parent / "broken-schema"
+    if broken.exists():
+        shutil.rmtree(broken)
+    shutil.copytree(artifact, broken)
+    bad = dict(manifest)
+    bad["tokenizer_checksum"] = "bad"
+    (broken / "manifest.json").write_text(json.dumps(bad))
+    result = subprocess.run(
+        [inspect_bin, "--model-dir", str(broken)],
+        text=True,
+        capture_output=True,
+    )
+    assert result.returncode != 0
+    assert "checksum" in result.stderr
 
 
 def main():
@@ -75,6 +105,7 @@ def main():
     assert "lkjai-native-artifact-v2" in manifest.read_text()
     artifact = root / "exports" / "packed-smoke"
     subprocess.run([inspect_bin, "--model-dir", str(artifact)], check=True)
+    check_schema(artifact, inspect_bin)
     result = subprocess.run(
         [logits_bin, "--model-dir", str(artifact), "--tokens", "1,2,3"],
         text=True,

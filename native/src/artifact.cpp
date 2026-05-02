@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string_view>
 
+#include "artifact_manifest.hpp"
 #include "json_min.hpp"
 
 namespace lkjai {
@@ -48,6 +49,35 @@ bool require_tensor(std::string_view text, const std::string& name,
   return false;
 }
 
+bool valid_dtype(std::string_view text, size_t start) {
+  for (auto dtype : {"u16", "u32", "f16", "bf16", "f32"}) {
+    if (contains_json_string(text.substr(start), "dtype", dtype)) return true;
+  }
+  return false;
+}
+
+bool require_entry_metadata(std::string_view text, size_t pos,
+                            std::string* error) {
+  auto start = text.rfind('{', pos);
+  if (start == std::string_view::npos) start = 0;
+  auto end = text.find('}', pos);
+  auto entry = text.substr(start, end == std::string_view::npos ? text.size()
+                                                                : end - start);
+  if (entry.find("\"name\"") == std::string_view::npos) {
+    *error = "weights.index.json tensor missing name";
+    return false;
+  }
+  if (!valid_dtype(entry, 0)) {
+    *error = "weights.index.json tensor missing supported dtype";
+    return false;
+  }
+  if (entry.find("\"shape\"") == std::string_view::npos) {
+    *error = "weights.index.json tensor missing shape";
+    return false;
+  }
+  return true;
+}
+
 bool validate_weight_index(std::string_view text, std::string_view config,
                            uint64_t weight_bytes, std::string* error) {
   if (text.find("\"tensors\"") == std::string_view::npos) {
@@ -86,11 +116,7 @@ bool validate_weight_index(std::string_view text, std::string_view config,
       *error = "weights.index.json tensor range exceeds weights.lkjw";
       return false;
     }
-    auto shape = text.rfind("\"shape\"", pos);
-    if (shape == std::string_view::npos) {
-      *error = "weights.index.json tensor missing shape";
-      return false;
-    }
+    if (!require_entry_metadata(text, pos, error)) return false;
     ++tensors;
     pos += 13;
   }
@@ -131,14 +157,22 @@ bool inspect_artifact(const std::filesystem::path& model_dir,
   const auto index = model_dir / "weights.index.json";
   const auto weights = model_dir / "weights.lkjw";
   const auto config = model_dir / "config.json";
+  const auto tokenizer = model_dir / "tokenizer.json";
   auto manifest_text = read_text(manifest);
-  if (!contains_json_string(manifest_text, "format",
-                            "lkjai-native-artifact-v2")) {
-    *error = "manifest format must be lkjai-native-artifact-v2";
+  auto config_text = read_text(config);
+  auto tokenizer_text = read_text(tokenizer);
+  std::string kind;
+  if (!validate_manifest(manifest_text, config_text, tokenizer_text, &kind,
+                         error)) {
+    return false;
+  }
+  if (kind == "checkpoint" &&
+      (!file_exists(model_dir / "optimizer.index.json") ||
+       !file_exists(model_dir / "optimizer.lkjw"))) {
+    *error = "checkpoint artifact missing optimizer files";
     return false;
   }
   auto index_text = read_text(index);
-  auto config_text = read_text(config);
   auto weight_bytes = std::filesystem::file_size(weights);
   if (weight_bytes == 0) {
     *error = "weights.lkjw is empty";
@@ -163,5 +197,4 @@ std::string artifact_logits_checksum(const std::filesystem::path& model_dir) {
   out << std::hex << hash;
   return out.str();
 }
-
 }  // namespace lkjai

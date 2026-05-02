@@ -21,8 +21,11 @@ def request(port, method, path, body=None):
 def wait_ready(port):
     for _ in range(50):
         try:
-            status, _ = request(port, "GET", "/v1/models")
+            status, text = request(port, "GET", "/v1/models")
             if status == 200:
+                payload = json.loads(text)
+                assert "bf16_supported" in payload, text
+                assert "async_alloc_supported" in payload, text
                 return
         except OSError:
             pass

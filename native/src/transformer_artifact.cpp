@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include "json_min.hpp"
+#include "artifact.hpp"
 
 namespace lkjai {
 namespace {
@@ -95,6 +96,18 @@ std::string config_json(const TransformerConfig& c) {
   return out.str();
 }
 
+std::string manifest_json(const std::string& artifact_kind,
+                          std::string_view config,
+                          std::string_view tokenizer) {
+  std::ostringstream out;
+  out << "{\"format\":\"lkjai-native-artifact-v2\",\"kind\":\"transformer\","
+      << "\"artifact_kind\":\"" << artifact_kind << "\","
+      << "\"config_checksum\":\"" << artifact_text_checksum(config) << "\","
+      << "\"tokenizer_checksum\":\"" << artifact_text_checksum(tokenizer)
+      << "\"}\n";
+  return out.str();
+}
+
 bool read_param(const std::filesystem::path& dir, const std::string& index,
                 Parameter* p) {
   auto name = "\"name\":\"" + p->name + "\"";
@@ -135,12 +148,13 @@ bool write_transformer_artifact(const std::filesystem::path& dir,
   index << "]}\n";
   *checksum = checksum_logits({static_cast<float>(hash & 0xffffu)});
   text(dir / "weights.index.json", index.str());
+  auto config = config_json(state.cfg);
+  auto tokenizer = "{\"format\":\"uint16-packed-cache\",\"vocab_size\":" +
+                   std::to_string(state.cfg.vocab_size) + "}\n";
   text(dir / "manifest.json",
-       "{\"format\":\"lkjai-native-artifact-v2\",\"kind\":\"transformer\"}\n");
-  text(dir / "config.json", config_json(state.cfg));
-  text(dir / "tokenizer.json",
-       "{\"format\":\"uint16-packed-cache\",\"vocab_size\":" +
-           std::to_string(state.cfg.vocab_size) + "}\n");
+       manifest_json(checkpoint ? "checkpoint" : "export", config, tokenizer));
+  text(dir / "config.json", config);
+  text(dir / "tokenizer.json", tokenizer);
   text(dir / "trainer_state.json",
        "{\"optimizer_steps\":" + std::to_string(step) +
            ",\"loss\":" + std::to_string(loss) +

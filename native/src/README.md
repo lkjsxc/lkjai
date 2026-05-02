@@ -9,12 +9,18 @@ artifact inspection, and CUDA capability probing.
 
 - [artifact.cpp](artifact.cpp) and [artifact.hpp](artifact.hpp): native artifact
   read/write helpers.
+- [artifact_manifest.cpp](artifact_manifest.cpp) and
+  [artifact_manifest.hpp](artifact_manifest.hpp): manifest checksum/schema
+  validation.
+- [capability_json.cpp](capability_json.cpp) and
+  [capability_json.hpp](capability_json.hpp): shared capability JSON fields.
 - [cuda_probe.cu](cuda_probe.cu) and [cuda_probe.hpp](cuda_probe.hpp): CUDA
   availability checks.
 - [dense_cuda.cu](dense_cuda.cu) and [dense_cuda.hpp](dense_cuda.hpp):
   BF16/cuBLASLt/cuDNN smoke checks.
 - [dense_check_main.cpp](dense_check_main.cpp): dense CUDA check binary.
-- [runtime_device.cu](runtime_device.cu) and [runtime_device.hpp](runtime_device.hpp):
+- [runtime_device.cu](runtime_device.cu), [runtime_workspace.cu](runtime_workspace.cu),
+  [runtime_errors.cu](runtime_errors.cu), and [runtime_device.hpp](runtime_device.hpp):
   reusable CUDA tensor/context substrate for later GEMM and attention work.
 - [runtime_device_check_main.cpp](runtime_device_check_main.cpp): BF16
   device-tensor round-trip check binary.

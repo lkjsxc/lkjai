@@ -24,6 +24,7 @@ class DeviceTensor {
  public:
   DeviceTensor() = default;
   explicit DeviceTensor(DeviceTensorSpec spec);
+  DeviceTensor(DeviceTensorSpec spec, cudaStream_t stream);
   DeviceTensor(const DeviceTensor&) = delete;
   DeviceTensor& operator=(const DeviceTensor&) = delete;
   DeviceTensor(DeviceTensor&& other) noexcept;
@@ -32,7 +33,9 @@ class DeviceTensor {
 
   void reset();
   void copy_from_host_f32(const std::vector<float>& host);
+  void copy_from_host_f32(const std::vector<float>& host, cudaStream_t stream);
   std::vector<float> copy_to_host_f32() const;
+  std::vector<float> copy_to_host_f32(cudaStream_t stream) const;
 
   void* data() const { return data_; }
   const DeviceTensorSpec& spec() const { return spec_; }
@@ -41,6 +44,27 @@ class DeviceTensor {
  private:
   DeviceTensorSpec spec_;
   void* data_ = nullptr;
+  cudaStream_t alloc_stream_ = nullptr;
+  bool async_alloc_ = false;
+};
+
+class DeviceWorkspace {
+ public:
+  explicit DeviceWorkspace(cudaStream_t stream);
+  DeviceWorkspace(const DeviceWorkspace&) = delete;
+  DeviceWorkspace& operator=(const DeviceWorkspace&) = delete;
+  ~DeviceWorkspace();
+
+  void* allocate(size_t bytes);
+  void reset();
+  bool async_supported() const { return async_supported_; }
+  size_t bytes_reserved() const { return bytes_reserved_; }
+
+ private:
+  cudaStream_t stream_ = nullptr;
+  void* data_ = nullptr;
+  size_t bytes_reserved_ = 0;
+  bool async_supported_ = false;
 };
 
 class CudaExecutionContext {
@@ -61,5 +85,8 @@ class CudaExecutionContext {
 };
 
 const char* dtype_name(DeviceDType dtype);
+void require_cuda(cudaError_t status, const char* label);
+void require_cublaslt(cublasStatus_t status, const char* label);
+void require_cudnn(cudnnStatus_t status, const char* label);
 
 }  // namespace lkjai

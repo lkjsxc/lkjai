@@ -15,6 +15,7 @@ struct DenseCudaCheck {
   bool cublaslt_available = false;
   bool cudnn_available = false;
   bool sdpa_eligible = false;
+  bool async_alloc_supported = false;
   std::string error;
 };
 

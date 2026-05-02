@@ -7,6 +7,7 @@
 #include <thread>
 
 #include "cuda_probe.hpp"
+#include "capability_json.hpp"
 #include "env.hpp"
 #include "transformer_train.hpp"
 #include "train_real.hpp"
@@ -113,6 +114,8 @@ int main(int argc, char** argv) {
   std::cout << "{\"status\":\"pass\",\"mode\":\"smoke\",\"steps\":" << steps
             << ",\"transformer_path\":true"
             << ",\"cuda_available\":" << (cuda.available ? "true" : "false")
+            << ",\"capability\":{" << lkjai::capability_json_fields(cuda)
+            << "}"
             << ",\"elapsed_seconds\":" << elapsed << "}\n";
   return 0;
 }

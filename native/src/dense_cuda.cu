@@ -1,9 +1,9 @@
 #include "dense_cuda.hpp"
 
-#include <cublasLt.h>
 #include <cuda_bf16.h>
 #include <cuda_runtime.h>
-#include <cudnn.h>
+
+#include "cuda_probe.hpp"
 
 namespace lkjai {
 namespace {
@@ -19,61 +19,36 @@ bool ok(cudaError_t status, std::string* error, const char* label) {
   return false;
 }
 
-bool ok(cublasStatus_t status, std::string* error, const char* label) {
-  if (status == CUBLAS_STATUS_SUCCESS) return true;
-  *error = std::string(label) + ": cuBLASLt failure";
-  return false;
-}
-
-bool ok(cudnnStatus_t status, std::string* error, const char* label) {
-  if (status == CUDNN_STATUS_SUCCESS) return true;
-  *error = std::string(label) + ": " + cudnnGetErrorString(status);
-  return false;
-}
-
 }  // namespace
 
 DenseCudaCheck run_dense_cuda_check() {
   DenseCudaCheck check;
-  int count = 0;
-  if (!ok(cudaGetDeviceCount(&count), &check.error, "cudaGetDeviceCount")) {
+  auto status = cuda_status();
+  check.device = status.device;
+  check.compute_major = status.compute_major;
+  check.compute_minor = status.compute_minor;
+  check.cuda_runtime_version = status.cuda_runtime_version;
+  check.cudnn_version = status.cudnn_version;
+  check.bf16_supported = status.bf16_supported;
+  check.cublaslt_available = status.cublaslt_available;
+  check.cudnn_available = status.cudnn_available;
+  check.sdpa_eligible = status.sdpa_eligible;
+  check.async_alloc_supported = status.async_alloc_supported;
+  check.error = status.error;
+  if (!cuda_required_ok(status)) {
+    if (check.error.empty()) check.error = status.warning;
     return check;
   }
-  if (count <= 0) {
-    check.error = "no CUDA devices";
-    return check;
-  }
-  cudaDeviceProp prop{};
-  if (!ok(cudaGetDeviceProperties(&prop, 0), &check.error,
-          "cudaGetDeviceProperties")) {
-    return check;
-  }
-  check.device = prop.name;
-  check.compute_major = prop.major;
-  check.compute_minor = prop.minor;
-  cudaRuntimeGetVersion(&check.cuda_runtime_version);
-  check.cudnn_version = static_cast<long long>(cudnnGetVersion());
-  check.bf16_supported = prop.major >= 8;
-  check.sdpa_eligible = check.bf16_supported && 72 % 8 == 0;
-  if (!check.bf16_supported) {
-    check.error = "BF16 dense path requires compute capability 8.0+";
-    return check;
-  }
-  cublasLtHandle_t lt{};
-  if (!ok(cublasLtCreate(&lt), &check.error, "cublasLtCreate")) return check;
-  check.cublaslt_available = true;
-  cublasLtDestroy(lt);
-  cudnnHandle_t cudnn{};
-  if (!ok(cudnnCreate(&cudnn), &check.error, "cudnnCreate")) return check;
-  check.cudnn_available = true;
-  cudnnDestroy(cudnn);
   float* device = nullptr;
   float host = 0.0f;
   if (!ok(cudaMalloc(&device, sizeof(float)), &check.error, "cudaMalloc")) {
     return check;
   }
   bf16_kernel<<<1, 1>>>(device);
-  if (!ok(cudaGetLastError(), &check.error, "bf16_kernel")) return check;
+  if (!ok(cudaGetLastError(), &check.error, "bf16_kernel")) {
+    cudaFree(device);
+    return check;
+  }
   if (!ok(cudaMemcpy(&host, device, sizeof(float), cudaMemcpyDeviceToHost),
           &check.error, "cudaMemcpy")) {
     cudaFree(device);

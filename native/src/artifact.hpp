@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace lkjai {
@@ -19,5 +20,6 @@ ArtifactStatus load_artifact(const std::filesystem::path& root,
 bool inspect_artifact(const std::filesystem::path& model_dir,
                       std::string* error);
 std::string artifact_logits_checksum(const std::filesystem::path& model_dir);
+std::string artifact_text_checksum(std::string_view text);
 
 }  // namespace lkjai

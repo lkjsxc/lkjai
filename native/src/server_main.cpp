@@ -1,6 +1,7 @@
 #include <sstream>
 
 #include "artifact.hpp"
+#include "capability_json.hpp"
 #include "cuda_probe.hpp"
 #include "dense_model.hpp"
 #include "env.hpp"
@@ -34,31 +35,17 @@ std::string health_json(const lkjai::ArtifactStatus& artifact,
                         const lkjai::CudaStatus& cuda) {
   std::ostringstream out;
   out << "{\"status\":\"ok\",\"loaded\":"
-      << (artifact.loaded ? "true" : "false") << ",\"error\":\""
-      << lkjai::json_escape(artifact.error) << "\",\"device\":\""
-      << lkjai::json_escape(cuda.available ? "cuda" : "cpu")
-      << "\",\"cuda_available\":" << (cuda.available ? "true" : "false")
-      << ",\"gpu_name\":\"" << lkjai::json_escape(cuda.device)
-      << "\",\"compute_capability\":[" << cuda.compute_major << ","
-      << cuda.compute_minor << "]"
-      << ",\"bf16_supported\":"
-      << (cuda.bf16_supported ? "true" : "false")
-      << ",\"warning\":\"" << lkjai::json_escape(cuda.warning) << "\"}";
+      << (artifact.loaded ? "true" : "false") << ",\"artifact_error\":\""
+      << lkjai::json_escape(artifact.error) << "\","
+      << lkjai::capability_json_fields(cuda) << "}";
   return out.str();
 }
 
 std::string models_json(const std::string& model, const lkjai::CudaStatus& cuda) {
   std::ostringstream out;
   out << "{\"data\":[{\"id\":\"" << lkjai::json_escape(model)
-      << "\",\"object\":\"model\"}],\"device\":\""
-      << lkjai::json_escape(cuda.available ? "cuda" : "cpu")
-      << "\",\"cuda_available\":" << (cuda.available ? "true" : "false")
-      << ",\"gpu_name\":\"" << lkjai::json_escape(cuda.device)
-      << "\",\"compute_capability\":[" << cuda.compute_major << ","
-      << cuda.compute_minor << "]"
-      << ",\"bf16_supported\":"
-      << (cuda.bf16_supported ? "true" : "false")
-      << ",\"warning\":\"" << lkjai::json_escape(cuda.warning) << "\"}";
+      << "\",\"object\":\"model\"}],"
+      << lkjai::capability_json_fields(cuda) << "}";
   return out.str();
 }
 

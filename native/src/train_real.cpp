@@ -5,6 +5,7 @@
 #include <string>
 
 #include "cuda_probe.hpp"
+#include "capability_json.hpp"
 #include "env.hpp"
 #include "json_min.hpp"
 #include "transformer_train.hpp"
@@ -104,6 +105,7 @@ int run_corpus_training(int argc, char** argv) {
             << report.checkpoint_export_seconds << "}"
             << ",\"cuda_available\":"
             << (cuda.available ? "true" : "false")
+            << ",\"capability\":{" << capability_json_fields(cuda) << "}"
             << ",\"elapsed_seconds\":" << report.elapsed_seconds << "}\n";
   return report.non_embedding_weight_changed ? 0 : 3;
 }

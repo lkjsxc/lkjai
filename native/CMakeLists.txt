@@ -14,7 +14,9 @@ find_library(CUDNN_LIBRARY cudnn REQUIRED)
 add_library(lkjai_cuda STATIC
   src/cuda_probe.cu
   src/dense_cuda.cu
+  src/runtime_errors.cu
   src/runtime_device.cu
+  src/runtime_workspace.cu
 )
 target_link_libraries(lkjai_cuda PUBLIC
   CUDA::cudart
@@ -29,6 +31,8 @@ target_compile_definitions(lkjai_cuda PUBLIC LKJAI_WITH_CUDA=1)
 
 add_library(lkjai_native_core STATIC
   src/artifact.cpp
+  src/artifact_manifest.cpp
+  src/capability_json.cpp
   src/dense_model.cpp
   src/env.cpp
   src/json_min.cpp
