@@ -62,6 +62,7 @@ struct DenseTrainReport {
   std::filesystem::path served_dir;
   double elapsed_seconds = 0.0;
   double batch_load_seconds = 0.0;
+  double h2d_seconds = 0.0;
   double forward_seconds = 0.0;
   double backward_seconds = 0.0;
   double optimizer_seconds = 0.0;

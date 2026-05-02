@@ -11,9 +11,11 @@ def main() -> None:
     from run_support import load_train_report, summarize_train_report
 
     payload = {
-        "schema_version": 1,
+        "schema_version": 3,
         "trainer_mode": "smoke",
         "model_kind": "dense",
+        "accepted_cuda_training": True,
+        "implementation_status": "accepted",
         "optimizer_steps": 2,
         "microsteps": 2,
         "tokens_seen": 32,
@@ -24,6 +26,7 @@ def main() -> None:
         "export_checksum": "123",
         "timings": {
             "batch_load": 0.01,
+            "h2d": 0.005,
             "forward": 0.02,
             "backward": 0.03,
             "optimizer": 0.04,
@@ -36,9 +39,11 @@ def main() -> None:
         report.write_text(json.dumps(payload), encoding="utf-8")
         loaded = load_train_report(root)
         summary = summarize_train_report(loaded)
-        assert summary["schema_version"] == 1
+        assert summary["schema_version"] == 3
         assert summary["trainer_mode"] == "smoke"
         assert summary["model_kind"] == "dense"
+        assert summary["accepted_cuda_training"] is True
+        assert summary["implementation_status"] == "accepted"
         assert summary["optimizer_steps"] == 2
         assert summary["median_step_seconds"] == 0.125
         assert summary["median_tokens_per_second"] == 128.0
@@ -51,9 +56,11 @@ def main() -> None:
         transformer = dict(payload)
         transformer.update(
             {
-                "schema_version": 2,
+                "schema_version": 3,
                 "trainer_mode": "train",
                 "model_kind": "transformer",
+                "accepted_cuda_training": False,
+                "implementation_status": "experimental",
                 "layers": 1,
                 "heads": 4,
                 "hidden_size": 32,
@@ -62,8 +69,9 @@ def main() -> None:
         )
         report.write_text(json.dumps(transformer), encoding="utf-8")
         summary = summarize_train_report(load_train_report(root))
-        assert summary["schema_version"] == 2
+        assert summary["schema_version"] == 3
         assert summary["model_kind"] == "transformer"
+        assert summary["accepted_cuda_training"] is False
         assert summary["checkpoint_checksum"] == "def"
 
 

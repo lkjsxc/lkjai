@@ -65,9 +65,16 @@ def run_train(train_bin: str, root: Path, repo: Path, steps: int, extra=None):
     result = subprocess.run(cmd, env=env, text=True, capture_output=True, check=True)
     payload = json.loads(result.stdout)
     persisted = json.loads((root / "runs" / "train-report.json").read_text())
-    assert persisted["schema_version"] == payload["schema_version"] == 2
+    assert persisted["schema_version"] == payload["schema_version"] == 3
     assert persisted["model_kind"] == payload["model_kind"] == "transformer"
-    assert persisted["transformer_cuda_path"] is True
+    assert persisted["accepted_cuda_training"] is False
+    assert persisted["implementation_status"] == "experimental"
+    assert persisted["transformer_status"] == "experimental"
+    assert persisted["transformer_cuda_path"] is False
+    assert persisted["transformer_cuda_probe"] is True
+    assert persisted["forward_backend"] == "host_reference"
+    assert persisted["backward_backend"] == "host_surrogate"
+    assert persisted["optimizer_backend"] == "host_adamw_fp32"
     assert persisted["logits_check"]["status"] == "pass"
     return payload
 

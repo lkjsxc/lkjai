@@ -72,16 +72,29 @@ void append_transformer(std::ostringstream* out,
       report.elapsed_seconds > 0.0
           ? static_cast<double>(report.input_tokens) / report.elapsed_seconds
           : 0.0;
-  *out << "{\"schema_version\":2"
+  *out << "{\"schema_version\":3"
        << ",\"trainer_mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"model_kind\":\"transformer\""
+       << ",\"accepted_cuda_training\":false"
+       << ",\"implementation_status\":\"experimental\""
+       << ",\"transformer_status\":\"experimental\""
+       << ",\"forward_backend\":\"host_reference\""
+       << ",\"backward_backend\":\"host_surrogate\""
+       << ",\"optimizer_backend\":\"host_adamw_fp32\""
+       << ",\"cuda_probe_passed\":"
+       << (cuda_required_ok(cuda) ? "true" : "false")
        << ",\"status\":\"" << json_escape(status) << "\""
        << ",\"failure_reason\":\"" << json_escape(failure_reason) << "\""
+       << ",\"limitations\":[\"experimental_not_accepted_cuda_training\","
+          "\"host_reference_forward\","
+          "\"host_surrogate_backward\","
+          "\"autoregressive_decode_unsupported\"]"
        << ",\"precision_mode\":\"fp32-master-bf16-shadow-bf16-export\""
        << ",\"master_dtype\":\"f32\",\"shadow_dtype\":\"bf16\""
        << ",\"accumulation_dtype\":\"f32\",\"export_dtype\":\"bf16\""
-       << ",\"dense_cuda_path\":false,\"transformer_cuda_path\":true"
+       << ",\"dense_cuda_path\":false,\"transformer_cuda_path\":false"
+       << ",\"transformer_cuda_probe\":true"
        << ",\"cuda_available\":" << (cuda.available ? "true" : "false")
        << ",\"cuda_device_name\":\"" << json_escape(cuda.device) << "\""
        << ",\"cuda_arch_flags\":\"" << json_escape(LKJAI_CUDA_ARCH_FLAGS)
@@ -135,6 +148,7 @@ void append_transformer(std::ostringstream* out,
        << ",\"checksum\":\"" << json_escape(report.logits_check_checksum)
        << "\"}"
        << ",\"timings\":{\"batch_load\":" << report.batch_load_seconds
+       << ",\"h2d\":" << report.h2d_seconds
        << ",\"forward\":" << report.forward_seconds
        << ",\"backward\":" << report.backward_seconds
        << ",\"optimizer\":" << report.optimizer_seconds

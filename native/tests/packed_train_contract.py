@@ -57,7 +57,7 @@ def run_train(train_bin: str, root: Path, repo: Path, steps: int, extra=None):
     report_path = root / "runs" / "train-report.json"
     assert report_path.is_file(), result.stdout
     persisted = json.loads(report_path.read_text())
-    assert persisted["schema_version"] == payload["schema_version"] == 1
+    assert persisted["schema_version"] == payload["schema_version"] == 3
     assert persisted["trainer_mode"] == payload["trainer_mode"] == "train"
     assert persisted["precision_mode"] == "fp32-master-bf16-shadow-bf16-export"
     assert persisted["master_dtype"] == "f32"
@@ -65,6 +65,12 @@ def run_train(train_bin: str, root: Path, repo: Path, steps: int, extra=None):
     assert persisted["accumulation_dtype"] == "f32"
     assert persisted["export_dtype"] == "bf16"
     assert persisted["dense_cuda_path"] is True
+    assert persisted["accepted_cuda_training"] is True
+    assert persisted["implementation_status"] == "accepted"
+    assert persisted["forward_backend"] == "cuda_bf16_cublaslt"
+    assert persisted["backward_backend"] == "cuda_custom_or_gemm"
+    assert persisted["optimizer_backend"] == "cuda_adamw_fp32"
+    assert persisted["cuda_probe_passed"] is True
     assert persisted["logits_check"]["validation_target"] == "exported_bf16_weights"
     assert persisted["logits_check"]["status"] == "pass"
     return payload
@@ -132,8 +138,9 @@ def main():
     assert payload["loss_finite"] is True, payload
     assert payload["weight_changed"] is True, payload
     assert payload["logits_checksum"], payload
-    for key in ["batch_load", "forward", "backward", "optimizer", "checkpoint", "export"]:
+    for key in ["batch_load", "h2d", "forward", "backward", "optimizer", "checkpoint", "export"]:
         assert key in payload["timings"], payload
+        assert payload["timings"][key] >= 0, payload
     manifest = root / "exports" / "packed-smoke" / "manifest.json"
     assert "lkjai-native-artifact-v2" in manifest.read_text()
     artifact = root / "exports" / "packed-smoke"

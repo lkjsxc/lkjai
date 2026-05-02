@@ -73,10 +73,10 @@ def chart_links(aggregate) -> list[str]:
 
 def aggregate_table(aggregate) -> str:
     rows = [
-        [row.get("case", ""), str(row.get("runs", "")), str(row.get("successful_runs", "")), fmt(row.get("median_step_seconds")), fmt(row.get("median_tokens_per_second"), 1)]
+        [row.get("case", ""), str(row.get("runs", "")), str(row.get("accepted_cuda_runs", row.get("successful_runs", ""))), fmt(row.get("median_step_seconds")), fmt(row.get("median_tokens_per_second"), 1)]
         for row in aggregate
     ] if isinstance(aggregate, list) else []
-    return md_table(["Case", "Runs", "Successful", "Median step s", "Median tok/s"], rows)
+    return md_table(["Case", "Runs", "Accepted CUDA", "Median step s", "Median tok/s"], rows)
 
 
 def details_table(summary_rows) -> str:
@@ -108,7 +108,7 @@ def tool_table(diagnostics) -> str:
 
 def best_config(aggregate) -> str:
     if isinstance(aggregate, list) and aggregate:
-        ok = [row for row in aggregate if int(row.get("successful_runs", 0)) > 0]
+        ok = [row for row in aggregate if int(row.get("accepted_cuda_runs", row.get("successful_runs", 0))) > 0]
         if ok:
             row = max(ok, key=lambda item: float(item.get("median_tokens_per_second", 0.0) or 0.0))
             return f"`{row['case']}` at {fmt(row.get('median_tokens_per_second'), 1)} tokens/sec median."

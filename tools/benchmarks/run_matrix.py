@@ -123,13 +123,18 @@ def write_summary(run_id: str, rows: list[dict]) -> None:
         grouped.setdefault(row["case"], []).append(row)
     aggregate = []
     for case, case_rows in grouped.items():
-        medians = [row.get("median_step_seconds", 0.0) for row in case_rows if row.get("returncode") == 0]
-        toks = [row.get("median_tokens_per_second", 0.0) for row in case_rows if row.get("returncode") == 0]
+        accepted_rows = [
+            row for row in case_rows
+            if row.get("returncode") == 0 and row.get("accepted_cuda_training") is True
+        ]
+        medians = [row.get("median_step_seconds", 0.0) for row in accepted_rows]
+        toks = [row.get("median_tokens_per_second", 0.0) for row in accepted_rows]
         aggregate.append(
             {
                 "case": case,
                 "runs": len(case_rows),
                 "successful_runs": sum(1 for row in case_rows if row.get("returncode") == 0),
+                "accepted_cuda_runs": len(accepted_rows),
                 "median_step_seconds": statistics.median(medians) if medians else 0.0,
                 "median_tokens_per_second": statistics.median(toks) if toks else 0.0,
             }

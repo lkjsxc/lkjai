@@ -78,12 +78,22 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
       report.elapsed_seconds > 0.0
           ? static_cast<double>(report.input_tokens) / report.elapsed_seconds
           : 0.0;
-  *out << "{\"schema_version\":1"
+  *out << "{\"schema_version\":3"
        << ",\"trainer_mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"model_kind\":\"dense\""
+       << ",\"accepted_cuda_training\":true"
+       << ",\"implementation_status\":\"accepted\""
+       << ",\"forward_backend\":\"cuda_bf16_cublaslt\""
+       << ",\"backward_backend\":\"cuda_custom_or_gemm\""
+       << ",\"optimizer_backend\":\"cuda_adamw_fp32\""
+       << ",\"cuda_probe_passed\":"
+       << (cuda_required_ok(cuda) ? "true" : "false")
        << ",\"status\":\"" << json_escape(status) << "\""
        << ",\"failure_reason\":\"" << json_escape(failure_reason) << "\""
+       << ",\"limitations\":[\"single_gpu_only\","
+          "\"dense_embedding_lm_head_only\","
+          "\"autoregressive_decode_unsupported\"]"
        << ",\"precision_mode\":\"fp32-master-bf16-shadow-bf16-export\""
        << ",\"master_dtype\":\"f32\""
        << ",\"shadow_dtype\":\"bf16\""
@@ -145,6 +155,7 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << ",\"checksum\":\"" << json_escape(report.logits_check_checksum)
        << "\"}"
        << ",\"timings\":{\"batch_load\":" << report.batch_load_seconds
+       << ",\"h2d\":" << report.h2d_seconds
        << ",\"forward\":" << report.forward_seconds
        << ",\"backward\":" << report.backward_seconds
        << ",\"optimizer\":" << report.optimizer_seconds
