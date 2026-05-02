@@ -20,6 +20,9 @@ CudaStatus cuda_status() {
   }
   status.available = true;
   status.device = prop.name;
+  status.compute_major = prop.major;
+  status.compute_minor = prop.minor;
+  status.bf16_supported = prop.major >= 8;
   return status;
 }
 

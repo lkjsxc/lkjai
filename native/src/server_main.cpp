@@ -39,7 +39,11 @@ std::string health_json(const lkjai::ArtifactStatus& artifact,
       << lkjai::json_escape(cuda.available ? "cuda" : "cpu")
       << "\",\"cuda_available\":" << (cuda.available ? "true" : "false")
       << ",\"gpu_name\":\"" << lkjai::json_escape(cuda.device)
-      << "\",\"warning\":\"" << lkjai::json_escape(cuda.warning) << "\"}";
+      << "\",\"compute_capability\":[" << cuda.compute_major << ","
+      << cuda.compute_minor << "]"
+      << ",\"bf16_supported\":"
+      << (cuda.bf16_supported ? "true" : "false")
+      << ",\"warning\":\"" << lkjai::json_escape(cuda.warning) << "\"}";
   return out.str();
 }
 
@@ -50,7 +54,11 @@ std::string models_json(const std::string& model, const lkjai::CudaStatus& cuda)
       << lkjai::json_escape(cuda.available ? "cuda" : "cpu")
       << "\",\"cuda_available\":" << (cuda.available ? "true" : "false")
       << ",\"gpu_name\":\"" << lkjai::json_escape(cuda.device)
-      << "\",\"warning\":\"" << lkjai::json_escape(cuda.warning) << "\"}";
+      << "\",\"compute_capability\":[" << cuda.compute_major << ","
+      << cuda.compute_minor << "]"
+      << ",\"bf16_supported\":"
+      << (cuda.bf16_supported ? "true" : "false")
+      << ",\"warning\":\"" << lkjai::json_escape(cuda.warning) << "\"}";
   return out.str();
 }
 

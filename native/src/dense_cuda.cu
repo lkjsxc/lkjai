@@ -49,15 +49,23 @@ DenseCudaCheck run_dense_cuda_check() {
     return check;
   }
   check.device = prop.name;
-  if (prop.major < 8) {
+  check.compute_major = prop.major;
+  check.compute_minor = prop.minor;
+  cudaRuntimeGetVersion(&check.cuda_runtime_version);
+  check.cudnn_version = static_cast<long long>(cudnnGetVersion());
+  check.bf16_supported = prop.major >= 8;
+  check.sdpa_eligible = check.bf16_supported && 72 % 8 == 0;
+  if (!check.bf16_supported) {
     check.error = "BF16 dense path requires compute capability 8.0+";
     return check;
   }
   cublasLtHandle_t lt{};
   if (!ok(cublasLtCreate(&lt), &check.error, "cublasLtCreate")) return check;
+  check.cublaslt_available = true;
   cublasLtDestroy(lt);
   cudnnHandle_t cudnn{};
   if (!ok(cudnnCreate(&cudnn), &check.error, "cudnnCreate")) return check;
+  check.cudnn_available = true;
   cudnnDestroy(cudnn);
   float* device = nullptr;
   float host = 0.0f;

@@ -96,8 +96,12 @@ int run_corpus_training(int argc, char** argv) {
             << (report.non_embedding_weight_changed ? "true" : "false")
             << ",\"logits_checksum\":\""
             << json_escape(report.logits_checksum) << "\""
-            << ",\"timings\":{\"batch_load\":0,\"forward\":0,"
-               "\"backward\":0,\"optimizer\":0,\"checkpoint_export\":0}"
+            << ",\"timings\":{\"batch_load\":"
+            << report.batch_load_seconds << ",\"forward\":"
+            << report.forward_seconds << ",\"backward\":"
+            << report.backward_seconds << ",\"optimizer\":"
+            << report.optimizer_seconds << ",\"checkpoint_export\":"
+            << report.checkpoint_export_seconds << "}"
             << ",\"cuda_available\":"
             << (cuda.available ? "true" : "false")
             << ",\"elapsed_seconds\":" << report.elapsed_seconds << "}\n";

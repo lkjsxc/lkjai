@@ -14,6 +14,7 @@ find_library(CUDNN_LIBRARY cudnn REQUIRED)
 add_library(lkjai_cuda STATIC
   src/cuda_probe.cu
   src/dense_cuda.cu
+  src/runtime_device.cu
 )
 target_link_libraries(lkjai_cuda PUBLIC
   CUDA::cudart
@@ -59,6 +60,9 @@ target_link_libraries(lkjai-native-inspect PRIVATE lkjai_native_core)
 add_executable(lkjai-native-dense-check src/dense_check_main.cpp)
 target_link_libraries(lkjai-native-dense-check PRIVATE lkjai_native_core)
 
+add_executable(lkjai-native-device-check src/runtime_device_check_main.cpp)
+target_link_libraries(lkjai-native-device-check PRIVATE lkjai_native_core)
+
 add_executable(lkjai-native-logits-check src/logits_check_main.cpp)
 target_link_libraries(lkjai-native-logits-check PRIVATE lkjai_native_core)
 
@@ -70,6 +74,7 @@ add_test(NAME native_inspect_missing COMMAND lkjai-native-inspect --model-dir /m
 set_tests_properties(native_inspect_missing PROPERTIES WILL_FAIL TRUE)
 add_test(NAME native_train_smoke COMMAND lkjai-native-train --smoke --steps 2)
 add_test(NAME native_dense_cuda_check COMMAND lkjai-native-dense-check)
+add_test(NAME native_device_tensor_check COMMAND lkjai-native-device-check)
 add_test(
   NAME native_packed_train_contract
   COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/packed_train_contract.py $<TARGET_FILE:lkjai-native-train> $<TARGET_FILE:lkjai-native-logits-check> $<TARGET_FILE:lkjai-native-packed-cache> $<TARGET_FILE:lkjai-native-inspect>

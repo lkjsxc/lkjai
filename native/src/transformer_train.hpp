@@ -46,6 +46,11 @@ struct TransformerTrainReport {
   bool non_embedding_weight_changed = false;
   std::string logits_checksum;
   double elapsed_seconds = 0.0;
+  double batch_load_seconds = 0.0;
+  double forward_seconds = 0.0;
+  double backward_seconds = 0.0;
+  double optimizer_seconds = 0.0;
+  double checkpoint_export_seconds = 0.0;
 };
 
 bool load_transformer_config(const std::filesystem::path& path,

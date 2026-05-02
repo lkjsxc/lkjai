@@ -21,6 +21,11 @@ float step_lr(const TransformerTrainOptions& opt, int step) {
   return opt.lr * static_cast<float>(step) / static_cast<float>(opt.warmup_steps);
 }
 
+double seconds_since(std::chrono::steady_clock::time_point start) {
+  return std::chrono::duration<double>(std::chrono::steady_clock::now() - start)
+      .count();
+}
+
 }  // namespace
 
 bool run_transformer_training(const TransformerTrainOptions& opt,
@@ -52,26 +57,37 @@ bool run_transformer_training(const TransformerTrainOptions& opt,
   for (int local = 1; local <= opt.max_steps; ++local) {
     PackedBatch batch;
     int first = (report->start_step + local - 1) * opt.batch_size;
+    auto phase = std::chrono::steady_clock::now();
     if (!load_packed_batch(opt.packed_cache, first, opt.batch_size, seq_len,
                            &batch, error)) {
       return false;
     }
+    report->batch_load_seconds += seconds_since(phase);
+    phase = std::chrono::steady_clock::now();
     auto fwd = transformer_forward(batch, state);
+    report->forward_seconds += seconds_since(phase);
     report->loss = fwd.loss;
     if (!std::isfinite(report->loss)) {
       *error = "transformer training produced non-finite loss";
       return false;
     }
+    phase = std::chrono::steady_clock::now();
     transformer_backward_surrogate(batch, fwd, &state);
+    report->backward_seconds += seconds_since(phase);
     int step = report->start_step + local;
+    phase = std::chrono::steady_clock::now();
     transformer_adamw(&state, step_lr(opt, step), step);
+    report->optimizer_seconds += seconds_since(phase);
     report->logits_checksum = checksum_logits(fwd.next_logits);
-    if (opt.checkpoint_interval > 0 && step % opt.checkpoint_interval == 0 &&
-        !write_transformer_artifact(opt.out_dir / "checkpoints" / "latest",
-                                    state, step, report->loss, true,
-                                    &report->logits_checksum)) {
-      *error = "failed to write latest checkpoint";
-      return false;
+    if (opt.checkpoint_interval > 0 && step % opt.checkpoint_interval == 0) {
+      phase = std::chrono::steady_clock::now();
+      if (!write_transformer_artifact(opt.out_dir / "checkpoints" / "latest",
+                                      state, step, report->loss, true,
+                                      &report->logits_checksum)) {
+        *error = "failed to write latest checkpoint";
+        return false;
+      }
+      report->checkpoint_export_seconds += seconds_since(phase);
     }
     report->steps = step;
   }
@@ -79,6 +95,7 @@ bool run_transformer_training(const TransformerTrainOptions& opt,
       std::fabs(state.layers.front().q_proj.w.front() - before) > 0.0f;
   auto export_dir = opt.out_dir / "exports" / opt.model_name;
   auto served_dir = opt.out_dir.parent_path() / "models" / opt.model_name;
+  auto phase = std::chrono::steady_clock::now();
   bool ok = write_transformer_artifact(opt.out_dir / "checkpoints" / "latest",
                                        state, report->steps, report->loss, true,
                                        &report->logits_checksum) &&
@@ -96,6 +113,7 @@ bool run_transformer_training(const TransformerTrainOptions& opt,
                                     report->loss, false,
                                     &report->logits_checksum);
   }
+  report->checkpoint_export_seconds += seconds_since(phase);
   if (!ok) {
     *error = "failed to write transformer artifact";
     return false;

@@ -14,6 +14,10 @@ artifact inspection, and CUDA capability probing.
 - [dense_cuda.cu](dense_cuda.cu) and [dense_cuda.hpp](dense_cuda.hpp):
   BF16/cuBLASLt/cuDNN smoke checks.
 - [dense_check_main.cpp](dense_check_main.cpp): dense CUDA check binary.
+- [runtime_device.cu](runtime_device.cu) and [runtime_device.hpp](runtime_device.hpp):
+  reusable CUDA tensor/context substrate for later GEMM and attention work.
+- [runtime_device_check_main.cpp](runtime_device_check_main.cpp): BF16
+  device-tensor round-trip check binary.
 - [dense_model.cpp](dense_model.cpp) and [dense_model.hpp](dense_model.hpp):
   legacy artifact helpers kept for old inspect fixtures.
 - [dense_train.cpp](dense_train.cpp), [dense_train_artifact.cpp](dense_train_artifact.cpp),
