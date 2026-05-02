@@ -19,10 +19,24 @@ Each exported model directory contains:
 
 - Tensor payloads are little-endian.
 - Tensor payload offsets are 256-byte aligned.
-- One binary file stores all model weights.
-- One optional binary file stores optimizer tensors.
-- Index entries contain name, dtype, shape, byte offset, and byte length.
+- `weights.lkjw` stores all model weights.
+- Optional `optimizer.lkjw` stores optimizer tensors for checkpoints.
+- `weights.index.json.tensors[]` entries contain `name`, `dtype`, `shape`,
+  `byte_offset`, and `byte_length`.
 - Supported dtypes are `u16`, `u32`, `f16`, `bf16`, and `f32`.
+
+## Manifest Schema
+
+`manifest.json` records:
+
+- `format`: always `lkjai-native-artifact-v2`.
+- `kind`: model family, currently `transformer`.
+- `artifact_kind`: `export` for serving or `checkpoint` for resume state.
+- `config_checksum`: checksum of `config.json`.
+- `tokenizer_checksum`: checksum of `tokenizer.json`.
+
+The tokenizer checksum may be a placeholder while the tokenizer remains minimal,
+but it must still match the bytes written in the artifact directory.
 
 ## Required Tensor Names
 
@@ -43,7 +57,7 @@ Each exported model directory contains:
 
 ## Training State
 
-Training checkpoints may add `optimizer.index.json` and `optimizer.lkjw`.
+Training checkpoints add `optimizer.index.json` and `optimizer.lkjw`.
 Optimizer tensors are reserved for FP32 master weights, Adam moments, scheduler
 counters, RNG state, and resume metadata. Serving exports omit optimizer tensors
 by default.

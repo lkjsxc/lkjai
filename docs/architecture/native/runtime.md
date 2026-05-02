@@ -13,6 +13,7 @@ Serve the scratch model through one native C++/CUDA HTTP process.
   `temperature`.
 - Chat responses keep `choices[0].message.content`.
 - Non-success responses include a JSON `error` string.
+- Capability fields follow [capability.md](capability.md).
 
 ## Inference Contract
 

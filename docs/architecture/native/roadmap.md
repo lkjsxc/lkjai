@@ -11,7 +11,7 @@ contracts.
 | Order | Milestone | Required output |
 |---:|---|---|
 | 1 | Device substrate | dtype-aware tensors, stream/handle context, memory accounting, copy tests |
-| 2 | Capability probe | JSON reports CC, BF16, cuBLASLt, cuDNN, and SDPA eligibility |
+| 2 | Capability probe | JSON reports CC, BF16, cuBLASLt, cuDNN, SDPA, and async allocation eligibility |
 | 3 | Typed artifacts | explicit tensor metadata, config checksum, optimizer checkpoint state |
 | 4 | Dense forward | cuBLASLt-backed projections with reference-logit parity on tiny models |
 | 5 | Fused kernels | RMSNorm, RoPE, SwiGLU, CE loss, and cast kernels with tolerance tests |
@@ -37,11 +37,13 @@ The repository currently has:
 - packed-cache v2 ingestion,
 - AdamW-style parameter mutation for smoke verification,
 - native artifact export and logits inspection,
-- a CUDA BF16/library capability smoke.
+- a CUDA BF16/library capability smoke,
+- a dtype-aware CUDA tensor substrate with BF16 round-trip coverage.
 
 That slice is useful for contracts, but it is not the final trainer.
 
-## First Code Target
+## Next Code Target
 
-The next implementation target is the device substrate plus capability probe.
-It must be small, tested, and reusable by later GEMM/attention work.
+The next implementation target is typed artifacts plus reference-vs-native
+forward parity entrypoints for tiny debug configs. cuBLASLt replacement,
+cuDNN SDPA, true backward, and decode stay behind those contracts.

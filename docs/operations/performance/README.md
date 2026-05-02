@@ -14,6 +14,8 @@ This subtree is the canonical performance contract for `lkjai`.
   and optimization order.
 - [benchmarking.md](benchmarking.md): required measurements, artifacts, and
   acceptance workflow.
+- [benchmark-output.md](benchmark-output.md): JSON and CSV output shape for
+  native benchmark tools.
 - [profiling.md](profiling.md): Nsight and NVTX protocol for native work.
 - [kernel-roadmap.md](kernel-roadmap.md): library, compiler, Triton, and CUDA
   escalation order.

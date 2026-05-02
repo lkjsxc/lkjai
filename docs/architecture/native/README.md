@@ -13,8 +13,11 @@ Use this subtree for the native C++/CUDA train and serve contracts.
 
 - [strategy.md](strategy.md): rewrite boundary and migration order
 - [artifact.md](artifact.md): native checkpoint and weight files
+- [capability.md](capability.md): reusable CUDA capability JSON shape
 - [cuda-stack.md](cuda-stack.md): pinned CUDA, vendor library, and precision stack
 - [dense-decoder.md](dense-decoder.md): native BF16 transformer contract
+- [device-tensor.md](device-tensor.md): device tensor ownership and copy rules
+- [failure-policy.md](failure-policy.md): unsupported, degraded, and failure behavior
 - [roadmap.md](roadmap.md): staged native implementation backlog
 - [runtime.md](runtime.md): HTTP server and inference behavior
 - [training.md](training.md): native trainer ownership and data flow
