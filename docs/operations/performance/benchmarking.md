@@ -10,7 +10,7 @@ Every performance run records:
 - driver, CUDA, cuDNN, and native build versions,
 - training preset and JSON config path,
 - batch size, gradient accumulation, launch mode, and current trainer mode,
-- median and p95 microstep seconds,
+- median optimizer-step seconds from `train-report.json`,
 - median input tokens/sec,
 - loader wait, H2D, forward, backward, and optimizer timing.
 
@@ -21,6 +21,7 @@ Write generated benchmark outputs under ignored `artifacts/` paths:
 - `artifacts/diagnostics/<run-id>/summary.json`
 - `artifacts/benchmarks/<run-id>/summary.csv`
 - `artifacts/benchmarks/<run-id>/aggregate.json`
+- `artifacts/benchmarks/<run-id>/<case>/repeat-NN/train-report.json`
 - `artifacts/reports/<run-id>/training-performance-report.md`
 - optional profiler traces under `artifacts/profiles/<run-id>/`
 
@@ -35,6 +36,9 @@ The current bounded matrix uses supported native trainer modes only:
 - Bounded `lkjai-native-train --train` packed-cache cases when a matching
   packed cache is present.
 - Batch size and gradient accumulation values that the native trainer reports.
+
+Benchmark tooling consumes `DATA_DIR/runs/train-report.json` or the stdout JSON
+with the same schema. It does not require or parse `perf-steps.jsonl`.
 
 Attention backend, FP16/AMP, activation checkpoint, and CUDA Graph sweeps are
 roadmap benchmarks after those switches are implemented in the native trainer.

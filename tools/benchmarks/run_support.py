@@ -142,6 +142,44 @@ def summarize_steps(path: Path) -> dict:
     }
 
 
+def load_train_report(data_dir: Path, log_path: Path | None = None) -> dict:
+    report_path = data_dir / "runs" / "train-report.json"
+    if report_path.exists():
+        return json.loads(report_path.read_text(encoding="utf-8"))
+    if log_path and log_path.exists():
+        for line in reversed(log_path.read_text(encoding="utf-8").splitlines()):
+            line = line.strip()
+            if not line.startswith("{"):
+                continue
+            payload = json.loads(line)
+            if "schema_version" in payload and "trainer_mode" in payload:
+                return payload
+    raise FileNotFoundError(f"missing train report: {report_path}")
+
+
+def summarize_train_report(report: dict) -> dict:
+    timings = report.get("timings", {})
+    elapsed = float(report.get("elapsed_seconds", 0.0))
+    steps = int(report.get("optimizer_steps", report.get("steps", 0)))
+    step_seconds = elapsed / steps if steps > 0 else 0.0
+    return {
+        "schema_version": report.get("schema_version", 0),
+        "trainer_mode": report.get("trainer_mode", report.get("mode", "")),
+        "optimizer_steps": steps,
+        "microsteps": int(report.get("microsteps", 0)),
+        "tokens_seen": int(report.get("tokens_seen", report.get("input_tokens", 0))),
+        "median_step_seconds": step_seconds,
+        "median_tokens_per_second": float(report.get("tokens_per_second", 0.0)),
+        "mean_loader_wait_seconds": float(timings.get("batch_load", 0.0)),
+        "mean_forward_seconds": float(timings.get("forward", 0.0)),
+        "mean_backward_seconds": float(timings.get("backward", 0.0)),
+        "mean_optimizer_seconds": float(timings.get("optimizer", 0.0)),
+        "logits_checksum": report.get("logits_checksum", ""),
+        "checkpoint_checksum": report.get("checkpoint_checksum", ""),
+        "export_checksum": report.get("export_checksum", ""),
+    }
+
+
 def percentile(values: list[float], pct: float) -> float:
     if not values:
         return 0.0

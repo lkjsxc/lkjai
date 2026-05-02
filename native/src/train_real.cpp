@@ -10,6 +10,7 @@
 #include "env.hpp"
 #include "json_min.hpp"
 #include "training_config.hpp"
+#include "train_report.hpp"
 
 namespace lkjai {
 namespace {
@@ -102,46 +103,6 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
   return true;
 }
 
-void print_report(const DenseTrainReport& report, const CudaStatus& cuda) {
-  std::cout << "{\"status\":\"pass\",\"mode\":\"train\",\"steps\":"
-            << report.steps << ",\"optimizer_steps\":" << report.steps
-            << ",\"start_step\":" << report.start_step
-            << ",\"microsteps\":" << report.microsteps
-            << ",\"batch_size\":" << report.batch_size
-            << ",\"seq_len\":" << report.seq_len
-            << ",\"grad_accum\":" << report.grad_accum
-            << ",\"input_tokens\":" << report.input_tokens
-            << ",\"loss_tokens\":" << report.loss_tokens
-            << ",\"initial_loss\":" << report.initial_loss
-            << ",\"loss\":" << report.loss << ",\"loss_finite\":true"
-            << ",\"dense_cuda_path\":true"
-            << ",\"weight_changed\":"
-            << (report.weight_changed ? "true" : "false")
-            << ",\"logits_checksum\":\""
-            << json_escape(report.logits_checksum) << "\""
-            << ",\"train_config_path\":\""
-            << json_escape(report.train_config_path.string()) << "\""
-            << ",\"config_path\":\""
-            << json_escape(report.config_path.string()) << "\""
-            << ",\"packed_cache_path\":\""
-            << json_escape(report.packed_cache.string()) << "\""
-            << ",\"checkpoint_path\":\""
-            << json_escape(report.checkpoint_dir.string()) << "\""
-            << ",\"export_path\":\"" << json_escape(report.export_dir.string())
-            << "\",\"served_path\":\"" << json_escape(report.served_dir.string())
-            << "\",\"timings\":{\"batch_load\":"
-            << report.batch_load_seconds << ",\"forward\":"
-            << report.forward_seconds << ",\"backward\":"
-            << report.backward_seconds << ",\"optimizer\":"
-            << report.optimizer_seconds << ",\"checkpoint\":"
-            << report.checkpoint_seconds << ",\"export\":"
-            << report.export_seconds << "}"
-            << ",\"cuda_available\":"
-            << (cuda.available ? "true" : "false")
-            << ",\"capability\":{" << capability_json_fields(cuda) << "}"
-            << ",\"elapsed_seconds\":" << report.elapsed_seconds << "}\n";
-}
-
 }  // namespace
 
 int run_corpus_training(int argc, char** argv) {
@@ -162,7 +123,12 @@ int run_corpus_training(int argc, char** argv) {
     return 2;
   }
   auto cuda = cuda_status();
-  print_report(report, cuda);
+  if (!write_dense_train_report(report, cuda, "train", "pass", "", &error)) {
+    std::cerr << error << "\n";
+    return 2;
+  }
+  std::cout << dense_train_report_json(report, cuda, "train", "pass", "")
+            << "\n";
   return report.weight_changed ? 0 : 3;
 }
 

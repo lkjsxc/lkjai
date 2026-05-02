@@ -18,10 +18,11 @@ runs only.
 ## Precision
 
 Serving artifacts store model tensors as BF16. Training keeps FP32 master
-weights, gradients, and AdamW moments in checkpoints. The accepted debug trainer
+weights, gradients, and AdamW moments, and the CUDA forward/backward path reads
+BF16 shadow tensors rebuilt from the FP32 masters. The accepted debug trainer
 executes dense token embedding plus LM-head CE loss, optimizer,
-checkpoint/export, and logits probe. RMSNorm, RoPE, causal GQA attention, and
-SwiGLU MLP are target transformer work.
+checkpoint/export, and BF16 export logits probe. RMSNorm, RoPE, causal GQA
+attention, and SwiGLU MLP are target transformer work.
 
 ## Packed Cache
 
@@ -45,7 +46,7 @@ lkjai-native-train --train \
   --checkpoint-interval 1
 ```
 
-Resume keeps optimizer step numbering:
+Resume restores the checkpoint, including FP32 masters and Adam moments:
 
 ```sh
 lkjai-native-train --train \
@@ -60,6 +61,10 @@ lkjai-native-train --train \
 Use `--export-artifact DIR` to write an additional serving artifact outside the
 default `OUT/exports/${MODEL_NAME}` location.
 
+Every successful smoke or train run writes `OUT/runs/train-report.json` and
+prints compact JSON with the same schema. The report identifies the precision
+mode as FP32 master, BF16 CUDA shadow, FP32 accumulation, and BF16 export.
+
 ## Verification
 
 Routine verification is:
@@ -71,6 +76,8 @@ docker compose --progress quiet --profile verify run --rm verify
 The native CTest suite checks CUDA BF16 capability, packed-cache consumption,
 finite loss, backward and AdamW weight changes, checkpoint resume, artifact
 inspection, runtime loading, cache migration, and finite logits checksum.
+Resume coverage verifies that resumed training matches uninterrupted dense
+training for the same seed/config/dataset.
 
 The dense CUDA check must emit capability JSON with device name, compute
 capability, BF16 support, cuBLASLt availability, cuDNN availability, and SDPA

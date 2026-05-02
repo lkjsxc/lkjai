@@ -12,6 +12,7 @@
 #include "env.hpp"
 #include "json_min.hpp"
 #include "train_real.hpp"
+#include "train_report.hpp"
 
 namespace {
 
@@ -111,43 +112,15 @@ int main(int argc, char** argv) {
               << "}\n";
   }
   auto report = run_smoke_training(steps);
-  auto elapsed = std::chrono::duration<double>(
+  report.elapsed_seconds = std::chrono::duration<double>(
       std::chrono::steady_clock::now() - started).count();
-  std::cout << "{\"status\":\"pass\",\"mode\":\"smoke\",\"steps\":" << steps
-            << ",\"optimizer_steps\":" << report.steps
-            << ",\"start_step\":" << report.start_step
-            << ",\"microsteps\":" << report.microsteps
-            << ",\"batch_size\":" << report.batch_size
-            << ",\"seq_len\":" << report.seq_len
-            << ",\"grad_accum\":" << report.grad_accum
-            << ",\"input_tokens\":" << report.input_tokens
-            << ",\"loss_tokens\":" << report.loss_tokens
-            << ",\"initial_loss\":" << report.initial_loss
-            << ",\"loss\":" << report.loss
-            << ",\"loss_finite\":true"
-            << ",\"dense_cuda_path\":true"
-            << ",\"weight_changed\":"
-            << (report.weight_changed ? "true" : "false")
-            << ",\"logits_checksum\":\""
-            << lkjai::json_escape(report.logits_checksum) << "\""
-            << ",\"config_path\":\""
-            << lkjai::json_escape(report.config_path.string()) << "\""
-            << ",\"packed_cache_path\":\""
-            << lkjai::json_escape(report.packed_cache.string()) << "\""
-            << ",\"checkpoint_path\":\""
-            << lkjai::json_escape(report.checkpoint_dir.string()) << "\""
-            << ",\"export_path\":\""
-            << lkjai::json_escape(report.export_dir.string()) << "\""
-            << ",\"timings\":{\"batch_load\":"
-            << report.batch_load_seconds << ",\"forward\":"
-            << report.forward_seconds << ",\"backward\":"
-            << report.backward_seconds << ",\"optimizer\":"
-            << report.optimizer_seconds << ",\"checkpoint\":"
-            << report.checkpoint_seconds << ",\"export\":"
-            << report.export_seconds << "}"
-            << ",\"cuda_available\":" << (cuda.available ? "true" : "false")
-            << ",\"capability\":{" << lkjai::capability_json_fields(cuda)
-            << "}"
-            << ",\"elapsed_seconds\":" << elapsed << "}\n";
+  std::string write_error;
+  if (!lkjai::write_dense_train_report(report, cuda, "smoke", "pass", "",
+                                       &write_error)) {
+    std::cerr << write_error << "\n";
+    return 2;
+  }
+  std::cout << lkjai::dense_train_report_json(report, cuda, "smoke", "pass", "")
+            << "\n";
   return 0;
 }

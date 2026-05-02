@@ -57,18 +57,21 @@ DenseCudaCheck run_dense_cuda_check() {
   }
   try {
     auto cfg = parity_config();
-    DenseTrainState cpu;
-    init_dense_state(cfg, &cpu);
-    for (float& v : cpu.emb) v = dense_round_bf16(v);
-    for (float& v : cpu.head) v = dense_round_bf16(v);
-    DenseTrainState cuda_host = cpu;
+    DenseTrainState master;
+    init_dense_state(cfg, &master);
+    DenseTrainState forward_ref = master;
+    for (float& v : forward_ref.emb) v = dense_round_bf16(v);
+    for (float& v : forward_ref.head) v = dense_round_bf16(v);
+    DenseTrainState cpu = master;
     auto batch = parity_batch();
-    auto cpu_out = cpu_dense_forward_backward_with_logits(batch, &cpu);
+    auto cpu_out = cpu_dense_forward_backward_with_logits(batch, &forward_ref);
+    cpu.grad_emb = forward_ref.grad_emb;
+    cpu.grad_head = forward_ref.grad_head;
     dense_adamw(&cpu.emb, &cpu.m_emb, &cpu.v_emb, cpu.grad_emb, 1.0e-3f, 1);
     dense_adamw(&cpu.head, &cpu.m_head, &cpu.v_head, cpu.grad_head, 1.0e-3f, 1);
 
     CudaExecutionContext ctx;
-    DenseCudaState state(cfg, cuda_host, &ctx);
+    DenseCudaState state(cfg, master, &ctx);
     std::vector<float> logits;
     check.loss = state.forward_backward(batch, &logits, nullptr, nullptr);
     state.adamw(1.0e-3f, 1);

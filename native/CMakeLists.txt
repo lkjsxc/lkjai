@@ -8,6 +8,21 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CUDA_STANDARD 17)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 set(CMAKE_CUDA_ARCHITECTURES 86-real 86-virtual 89-real 89-virtual 90-real 90-virtual)
+execute_process(
+  COMMAND git -C ${CMAKE_CURRENT_SOURCE_DIR}/.. rev-parse --short HEAD
+  OUTPUT_VARIABLE LKJAI_GIT_COMMIT
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  ERROR_QUIET
+)
+if(NOT LKJAI_GIT_COMMIT)
+  set(LKJAI_GIT_COMMIT unknown)
+endif()
+if(NOT CMAKE_BUILD_TYPE)
+  set(LKJAI_BUILD_TYPE unknown)
+else()
+  set(LKJAI_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
+endif()
+string(REPLACE ";" "," LKJAI_CUDA_ARCH_FLAGS "${CMAKE_CUDA_ARCHITECTURES}")
 find_package(CUDAToolkit REQUIRED)
 find_library(CUDNN_LIBRARY cudnn REQUIRED)
 
@@ -39,6 +54,8 @@ add_library(lkjai_native_core STATIC
   src/packed_cache.cpp
   src/packed_cache_validate.cpp
   src/train_data.cpp
+  src/train_report.cpp
+  src/dense_checkpoint.cpp
   src/dense_cuda.cu
   src/dense_cuda_common.cpp
   src/dense_cuda_gemm.cu
@@ -60,6 +77,11 @@ add_library(lkjai_native_core STATIC
 )
 target_include_directories(lkjai_native_core PUBLIC src)
 target_link_libraries(lkjai_native_core PUBLIC lkjai_cuda)
+target_compile_definitions(lkjai_native_core PUBLIC
+  LKJAI_GIT_COMMIT="${LKJAI_GIT_COMMIT}"
+  LKJAI_BUILD_TYPE="${LKJAI_BUILD_TYPE}"
+  LKJAI_CUDA_ARCH_FLAGS="${LKJAI_CUDA_ARCH_FLAGS}"
+)
 
 add_executable(lkjai-native-server src/server_main.cpp src/http_server.cpp)
 target_link_libraries(lkjai-native-server PRIVATE lkjai_native_core)
@@ -93,7 +115,15 @@ add_test(NAME native_dense_cuda_parity COMMAND lkjai-native-dense-check)
 add_test(NAME native_device_tensor_check COMMAND lkjai-native-device-check)
 add_test(
   NAME native_packed_train_contract
-  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/packed_train_contract.py $<TARGET_FILE:lkjai-native-train> $<TARGET_FILE:lkjai-native-logits-check> $<TARGET_FILE:lkjai-native-packed-cache> $<TARGET_FILE:lkjai-native-inspect>
+  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/packed_train_contract.py $<TARGET_FILE:lkjai-native-train> $<TARGET_FILE:lkjai-native-logits-check> $<TARGET_FILE:lkjai-native-inspect>
+)
+add_test(
+  NAME native_packed_cache_migration_contract
+  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/packed_cache_migration_contract.py $<TARGET_FILE:lkjai-native-train> $<TARGET_FILE:lkjai-native-packed-cache>
+)
+add_test(
+  NAME native_benchmark_report_parser
+  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/benchmark_report_parser.py
 )
 add_test(
   NAME native_smoke_export

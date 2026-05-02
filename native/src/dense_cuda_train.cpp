@@ -4,6 +4,7 @@
 
 #include "cuda_probe.hpp"
 #include "dense_cuda_internal.hpp"
+#include "json_min.hpp"
 
 namespace lkjai {
 
@@ -51,11 +52,18 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
     report->export_dir = opt.out_dir / "exports" / opt.model_name;
     report->served_dir = opt.out_dir.parent_path() / "models" / opt.model_name;
     DenseTrainState init;
-    init_dense_state(cfg, &init);
+    DenseCheckpointMetadata resume;
+    if (opt.resume_dir.empty()) {
+      init_dense_state(cfg, &init);
+    } else if (!load_dense_checkpoint(opt.resume_dir, cfg, opt.batch_size,
+                                      seq_len, opt.grad_accum, &init,
+                                      &resume, error)) {
+      return false;
+    }
     CudaExecutionContext ctx;
     DenseCudaState state(cfg, init, &ctx);
-    report->start_step = dense_resume_step(opt.resume_dir);
-    report->microsteps = report->start_step * opt.grad_accum;
+    report->start_step = resume.optimizer_steps;
+    report->microsteps = resume.microsteps;
     float before = init.emb.empty() ? 0.0f : init.emb.front();
     std::vector<float> logits;
     auto started = std::chrono::steady_clock::now();
@@ -138,6 +146,19 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
     report->export_seconds += dense_seconds_since(phase);
     if (!ok) {
       *error = "failed to write dense artifact";
+      return false;
+    }
+    std::string logits_json;
+    std::string logits_error;
+    report->logits_check_passed =
+        dense_cuda_logits_check(report->export_dir, "1,2,3", &logits_json,
+                                &logits_error);
+    report->logits_check_json = logits_json;
+    report->logits_check_checksum =
+        report->logits_check_passed ? json_first_string(logits_json, "checksum")
+                                    : "";
+    if (!report->logits_check_passed) {
+      *error = "exported BF16 logits check failed: " + logits_error;
       return false;
     }
     report->elapsed_seconds = dense_seconds_since(started);

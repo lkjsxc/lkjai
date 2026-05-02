@@ -49,6 +49,10 @@ struct DenseTrainReport {
   double loss = 0.0;
   bool weight_changed = false;
   std::string logits_checksum;
+  bool logits_check_passed = false;
+  std::string logits_check_json;
+  std::string logits_check_checksum;
+  std::string failure_reason;
   std::filesystem::path train_config_path;
   std::filesystem::path config_path;
   std::filesystem::path packed_cache;

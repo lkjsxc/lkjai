@@ -7,12 +7,29 @@ import shutil
 import statistics
 import time
 
-from run_support import ROOT, Telemetry, build_image, prepare_data_dir, run, summarize_steps
+from run_support import (
+    ROOT,
+    Telemetry,
+    build_image,
+    load_train_report,
+    prepare_data_dir,
+    run,
+    summarize_train_report,
+)
 
 
 CASES = {
-    "smoke_2": {"TRAIN_MAX_OPTIMIZER_STEPS": "2"},
-    "smoke_4": {"TRAIN_MAX_OPTIMIZER_STEPS": "4"},
+    "dense_smoke_2": {
+        "mode": "smoke",
+        "env": {"TRAIN_MAX_OPTIMIZER_STEPS": "2"},
+    },
+    "dense_packed_train_2": {
+        "mode": "train",
+        "env": {
+            "TRAIN_MAX_OPTIMIZER_STEPS": "2",
+            "TRAIN_SEQUENCE_LEN": "1024",
+        },
+    },
 }
 
 
@@ -24,7 +41,7 @@ def run_case(image: str, run_id: str, case: str, repeat: int, base_env: dict, sa
     prepare_data_dir(data_dir)
     env = os.environ.copy()
     env.update(base_env)
-    env.update(CASES[case])
+    env.update(CASES[case]["env"])
     env.update(
         {
             "DATA_DIR": "/app/data/perf-runs/" + f"{run_id}/{case}/repeat-{repeat:02d}",
@@ -32,6 +49,19 @@ def run_case(image: str, run_id: str, case: str, repeat: int, base_env: dict, sa
         }
     )
     steps = env.get("TRAIN_MAX_OPTIMIZER_STEPS", "2")
+    train_args = (
+        ["--smoke", "--steps", steps]
+        if CASES[case]["mode"] == "smoke"
+        else [
+            "--train",
+            "--config",
+            env["TRAIN_NATIVE_CONFIG"],
+            "--seq-len",
+            env.get("TRAIN_SEQUENCE_LEN", "1024"),
+            "--max-steps",
+            steps,
+        ]
+    )
     command = [
         "docker",
         "run",
@@ -47,10 +77,7 @@ def run_case(image: str, run_id: str, case: str, repeat: int, base_env: dict, sa
         "-v",
         f"{ROOT / 'configs'}:/workspace/configs:ro",
         image,
-        "--smoke",
-        "--steps",
-        steps,
-    ]
+    ] + train_args
     docker_env = []
     for key, value in sorted(env.items()):
         if key.startswith("TRAIN_") or key in {"DATA_DIR", "MODEL_NAME"}:
@@ -60,7 +87,6 @@ def run_case(image: str, run_id: str, case: str, repeat: int, base_env: dict, sa
     with Telemetry(out_dir, sample_interval):
         code = run(command, out_dir / "trainer.log", env=os.environ.copy())
     elapsed = time.time() - started
-    perf_path = data_dir / "runs" / "perf-steps.jsonl"
     summary = {
         "run_id": run_id,
         "case": case,
@@ -70,9 +96,15 @@ def run_case(image: str, run_id: str, case: str, repeat: int, base_env: dict, sa
         "env": {key: env[key] for key in sorted(env) if key.startswith("TRAIN_")},
         "data_dir": str(data_dir),
     }
-    if perf_path.exists():
-        shutil.copy2(perf_path, out_dir / "perf-steps.jsonl")
-        summary.update(summarize_steps(perf_path))
+    report = load_train_report(data_dir, out_dir / "trainer.log")
+    report_path = data_dir / "runs" / "train-report.json"
+    if report_path.exists():
+        shutil.copy2(report_path, out_dir / "train-report.json")
+    else:
+        (out_dir / "train-report.json").write_text(
+            json.dumps(report, indent=2), encoding="utf-8"
+        )
+    summary.update(summarize_train_report(report))
     summary_path = out_dir / "summary.json"
     summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
     return summary
@@ -109,7 +141,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--run-id", default=time.strftime("%Y%m%d-%H%M%S"))
     parser.add_argument("--image", default="")
-    parser.add_argument("--cases", default="smoke_2,smoke_4")
+    parser.add_argument("--cases", default="dense_smoke_2,dense_packed_train_2")
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--sample-interval", type=float, default=0.5)
     parser.add_argument("--no-build", action="store_true")

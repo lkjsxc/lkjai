@@ -18,7 +18,8 @@ Run one measurable long training job for the 3070-first 40M scratch model.
 - The current native trainer consumes an existing packed cache; tokenizer and
   cache construction are separate operations.
 - Export writes the final dense artifact for the run.
-- Resume is explicit through `--resume`.
+- Resume is explicit through `--resume DIR` and restores the dense FP32 master
+  weights plus Adam moments from the checkpoint optimizer artifact.
 - The current native binary supports two modes:
   `lkjai-native-train --smoke --steps N` and `lkjai-native-train --train`.
   Compose keeps the smoke command as the service default for cheap health
@@ -52,9 +53,12 @@ unknown training-config keys instead of silently ignoring them.
 - `data/train/checkpoints/latest/weights.index.json`
 - `data/train/checkpoints/latest/weights.lkjw`
 - `data/train/checkpoints/latest/trainer_state.json`
+- `data/train/checkpoints/latest/optimizer.index.json`
+- `data/train/checkpoints/latest/optimizer.lkjw`
 - `data/train/checkpoints/final/manifest.json`
 - `data/train/exports/${MODEL_NAME}/manifest.json`
 - `data/models/${MODEL_NAME}/manifest.json`
+- `data/train/runs/train-report.json`
 
 ## RTX 3070 Presets
 
@@ -63,9 +67,11 @@ unknown training-config keys instead of silently ignoring them.
 
 ## Accounting
 
-Training summaries report microsteps, optimizer steps, gradient accumulation,
-all input tokens seen, loss-bearing tokens seen, tokens/sec,
-loss-bearing tokens/sec, and effective batch tokens per optimizer step.
+Training writes `runs/train-report.json` and prints compact JSON with the same
+schema. Reports include microsteps, optimizer steps, gradient accumulation, all
+input tokens seen, loss-bearing tokens seen, tokens/sec, dtype/precision mode,
+CUDA capability, config and dataset digests, artifact checksums, and BF16 export
+logits-check status.
 
 ## Checkpoints
 
@@ -74,9 +80,11 @@ Training writes dense checkpoint/export directories. Public checkpoint paths are
 - `checkpoints/latest/`: newest complete resumable training state.
 - `checkpoints/final/`: final training checkpoint.
 
-`latest/` includes model weights, FP32 optimizer tensors, optimizer step,
-microsteps, batch size, sequence length, gradient accumulation, loss, and
-checksum. Scheduler, scaler, RNG, best metric, validation history, retained
+`latest/` includes BF16 checkpoint weights, FP32 master weights, FP32 Adam
+moments, optimizer step, microsteps, batch size, sequence length, gradient
+accumulation, loss, and checksum. Resume rejects incompatible manifest/config,
+model shape, vocab, seed, batch, sequence length, gradient accumulation, or
+dense tensor shape. Scheduler, scaler, best metric, validation history, retained
 numbered snapshots, and atomic promotion are target additions.
 
 ## Start Check

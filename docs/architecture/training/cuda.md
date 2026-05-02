@@ -7,6 +7,10 @@
 - Training containers target CUDA `12.8` and cuDNN `9`.
 - The current accepted trainer requires BF16-capable CUDA and reports failure
   clearly when that capability is unavailable.
+- Dense training uses FP32 master weights and Adam state, BF16 CUDA shadow
+  tensors for forward/backward, FP32 accumulation, and BF16 export.
+- Reports must say `dense_cuda_path=true`; otherwise the run is a failure for
+  the accepted native path.
 - Batch size 2 with gradient accumulation 4 is the default 40M config.
 - `grad_accum` is implemented as multiple dense CUDA microsteps before one
   AdamW optimizer step.

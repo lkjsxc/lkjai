@@ -54,12 +54,15 @@ DenseCudaState::DenseCudaState(const DenseConfig& cfg,
   head_.copy_from_host_f32(host.head, ctx->stream());
   emb_shadow_.copy_from_host_f32(host.emb, ctx->stream());
   head_shadow_.copy_from_host_f32(host.head, ctx->stream());
-  zero_moments();
+  m_emb_.copy_from_host_f32(host.m_emb, ctx->stream());
+  v_emb_.copy_from_host_f32(host.v_emb, ctx->stream());
+  m_head_.copy_from_host_f32(host.m_head, ctx->stream());
+  v_head_.copy_from_host_f32(host.v_head, ctx->stream());
+  zero_gradients();
 }
 
-void DenseCudaState::zero_moments() {
-  for (auto* t : {&grad_emb_, &grad_head_, &m_emb_, &v_emb_, &m_head_,
-                  &v_head_}) {
+void DenseCudaState::zero_gradients() {
+  for (auto* t : {&grad_emb_, &grad_head_}) {
     require_cuda(cudaMemsetAsync(t->data(), 0, t->bytes(), ctx_->stream()),
                  "zero dense tensor");
   }

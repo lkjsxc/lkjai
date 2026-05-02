@@ -70,11 +70,14 @@ unsupported.
 - Tokenizer: `data/train/tokenizer`
 - Checkpoints: `data/train/checkpoints`
 - Native exports: `data/models/lkjai-scratch-40m`
-- Eval reports: `data/train/runs`
+- Stable train report: `data/train/runs/train-report.json`
 
 ## Checkpoint Resume
 
-Checkpoints contain dense model weights, FP32 optimizer tensors, optimizer step,
-microsteps, batch size, sequence length, gradient accumulation, loss, and
-checksum. Scheduler, scaler, RNG, retained intermediate checkpoints, and best
-checkpoint selection are target additions.
+Checkpoints contain dense model weights, FP32 master tensors, FP32 Adam moments,
+optimizer step, microsteps, batch size, sequence length, gradient accumulation,
+loss, and checksum. `--resume` restores the FP32 masters and Adam moments,
+rebuilds BF16 CUDA shadows, and rejects incompatible config, model shape, vocab,
+seed, batch, sequence, gradient accumulation, or dense tensor shape. Scheduler,
+scaler, retained intermediate checkpoints, and best checkpoint selection are
+target additions.

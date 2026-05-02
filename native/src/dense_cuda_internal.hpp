@@ -27,7 +27,7 @@ class DenseCudaState {
   DenseTrainState copy_to_host();
 
  private:
-  void zero_moments();
+  void zero_gradients();
   void gemm(const DeviceTensor& hidden, DeviceTensor& out, int rows);
 
   DenseConfig cfg_;

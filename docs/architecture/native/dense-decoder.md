@@ -11,7 +11,7 @@ The implemented product path is intentionally minimal:
 
 - Token embedding table.
 - LM-head table.
-- BF16 exported weights with FP32 training state.
+- FP32 master weights/state with BF16 CUDA shadows and BF16 exported weights.
 - Packed-cache causal-LM batches.
 - CUDA forward, backward, AdamW, checkpoint, export, and logits check.
 - Native server artifact loading with explicit unsupported chat decode.
@@ -51,6 +51,8 @@ autoregressive decode in the accepted product path yet.
 - Optimizer state: FP32 master weights and FP32 moments.
 - Checkpoints include dense model tensors, optimizer tensors, trainer counters,
   resume metadata, config, and checksums.
+- Resume restores FP32 masters and Adam moments, then rebuilds BF16 CUDA
+  shadows before forward/backward continues.
 - Exported serving artifacts omit optimizer tensors unless explicitly requested.
 
 ## Acceptance Milestone
@@ -60,7 +62,8 @@ The current dense CUDA path is accepted only when all of these are true:
 - A fixed synthetic batch trains forward and backward without NaN loss.
 - Packed-cache training consumes `lkjai-packed-cache-v2`.
 - `lkjai-native-logits-check` validates finite `[1,V]` logits from an exported
-  artifact.
+  BF16 artifact. Repeated checks with the same seed/config/dataset must keep the
+  exported logits checksum stable.
 - Native server loads the artifact. Until decode lands, chat returns explicit
   unsupported-decode JSON for dense and transformer artifacts.
 - GPU-required Compose verify passes on the native dense CUDA smoke.

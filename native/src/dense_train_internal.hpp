@@ -21,11 +21,27 @@ struct DenseTrainState {
   std::vector<float> v_head;
 };
 
+struct DenseCheckpointMetadata {
+  int optimizer_steps = 0;
+  int microsteps = 0;
+  int batch_size = 0;
+  int seq_len = 0;
+  int grad_accum = 0;
+  double loss = 0.0;
+  std::string logits_checksum;
+};
+
 void init_dense_state(const DenseConfig& cfg, DenseTrainState* state);
 double dense_forward_backward(const PackedBatch& batch, DenseTrainState* state);
 void dense_adamw(std::vector<float>* weight, std::vector<float>* m,
                  std::vector<float>* v, const std::vector<float>& grad,
                  float lr, int step);
+bool load_dense_checkpoint(const std::filesystem::path& dir,
+                           const DenseConfig& requested, int batch_size,
+                           int seq_len, int grad_accum,
+                           DenseTrainState* state,
+                           DenseCheckpointMetadata* metadata,
+                           std::string* error);
 bool write_dense_train_artifact(const std::filesystem::path& dir,
                                 const DenseTrainState& state, int step,
                                 int microsteps, int batch_size, int seq_len,
