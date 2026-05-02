@@ -43,6 +43,8 @@ void init_transformer_state(const TransformerConfig& cfg,
   std::mt19937 rng(static_cast<uint32_t>(cfg.seed));
   init_param(&state->tok_embeddings, "tok_embeddings",
              {cfg.vocab_size, cfg.hidden_size}, &rng, 0.02f);
+  init_param(&state->pos_embeddings, "pos_embeddings",
+             {cfg.context, cfg.hidden_size}, &rng, 0.02f);
   state->layers.resize(static_cast<size_t>(cfg.layers));
   int kv = cfg.kv_heads * cfg.head_dim;
   for (int i = 0; i < cfg.layers; ++i) {

@@ -120,6 +120,10 @@ bool inspect_artifact(const std::filesystem::path& model_dir,
       !validate_dense_optimizer(model_dir, error)) {
     return false;
   }
+  if (kind == "transformer" && artifact_kind == "checkpoint" &&
+      !validate_transformer_optimizer(model_dir, config_text, error)) {
+    return false;
+  }
   auto index_text = read_text(index);
   auto weight_bytes = std::filesystem::file_size(weights);
   if (weight_bytes == 0) {

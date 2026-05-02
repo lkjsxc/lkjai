@@ -14,7 +14,7 @@ namespace {
 bool known_key(std::string_view key) {
   static const std::vector<std::string_view> known = {
       "format", "name", "description", "preset", "model_name",
-      "native_config", "packed_cache_dir", "objective", "sequence_len",
+      "model_kind", "native_config", "packed_cache_dir", "objective", "sequence_len",
       "learning_rate", "warmup_steps", "batch_size",
       "gradient_accumulation", "max_optimizer_steps",
       "save_latest_every_optimizer_steps", "seed"};
@@ -85,6 +85,8 @@ bool apply_training_config(const std::filesystem::path& path,
   opt->train_config_path = path;
   auto model_name = json_first_string(text, "model_name");
   if (!model_name.empty()) opt->model_name = model_name;
+  auto model_kind = json_first_string(text, "model_kind");
+  if (!model_kind.empty()) opt->model_kind = model_kind;
   auto native_config = json_first_string(text, "native_config");
   if (!native_config.empty()) opt->config_path = native_config;
   auto packed_cache = json_first_string(text, "packed_cache_dir");

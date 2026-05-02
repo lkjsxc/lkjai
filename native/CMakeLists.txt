@@ -68,10 +68,15 @@ add_library(lkjai_native_core STATIC
   src/dense_train_math.cpp
   src/transformer_artifact.cpp
   src/transformer_config.cpp
+  src/transformer_cuda.cu
   src/transformer_forward.cpp
   src/transformer_init.cpp
+  src/transformer_load.cpp
+  src/transformer_logits.cpp
   src/transformer_optim.cpp
+  src/transformer_report.cpp
   src/transformer_train.cpp
+  src/transformer_util.cpp
   src/train_real.cpp
   src/training_config.cpp
 )
@@ -120,6 +125,10 @@ add_test(
 add_test(
   NAME native_packed_cache_migration_contract
   COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/packed_cache_migration_contract.py $<TARGET_FILE:lkjai-native-train> $<TARGET_FILE:lkjai-native-packed-cache>
+)
+add_test(
+  NAME native_transformer_train_contract
+  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/transformer_train_contract.py $<TARGET_FILE:lkjai-native-train> $<TARGET_FILE:lkjai-native-logits-check> $<TARGET_FILE:lkjai-native-inspect>
 )
 add_test(
   NAME native_benchmark_report_parser

@@ -165,6 +165,7 @@ def summarize_train_report(report: dict) -> dict:
     return {
         "schema_version": report.get("schema_version", 0),
         "trainer_mode": report.get("trainer_mode", report.get("mode", "")),
+        "model_kind": report.get("model_kind", "dense"),
         "optimizer_steps": steps,
         "microsteps": int(report.get("microsteps", 0)),
         "tokens_seen": int(report.get("tokens_seen", report.get("input_tokens", 0))),

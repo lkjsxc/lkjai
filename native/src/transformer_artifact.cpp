@@ -16,10 +16,6 @@ uint16_t bf16(float value) {
   return static_cast<uint16_t>((bits + 0x8000u) >> 16);
 }
 
-float f32(uint16_t value) {
-  return std::bit_cast<float>(static_cast<uint32_t>(value) << 16);
-}
-
 void text(const std::filesystem::path& path, const std::string& body) {
   std::filesystem::create_directories(path.parent_path());
   std::ofstream out(path);
@@ -43,10 +39,13 @@ std::string shape_json(const std::vector<int>& shape) {
 }
 
 void append_index(std::ostringstream* index, const Parameter& p, uint64_t off,
-                  uint64_t bytes, bool* first) {
+                  uint64_t bytes, bool* first,
+                  const std::string& name_prefix = "",
+                  const std::string& dtype = "bf16") {
   if (!*first) *index << ",";
   *first = false;
-  *index << "{\"name\":\"" << json_escape(p.name) << "\",\"dtype\":\"bf16\","
+  *index << "{\"name\":\"" << json_escape(name_prefix + p.name)
+         << "\",\"dtype\":\"" << dtype << "\","
          << "\"shape\":" << shape_json(p.shape) << ",\"byte_offset\":" << off
          << ",\"byte_length\":" << bytes << "}";
 }
@@ -60,13 +59,24 @@ void write_param(std::ofstream& weights, std::ostringstream* index,
     weights.write(reinterpret_cast<const char*>(&packed), sizeof(packed));
     *hash = (*hash ^ packed) * 1099511628211ull;
   }
-  append_index(index, p, off, static_cast<uint64_t>(weights.tellp()) - off,
-               first);
+  append_index(index, p, off, static_cast<uint64_t>(weights.tellp()) - off, first);
+}
+
+void write_f32_tensor(std::ofstream& file, std::ostringstream* index,
+                      const Parameter& p, const std::vector<float>& values,
+                      const std::string& prefix, bool* first) {
+  pad(file);
+  auto off = static_cast<uint64_t>(file.tellp());
+  file.write(reinterpret_cast<const char*>(values.data()),
+             static_cast<std::streamsize>(values.size() * sizeof(float)));
+  append_index(index, p, off, static_cast<uint64_t>(file.tellp()) - off, first,
+               prefix, "f32");
 }
 
 template <typename Fn>
 void params(const TransformerState& s, Fn fn) {
   fn(s.tok_embeddings);
+  fn(s.pos_embeddings);
   for (const auto& l : s.layers) {
     fn(l.attn_norm);
     fn(l.q_proj);
@@ -98,42 +108,24 @@ std::string config_json(const TransformerConfig& c) {
 
 std::string manifest_json(const std::string& artifact_kind,
                           std::string_view config,
-                          std::string_view tokenizer) {
+                          std::string_view tokenizer,
+                          const std::string& weights_checksum) {
   std::ostringstream out;
   out << "{\"format\":\"lkjai-native-artifact-v2\",\"kind\":\"transformer\","
       << "\"artifact_kind\":\"" << artifact_kind << "\","
+      << "\"weights_checksum\":\"" << json_escape(weights_checksum) << "\","
       << "\"config_checksum\":\"" << artifact_text_checksum(config) << "\","
       << "\"tokenizer_checksum\":\"" << artifact_text_checksum(tokenizer)
       << "\"}\n";
   return out.str();
 }
 
-bool read_param(const std::filesystem::path& dir, const std::string& index,
-                Parameter* p) {
-  auto name = "\"name\":\"" + p->name + "\"";
-  auto pos = index.find(name);
-  if (pos == std::string::npos) return false;
-  auto off_pos = index.find("\"byte_offset\":", pos);
-  auto len_pos = index.find("\"byte_length\":", pos);
-  if (off_pos == std::string::npos || len_pos == std::string::npos) return false;
-  uint64_t off = std::stoull(index.substr(off_pos + 14));
-  uint64_t len = std::stoull(index.substr(len_pos + 14));
-  if (len != p->w.size() * sizeof(uint16_t)) return false;
-  std::ifstream in(dir / "weights.lkjw", std::ios::binary);
-  in.seekg(static_cast<std::streamoff>(off));
-  for (float& value : p->w) {
-    uint16_t packed = 0;
-    in.read(reinterpret_cast<char*>(&packed), sizeof(packed));
-    value = f32(packed);
-  }
-  return static_cast<bool>(in);
-}
-
 }  // namespace
 
 bool write_transformer_artifact(const std::filesystem::path& dir,
                                 const TransformerState& state, int step,
-                                double loss, bool checkpoint,
+                                int microsteps, int batch_size, int seq_len,
+                                int grad_accum, double loss, bool checkpoint,
                                 std::string* checksum) {
   std::filesystem::create_directories(dir);
   std::ofstream weights(dir / "weights.lkjw", std::ios::binary);
@@ -146,40 +138,40 @@ bool write_transformer_artifact(const std::filesystem::path& dir,
     write_param(weights, &index, p, &first, &hash);
   });
   index << "]}\n";
-  *checksum = checksum_logits({static_cast<float>(hash & 0xffffu)});
+  std::ostringstream weight_hash;
+  weight_hash << std::hex << hash;
+  *checksum = weight_hash.str();
   text(dir / "weights.index.json", index.str());
   auto config = config_json(state.cfg);
   auto tokenizer = "{\"format\":\"uint16-packed-cache\",\"vocab_size\":" +
                    std::to_string(state.cfg.vocab_size) + "}\n";
-  text(dir / "manifest.json",
-       manifest_json(checkpoint ? "checkpoint" : "export", config, tokenizer));
+  text(dir / "manifest.json", manifest_json(checkpoint ? "checkpoint" : "export",
+                                            config, tokenizer, *checksum));
   text(dir / "config.json", config);
   text(dir / "tokenizer.json", tokenizer);
   text(dir / "trainer_state.json",
        "{\"optimizer_steps\":" + std::to_string(step) +
+           ",\"microsteps\":" + std::to_string(microsteps) +
+           ",\"batch_size\":" + std::to_string(batch_size) +
+           ",\"seq_len\":" + std::to_string(seq_len) +
+           ",\"grad_accum\":" + std::to_string(grad_accum) +
            ",\"loss\":" + std::to_string(loss) +
            ",\"logits_checksum\":\"" + *checksum +
            "\",\"checkpoint\":" + (checkpoint ? "true" : "false") + "}\n");
   if (!checkpoint) return true;
   std::ofstream opt(dir / "optimizer.lkjw", std::ios::binary);
   if (!opt) return false;
-  text(dir / "optimizer.index.json", "{\"tensors\":[]}\n");
-  return true;
-}
-
-bool load_transformer_artifact(const std::filesystem::path& dir,
-                               TransformerState* state, std::string* error) {
-  TransformerConfig cfg;
-  if (!load_transformer_config(dir / "config.json", &cfg, error)) return false;
-  init_transformer_state(cfg, state);
-  auto index = read_text(dir / "weights.index.json");
-  bool ok = true;
-  params(*state, [&](const Parameter& p) {
-    auto* mut = const_cast<Parameter*>(&p);
-    ok = ok && read_param(dir, index, mut);
+  std::ostringstream opt_index;
+  bool opt_first = true;
+  opt_index << "{\"tensors\":[";
+  params(state, [&](const Parameter& p) {
+    write_f32_tensor(opt, &opt_index, p, p.w, "master.", &opt_first);
+    write_f32_tensor(opt, &opt_index, p, p.m, "adam_m.", &opt_first);
+    write_f32_tensor(opt, &opt_index, p, p.v, "adam_v.", &opt_first);
   });
-  if (!ok) *error = "failed to load transformer artifact tensors";
-  return ok;
+  opt_index << "]}\n";
+  text(dir / "optimizer.index.json", opt_index.str());
+  return true;
 }
 
 }  // namespace lkjai

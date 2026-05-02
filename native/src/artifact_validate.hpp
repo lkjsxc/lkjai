@@ -15,5 +15,8 @@ bool validate_transformer_weight_index(std::string_view text,
                                        std::string* error);
 bool validate_dense_optimizer(const std::filesystem::path& model_dir,
                               std::string* error);
+bool validate_transformer_optimizer(const std::filesystem::path& model_dir,
+                                    std::string_view config,
+                                    std::string* error);
 
 }  // namespace lkjai

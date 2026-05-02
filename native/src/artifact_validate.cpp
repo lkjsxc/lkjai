@@ -104,7 +104,10 @@ bool validate_transformer_weight_index(std::string_view text,
                                        uint64_t weight_bytes,
                                        std::string* error) {
   if (!validate_tensor_ranges(text, weight_bytes, error) ||
-      !require_tensor(text, "tok_embeddings", error)) return false;
+      !require_tensor(text, "tok_embeddings", error) ||
+      !require_tensor(text, "pos_embeddings", error)) {
+    return false;
+  }
   int layers = json_int_value(config, "layers", 1);
   for (int layer = 0; layer < layers; ++layer) {
     auto p = "layers." + std::to_string(layer) + ".";
@@ -130,6 +133,33 @@ bool validate_dense_optimizer(const std::filesystem::path& model_dir,
     if (!require_tensor(text, name, error)) return false;
   }
   return true;
+}
+
+bool validate_transformer_optimizer(const std::filesystem::path& model_dir,
+                                    std::string_view config,
+                                    std::string* error) {
+  auto text = read_text(model_dir / "optimizer.index.json");
+  auto require_triplet = [&](const std::string& name) {
+    return require_tensor(text, "master." + name, error) &&
+           require_tensor(text, "adam_m." + name, error) &&
+           require_tensor(text, "adam_v." + name, error);
+  };
+  if (!require_triplet("tok_embeddings") ||
+      !require_triplet("pos_embeddings")) {
+    return false;
+  }
+  int layers = json_int_value(config, "layers", 1);
+  for (int layer = 0; layer < layers; ++layer) {
+    auto p = "layers." + std::to_string(layer) + ".";
+    for (const auto& name : {p + "attn.q_proj", p + "attn.k_proj",
+                             p + "attn.v_proj", p + "attn.o_proj",
+                             p + "mlp.gate_proj", p + "mlp.up_proj",
+                             p + "mlp.down_proj", p + "attn_norm",
+                             p + "mlp_norm"}) {
+      if (!require_triplet(name)) return false;
+    }
+  }
+  return require_triplet("final_norm") && require_triplet("lm_head");
 }
 
 }  // namespace lkjai

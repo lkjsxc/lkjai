@@ -11,6 +11,7 @@
 #include "json_min.hpp"
 #include "training_config.hpp"
 #include "train_report.hpp"
+#include "transformer_train.hpp"
 
 namespace lkjai {
 namespace {
@@ -57,6 +58,7 @@ float env_float(const char* name, float fallback) {
 
 bool options(int argc, char** argv, DenseTrainOptions* opt,
              std::string* error) {
+  bool config_explicit = false;
   auto train_config = env_string("TRAIN_CONFIG", "");
   if (!train_config.empty() &&
       !apply_training_config(train_config, opt, error)) return false;
@@ -65,11 +67,19 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
     train_config = "configs/training/scratch_40m_12h.json";
     if (!apply_training_config(train_config, opt, error)) return false;
   }
+  if (opt->config_path !=
+      std::filesystem::path("configs/native/native_debug_bf16.json")) {
+    config_explicit = true;
+  }
   opt->out_dir = env_string("DATA_DIR", opt->out_dir.empty()
                                             ? "/app/data/train"
                                             : opt->out_dir.string());
   opt->model_name = env_string("MODEL_NAME", opt->model_name);
-  opt->config_path = env_string("TRAIN_NATIVE_CONFIG", opt->config_path.string());
+  auto env_config = env_string("TRAIN_NATIVE_CONFIG", "");
+  if (!env_config.empty()) {
+    opt->config_path = env_config;
+    config_explicit = true;
+  }
   opt->packed_cache = env_string(
       "TRAIN_PACKED_CACHE_DIR",
       opt->packed_cache.empty()
@@ -86,7 +96,22 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
   opt->warmup_steps = env_int("TRAIN_WARMUP_STEPS", opt->warmup_steps);
   opt->seed = env_int("TRAIN_SEED", opt->seed);
   opt->lr = env_float("TRAIN_LEARNING_RATE", opt->lr);
-  opt->config_path = value(argc, argv, "--config", opt->config_path.string());
+  auto env_kind = env_string("TRAIN_MODEL_KIND", "");
+  if (!env_kind.empty()) opt->model_kind = env_kind;
+  auto cli_config = value(argc, argv, "--config", "");
+  if (!cli_config.empty()) {
+    opt->config_path = cli_config;
+    config_explicit = true;
+  }
+  opt->model_kind = value(argc, argv, "--mode", opt->model_kind);
+  if (opt->model_kind != "dense" && opt->model_kind != "transformer") {
+    *error = "model kind must be dense or transformer";
+    return false;
+  }
+  if (opt->model_kind == "transformer" && !config_explicit &&
+      opt->config_path == std::filesystem::path("configs/native/native_debug_bf16.json")) {
+    opt->config_path = "configs/native/native_transformer_debug_bf16.json";
+  }
   opt->packed_cache = value(argc, argv, "--packed-cache",
                             opt->packed_cache.string());
   opt->out_dir = value(argc, argv, "--out", opt->out_dir.string());
@@ -103,12 +128,34 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
   return true;
 }
 
+TransformerTrainOptions transformer_options(const DenseTrainOptions& in) {
+  TransformerTrainOptions out;
+  out.packed_cache = in.packed_cache;
+  out.config_path = in.config_path;
+  out.out_dir = in.out_dir;
+  out.resume_dir = in.resume_dir;
+  out.export_artifact = in.export_artifact;
+  out.model_name = in.model_name;
+  out.model_kind = "transformer";
+  out.batch_size = in.batch_size;
+  out.seq_len = in.seq_len;
+  out.grad_accum = in.grad_accum;
+  out.max_steps = in.max_steps;
+  out.warmup_steps = in.warmup_steps;
+  out.checkpoint_interval = in.checkpoint_interval;
+  out.seed = in.seed;
+  out.lr = in.lr;
+  out.train_config_path = in.train_config_path;
+  return out;
+}
+
 }  // namespace
 
 int run_corpus_training(int argc, char** argv) {
   if (flag(argc, argv, "--help")) {
     std::cout << "usage: lkjai-native-train --train --packed-cache DIR "
-                 "--config FILE --out DIR [--max-steps N]\n";
+                 "--config FILE --out DIR [--mode dense|transformer] "
+                 "[--max-steps N]\n";
     return 0;
   }
   DenseTrainOptions opt;
@@ -117,6 +164,24 @@ int run_corpus_training(int argc, char** argv) {
   if (!options(argc, argv, &opt, &error)) {
     std::cerr << "native training config failed: " << error << "\n";
     return 2;
+  }
+  if (opt.model_kind == "transformer") {
+    TransformerTrainReport transformer_report;
+    auto transformer_opt = transformer_options(opt);
+    if (!run_transformer_training(transformer_opt, &transformer_report, &error)) {
+      std::cerr << "native transformer CUDA training failed: " << error << "\n";
+      return 2;
+    }
+    auto cuda = cuda_status();
+    if (!write_transformer_train_report(transformer_report, cuda, "train", "pass",
+                                        "", &error)) {
+      std::cerr << error << "\n";
+      return 2;
+    }
+    std::cout << transformer_train_report_json(transformer_report, cuda, "train",
+                                               "pass", "")
+              << "\n";
+    return transformer_report.non_embedding_weight_changed ? 0 : 3;
   }
   if (!run_dense_training(opt, &report, &error)) {
     std::cerr << "native dense CUDA training failed: " << error << "\n";

@@ -60,7 +60,7 @@ bool load_transformer_config(const std::filesystem::path& path,
   if (config->activation.empty()) config->activation = "swiglu";
   config->rope_theta = json_float(text, "rope_theta", config->rope_theta);
   config->rms_norm_eps = json_float(text, "rms_norm_eps", config->rms_norm_eps);
-  config->tie_embeddings = json_bool(text, "tie_embeddings", true);
+  config->tie_embeddings = json_bool(text, "tie_embeddings", false);
   config->seed = json_int_value(text, "seed", config->seed);
   if (config->vocab_size <= 0 || config->hidden_size <= 0 ||
       config->layers <= 0 || config->context <= 1 || config->heads <= 0 ||

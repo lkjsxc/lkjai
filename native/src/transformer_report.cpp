@@ -62,56 +62,50 @@ std::string manifest_checksum(const std::filesystem::path& dir) {
   return checksum.empty() ? file_digest(dir / "weights.lkjw") : checksum;
 }
 
-long long parameter_count(const DenseTrainReport& report) {
-  auto config = read_text(report.config_path);
-  long long vocab = json_int_value(config, "vocab_size", 0);
-  long long hidden = json_int_value(config, "hidden_size", 0);
-  return 2 * vocab * hidden;
-}
-
-void append_common(std::ostringstream* out, const DenseTrainReport& report,
-                   const CudaStatus& cuda, const std::string& trainer_mode,
-                   const std::string& status,
-                   const std::string& failure_reason) {
-  double elapsed_ms = report.elapsed_seconds * 1000.0;
+void append_transformer(std::ostringstream* out,
+                        const TransformerTrainReport& report,
+                        const CudaStatus& cuda,
+                        const std::string& trainer_mode,
+                        const std::string& status,
+                        const std::string& failure_reason) {
   double tokens_per_second =
       report.elapsed_seconds > 0.0
           ? static_cast<double>(report.input_tokens) / report.elapsed_seconds
           : 0.0;
-  *out << "{\"schema_version\":1"
+  *out << "{\"schema_version\":2"
        << ",\"trainer_mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"mode\":\"" << json_escape(trainer_mode) << "\""
-       << ",\"model_kind\":\"dense\""
+       << ",\"model_kind\":\"transformer\""
        << ",\"status\":\"" << json_escape(status) << "\""
        << ",\"failure_reason\":\"" << json_escape(failure_reason) << "\""
        << ",\"precision_mode\":\"fp32-master-bf16-shadow-bf16-export\""
-       << ",\"master_dtype\":\"f32\""
-       << ",\"shadow_dtype\":\"bf16\""
-       << ",\"accumulation_dtype\":\"f32\""
-       << ",\"export_dtype\":\"bf16\""
-       << ",\"dense_cuda_path\":true"
+       << ",\"master_dtype\":\"f32\",\"shadow_dtype\":\"bf16\""
+       << ",\"accumulation_dtype\":\"f32\",\"export_dtype\":\"bf16\""
+       << ",\"dense_cuda_path\":false,\"transformer_cuda_path\":true"
        << ",\"cuda_available\":" << (cuda.available ? "true" : "false")
        << ",\"cuda_device_name\":\"" << json_escape(cuda.device) << "\""
        << ",\"cuda_arch_flags\":\"" << json_escape(LKJAI_CUDA_ARCH_FLAGS)
-       << "\""
-       << ",\"git_commit\":\"" << json_escape(LKJAI_GIT_COMMIT) << "\""
+       << "\",\"git_commit\":\"" << json_escape(LKJAI_GIT_COMMIT) << "\""
        << ",\"build_type\":\"" << json_escape(LKJAI_BUILD_TYPE) << "\""
        << ",\"config_path\":\"" << json_escape(report.config_path.string())
-       << "\""
-       << ",\"config_digest\":\"" << file_digest(report.config_path) << "\""
+       << "\",\"config_digest\":\"" << file_digest(report.config_path) << "\""
        << ",\"dataset_path\":\"" << json_escape(report.packed_cache.string())
-       << "\""
-       << ",\"packed_cache_path\":\""
+       << "\",\"packed_cache_path\":\""
        << json_escape(report.packed_cache.string()) << "\""
        << ",\"dataset_digest\":\"" << packed_cache_digest(report.packed_cache)
-       << "\""
-       << ",\"train_config_path\":\""
+       << "\",\"train_config_path\":\""
        << json_escape(report.train_config_path.string()) << "\""
        << ",\"seed\":" << json_int_value(read_text(report.config_path), "seed", 0)
        << ",\"batch_size\":" << report.batch_size
        << ",\"seq_len\":" << report.seq_len
        << ",\"grad_accum\":" << report.grad_accum
-       << ",\"parameter_count\":" << parameter_count(report)
+       << ",\"layers\":" << report.layers << ",\"heads\":" << report.heads
+       << ",\"kv_heads\":" << report.kv_heads
+       << ",\"hidden_size\":" << report.hidden_size
+       << ",\"head_dim\":" << report.head_dim
+       << ",\"ffn_size\":" << report.ffn_size
+       << ",\"context\":" << report.context
+       << ",\"parameter_count\":" << report.parameter_count
        << ",\"tokens_seen\":" << report.input_tokens
        << ",\"input_tokens\":" << report.input_tokens
        << ",\"loss_tokens\":" << report.loss_tokens
@@ -120,11 +114,10 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << ",\"start_step\":" << report.start_step
        << ",\"microsteps\":" << report.microsteps
        << ",\"initial_loss\":" << report.initial_loss
-       << ",\"loss\":" << report.loss
-       << ",\"loss_finite\":true"
+       << ",\"loss\":" << report.loss << ",\"loss_finite\":true"
        << ",\"weight_changed\":"
-       << (report.weight_changed ? "true" : "false")
-       << ",\"elapsed_ms\":" << elapsed_ms
+       << (report.non_embedding_weight_changed ? "true" : "false")
+       << ",\"elapsed_ms\":" << report.elapsed_seconds * 1000.0
        << ",\"elapsed_seconds\":" << report.elapsed_seconds
        << ",\"tokens_per_second\":" << tokens_per_second
        << ",\"checkpoint_path\":\""
@@ -132,12 +125,9 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << ",\"checkpoint_checksum\":\""
        << manifest_checksum(report.checkpoint_dir) << "\""
        << ",\"export_path\":\"" << json_escape(report.export_dir.string())
-       << "\""
-       << ",\"export_checksum\":\"" << manifest_checksum(report.export_dir)
-       << "\""
-       << ",\"served_path\":\"" << json_escape(report.served_dir.string())
-       << "\""
-       << ",\"logits_checksum\":\""
+       << "\",\"export_checksum\":\"" << manifest_checksum(report.export_dir)
+       << "\",\"served_path\":\"" << json_escape(report.served_dir.string())
+       << "\",\"logits_checksum\":\""
        << json_escape(report.logits_check_checksum) << "\""
        << ",\"logits_check\":{\"status\":\""
        << (report.logits_check_passed ? "pass" : "fail")
@@ -148,30 +138,30 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << ",\"forward\":" << report.forward_seconds
        << ",\"backward\":" << report.backward_seconds
        << ",\"optimizer\":" << report.optimizer_seconds
-       << ",\"checkpoint\":" << report.checkpoint_seconds
+       << ",\"checkpoint\":" << report.checkpoint_export_seconds
        << ",\"export\":" << report.export_seconds << "}"
        << ",\"capability\":{" << capability_json_fields(cuda) << "}";
 }
 
 }  // namespace
 
-std::string dense_train_report_json(const DenseTrainReport& report,
-                                    const CudaStatus& cuda,
-                                    const std::string& trainer_mode,
-                                    const std::string& status,
-                                    const std::string& failure_reason) {
+std::string transformer_train_report_json(const TransformerTrainReport& report,
+                                          const CudaStatus& cuda,
+                                          const std::string& trainer_mode,
+                                          const std::string& status,
+                                          const std::string& failure_reason) {
   std::ostringstream out;
-  append_common(&out, report, cuda, trainer_mode, status, failure_reason);
+  append_transformer(&out, report, cuda, trainer_mode, status, failure_reason);
   out << "}";
   return out.str();
 }
 
-bool write_dense_train_report(const DenseTrainReport& report,
-                              const CudaStatus& cuda,
-                              const std::string& trainer_mode,
-                              const std::string& status,
-                              const std::string& failure_reason,
-                              std::string* error) {
+bool write_transformer_train_report(const TransformerTrainReport& report,
+                                    const CudaStatus& cuda,
+                                    const std::string& trainer_mode,
+                                    const std::string& status,
+                                    const std::string& failure_reason,
+                                    std::string* error) {
   auto path = report.checkpoint_dir.parent_path().parent_path() / "runs" /
               "train-report.json";
   std::filesystem::create_directories(path.parent_path());
@@ -180,8 +170,8 @@ bool write_dense_train_report(const DenseTrainReport& report,
     *error = "failed to write train report: " + path.string();
     return false;
   }
-  out << dense_train_report_json(report, cuda, trainer_mode, status,
-                                 failure_reason)
+  out << transformer_train_report_json(report, cuda, trainer_mode, status,
+                                       failure_reason)
       << "\n";
   return true;
 }

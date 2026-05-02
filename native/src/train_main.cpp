@@ -30,6 +30,14 @@ int int_arg(int argc, char** argv, const std::string& flag, int fallback) {
   return fallback;
 }
 
+std::string string_arg(int argc, char** argv, const std::string& flag,
+                       const std::string& fallback) {
+  for (int i = 1; i + 1 < argc; ++i) {
+    if (argv[i] == flag) return argv[i + 1];
+  }
+  return fallback;
+}
+
 void write_u16(std::ofstream& out, uint16_t value) {
   out.write(reinterpret_cast<const char*>(&value), sizeof(value));
 }
@@ -95,7 +103,8 @@ int main(int argc, char** argv) {
   auto cuda = lkjai::cuda_status();
   if (has_flag(argc, argv, "--help")) {
     std::cout << "usage: lkjai-native-train --smoke [--steps N] | --train "
-                 "[--packed-cache DIR] [--config FILE]\n";
+                 "[--mode dense|transformer] [--packed-cache DIR] "
+                 "[--config FILE]\n";
     return 0;
   }
   if (has_flag(argc, argv, "--train")) {
@@ -103,6 +112,12 @@ int main(int argc, char** argv) {
   }
   if (!has_flag(argc, argv, "--smoke")) {
     std::cerr << "native trainer requires --train or --smoke\n";
+    return 2;
+  }
+  auto smoke_mode = string_arg(argc, argv, "--mode",
+                               lkjai::env_string("TRAIN_MODEL_KIND", "dense"));
+  if (smoke_mode != "dense") {
+    std::cerr << "native smoke supports only --mode dense\n";
     return 2;
   }
   auto started = std::chrono::steady_clock::now();

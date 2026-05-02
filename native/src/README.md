@@ -29,6 +29,8 @@ artifact inspection, and CUDA capability probing.
   [dense_cuda_state.cu](dense_cuda_state.cu), and
   [dense_cuda_train.cpp](dense_cuda_train.cpp): dense BF16 CUDA trainer,
   logits check, GEMM wrapper, kernels, and state management.
+- [dense_checkpoint.cpp](dense_checkpoint.cpp): dense optimizer checkpoint
+  restore and compatibility checks.
 - [dense_check_main.cpp](dense_check_main.cpp): dense CUDA check binary.
 - [runtime_device.cu](runtime_device.cu), [runtime_workspace.cu](runtime_workspace.cu),
   [runtime_errors.cu](runtime_errors.cu), and [runtime_device.hpp](runtime_device.hpp):
@@ -60,14 +62,25 @@ artifact inspection, and CUDA capability probing.
   JSONL corpus cursor and row extraction helpers.
 - [train_real.cpp](train_real.cpp) and [train_real.hpp](train_real.hpp):
   corpus-backed native training loop used by non-smoke runs.
+- [train_report.cpp](train_report.cpp), [train_report.hpp](train_report.hpp),
+  and [transformer_report.cpp](transformer_report.cpp): stable train-report
+  JSON writers.
 - [training_config.cpp](training_config.cpp) and
   [training_config.hpp](training_config.hpp): JSON training-run config loading
   and CLI/environment precedence.
-- [transformer_artifact.cpp](transformer_artifact.cpp), [transformer_config.cpp](transformer_config.cpp),
-  [transformer_forward.cpp](transformer_forward.cpp), [transformer_init.cpp](transformer_init.cpp),
-  [transformer_optim.cpp](transformer_optim.cpp), [transformer_state.hpp](transformer_state.hpp),
-  [transformer_train.cpp](transformer_train.cpp), and [transformer_train.hpp](transformer_train.hpp):
-  retained packed-cache BF16 transformer implementation.
+- [transformer_artifact.cpp](transformer_artifact.cpp),
+  [transformer_config.cpp](transformer_config.cpp),
+  [transformer_cuda.cu](transformer_cuda.cu),
+  [transformer_forward.cpp](transformer_forward.cpp),
+  [transformer_init.cpp](transformer_init.cpp),
+  [transformer_load.cpp](transformer_load.cpp),
+  [transformer_logits.cpp](transformer_logits.cpp),
+  [transformer_optim.cpp](transformer_optim.cpp),
+  [transformer_state.hpp](transformer_state.hpp),
+  [transformer_train.cpp](transformer_train.cpp),
+  [transformer_train.hpp](transformer_train.hpp), and
+  [transformer_util.cpp](transformer_util.cpp): explicit native transformer
+  training, artifact, checkpoint, report, and logits-check implementation.
 
 ## Rules
 

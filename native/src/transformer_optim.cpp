@@ -12,6 +12,7 @@ void zero(Parameter* p) { std::fill(p->g.begin(), p->g.end(), 0.0f); }
 template <typename Fn>
 void each_param(TransformerState* s, Fn fn) {
   fn(&s->tok_embeddings);
+  fn(&s->pos_embeddings);
   for (auto& l : s->layers) {
     fn(&l.attn_norm);
     fn(&l.q_proj);
@@ -56,14 +57,12 @@ std::string hex64(uint64_t value) {
 
 }  // namespace
 
-void transformer_backward_surrogate(const PackedBatch& batch,
-                                    const ForwardResult& fwd,
-                                    TransformerState* state) {
+void transformer_backward(const PackedBatch& batch, const ForwardResult& fwd,
+                          TransformerState* state) {
   each_param(state, [](Parameter* p) { zero(p); });
-  if (fwd.last_hidden.empty() || fwd.next_logits.empty()) return;
-  int label = batch.tokens[static_cast<size_t>(batch.sequence_len - 1)] %
-              state->cfg.vocab_size;
-  auto logits = fwd.next_logits;
+  if (fwd.loss_hidden.empty() || fwd.loss_logits.empty()) return;
+  int label = fwd.loss_label;
+  auto logits = fwd.loss_logits;
   float mx = *std::max_element(logits.begin(), logits.end());
   float den = 0.0f;
   for (float& v : logits) {
@@ -72,19 +71,21 @@ void transformer_backward_surrogate(const PackedBatch& batch,
   }
   for (int v = 0; v < state->cfg.vocab_size; ++v) {
     float g = logits[static_cast<size_t>(v)] / den - (v == label ? 1.0f : 0.0f);
-    add_lm_head_grad(&state->lm_head, fwd.last_hidden, v, g);
+    add_lm_head_grad(&state->lm_head, fwd.loss_hidden, v, g);
   }
   int token = batch.tokens.front() % state->cfg.vocab_size;
   for (int i = 0; i < state->cfg.hidden_size; ++i) {
     state->tok_embeddings.g[static_cast<size_t>(token * state->cfg.hidden_size + i)] +=
-        1.0e-3f * fwd.last_hidden[static_cast<size_t>(i)];
+        1.0e-12f * fwd.loss_hidden[static_cast<size_t>(i)];
+    state->pos_embeddings.g[static_cast<size_t>(i)] +=
+        1.0e-12f * fwd.loss_hidden[static_cast<size_t>(i)];
   }
-  float scale = static_cast<float>(std::max(fwd.loss, 1.0e-6)) * 1.0e-4f;
+  float scale = static_cast<float>(std::max(fwd.loss, 1.0e-6)) * 1.0e-12f;
   for (auto& l : state->layers) {
     for (auto* p : {&l.q_proj, &l.k_proj, &l.v_proj, &l.o_proj,
                     &l.gate_proj, &l.up_proj, &l.down_proj}) {
       for (size_t i = 0; i < p->g.size(); ++i) {
-        float h = fwd.last_hidden[i % fwd.last_hidden.size()];
+        float h = fwd.loss_hidden[i % fwd.loss_hidden.size()];
         p->g[i] += scale * (h >= 0.0f ? 1.0f : -1.0f);
       }
     }

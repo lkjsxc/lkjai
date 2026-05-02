@@ -31,29 +31,6 @@ Vec rmsnorm(const Vec& x, const Parameter& weight, float eps) {
   return y;
 }
 
-void rope(Vec* q, Vec* k, const TransformerConfig& c, int pos) {
-  for (int h = 0; h < c.heads; ++h) {
-    for (int d = 0; d + 1 < c.head_dim; d += 2) {
-      float inv = std::pow(c.rope_theta, -static_cast<float>(d) / c.head_dim);
-      float cs = std::cos(pos * inv), sn = std::sin(pos * inv);
-      int qi = h * c.head_dim + d;
-      float a = (*q)[qi], b = (*q)[qi + 1];
-      (*q)[qi] = a * cs - b * sn;
-      (*q)[qi + 1] = a * sn + b * cs;
-    }
-  }
-  for (int h = 0; h < c.kv_heads; ++h) {
-    for (int d = 0; d + 1 < c.head_dim; d += 2) {
-      float inv = std::pow(c.rope_theta, -static_cast<float>(d) / c.head_dim);
-      float cs = std::cos(pos * inv), sn = std::sin(pos * inv);
-      int ki = h * c.head_dim + d;
-      float a = (*k)[ki], b = (*k)[ki + 1];
-      (*k)[ki] = a * cs - b * sn;
-      (*k)[ki + 1] = a * sn + b * cs;
-    }
-  }
-}
-
 Vec attention(const std::vector<Vec>& q, const std::vector<Vec>& k,
               const std::vector<Vec>& v, const TransformerConfig& c, int pos) {
   Vec out(static_cast<size_t>(c.hidden_size), 0.0f);
@@ -96,7 +73,6 @@ void apply_layer(std::vector<Vec>* h, const TransformerLayer& l,
     matvec(norm[static_cast<size_t>(p)], l.q_proj, &q[static_cast<size_t>(p)]);
     matvec(norm[static_cast<size_t>(p)], l.k_proj, &k[static_cast<size_t>(p)]);
     matvec(norm[static_cast<size_t>(p)], l.v_proj, &v[static_cast<size_t>(p)]);
-    rope(&q[static_cast<size_t>(p)], &k[static_cast<size_t>(p)], c, p);
   }
   Vec tmp;
   for (int p = 0; p < seq; ++p) {
@@ -146,6 +122,10 @@ ForwardResult transformer_forward(const PackedBatch& batch,
       int tok = batch.tokens[row * batch.sequence_len + p] % c.vocab_size;
       auto base = state.tok_embeddings.w.begin() + tok * c.hidden_size;
       h[static_cast<size_t>(p)] = Vec(base, base + c.hidden_size);
+      auto pos = state.pos_embeddings.w.begin() + p * c.hidden_size;
+      for (int i = 0; i < c.hidden_size; ++i) {
+        h[static_cast<size_t>(p)][static_cast<size_t>(i)] += pos[i];
+      }
     }
     for (const auto& layer : state.layers) apply_layer(&h, layer, c);
     for (auto& x : h) x = rmsnorm(x, state.final_norm, c.rms_norm_eps);
@@ -156,6 +136,9 @@ ForwardResult transformer_forward(const PackedBatch& batch,
       int label = batch.tokens[row * batch.sequence_len + p + 1] % c.vocab_size;
       logits_for(h[static_cast<size_t>(p)], state.lm_head, &out.next_logits);
       ce_loss(out.next_logits, label, &out.loss);
+      out.loss_logits = out.next_logits;
+      out.loss_hidden = h[static_cast<size_t>(p)];
+      out.loss_label = label;
       ++out.supervised;
     }
     out.last_hidden = h.back();

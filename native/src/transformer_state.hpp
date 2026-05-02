@@ -33,6 +33,7 @@ struct TransformerLayer {
 struct TransformerState {
   TransformerConfig cfg;
   Parameter tok_embeddings;
+  Parameter pos_embeddings;
   std::vector<TransformerLayer> layers;
   Parameter final_norm;
   Parameter lm_head;
@@ -42,6 +43,9 @@ struct ForwardResult {
   double loss = 0.0;
   std::vector<float> next_logits;
   std::vector<float> last_hidden;
+  std::vector<float> loss_logits;
+  std::vector<float> loss_hidden;
+  int loss_label = 0;
   int supervised = 0;
 };
 
@@ -49,16 +53,23 @@ void init_transformer_state(const TransformerConfig& cfg,
                             TransformerState* state);
 ForwardResult transformer_forward(const PackedBatch& batch,
                                   const TransformerState& state);
-void transformer_backward_surrogate(const PackedBatch& batch,
-                                    const ForwardResult& fwd,
-                                    TransformerState* state);
+void transformer_backward(const PackedBatch& batch, const ForwardResult& fwd,
+                          TransformerState* state);
 void transformer_adamw(TransformerState* state, float lr, int step);
+bool transformer_cuda_step_probe(std::string* error);
+long long transformer_parameter_count(const TransformerState& state);
 bool write_transformer_artifact(const std::filesystem::path& dir,
                                 const TransformerState& state, int step,
-                                double loss, bool checkpoint,
+                                int microsteps, int batch_size, int seq_len,
+                                int grad_accum, double loss, bool checkpoint,
                                 std::string* checksum);
 bool load_transformer_artifact(const std::filesystem::path& dir,
                                TransformerState* state, std::string* error);
+bool load_transformer_checkpoint(const std::filesystem::path& dir,
+                                 const TransformerConfig& requested,
+                                 int batch_size, int seq_len, int grad_accum,
+                                 TransformerState* state, int* optimizer_steps,
+                                 int* microsteps, std::string* error);
 std::string checksum_logits(const std::vector<float>& logits);
 
 }  // namespace lkjai

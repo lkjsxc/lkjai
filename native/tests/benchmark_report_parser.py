@@ -13,6 +13,7 @@ def main() -> None:
     payload = {
         "schema_version": 1,
         "trainer_mode": "smoke",
+        "model_kind": "dense",
         "optimizer_steps": 2,
         "microsteps": 2,
         "tokens_seen": 32,
@@ -37,6 +38,7 @@ def main() -> None:
         summary = summarize_train_report(loaded)
         assert summary["schema_version"] == 1
         assert summary["trainer_mode"] == "smoke"
+        assert summary["model_kind"] == "dense"
         assert summary["optimizer_steps"] == 2
         assert summary["median_step_seconds"] == 0.125
         assert summary["median_tokens_per_second"] == 128.0
@@ -46,6 +48,23 @@ def main() -> None:
         report.unlink()
         log.write_text("noise\n" + json.dumps(payload) + "\n", encoding="utf-8")
         assert load_train_report(root, log)["logits_checksum"] == "abc"
+        transformer = dict(payload)
+        transformer.update(
+            {
+                "schema_version": 2,
+                "trainer_mode": "train",
+                "model_kind": "transformer",
+                "layers": 1,
+                "heads": 4,
+                "hidden_size": 32,
+                "ffn_size": 64,
+            }
+        )
+        report.write_text(json.dumps(transformer), encoding="utf-8")
+        summary = summarize_train_report(load_train_report(root))
+        assert summary["schema_version"] == 2
+        assert summary["model_kind"] == "transformer"
+        assert summary["checkpoint_checksum"] == "def"
 
 
 if __name__ == "__main__":
