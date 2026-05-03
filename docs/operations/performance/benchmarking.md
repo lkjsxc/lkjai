@@ -56,6 +56,10 @@ loss decreases.
 Diagnostic summaries may still list experimental transformer timings and
 checksums. The tooling does not require or parse `perf-steps.jsonl`.
 
+RTX 3070 8GB remains the acceptance gate. RTX 5090/Blackwell results are useful
+benchmark profiles, but they do not promote a run unless the RTX 3070 gate also
+passes. See [hardware-profiles.md](hardware-profiles.md).
+
 ## Accepted Dense Debug Promotion
 
 The accepted CUDA promotion for this batch is a debug-shape correctness and

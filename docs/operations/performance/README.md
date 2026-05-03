@@ -16,6 +16,8 @@ This subtree is the canonical performance contract for `lkjai`.
   acceptance workflow.
 - [benchmark-output.md](benchmark-output.md): JSON and CSV output shape for
   native benchmark tools.
+- [hardware-profiles.md](hardware-profiles.md): RTX 3070 acceptance gate and
+  RTX 5090 benchmark profile.
 - [profiling.md](profiling.md): Nsight and NVTX protocol for native work.
 - [kernel-roadmap.md](kernel-roadmap.md): library, compiler, Triton, and CUDA
   escalation order.

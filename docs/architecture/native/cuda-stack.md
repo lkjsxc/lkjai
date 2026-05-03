@@ -19,6 +19,9 @@ The phase-one native stack is deliberately narrow:
 
 - Native BF16 requires compute capability `8.0+`.
 - RTX 3070 is compute capability `8.6` and is the first optimization target.
+- RTX 3070 8GB is the acceptance gate; RTX 5090/Blackwell is a benchmark
+  profile only. See
+  [hardware-profiles.md](../../operations/performance/hardware-profiles.md).
 - Older devices may use CPU diagnostics only; FP16 loss scaling is roadmap work.
 - CPU fallback must be visible in health/model JSON and is not a performance
   acceptance path.

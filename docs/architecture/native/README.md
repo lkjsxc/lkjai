@@ -21,5 +21,7 @@ Use this subtree for the native C++/CUDA train and serve contracts.
 - [failure-policy.md](failure-policy.md): unsupported, degraded, and failure behavior
 - [roadmap.md](roadmap.md): staged native implementation backlog
 - [runtime.md](runtime.md): HTTP server and inference behavior
+- [transformer-cuda-roadmap.md](transformer-cuda-roadmap.md): current
+  transformer limits and native CUDA acceptance order
 - [training.md](training.md): native trainer ownership and data flow
 - [kernels.md](kernels.md): CUDA library and custom-kernel rules

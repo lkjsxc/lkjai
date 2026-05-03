@@ -7,6 +7,8 @@ metrics.
 
 ## Contents
 
+- [accepted_training_reports.py](accepted_training_reports.py): accepted dense
+  training report validation and Markdown summary helpers.
 - [benchmark_reports.py](benchmark_reports.py): train-report summary and
   promotion-gating helpers.
 - [dense_40m_compat_support.py](dense_40m_compat_support.py): bounded 40M

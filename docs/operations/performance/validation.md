@@ -5,6 +5,10 @@
 Native CUDA work is accepted by parity, stability, and runtime-contract tests,
 not by finite loss alone.
 
+The canonical hardware gate is RTX 3070 8GB. Larger GPUs, including
+RTX 5090/Blackwell, are benchmark profiles unless the same change also passes
+the RTX 3070 gate.
+
 ## Required Checks
 
 | Area | Check |

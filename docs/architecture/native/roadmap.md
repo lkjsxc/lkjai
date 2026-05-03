@@ -45,9 +45,12 @@ The repository currently has:
 
 That slice is useful for contracts, but it is not the final trainer.
 
-## Next Code Target
+## Transformer CUDA Roadmap
 
 The next implementation target is accepted transformer CUDA training:
 device-resident cuBLASLt projections, fused pointwise kernels, cuDNN SDPA,
 transformer backward, and then decode. NCCL stays after single-GPU correctness
 and profiling.
+
+See [transformer-cuda-roadmap.md](transformer-cuda-roadmap.md) for the detailed
+acceptance order and current unsupported decode contract.
