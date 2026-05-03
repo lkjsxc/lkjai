@@ -9,8 +9,18 @@ int main() {
             << "\",\"device\":\"" << lkjai::json_escape(check.device)
             << "\",\"compute_capability\":[" << check.compute_major << ","
             << check.compute_minor << "]"
+            << ",\"cuda_driver_version\":" << check.cuda_driver_version
             << ",\"cuda_runtime_version\":" << check.cuda_runtime_version
             << ",\"cudnn_version\":" << check.cudnn_version
+            << ",\"cuda_device_count\":" << check.device_count
+            << ",\"cuda_device_index\":" << check.device_index
+            << ",\"cuda_total_global_memory\":"
+            << static_cast<unsigned long long>(check.total_global_memory)
+            << ",\"cuda_sm_count\":" << check.sm_count
+            << ",\"cuda_arch_flags\":\""
+            << lkjai::json_escape(check.cuda_arch_flags)
+            << "\",\"cuda_arch_source\":\""
+            << lkjai::json_escape(check.cuda_arch_source) << "\""
             << ",\"bf16_supported\":"
             << (check.bf16_supported ? "true" : "false")
             << ",\"cublaslt_available\":"

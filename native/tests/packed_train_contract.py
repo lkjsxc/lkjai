@@ -6,6 +6,15 @@ import struct
 import subprocess
 import sys
 from pathlib import Path
+CAPABILITY_FIELDS = ("cuda_driver_version", "cuda_runtime_version", "cudnn_version", "cuda_device_count", "cuda_device_index", "cuda_total_global_memory", "cuda_sm_count", "cuda_arch_flags")
+
+
+def assert_capability_fields(report: dict):
+    for fields in [report, report["capability"]]:
+        for key in CAPABILITY_FIELDS:
+            assert key in fields, fields
+
+
 def write_cache(root: Path, version: str = "lkjai-packed-cache-v2", vocab_size: int = 256):
     cache = root / "datasets" / "packed" / "train-causal_lm_full-seq1024"
     cache.mkdir(parents=True)
@@ -18,9 +27,7 @@ def write_cache(root: Path, version: str = "lkjai-packed-cache-v2", vocab_size: 
         "vocab_size": vocab_size,
         "token_dtype": "uint16",
         "row_count": 1,
-        "sequence_count": 1,
         "token_count": 8,
-        "schema_version": 2,
     }
     (cache / "metadata.json").write_text(json.dumps(meta))
     (cache / "tokens.bin").write_bytes(struct.pack("<8H", *range(8)))
@@ -56,14 +63,12 @@ def run_train(train_bin: str, root: Path, repo: Path, steps: int, extra=None):
     assert persisted["schema_version"] == payload["schema_version"] == 3
     assert persisted["trainer_mode"] == payload["trainer_mode"] == "train"
     assert persisted["run_purpose"] == payload["run_purpose"] == "accepted_training"
-    expected = {"precision_mode": "fp32-master-bf16-shadow-bf16-export",
-                "master_dtype": "f32", "shadow_dtype": "bf16",
-                "accumulation_dtype": "f32", "export_dtype": "bf16"}
+    expected = {"precision_mode": "fp32-master-bf16-shadow-bf16-export", "master_dtype": "f32",
+                "shadow_dtype": "bf16", "accumulation_dtype": "f32", "export_dtype": "bf16"}
     for key, expected in expected.items():
         assert persisted[key] == expected
     assert persisted["dense_cuda_path"] is True
-    expected = {"loader_backend": "persistent_packed_cache_reader",
-                "row_layout": "dense_physical_bxseq_masked_final_token",
+    expected = {"loader_backend": "persistent_packed_cache_reader", "row_layout": "dense_physical_bxseq_masked_final_token",
                 "matmul_plan_cache_enabled": True, "buffer_reuse_enabled": True,
                 "timing_source": "cuda_events_with_boundary_sync"}
     for key, expected in expected.items():
@@ -74,6 +79,7 @@ def run_train(train_bin: str, root: Path, repo: Path, steps: int, extra=None):
     assert persisted["backward_backend"] == "cuda_custom_or_gemm"
     assert persisted["optimizer_backend"] == "cuda_adamw_fp32"
     assert persisted["cuda_probe_passed"] is True
+    assert_capability_fields(persisted)
     assert persisted["logits_check"]["validation_target"] == "exported_bf16_weights"
     assert persisted["logits_check"]["status"] == "pass"
     assert persisted["logits_check"]["reference_check"] == "pass"
@@ -117,8 +123,7 @@ def main():
     train_bin, logits_bin, inspect_bin = sys.argv[1:4]
     repo = Path(__file__).resolve().parents[2]
     root = Path("/tmp/lkjai-packed-train")
-    if root.exists():
-        subprocess.run(["rm", "-rf", str(root)], check=True)
+    shutil.rmtree(root, ignore_errors=True)
     write_cache(root)
     payload = run_train(train_bin, root, repo, 2)
     assert payload["status"] == "success" and payload["dense_cuda_path"] is True
@@ -135,8 +140,7 @@ def main():
     artifact = root / "exports" / "packed-smoke"
     subprocess.run([inspect_bin, "--model-dir", str(artifact)], check=True)
     check_schema(artifact, inspect_bin)
-    result = subprocess.run([logits_bin, "--model-dir", str(artifact),
-                             "--tokens", "1,2,3"],
+    result = subprocess.run([logits_bin, "--model-dir", str(artifact), "--tokens", "1,2,3"],
                             text=True, capture_output=True, check=True)
     payload = json.loads(result.stdout)
     assert payload["finite"] is True, result.stdout
@@ -151,8 +155,7 @@ def main():
     assert ref_payload["reference_check"] == "pass", result.stdout
     assert ref_payload["max_abs_diff"] <= ref_payload["tolerance"], result.stdout
     assert ref_payload["mean_abs_diff"] <= ref_payload["tolerance"], result.stdout
-    result = subprocess.run([logits_bin, "--model-dir", str(artifact),
-                             "--tokens", "1,2,3"],
+    result = subprocess.run([logits_bin, "--model-dir", str(artifact), "--tokens", "1,2,3"],
                             text=True, capture_output=True, check=True)
     assert json.loads(result.stdout)["checksum"] == first_logits_checksum
     payload = run_train(train_bin, root, repo, 1,
@@ -160,15 +163,13 @@ def main():
     assert payload["start_step"] == 2, result.stdout
     assert payload["steps"] == 3, result.stdout
     mono = root.parent / "lkjai-packed-train-mono"
-    if mono.exists():
-        subprocess.run(["rm", "-rf", str(mono)], check=True)
+    shutil.rmtree(mono, ignore_errors=True)
     write_cache(mono)
     mono_payload = run_train(train_bin, mono, repo, 3)
     assert payload["export_checksum"] == mono_payload["export_checksum"]
     assert payload["logits_checksum"] == mono_payload["logits_checksum"]
     repeated = root.parent / "lkjai-packed-train-repeat"
-    if repeated.exists():
-        subprocess.run(["rm", "-rf", str(repeated)], check=True)
+    shutil.rmtree(repeated, ignore_errors=True)
     write_cache(repeated)
     repeated_payload = run_train(train_bin, repeated, repo, 2)
     assert repeated_payload["export_checksum"]
@@ -183,8 +184,7 @@ def main():
     assert bad.returncode != 0
     assert "mismatch" in bad.stderr
     incompatible = root.parent / "lkjai-packed-train-incompatible-cache"
-    if incompatible.exists():
-        subprocess.run(["rm", "-rf", str(incompatible)], check=True)
+    shutil.rmtree(incompatible, ignore_errors=True)
     write_cache(incompatible, vocab_size=300)
     bad_cache = subprocess.run(
         [train_bin, "--train", "--config",

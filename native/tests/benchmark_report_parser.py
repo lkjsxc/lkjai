@@ -29,6 +29,15 @@ def main() -> None:
         "matmul_plan_cache_enabled": True,
         "buffer_reuse_enabled": True,
         "timing_source": "cuda_events_with_boundary_sync",
+        "cuda_device_name": "Synthetic CUDA",
+        "cuda_driver_version": 12080,
+        "cuda_runtime_version": 12080,
+        "cudnn_version": 901800,
+        "cuda_device_count": 1,
+        "cuda_device_index": 0,
+        "cuda_total_global_memory": 8589934592,
+        "cuda_sm_count": 46,
+        "cuda_arch_flags": "86-real,86-virtual,120-real,120-virtual",
         "optimizer_steps": 2,
         "microsteps": 2,
         "tokens_seen": 32,
@@ -81,6 +90,10 @@ def main() -> None:
         assert summary["implementation_status"] == "accepted"
         assert summary["loader_backend"] == "persistent_packed_cache_reader"
         assert summary["matmul_plan_cache_enabled"] is True
+        assert summary["cuda_driver_version"] == 12080
+        assert summary["cuda_device_count"] == 1
+        assert summary["cuda_total_global_memory"] == 8589934592
+        assert "120" in summary["cuda_arch_flags"]
         assert summary["optimizer_steps"] == 2
         assert summary["loss_tokens"] == 0
         assert summary["loss_sample_interval"] == 1

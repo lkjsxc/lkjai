@@ -6,6 +6,14 @@
 #include "cuda_probe.hpp"
 #include "dense_cuda_internal.hpp"
 
+#ifndef LKJAI_CUDA_ARCH_FLAGS
+#define LKJAI_CUDA_ARCH_FLAGS "unknown"
+#endif
+
+#ifndef LKJAI_CUDA_ARCH_SOURCE
+#define LKJAI_CUDA_ARCH_SOURCE "unknown"
+#endif
+
 namespace lkjai {
 namespace {
 
@@ -13,13 +21,20 @@ void fill_capability(const CudaStatus& status, DenseCudaCheck* check) {
   check->device = status.device;
   check->compute_major = status.compute_major;
   check->compute_minor = status.compute_minor;
+  check->cuda_driver_version = status.cuda_driver_version;
   check->cuda_runtime_version = status.cuda_runtime_version;
   check->cudnn_version = status.cudnn_version;
+  check->device_count = status.device_count;
+  check->device_index = status.device_index;
+  check->total_global_memory = status.total_global_memory;
+  check->sm_count = status.sm_count;
   check->bf16_supported = status.bf16_supported;
   check->cublaslt_available = status.cublaslt_available;
   check->cudnn_available = status.cudnn_available;
   check->sdpa_eligible = status.sdpa_eligible;
   check->async_alloc_supported = status.async_alloc_supported;
+  check->cuda_arch_flags = LKJAI_CUDA_ARCH_FLAGS;
+  check->cuda_arch_source = LKJAI_CUDA_ARCH_SOURCE;
   check->error = status.error;
 }
 

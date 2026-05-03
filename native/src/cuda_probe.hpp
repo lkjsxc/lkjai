@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <string>
 
 namespace lkjai {
@@ -9,8 +10,13 @@ struct CudaStatus {
   std::string device;
   int compute_major = 0;
   int compute_minor = 0;
+  int cuda_driver_version = 0;
   int cuda_runtime_version = 0;
   long long cudnn_version = 0;
+  int device_count = 0;
+  int device_index = 0;
+  size_t total_global_memory = 0;
+  int sm_count = 0;
   bool bf16_supported = false;
   bool cublaslt_available = false;
   bool cudnn_available = false;

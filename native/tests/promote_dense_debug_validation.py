@@ -21,6 +21,14 @@ def fixture_report() -> dict:
         "backward_backend": "cuda_custom_or_gemm",
         "optimizer_backend": "cuda_adamw_fp32",
         "cuda_device_name": "Synthetic CUDA",
+        "cuda_driver_version": 12080,
+        "cuda_runtime_version": 12080,
+        "cudnn_version": 901800,
+        "cuda_device_count": 1,
+        "cuda_device_index": 0,
+        "cuda_total_global_memory": 8589934592,
+        "cuda_sm_count": 46,
+        "cuda_arch_flags": "86-real,86-virtual,120-real,120-virtual",
         "batch_size": 1,
         "seq_len": 16,
         "parameter_count": 16384,
@@ -85,6 +93,7 @@ def main() -> None:
     assert summary["promotion_status"] == "promoted"
     assert summary["hidden_size"] == 32
     assert summary["tokens_per_second"] == 512.0
+    assert summary["cuda_sm_count"] == 46
     assert summary["h2d_fraction"] == 0.05
     assert summary["checksums"]["checkpoint"] == "checkpoint-digest"
     assert summary["resume_check"]["start_step"] == 128

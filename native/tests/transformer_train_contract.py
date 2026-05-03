@@ -7,6 +7,20 @@ import subprocess
 import sys
 from pathlib import Path
 
+CAPABILITY_FIELDS = [
+    "cuda_driver_version", "cuda_runtime_version", "cudnn_version",
+    "cuda_device_count", "cuda_device_index", "cuda_total_global_memory",
+    "cuda_sm_count", "cuda_arch_flags",
+]
+
+
+def assert_capability_fields(report: dict):
+    for key in CAPABILITY_FIELDS:
+        assert key in report, report
+    capability = report["capability"]
+    for key in CAPABILITY_FIELDS:
+        assert key in capability, capability
+
 
 def write_cache(root: Path) -> Path:
     cache = root / "datasets" / "packed" / "train-causal_lm_full-seq1024"
@@ -75,6 +89,7 @@ def run_train(train_bin: str, root: Path, repo: Path, steps: int, extra=None):
     assert persisted["forward_backend"] == "host_reference"
     assert persisted["backward_backend"] == "host_surrogate"
     assert persisted["optimizer_backend"] == "host_adamw_fp32"
+    assert_capability_fields(persisted)
     assert persisted["logits_check"]["status"] == "pass"
     return payload
 

@@ -157,7 +157,10 @@ add_test(
   NAME native_train_smoke
   COMMAND sh -c "$<TARGET_FILE:lkjai-native-train> --smoke --steps 2 > /tmp/lkjai-native-smoke.json && python3 -c 'import json; p=json.load(open(\"/tmp/lkjai-native-smoke.json\")); assert p[\"dense_cuda_path\"] is True and p[\"loss\"] < p[\"initial_loss\"]'"
 )
-add_test(NAME native_dense_cuda_parity COMMAND lkjai-native-dense-check)
+add_test(
+  NAME native_dense_cuda_parity
+  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/dense_check_contract.py $<TARGET_FILE:lkjai-native-dense-check>
+)
 add_test(NAME native_device_tensor_check COMMAND lkjai-native-device-check)
 add_test(
   NAME native_packed_cache_reader_check

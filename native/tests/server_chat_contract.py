@@ -18,14 +18,30 @@ def request(port, method, path, body=None):
     return response.status, text
 
 
+def assert_capability(payload):
+    for key in [
+        "bf16_supported",
+        "async_alloc_supported",
+        "cuda_driver_version",
+        "cuda_device_count",
+        "cuda_device_index",
+        "cuda_total_global_memory",
+        "cuda_sm_count",
+        "cuda_arch_flags",
+    ]:
+        assert key in payload, payload
+
+
 def wait_ready(port):
     for _ in range(50):
         try:
+            status, text = request(port, "GET", "/healthz")
+            if status == 200:
+                assert_capability(json.loads(text))
             status, text = request(port, "GET", "/v1/models")
             if status == 200:
                 payload = json.loads(text)
-                assert "bf16_supported" in payload, text
-                assert "async_alloc_supported" in payload, text
+                assert_capability(payload)
                 return
         except OSError:
             pass

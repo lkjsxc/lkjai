@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -14,13 +15,20 @@ struct DenseCudaCheck {
   std::string device;
   int compute_major = 0;
   int compute_minor = 0;
+  int cuda_driver_version = 0;
   int cuda_runtime_version = 0;
   long long cudnn_version = 0;
+  int device_count = 0;
+  int device_index = 0;
+  size_t total_global_memory = 0;
+  int sm_count = 0;
   bool bf16_supported = false;
   bool cublaslt_available = false;
   bool cudnn_available = false;
   bool sdpa_eligible = false;
   bool async_alloc_supported = false;
+  std::string cuda_arch_flags;
+  std::string cuda_arch_source;
   double loss = 0.0;
   double cpu_loss = 0.0;
   double max_logit_diff = 0.0;

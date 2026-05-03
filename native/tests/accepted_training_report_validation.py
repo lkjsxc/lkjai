@@ -21,6 +21,14 @@ def accepted_report() -> dict:
         "backward_backend": "cuda_custom_or_gemm",
         "optimizer_backend": "cuda_adamw_fp32",
         "cuda_device_name": "Synthetic CUDA",
+        "cuda_driver_version": 12080,
+        "cuda_runtime_version": 12080,
+        "cudnn_version": 901800,
+        "cuda_device_count": 1,
+        "cuda_device_index": 0,
+        "cuda_total_global_memory": 8589934592,
+        "cuda_sm_count": 46,
+        "cuda_arch_flags": "86-real,86-virtual,120-real,120-virtual",
         "optimizer_steps": 1024,
         "steps": 1024,
         "microsteps": 1024,
@@ -108,6 +116,8 @@ def main() -> None:
 
     report = accepted_report()
     summary = accepted_summary(report)
+    assert summary["cuda_driver_version"] == 12080
+    assert summary["cuda_sm_count"] == 46
     assert accepted_training_summary_errors(summary) == []
     assert is_promotable_dense_summary(summary) is True
 
