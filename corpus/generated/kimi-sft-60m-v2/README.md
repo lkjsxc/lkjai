@@ -23,9 +23,9 @@ XML-action SFT corpus.
 - [manifest.json](manifest.json): corpus status and split counts.
 - [validation-report.json](validation-report.json): latest committed
   validation summary.
-- `train/train-*.jsonl`: promoted train shards.
-- `val/val-*.jsonl`: promoted validation shards.
-- `holdout/holdout-*.jsonl`: promoted holdout shards.
+- [train/README.md](train/README.md): promoted train shards.
+- [val/README.md](val/README.md): promoted validation shards.
+- [holdout/README.md](holdout/README.md): promoted holdout shards.
 
 ## Current State
 

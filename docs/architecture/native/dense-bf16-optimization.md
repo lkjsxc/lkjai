@@ -17,9 +17,9 @@ Transformer reports remain experimental with
 `accepted_cuda_training=false`; dense reports remain accepted with
 `accepted_cuda_training=true`.
 
-## First Slice
+## Accepted Runtime
 
-The first dense speed slice replaces the product backward path with:
+The accepted dense path uses:
 
 - cuBLASLt LM-head gradient GEMM:
   `grad_head += grad_logits^T * hidden`.
@@ -27,6 +27,10 @@ The first dense speed slice replaces the product backward path with:
   `d_hidden = grad_logits * lm_head`.
 - Token scatter-add embedding gradient kernel:
   `atomicAdd(grad_emb[token, hidden], d_hidden[row, hidden])`.
+- Block-per-row FP32 softmax cross entropy.
+- Deferred pinned loss readback at optimizer-step boundaries.
+- Single-row logits capture.
+- Two CUDA streams with three pinned packed-cache batch slots.
 
 The loss kernel still applies `grad_scale`. Head-gradient GEMM uses
 `beta=1`, and scatter-add accumulates into FP32 embedding gradients so
@@ -52,6 +56,14 @@ Schema v3 remains current. Dense reports add:
 - `dense_step_grad_logits_bytes`
 - `dense_step_d_hidden_bytes`
 - `cublaslt_workspace_bytes`
+- `loss_kernel_backend="block_row_softmax_fp32"`
+- `loss_readback_mode="optimizer_step_deferred_pinned"`
+- `logits_readback_mode="single_row_capture"`
+- `dense_logits_readback_bytes`
+- `dense_stream_count=2`
+- `dense_batch_slot_count=3`
+- `copy_compute_overlap_enabled=true`
+- `batch_staging_backend="triple_slot_pinned_direct_read"`
 
 Consumers must treat those fields as additive schema-v3 fields. A schema v4 is
 not required unless a future change removes or redefines existing fields.
@@ -77,10 +89,10 @@ be documented here. Larger drift blocks the change.
 
 ## Roadmap
 
-Later phases are, in order: packed-cache staging and prefetch, explicit
-precision modes, transformer CUDA forward kernels, transformer backward,
-accepted transformer CUDA reports, native decode with KV cache, CUDA Graph
-buckets, and NCCL/ZeRO-style work after single-GPU transformer gates pass.
+Later phases are, in order: explicit precision modes, transformer CUDA forward
+kernels, transformer backward, accepted transformer CUDA reports, native decode
+with KV cache, CUDA Graph buckets, and NCCL/ZeRO-style work after single-GPU
+transformer gates pass.
 
 ## Official References
 

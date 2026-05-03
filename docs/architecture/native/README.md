@@ -19,6 +19,8 @@ Use this subtree for the native C++/CUDA train and serve contracts.
 - [cuda-stack.md](cuda-stack.md): pinned CUDA, vendor library, and precision stack
 - [dense-bf16-optimization.md](dense-bf16-optimization.md): accepted dense
   BF16 speedup contract and non-goals
+- [dense-p0-runtime.md](dense-p0-runtime.md): accepted dense P0 runtime,
+  report fields, and benchmark gate
 - [dense-decoder.md](dense-decoder.md): current dense CUDA milestone and
   transformer roadmap
 - [device-tensor.md](device-tensor.md): device tensor ownership and copy rules

@@ -16,6 +16,9 @@ Every performance run records:
 - loader wait, H2D, forward, backward, and optimizer timing.
 - dense loader backend, row layout, matmul plan cache flag, buffer reuse flag,
   and timing source.
+- dense P0 runtime fields: loss kernel backend, readback modes, stream count,
+  pinned batch slot count, overlap flag, staging backend, and logits readback
+  bytes.
 
 ## Required Artifacts
 
@@ -49,7 +52,12 @@ with the same schema. Promotion aggregates use only reports with
 `status=success`, `loader_backend=persistent_packed_cache_reader`,
 `matmul_plan_cache_enabled=true`, `buffer_reuse_enabled=true`, decreasing loss,
 artifact checksums, positive throughput, non-negative CUDA-event timings, and
-passing logits/reference tolerance checks.
+passing logits/reference tolerance checks. Dense P0 promotion also requires
+`loss_kernel_backend=block_row_softmax_fp32`,
+`loss_readback_mode=optimizer_step_deferred_pinned`,
+`logits_readback_mode=single_row_capture`, `dense_stream_count=2`,
+`dense_batch_slot_count=3`, `copy_compute_overlap_enabled=true`, and
+`batch_staging_backend=triple_slot_pinned_direct_read`.
 Reports with `run_purpose=bounded_compatibility_start_check` are listed as
 compatibility diagnostics and are rejected by promotion aggregates even when
 loss decreases.
