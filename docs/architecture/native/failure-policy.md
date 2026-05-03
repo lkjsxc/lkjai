@@ -7,7 +7,8 @@ Native failures must be explicit and machine-readable.
 Unsupported features return a specific error string instead of falling back to
 hidden scaffolds. Current examples:
 
-- Transformer chat decode returns HTTP `422` until the decode milestone lands.
+- Dense and transformer chat decode returns HTTP `422` until the decode
+  milestone lands.
 - CPU execution is reported as degraded capability, not as CUDA acceptance.
 - Legacy Python `model.pt` checkpoints are not loaded by native serving.
 
@@ -26,5 +27,6 @@ Artifact inspection fails before serving when:
 
 - `/healthz` always returns process status plus artifact and capability state.
 - `/v1/models` returns `503` when the model artifact is not loadable.
-- `/v1/chat/completions` returns `422` for unsupported transformer decode.
+- `/v1/chat/completions` returns `422` for unsupported dense or transformer
+  decode.
 - JSON error responses use one `error` string field.

@@ -10,6 +10,10 @@ API contracts.
 - You need route, payload, and event contracts.
 - You need runtime expectations for a real model-backed assistant.
 
+Current native dense artifacts load and expose readiness/logits validation, but
+they do not yet support autoregressive chat decode. Product chat is blocked on
+the native decode milestone.
+
 ## Child Index
 
 - [chat.md](chat.md): local multi-turn chat behavior and stop reasons

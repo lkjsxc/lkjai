@@ -31,7 +31,7 @@ Serve the scratch model through one native C++/CUDA HTTP process.
 
 ## Decode Target
 
-The accepted transformer decode slice must provide:
+The future accepted transformer decode slice must provide:
 
 - prefill from prompt tokens,
 - contiguous KV cache for the first implementation,

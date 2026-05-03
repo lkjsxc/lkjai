@@ -29,6 +29,9 @@
 - Every run is persisted as JSONL under `data/agent/runs/`.
 - The runtime must use a real model endpoint; policy-file dummy responses are not
   an accepted default.
+- Current native dense artifacts do not produce chat responses. The model server
+  returns HTTP `422` unsupported decode with no `choices` field until native
+  autoregressive decode lands.
 
 ## Default Safety Boundary
 

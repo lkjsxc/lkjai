@@ -35,6 +35,11 @@
 }
 ```
 
+This is the target product response shape after the model endpoint produces a
+valid assistant action. Current native dense artifacts return unsupported
+decode from `/v1/chat/completions`, so real product chat quality gates remain
+blocked until decode lands.
+
 ## `GET /api/model` Response
 
 ```json
