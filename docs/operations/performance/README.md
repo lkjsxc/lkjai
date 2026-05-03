@@ -18,6 +18,9 @@ This subtree is the canonical performance contract for `lkjai`.
   native benchmark tools.
 - [dense-evidence-record.md](dense-evidence-record.md): curated benchmark
   evidence format for dense CUDA throughput changes.
+- [dense-substrate-20260504.md](dense-substrate-20260504.md): RTX 3070
+  evidence for dense autotune, async allocation, deferred timing, and cache
+  reporting.
 - [hardware-profiles.md](hardware-profiles.md): RTX 3070 acceptance gate and
   RTX 5090 benchmark profile.
 - [profiling.md](profiling.md): Nsight and NVTX protocol for native work.
