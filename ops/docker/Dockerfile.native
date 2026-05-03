@@ -1,5 +1,8 @@
 FROM nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04 AS build
 
+ARG LKJAI_CUDA_ARCHS
+ENV LKJAI_CUDA_ARCHS=${LKJAI_CUDA_ARCHS}
+
 WORKDIR /workspace
 
 RUN apt-get update \
@@ -14,6 +17,9 @@ RUN cmake -S native -B /build -G Ninja -DCMAKE_BUILD_TYPE=Release \
     && cmake --build /build --parallel
 
 FROM nvidia/cuda:12.8.1-cudnn-runtime-ubuntu24.04
+
+ARG LKJAI_CUDA_ARCHS
+ENV LKJAI_CUDA_ARCHS=${LKJAI_CUDA_ARCHS}
 
 WORKDIR /workspace
 

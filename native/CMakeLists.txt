@@ -1,4 +1,21 @@
 cmake_minimum_required(VERSION 3.27)
+
+set(LKJAI_DEFAULT_CUDA_ARCHITECTURES
+  86-real 86-virtual
+  89-real 89-virtual
+  90-real 90-virtual
+  120-real 120-virtual
+)
+if(DEFINED CMAKE_CUDA_ARCHITECTURES AND NOT "${CMAKE_CUDA_ARCHITECTURES}" STREQUAL "")
+  set(LKJAI_CUDA_ARCH_SOURCE "cmake")
+elseif(DEFINED ENV{LKJAI_CUDA_ARCHS} AND NOT "$ENV{LKJAI_CUDA_ARCHS}" STREQUAL "")
+  set(CMAKE_CUDA_ARCHITECTURES "$ENV{LKJAI_CUDA_ARCHS}" CACHE STRING "CUDA architectures" FORCE)
+  set(LKJAI_CUDA_ARCH_SOURCE "env")
+else()
+  set(CMAKE_CUDA_ARCHITECTURES "${LKJAI_DEFAULT_CUDA_ARCHITECTURES}" CACHE STRING "CUDA architectures" FORCE)
+  set(LKJAI_CUDA_ARCH_SOURCE "default")
+endif()
+
 project(lkjai_native LANGUAGES CXX CUDA)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -7,7 +24,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CUDA_STANDARD 17)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
-set(CMAKE_CUDA_ARCHITECTURES 86-real 86-virtual 89-real 89-virtual 90-real 90-virtual)
+message(STATUS "LKJAI CUDA architectures (${LKJAI_CUDA_ARCH_SOURCE}): ${CMAKE_CUDA_ARCHITECTURES}")
 execute_process(
   COMMAND git -C ${CMAKE_CURRENT_SOURCE_DIR}/.. rev-parse --short HEAD
   OUTPUT_VARIABLE LKJAI_GIT_COMMIT
@@ -91,6 +108,7 @@ target_compile_definitions(lkjai_native_core PUBLIC
   LKJAI_GIT_COMMIT="${LKJAI_GIT_COMMIT}"
   LKJAI_BUILD_TYPE="${LKJAI_BUILD_TYPE}"
   LKJAI_CUDA_ARCH_FLAGS="${LKJAI_CUDA_ARCH_FLAGS}"
+  LKJAI_CUDA_ARCH_SOURCE="${LKJAI_CUDA_ARCH_SOURCE}"
 )
 
 add_executable(lkjai-native-server src/server_main.cpp src/http_server.cpp)
@@ -128,6 +146,10 @@ enable_testing()
 add_test(
   NAME native_config_contract
   COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/config_contract.py ${CMAKE_CURRENT_SOURCE_DIR}/..
+)
+add_test(
+  NAME native_cuda_arch_contract
+  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/cuda_arch_contract.py ${CMAKE_CURRENT_SOURCE_DIR}/..
 )
 add_test(NAME native_inspect_missing COMMAND lkjai-native-inspect --model-dir /missing)
 set_tests_properties(native_inspect_missing PROPERTIES WILL_FAIL TRUE)

@@ -1,5 +1,7 @@
 FROM nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04
 
+ARG LKJAI_CUDA_ARCHS
+ENV LKJAI_CUDA_ARCHS=${LKJAI_CUDA_ARCHS}
 ENV PATH="/root/.cargo/bin:/usr/local/cargo/bin:${PATH}"
 
 WORKDIR /workspace

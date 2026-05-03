@@ -6,11 +6,14 @@ services:
     build:
       context: .
       dockerfile: ops/docker/Dockerfile.native
+      args:
+        LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
     ports:
       - "127.0.0.1:${MODEL_PORT:-8081}:8081"
     environment:
       INFERENCE_HOST: 0.0.0.0
       INFERENCE_PORT: 8081
+      LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
       MODEL_ROOT: /models
       MODEL_NAME: ${MODEL_NAME:-lkjai-scratch-40m}
     volumes:
@@ -72,8 +75,11 @@ services:
     build:
       context: .
       dockerfile: ops/docker/Dockerfile.native
+      args:
+        LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
     environment:
       DATA_DIR: ${TRAIN_DATA_DIR:-/app/data/train}
+      LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
       MODEL_NAME: ${MODEL_NAME:-lkjai-scratch-40m}
       TRAIN_PRESET: ${TRAIN_PRESET:-agent}
       TRAIN_CONFIG: ${TRAIN_CONFIG:-/workspace/configs/training/scratch_40m_12h.json}
@@ -103,10 +109,13 @@ services:
     build:
       context: .
       dockerfile: ops/docker/Dockerfile.verify
+      args:
+        LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
     working_dir: /workspace
     environment:
       DATA_DIR: /workspace/data/verify
       CARGO_TARGET_DIR: /target
+      LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
     volumes:
       - .:/workspace:ro
       - ./data:/workspace/data
