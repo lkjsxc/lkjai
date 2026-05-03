@@ -75,7 +75,19 @@ Use `lkjai-native-logits-check` for validation/reference-check tooling.
 
 ## Benchmark
 
-The canonical real-learning proof target is a controlled dense bigram run:
+The dense benchmark tiers are intentionally separate:
+
+- `dense_learning_control`: synthetic cyclic-data control proof. It proves the
+  dense CUDA path can learn and export, but it is not a real-data acceptance
+  run.
+- `accepted_training`: real packed-cache proof from
+  `data/train/datasets/train.jsonl` and
+  `data/train/tokenizer/tokenizer.json`.
+- 40M: compatibility and performance-only until a longer 40M run satisfies the
+  accepted-training evidence.
+- Transformer train/decode: future work and not part of this dense milestone.
+
+The controlled dense bigram run remains useful for debugging:
 
 ```sh
 python3 tools/benchmarks/run_dense_learning_control.py \
@@ -96,6 +108,32 @@ mean is below the first-quarter sample mean, weights changed, inspect passes,
 the BF16 export/reference logits check passes, and two dense inference calls
 for `--tokens 1,2,3` return matching checksums.
 
+The accepted dense target is the canonical real-data proof:
+
+```sh
+python3 tools/benchmarks/run_dense_accepted_training.py \
+  --run-id dense-accepted-training-20260503 \
+  --steps 1024 \
+  --sample-interval 0.25
+```
+
+It builds a deterministic packed-cache v2 target from
+`data/train/datasets/train.jsonl` with the repository tokenizer, `seq_len=128`,
+`sequence_count=256`, and `seed=20260503`. The model config is
+`configs/native/native_accepted_dense_bf16.json`, batch size is `4`, gradient
+accumulation is `1`, checkpoint interval is `128`, loss sample interval is
+`64`, `run_purpose=accepted_training`, and the selected learning rate is
+`0.001`.
+
+Accepted-training promotion additionally requires at least 1024 optimizer
+steps, at least 8 finite loss samples, `learning_status=learning`,
+`loss_decrease_fraction >= 0.10`, last-quarter sampled mean below first-quarter
+sampled mean, valid token/loss-token accounting, cache source/tokenizer/config
+digests and packed checksum, checkpoint/export/logits checksums, unchanged
+BF16 reference tolerance `0.01`, passing inspect/logits checks, two matching
+dense infer checksums, positive throughput, and required dense timing/backend
+metadata.
+
 The 40M command remains compatibility-only:
 
 ```sh
@@ -107,10 +145,8 @@ python3 tools/benchmarks/run_dense_40m_compat.py \
 ```
 
 The 40M command is a bounded compatibility start-check. Promotion summaries
-must reject it unless a later run also satisfies accepted dense criteria:
-accepted status, finite decreasing loss, valid artifacts, passing BF16
-export/reference checks, `run_purpose=accepted_training` or
-`run_purpose=dense_learning_control`, and positive throughput.
+must reject `run_purpose=bounded_compatibility_start_check`; it is never
+promotable as accepted training.
 
 ## Verify
 

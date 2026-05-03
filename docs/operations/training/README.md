@@ -16,6 +16,8 @@ gating, and operator-facing acceptance flow.
   cache, train, inspect, logits inference, benchmark, and verify runbook
 - [dense-learning-control-20260503.md](dense-learning-control-20260503.md):
   controlled dense BF16 CUDA learning proof run
+- [dense-accepted-training-20260503.md](dense-accepted-training-20260503.md):
+  real packed-cache dense BF16 CUDA accepted-training proof run
 - [production-bf16-native.md](production-bf16-native.md): native BF16 dense
   trainer config, packed-cache, checkpoint, export, and verification guide
 - [competency-gate.md](competency-gate.md): fixed-eval threshold and acceptance policy

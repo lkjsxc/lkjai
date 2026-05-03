@@ -88,6 +88,15 @@ Each summary includes:
 - `optimizer_steps`
 - `microsteps`
 - `tokens_seen`
+- `loss_tokens`
+- `batch_size`
+- `seq_len`
+- `grad_accum`
+- `parameter_count`
+- `forward_backend`
+- `backward_backend`
+- `optimizer_backend`
+- `cuda_device_name`
 - `initial_loss`
 - `loss`
 - `loss_samples`
@@ -105,6 +114,8 @@ Each summary includes:
 - `mean_forward_seconds`
 - `mean_backward_seconds`
 - `mean_optimizer_seconds`
+- `mean_checkpoint_seconds`
+- `mean_export_seconds`
 - `logits_checksum`
 - `checkpoint_checksum`
 - `export_checksum`
@@ -133,6 +144,25 @@ train report capability fields, loss trend evidence, tokens/loss-token counts,
 batch/sequence/gradient/checkpoint settings, throughput/timings, checkpoint,
 export, logits, inspect, and repeated inference checksums, plus exact learning
 or promotion rejection reasons when the run is not promotable.
+
+Accepted dense training runs write
+`artifacts/benchmarks/<run-id>/dense_accepted_training_1024/repeat-01/accepted-training-summary.json`
+and `benchmark-summary.json`, with matching copies in
+`data/perf-runs/<run-id>/dense_accepted_training_1024/repeat-01/`. They include
+`report_kind=accepted_training`, the selected learning rate, exact train
+command, Docker image, cache metadata, token accounting, loss samples, timings,
+throughput, checkpoint/export/logits/packed-cache checksums, inspect output,
+BF16 export/reference logits-check output, repeated inference outputs, promotion
+status, and exact rejection reasons.
+
+Accepted-training promotion requires `run_purpose=accepted_training`,
+`status=success`, at least 1024 optimizer steps, at least 8 finite loss samples,
+`learning_status=learning`, `loss_decrease_fraction >= 0.10`, last-quarter
+sampled mean below first-quarter sampled mean, valid `tokens_seen` and
+`loss_tokens`, cache row count at least 32, source/tokenizer/config digests,
+packed checksum, checkpoint/export/logits checksums, BF16 reference check pass
+at tolerance `0.01`, two passing dense inference checks with matching checksums,
+positive throughput, and required dense timing/backend metadata.
 
 CSV summaries use the same stable names for columns that fit flat tabular
 output. Nested capability fields are flattened with a `capability_` prefix.
