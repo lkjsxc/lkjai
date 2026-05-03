@@ -89,10 +89,12 @@ be documented here. Larger drift blocks the change.
 
 ## Roadmap
 
-Later phases are, in order: explicit precision modes, transformer CUDA forward
-kernels, transformer backward, accepted transformer CUDA reports, native decode
-with KV cache, CUDA Graph buckets, and NCCL/ZeRO-style work after single-GPU
-transformer gates pass.
+The next accepted dense-substrate work is cuBLASLt autotune, allocator and
+workspace reporting, deferred event timing, and safe operand reuse. Later
+non-dense phases remain, in order: explicit precision modes, transformer CUDA
+forward kernels, transformer backward, accepted transformer CUDA reports,
+native decode with KV cache, CUDA Graph buckets, and NCCL/ZeRO-style work after
+single-GPU transformer gates pass.
 
 ## Official References
 

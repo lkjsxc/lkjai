@@ -18,7 +18,7 @@
 - A custom attention kernel is not accepted until cuDNN SDPA parity and timing
   have been measured for the active GQA shape.
 
-## Triton Entry Points
+## Native CUDA Entry Points
 
 Custom CUDA is expected for:
 

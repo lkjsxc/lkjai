@@ -19,12 +19,12 @@ marked as a separate preset.
 ## Baseline Facts
 
 - Host target: NVIDIA RTX 3070, SM 8.6, 8 GiB VRAM.
-- Historical container baseline before the native rewrite: PyTorch
-  `2.5.1+cu124`.
-- Prior long SFT run recorded about `37695` input tokens/sec.
-- Prior short matrix showed `torch.compile` post-warm as the strongest
-  measured direction in the historical PyTorch path. Native work treats that as
-  background data, not a product optimization knob.
+- Accepted product training is native C++/CUDA dense BF16 only.
+- Historical PyTorch speed records are background data, not product
+  optimization knobs.
+- Current dense reports expose logits, grad-logits, hidden-gradient,
+  cuBLASLt-workspace, allocator, and timing fields so throughput changes can be
+  tied to the active CUDA path.
 
 ## Current Speed Smoke
 
@@ -38,28 +38,31 @@ marked as a separate preset.
 
 ## Optimization Order
 
-1. Measure the current training path with a bounded Compose benchmark.
-2. Use the native CUDA image for this project.
-3. Prefer library attention paths before custom kernels.
-4. Rebuild packed caches as `uint16` because the vocabulary fits in 13 bits.
-5. Sweep batch size, checkpointing, AMP, launch mode, and attention backend.
-6. Promote the fastest stable setting into the committed training config.
-7. Run the full training pipeline in a fresh data directory.
+1. Measure the current dense path with a bounded Compose benchmark.
+2. Tune cuBLASLt plan choice and workspace within the accepted dense path.
+3. Use stream-ordered allocation when supported and report allocator behavior.
+4. Reduce phase-local synchronization by deferring CUDA-event timing to slot
+   waits.
+5. Reuse converted FP32 operands across microsteps when AdamW has not refreshed
+   BF16 shadows.
+6. Promote only settings that preserve dense report acceptance, resume
+   equivalence, artifact checksums, and logits parity.
+7. Run bounded 40M compatibility after debug-shape learning-control passes.
 
 ## Required Defaults
 
 - Packed cache format: `lkjai-packed-cache-v2`.
 - Packed token dtype: `uint16`.
 - Default real loader candidate: batch-oriented mapped cache loading.
-- Default native launch mode: plain launches until graph replay is measured for
-  stable buckets.
+- Default native launch mode: plain launches; CUDA Graph replay is roadmap
+  after dense and transformer launch order are stable.
 - BF16 remains preferred when CUDA reports support.
-- Serving decode reuses preallocated KV cache storage; training speed remains
-  the first-order objective.
+- Serving decode remains unsupported in the accepted path; training speed
+  remains the first-order objective.
 
 ## Non-Goals
 
 - Do not optimize by lowering the active context length.
 - Do not add pretrained weights.
-- Do not accept an optimization that prevents Compose verification from
-  running on CPU.
+- Do not promote transformer CUDA, decode, CUDA Graph, NCCL, or FP16 fallback
+  work from dense speed evidence.
