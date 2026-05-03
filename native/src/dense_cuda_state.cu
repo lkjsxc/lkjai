@@ -48,41 +48,52 @@ DenseCudaState::~DenseCudaState() {
   destroy_dense_matmul_plan(logits_plan_);
   destroy_dense_matmul_plan(head_grad_plan_);
   destroy_dense_matmul_plan(hidden_grad_plan_);
-  if (host_tokens_) cudaFreeHost(host_tokens_);
-  if (host_mask_) cudaFreeHost(host_mask_);
-  if (device_tokens_) cudaFree(device_tokens_);
-  if (device_mask_) cudaFree(device_mask_);
+  for (auto& slot : slots_) {
+    if (slot.compute_done) cudaEventSynchronize(slot.compute_done);
+    if (slot.host_tokens) cudaFreeHost(slot.host_tokens);
+    if (slot.host_mask) cudaFreeHost(slot.host_mask);
+    if (slot.host_loss) cudaFreeHost(slot.host_loss);
+    if (slot.host_logits) cudaFreeHost(slot.host_logits);
+    if (slot.device_tokens) cudaFree(slot.device_tokens);
+    if (slot.device_mask) cudaFree(slot.device_mask);
+    if (slot.h2d_done) cudaEventDestroy(slot.h2d_done);
+    if (slot.compute_done) cudaEventDestroy(slot.compute_done);
+  }
 }
 
-void DenseCudaState::ensure_batch_buffers(size_t token_count,
-                                          size_t mask_count) {
-  if (token_count > host_token_capacity_) {
-    if (host_tokens_) cudaFreeHost(host_tokens_);
-    require_cuda(cudaMallocHost(reinterpret_cast<void**>(&host_tokens_),
-                                token_count * sizeof(uint16_t)),
-                 "cudaMallocHost tokens");
-    host_token_capacity_ = token_count;
+void DenseCudaState::ensure_slot_buffers(int slot_index, size_t token_count,
+                                         size_t mask_count) {
+  auto& slot = slots_[slot_index % kBatchSlots];
+  if (!slot.h2d_done) require_cuda(cudaEventCreateWithFlags(
+      &slot.h2d_done, cudaEventDisableTiming), "batch h2d event");
+  if (!slot.compute_done) require_cuda(cudaEventCreateWithFlags(
+      &slot.compute_done, cudaEventDisableTiming), "batch compute event");
+  if (!slot.host_loss) require_cuda(cudaMallocHost(
+      reinterpret_cast<void**>(&slot.host_loss), sizeof(float)), "pinned loss");
+  if (token_count > slot.token_capacity) {
+    if (slot.host_tokens) cudaFreeHost(slot.host_tokens);
+    if (slot.device_tokens) cudaFree(slot.device_tokens);
+    require_cuda(cudaMallocHost(reinterpret_cast<void**>(&slot.host_tokens),
+                                token_count * sizeof(uint16_t)), "host tokens");
+    require_cuda(cudaMalloc(reinterpret_cast<void**>(&slot.device_tokens),
+                            token_count * sizeof(uint16_t)), "device tokens");
+    slot.token_capacity = token_count;
   }
-  if (mask_count > host_mask_capacity_) {
-    if (host_mask_) cudaFreeHost(host_mask_);
-    require_cuda(cudaMallocHost(reinterpret_cast<void**>(&host_mask_),
-                                mask_count),
-                 "cudaMallocHost mask");
-    host_mask_capacity_ = mask_count;
+  if (mask_count > slot.mask_capacity) {
+    if (slot.host_mask) cudaFreeHost(slot.host_mask);
+    if (slot.device_mask) cudaFree(slot.device_mask);
+    require_cuda(cudaMallocHost(reinterpret_cast<void**>(&slot.host_mask),
+                                mask_count), "host mask");
+    require_cuda(cudaMalloc(reinterpret_cast<void**>(&slot.device_mask),
+                            mask_count), "device mask");
+    slot.mask_capacity = mask_count;
   }
-  if (token_count > device_token_capacity_) {
-    if (device_tokens_) cudaFree(device_tokens_);
-    require_cuda(cudaMalloc(reinterpret_cast<void**>(&device_tokens_),
-                            token_count * sizeof(uint16_t)),
-                 "cudaMalloc device tokens");
-    device_token_capacity_ = token_count;
-  }
-  if (mask_count > device_mask_capacity_) {
-    if (device_mask_) cudaFree(device_mask_);
-    require_cuda(cudaMalloc(reinterpret_cast<void**>(&device_mask_),
-                            mask_count),
-                 "cudaMalloc device mask");
-    device_mask_capacity_ = mask_count;
+  size_t logits = static_cast<size_t>(cfg_.vocab_size);
+  if (logits > slot.logits_capacity) {
+    if (slot.host_logits) cudaFreeHost(slot.host_logits);
+    require_cuda(cudaMallocHost(reinterpret_cast<void**>(&slot.host_logits),
+                                logits * sizeof(float)), "pinned logits");
+    slot.logits_capacity = logits;
   }
 }
 

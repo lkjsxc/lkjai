@@ -32,32 +32,61 @@ __global__ void bf16_to_f32_kernel(const __nv_bfloat16* in, float* out, int n) {
   if (idx < n) out[idx] = __bfloat162float(in[idx]);
 }
 
+__device__ float block_sum(float value, float* scratch) {
+  scratch[threadIdx.x] = value;
+  __syncthreads();
+  for (int stride = blockDim.x / 2; stride > 0; stride >>= 1) {
+    if (threadIdx.x < stride) scratch[threadIdx.x] += scratch[threadIdx.x + stride];
+    __syncthreads();
+  }
+  return scratch[0];
+}
+
+__device__ float block_max(float value, float* scratch) {
+  scratch[threadIdx.x] = value;
+  __syncthreads();
+  for (int stride = blockDim.x / 2; stride > 0; stride >>= 1) {
+    if (threadIdx.x < stride) scratch[threadIdx.x] = fmaxf(
+        scratch[threadIdx.x], scratch[threadIdx.x + stride]);
+    __syncthreads();
+  }
+  return scratch[0];
+}
+
 __global__ void loss_kernel(const float* logits, const uint16_t* tokens,
                             const uint8_t* mask, float* grad_logits,
                             float* loss_out, int batch, int seq, int vocab,
                             int supervised, float grad_scale) {
-  int row_pos = blockIdx.x * blockDim.x + threadIdx.x;
-  int rows = batch * seq;
-  if (row_pos >= rows) return;
+  extern __shared__ float scratch[];
+  int row_pos = blockIdx.x;
+  if (row_pos >= batch * seq) return;
   int row = row_pos / seq;
   int pos = row_pos % seq;
   int token_base = row * seq + pos;
   auto* row_grad = grad_logits + static_cast<size_t>(row_pos) * vocab;
   if (pos + 1 >= seq || mask[token_base + 1] == 0 || supervised <= 0) {
-    for (int v = 0; v < vocab; ++v) row_grad[v] = 0.0f;
+    for (int v = threadIdx.x; v < vocab; v += blockDim.x) row_grad[v] = 0.0f;
     return;
   }
   auto* row_logits = logits + static_cast<size_t>(row_pos) * vocab;
   int label = static_cast<int>(tokens[token_base + 1]) % vocab;
-  float max_logit = -INFINITY;
-  for (int v = 0; v < vocab; ++v) max_logit = fmaxf(max_logit, row_logits[v]);
-  float denom = 0.0f;
-  for (int v = 0; v < vocab; ++v) denom += expf(row_logits[v] - max_logit);
-  float label_prob = fmaxf(expf(row_logits[label] - max_logit) / denom,
-                           1.0e-20f);
-  atomicAdd(loss_out, -logf(label_prob) / static_cast<float>(supervised));
+  float local_max = -INFINITY;
+  for (int v = threadIdx.x; v < vocab; v += blockDim.x) {
+    local_max = fmaxf(local_max, row_logits[v]);
+  }
+  float max_logit = block_max(local_max, scratch);
+  float local_sum = 0.0f;
+  for (int v = threadIdx.x; v < vocab; v += blockDim.x) {
+    local_sum += expf(row_logits[v] - max_logit);
+  }
+  float denom = block_sum(local_sum, scratch);
   float scale = grad_scale / static_cast<float>(supervised);
-  for (int v = 0; v < vocab; ++v) {
+  if (threadIdx.x == 0) {
+    float label_prob = fmaxf(expf(row_logits[label] - max_logit) / denom,
+                             1.0e-20f);
+    atomicAdd(loss_out, -logf(label_prob) / static_cast<float>(supervised));
+  }
+  for (int v = threadIdx.x; v < vocab; v += blockDim.x) {
     float prob = expf(row_logits[v] - max_logit) / denom;
     row_grad[v] = (prob - (v == label ? 1.0f : 0.0f)) * scale;
   }
@@ -120,7 +149,7 @@ void dense_launch_loss_grad(const float* logits, const uint16_t* tokens,
                             int supervised, float grad_scale,
                             cudaStream_t stream) {
   int rows = batch * seq;
-  loss_kernel<<<(rows + 127) / 128, 128, 0, stream>>>(
+  loss_kernel<<<rows, 256, 256 * sizeof(float), stream>>>(
       logits, tokens, mask, grad_logits, loss, batch, seq, vocab, supervised,
       grad_scale);
   require_cuda(cudaGetLastError(), "loss_grad_kernel");

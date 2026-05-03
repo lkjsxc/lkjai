@@ -29,6 +29,19 @@ bool PackedCacheReader::open(const std::filesystem::path& dir, int sequence_len,
 
 bool PackedCacheReader::load_batch(uint64_t first_window, int batch_size,
                                    PackedBatch* batch, std::string* error) {
+  auto items = static_cast<size_t>(batch_size * status_.sequence_len);
+  if (batch->tokens.size() != items) batch->tokens.resize(items);
+  if (batch->loss_mask.size() != items) batch->loss_mask.resize(items);
+  batch->batch_size = batch_size;
+  batch->sequence_len = status_.sequence_len;
+  return load_batch_into(first_window, batch_size, batch->tokens.data(),
+                         batch->loss_mask.data(), error);
+}
+
+bool PackedCacheReader::load_batch_into(uint64_t first_window, int batch_size,
+                                        uint16_t* out_tokens,
+                                        uint8_t* out_mask,
+                                        std::string* error) {
   if (!status_.ok || !starts_ || !tokens_ || !mask_) {
     *error = "packed cache reader is not open";
     return false;
@@ -37,11 +50,6 @@ bool PackedCacheReader::load_batch(uint64_t first_window, int batch_size,
     *error = "invalid packed batch range";
     return false;
   }
-  auto items = static_cast<size_t>(batch_size * status_.sequence_len);
-  if (batch->tokens.size() != items) batch->tokens.resize(items);
-  if (batch->loss_mask.size() != items) batch->loss_mask.resize(items);
-  batch->batch_size = batch_size;
-  batch->sequence_len = status_.sequence_len;
   for (int row = 0; row < batch_size; ++row) {
     uint64_t window =
         (first_window + static_cast<uint64_t>(row)) % status_.windows;
@@ -62,10 +70,10 @@ bool PackedCacheReader::load_batch(uint64_t first_window, int batch_size,
     mask_.clear();
     tokens_.seekg(static_cast<std::streamoff>(offset * sizeof(uint16_t)));
     mask_.seekg(static_cast<std::streamoff>(offset));
-    tokens_.read(reinterpret_cast<char*>(batch->tokens.data() + base),
+    tokens_.read(reinterpret_cast<char*>(out_tokens + base),
                  static_cast<std::streamsize>(status_.sequence_len *
                                               sizeof(uint16_t)));
-    mask_.read(reinterpret_cast<char*>(batch->loss_mask.data() + base),
+    mask_.read(reinterpret_cast<char*>(out_mask + base),
                static_cast<std::streamsize>(status_.sequence_len));
     if (!tokens_ || !mask_) {
       *error = "failed to read packed batch payload";

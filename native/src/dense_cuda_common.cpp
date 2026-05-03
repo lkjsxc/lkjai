@@ -53,11 +53,16 @@ int dense_resume_step(const std::filesystem::path& dir) {
 }
 
 int dense_supervised_count(const PackedBatch& batch) {
+  return dense_supervised_count_raw(batch.loss_mask.data(), batch.batch_size,
+                                    batch.sequence_len);
+}
+
+int dense_supervised_count_raw(const uint8_t* mask, int batch, int seq) {
   int seen = 0;
-  for (int row = 0; row < batch.batch_size; ++row) {
-    for (int pos = 0; pos + 1 < batch.sequence_len; ++pos) {
-      auto base = static_cast<size_t>(row * batch.sequence_len + pos);
-      if (batch.loss_mask[base + 1] != 0) ++seen;
+  for (int row = 0; row < batch; ++row) {
+    for (int pos = 0; pos + 1 < seq; ++pos) {
+      auto base = static_cast<size_t>(row * seq + pos);
+      if (mask[base + 1] != 0) ++seen;
     }
   }
   return seen;

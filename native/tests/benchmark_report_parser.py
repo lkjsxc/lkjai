@@ -3,7 +3,6 @@ import json
 import sys
 import tempfile
 from pathlib import Path
-
 def main() -> None:
     repo = Path(__file__).resolve().parents[2]
     sys.path.insert(0, str(repo / "tools" / "benchmarks"))
@@ -14,7 +13,6 @@ def main() -> None:
         summarize_train_report,
         validate_dense_promotion_report,
     )
-
     payload = {
         "schema_version": 3,
         "trainer_mode": "smoke",
@@ -82,6 +80,7 @@ def main() -> None:
             "optimizer": 0.04,
         },
     }
+    payload.update({"dense_logits_readback_bytes": 1024, "loss_kernel_backend": "block_row_softmax_fp32", "loss_readback_mode": "optimizer_step_deferred_pinned", "logits_readback_mode": "single_row_capture", "dense_stream_count": 2, "dense_batch_slot_count": 3, "copy_compute_overlap_enabled": True, "batch_staging_backend": "triple_slot_pinned_direct_read"})
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         report = root / "runs" / "train-report.json"
@@ -101,6 +100,7 @@ def main() -> None:
         assert summary["backward_gemm_enabled"] is True
         assert summary["embedding_grad_backend"] == "token_scatter_add_fp32"
         assert {k: summary[k] for k in ("dense_step_logits_bytes", "dense_step_grad_logits_bytes", "dense_step_d_hidden_bytes", "cublaslt_workspace_bytes")} == {"dense_step_logits_bytes": 8192, "dense_step_grad_logits_bytes": 8192, "dense_step_d_hidden_bytes": 1024, "cublaslt_workspace_bytes": 4194304}
+        assert {k: summary[k] for k in ("dense_logits_readback_bytes", "loss_kernel_backend", "loss_readback_mode", "logits_readback_mode", "dense_stream_count", "dense_batch_slot_count", "copy_compute_overlap_enabled", "batch_staging_backend")} == {"dense_logits_readback_bytes": 1024, "loss_kernel_backend": "block_row_softmax_fp32", "loss_readback_mode": "optimizer_step_deferred_pinned", "logits_readback_mode": "single_row_capture", "dense_stream_count": 2, "dense_batch_slot_count": 3, "copy_compute_overlap_enabled": True, "batch_staging_backend": "triple_slot_pinned_direct_read"}
         assert summary["cuda_driver_version"] == 12080
         assert summary["cuda_device_count"] == 1
         assert summary["cuda_total_global_memory"] == 8589934592
@@ -150,13 +150,11 @@ def main() -> None:
         transformer_row = dict(summary)
         transformer_row["returncode"] = 0
         assert is_promotable_dense_summary(transformer_row) is False
-
         failed = dict(payload)
         failed["status"] = "fail"
         failed_summary = summarize_train_report(failed)
         failed_summary["returncode"] = 2
         assert is_promotable_dense_summary(failed_summary) is False
-
         compatibility = dict(payload)
         compatibility["run_purpose"] = "bounded_compatibility_start_check"
         compatibility["limitations"] = ["bounded_compatibility_start_check"]
@@ -168,11 +166,9 @@ def main() -> None:
             "run_purpose bounded_compatibility_start_check is not promotable"
             in errors
         )
-
         control = dict(payload)
         control["run_purpose"] = "dense_learning_control"
         validate_dense_promotion_report(control)
-
         unknown_purpose = dict(payload)
         unknown_purpose["run_purpose"] = "ad_hoc_smoke"
         errors = dense_promotion_errors(unknown_purpose)
@@ -180,12 +176,10 @@ def main() -> None:
             "run_purpose must be accepted_training or dense_learning_control"
             in errors
         )
-
         missing_checksum = dict(payload)
         missing_checksum["export_checksum"] = ""
         errors = dense_promotion_errors(missing_checksum)
         assert "export_checksum must be present" in errors
-
         bad_logits = dict(payload)
         bad_logits["logits_check"] = dict(payload["logits_check"])
         bad_logits["logits_check"]["max_abs_diff"] = 0.02
@@ -196,5 +190,9 @@ def main() -> None:
         missing_loader["loader_backend"] = ""
         errors = dense_promotion_errors(missing_loader)
         assert "loader_backend must be persistent_packed_cache_reader" in errors
+        bad_runtime = dict(payload)
+        bad_runtime["loss_kernel_backend"] = ""
+        errors = dense_promotion_errors(bad_runtime)
+        assert "loss_kernel_backend must be block_row_softmax_fp32" in errors
 if __name__ == "__main__":
     main()

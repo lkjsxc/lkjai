@@ -94,6 +94,23 @@ optimizer steps. It is not a 40M or production-scale performance baseline.
 Attention backend, FP16/AMP, activation checkpoint, and CUDA Graph sweeps are
 roadmap benchmarks after those switches are implemented in the native trainer.
 
+## Dense P0 Runtime Evidence
+
+Matched dense learning-control run on RTX 3070:
+
+- baseline run id: `dense-p0-baseline-20260503-214627`
+- post run id: `dense-p0-post-matched-20260503-215547`
+- command shape: `native_debug_bf16`, batch 4, seq_len 16, grad accumulation 1,
+  1024 optimizer steps, same packed-cache digest `e0b2dad823fa1b3b`
+- runtime: `block_row_softmax_fp32`,
+  `optimizer_step_deferred_pinned`, `single_row_capture`,
+  `triple_slot_pinned_direct_read`
+- backward timing: 0.0220279s baseline to 0.0209505s post
+- throughput: 68,749.5 tokens/sec baseline to 116,428 tokens/sec post
+- comparison: `accepted=true`, throughput ratio 1.6935, backward speedup 1.0514
+- correctness: dense report accepted, logits reference check passed, export and
+  checkpoint checksums present
+
 ## Larger Dense Compatibility
 
 The 40M dense shape is checked with a bounded start-only command:

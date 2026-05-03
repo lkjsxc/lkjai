@@ -37,6 +37,13 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << ",\"backward_backend\":\"cuda_bf16_cublaslt_scatter\""
        << ",\"backward_gemm_enabled\":true"
        << ",\"embedding_grad_backend\":\"token_scatter_add_fp32\""
+       << ",\"loss_kernel_backend\":\"block_row_softmax_fp32\""
+       << ",\"loss_readback_mode\":\"optimizer_step_deferred_pinned\""
+       << ",\"logits_readback_mode\":\"single_row_capture\""
+       << ",\"dense_stream_count\":2"
+       << ",\"dense_batch_slot_count\":3"
+       << ",\"copy_compute_overlap_enabled\":true"
+       << ",\"batch_staging_backend\":\"triple_slot_pinned_direct_read\""
        << ",\"optimizer_backend\":\"cuda_adamw_fp32\""
        << ",\"cuda_probe_passed\":"
        << (cuda_required_ok(cuda) ? "true" : "false")
@@ -94,6 +101,8 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << static_cast<unsigned long long>(report.dense_step_grad_logits_bytes)
        << ",\"dense_step_d_hidden_bytes\":"
        << static_cast<unsigned long long>(report.dense_step_d_hidden_bytes)
+       << ",\"dense_logits_readback_bytes\":"
+       << static_cast<unsigned long long>(report.dense_logits_readback_bytes)
        << ",\"cublaslt_workspace_bytes\":"
        << static_cast<unsigned long long>(report.cublaslt_workspace_bytes)
        << ",\"tokens_seen\":" << report.input_tokens

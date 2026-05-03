@@ -1,15 +1,12 @@
 #include "dense_cuda.hpp"
-
+#include <algorithm>
 #include <cmath>
 #include <limits>
-
 #include "cuda_probe.hpp"
 #include "dense_cuda_internal.hpp"
 #include "dense_loss_trend.hpp"
 #include "json_min.hpp"
-
 namespace lkjai {
-
 bool run_dense_cuda_training(const DenseTrainOptions& opt,
                              DenseTrainReport* report, std::string* error) {
   auto status = cuda_status();
@@ -50,6 +47,8 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
     report->dense_step_grad_logits_bytes = report->dense_step_logits_bytes;
     report->dense_step_d_hidden_bytes =
         static_cast<uint64_t>(step_rows) * cfg.hidden_size * sizeof(float);
+    report->dense_logits_readback_bytes =
+        static_cast<uint64_t>(cfg.vocab_size) * sizeof(float);
     DenseTrainState init;
     DenseCheckpointMetadata resume;
     if (opt.resume_dir.empty()) {
@@ -71,32 +70,41 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
       auto phase = std::chrono::steady_clock::now();
       double loss_sum = 0.0;
       int step = report->start_step + local;
-      PackedBatch batch;
+      int capture_slot = -1;
       bool capture_step_logits =
           local == opt.max_steps ||
           (opt.checkpoint_interval > 0 && step % opt.checkpoint_interval == 0);
       for (int micro = 0; micro < opt.grad_accum; ++micro) {
+        int slot = micro % 3;
+        if (micro >= 3) loss_sum += state.slot_loss(slot);
         int first = ((report->start_step + local - 1) * opt.grad_accum +
                      micro) * opt.batch_size;
         phase = std::chrono::steady_clock::now();
-        if (!reader.load_batch(static_cast<uint64_t>(first), opt.batch_size,
-                               &batch, error)) return false;
+        size_t items = static_cast<size_t>(opt.batch_size) * seq_len;
+        auto pinned = state.prepare_batch_slot(slot, items, items);
+        if (!reader.load_batch_into(static_cast<uint64_t>(first),
+                                    opt.batch_size, pinned.tokens,
+                                    pinned.mask, error)) return false;
         report->batch_load_seconds += dense_seconds_since(phase);
         double h2d = 0.0, fwd = 0.0, bwd = 0.0;
-        std::vector<float>* logits_out =
-            (capture_step_logits && micro == opt.grad_accum - 1) ? &logits
-                                                                 : nullptr;
-        double loss = state.forward_backward(
-            batch, logits_out, &h2d, &fwd, &bwd, 1.0f / opt.grad_accum,
-            micro == 0);
+        bool capture = capture_step_logits && micro == opt.grad_accum - 1;
+        state.stage_batch_slot(slot, opt.batch_size, seq_len, &h2d);
+        state.forward_backward_slot(slot, capture, &fwd, &bwd,
+                                    1.0f / opt.grad_accum, micro == 0);
+        if (capture) capture_slot = slot;
         report->h2d_seconds += h2d;
         report->forward_seconds += fwd;
         report->backward_seconds += bwd;
-        loss_sum += loss;
         report->microsteps += 1;
         report->input_tokens += opt.batch_size * seq_len;
-        report->loss_tokens += dense_supervised_count(batch);
+        report->loss_tokens += dense_supervised_count_raw(
+            pinned.mask, opt.batch_size, seq_len);
       }
+      int pending = std::min(opt.grad_accum, 3);
+      for (int i = opt.grad_accum - pending; i < opt.grad_accum; ++i) {
+        loss_sum += state.slot_loss(i % 3);
+      }
+      if (capture_slot >= 0) state.slot_logits(capture_slot, &logits);
       report->loss = loss_sum / opt.grad_accum;
       if (local == 1) report->initial_loss = report->loss;
       if (!std::isfinite(report->loss)) {
@@ -189,5 +197,4 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
     return false;
   }
 }
-
 }  // namespace lkjai

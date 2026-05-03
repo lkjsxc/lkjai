@@ -1,11 +1,9 @@
 import math
 from accepted_training_reports import accepted_training_summary_errors
+from dense_runtime_contract import dense_runtime_errors, dense_runtime_summary_checks, summarize_runtime_fields
 PROMOTABLE_RUN_PURPOSES = {"accepted_training", "dense_learning_control"}
-
 def _sample_loss(sample) -> float:
-    if isinstance(sample, dict):
-        return float(sample.get("loss"))
-    return float(sample)
+    return float(sample.get("loss") if isinstance(sample, dict) else sample)
 def _finite(value) -> bool:
     try:
         return math.isfinite(float(value))
@@ -45,6 +43,7 @@ def summarize_train_report(report: dict) -> dict:
         "dense_step_logits_bytes": int(report.get("dense_step_logits_bytes", 0)),
         "dense_step_grad_logits_bytes": int(report.get("dense_step_grad_logits_bytes", 0)),
         "dense_step_d_hidden_bytes": int(report.get("dense_step_d_hidden_bytes", 0)),
+        **summarize_runtime_fields(report),
         "cublaslt_workspace_bytes": int(report.get("cublaslt_workspace_bytes", 0)),
         "optimizer_backend": report.get("optimizer_backend", ""),
         "cuda_device_name": report.get("cuda_device_name", ""),
@@ -113,6 +112,7 @@ def dense_promotion_errors(report: dict) -> list[str]:
         if report.get(key) != expected: errors.append(f"{key} must be {expected}")
     if report.get("backward_gemm_enabled") is not True:
         errors.append("backward_gemm_enabled must be true")
+    errors.extend(dense_runtime_errors(report))
     try:
         initial_loss = float(report.get("initial_loss"))
         loss = float(report.get("loss"))
@@ -161,8 +161,7 @@ def dense_promotion_errors(report: dict) -> list[str]:
     return errors
 def validate_dense_promotion_report(report: dict) -> None:
     errors = dense_promotion_errors(report)
-    if errors:
-        raise ValueError("; ".join(errors))
+    if errors: raise ValueError("; ".join(errors))
 def is_promotable_dense_summary(row: dict) -> bool:
     try:
         checks = [
@@ -178,6 +177,7 @@ def is_promotable_dense_summary(row: dict) -> bool:
             row.get("matmul_plan_cache_enabled") is True,
             row.get("buffer_reuse_enabled") is True,
             row.get("timing_source") == "cuda_events_with_boundary_sync",
+            dense_runtime_summary_checks(row),
             float(row.get("loss", 0.0)) < float(row.get("initial_loss", 0.0)),
             _finite(row.get("loss", 0.0)),
             _finite(row.get("initial_loss", 0.0)),

@@ -90,6 +90,7 @@ struct DenseTrainReport {
   uint64_t dense_step_logits_bytes = 0;
   uint64_t dense_step_grad_logits_bytes = 0;
   uint64_t dense_step_d_hidden_bytes = 0;
+  uint64_t dense_logits_readback_bytes = 0;
   uint64_t cublaslt_workspace_bytes = 0;
 };
 

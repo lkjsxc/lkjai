@@ -74,12 +74,15 @@ class CudaExecutionContext {
   CudaExecutionContext& operator=(const CudaExecutionContext&) = delete;
   ~CudaExecutionContext();
 
-  cudaStream_t stream() const { return stream_; }
+  cudaStream_t stream() const { return compute_stream_; }
+  cudaStream_t compute_stream() const { return compute_stream_; }
+  cudaStream_t copy_stream() const { return copy_stream_; }
   cublasLtHandle_t cublaslt() const { return cublaslt_; }
   cudnnHandle_t cudnn() const { return cudnn_; }
 
  private:
-  cudaStream_t stream_ = nullptr;
+  cudaStream_t compute_stream_ = nullptr;
+  cudaStream_t copy_stream_ = nullptr;
   cublasLtHandle_t cublaslt_ = nullptr;
   cudnnHandle_t cudnn_ = nullptr;
 };

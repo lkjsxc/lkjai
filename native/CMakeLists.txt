@@ -46,6 +46,7 @@ find_library(CUDNN_LIBRARY cudnn REQUIRED)
 add_library(lkjai_cuda STATIC
   src/cuda_probe.cu
   src/runtime_errors.cu
+  src/runtime_context.cu
   src/runtime_device.cu
   src/runtime_workspace.cu
 )

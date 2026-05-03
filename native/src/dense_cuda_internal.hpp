@@ -17,6 +17,11 @@ struct CpuDenseForward {
 
 struct DenseMatmulPlan;
 
+struct DenseCudaPinnedBatch {
+  uint16_t* tokens = nullptr;
+  uint8_t* mask = nullptr;
+};
+
 class DenseCudaState {
  public:
   DenseCudaState(const DenseConfig& cfg, const DenseTrainState& host,
@@ -26,19 +31,30 @@ class DenseCudaState {
                           double* h2d_seconds, double* forward_seconds,
                           double* backward_seconds, float grad_scale = 1.0f,
                           bool reset_grads = true);
+  DenseCudaPinnedBatch prepare_batch_slot(int slot, size_t token_count,
+                                          size_t mask_count);
+  void stage_batch_slot(int slot, int batch_size, int seq_len,
+                        double* h2d_seconds);
+  void forward_backward_slot(int slot, bool capture_logits,
+                             double* forward_seconds, double* backward_seconds,
+                             float grad_scale = 1.0f,
+                             bool reset_grads = true);
+  void wait_batch_slot(int slot);
+  double slot_loss(int slot);
+  void slot_logits(int slot, std::vector<float>* logits);
   void adamw(float lr, int step);
   DenseTrainState copy_to_host();
   size_t cublaslt_workspace_bytes() const { return workspace_.bytes_reserved(); }
 
  private:
   void zero_gradients();
-  void ensure_batch_buffers(size_t token_count, size_t mask_count);
   void ensure_step_buffers(int rows);
   void gemm(const DeviceTensor& hidden, DeviceTensor& out, int rows);
   void gemm_head_grad(const DeviceTensor& grad_logits,
                       const DeviceTensor& hidden, int rows);
   void gemm_d_hidden(const DeviceTensor& grad_logits, DeviceTensor& d_hidden,
                      int rows);
+  void ensure_slot_buffers(int slot, size_t token_count, size_t mask_count);
 
   DenseConfig cfg_;
   CudaExecutionContext* ctx_ = nullptr;
@@ -61,14 +77,26 @@ class DenseCudaState {
   DeviceTensor step_head_f32_;
   DeviceTensor step_loss_;
   int step_rows_ = 0;
-  uint16_t* host_tokens_ = nullptr;
-  uint8_t* host_mask_ = nullptr;
-  uint16_t* device_tokens_ = nullptr;
-  uint8_t* device_mask_ = nullptr;
-  size_t host_token_capacity_ = 0;
-  size_t host_mask_capacity_ = 0;
-  size_t device_token_capacity_ = 0;
-  size_t device_mask_capacity_ = 0;
+  struct Slot {
+    uint16_t* host_tokens = nullptr;
+    uint8_t* host_mask = nullptr;
+    uint16_t* device_tokens = nullptr;
+    uint8_t* device_mask = nullptr;
+    float* host_loss = nullptr;
+    float* host_logits = nullptr;
+    size_t token_capacity = 0;
+    size_t mask_capacity = 0;
+    size_t logits_capacity = 0;
+    int batch_size = 0;
+    int seq_len = 0;
+    int supervised = 0;
+    bool used = false;
+    bool capture_logits = false;
+    cudaEvent_t h2d_done = nullptr;
+    cudaEvent_t compute_done = nullptr;
+  };
+  static constexpr int kBatchSlots = 3;
+  Slot slots_[kBatchSlots];
   DenseMatmulPlan* logits_plan_ = nullptr;
   DenseMatmulPlan* head_grad_plan_ = nullptr;
   DenseMatmulPlan* hidden_grad_plan_ = nullptr;
@@ -83,6 +111,7 @@ double dense_max_abs_diff(const std::vector<float>& a,
 std::string dense_checksum_floats(const std::vector<float>& values);
 int dense_resume_step(const std::filesystem::path& dir);
 int dense_supervised_count(const PackedBatch& batch);
+int dense_supervised_count_raw(const uint8_t* mask, int batch, int seq);
 CpuDenseForward cpu_dense_forward_backward_with_logits(const PackedBatch& batch,
                                                        DenseTrainState* state);
 DenseConfig dense_config_from_artifact(const std::filesystem::path& dir);

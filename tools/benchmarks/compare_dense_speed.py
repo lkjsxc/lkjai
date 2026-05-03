@@ -73,6 +73,8 @@ def compare(before: dict, after: dict) -> dict:
         "throughput_ratio": throughput_ratio,
         "post_backward_backend": after.get("backward_backend", ""),
         "post_embedding_grad_backend": after.get("embedding_grad_backend", ""),
+        "post_loss_kernel_backend": after.get("loss_kernel_backend", ""),
+        "post_batch_staging_backend": after.get("batch_staging_backend", ""),
     }
 
 

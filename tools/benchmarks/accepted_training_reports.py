@@ -1,4 +1,5 @@
 import math
+from dense_runtime_contract import dense_runtime_errors
 
 
 def _sample_loss(sample) -> float:
@@ -76,6 +77,7 @@ def accepted_training_summary_errors(row: dict) -> list[str]:
     _append_infer_errors(row, errors)
     _append_timing_errors(row, errors)
     _append_backend_errors(row, errors)
+    errors.extend(dense_runtime_errors(row))
     for key in ("cuda_device_name",):
         if not row.get(key):
             errors.append(f"{key} must be present")

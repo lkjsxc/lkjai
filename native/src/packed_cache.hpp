@@ -47,6 +47,8 @@ class PackedCacheReader {
             int max_vocab_size, std::string* error);
   bool load_batch(uint64_t first_window, int batch_size, PackedBatch* batch,
                   std::string* error);
+  bool load_batch_into(uint64_t first_window, int batch_size, uint16_t* tokens,
+                       uint8_t* mask, std::string* error);
   const PackedCacheStatus& status() const { return status_; }
 
  private:

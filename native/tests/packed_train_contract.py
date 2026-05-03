@@ -7,14 +7,10 @@ import subprocess
 import sys
 from pathlib import Path
 CAPABILITY_FIELDS = ("cuda_driver_version", "cuda_runtime_version", "cudnn_version", "cuda_device_count", "cuda_device_index", "cuda_total_global_memory", "cuda_sm_count", "cuda_arch_flags")
-
-
 def assert_capability_fields(report: dict):
     for fields in [report, report["capability"]]:
         for key in CAPABILITY_FIELDS:
             assert key in fields, fields
-
-
 def write_cache(root: Path, version: str = "lkjai-packed-cache-v2", vocab_size: int = 256):
     cache = root / "datasets" / "packed" / "train-causal_lm_full-seq1024"
     cache.mkdir(parents=True)
@@ -71,12 +67,16 @@ def run_train(train_bin: str, root: Path, repo: Path, steps: int, extra=None):
     expected = {"loader_backend": "persistent_packed_cache_reader", "row_layout": "dense_physical_bxseq_masked_final_token",
                 "matmul_plan_cache_enabled": True, "buffer_reuse_enabled": True, "timing_source": "cuda_events_with_boundary_sync",
                 "forward_backend": "cuda_bf16_cublaslt", "backward_backend": "cuda_bf16_cublaslt_scatter",
-                "backward_gemm_enabled": True, "embedding_grad_backend": "token_scatter_add_fp32", "optimizer_backend": "cuda_adamw_fp32"}
+                "backward_gemm_enabled": True, "embedding_grad_backend": "token_scatter_add_fp32", "optimizer_backend": "cuda_adamw_fp32",
+                "loss_kernel_backend": "block_row_softmax_fp32", "loss_readback_mode": "optimizer_step_deferred_pinned",
+                "logits_readback_mode": "single_row_capture", "dense_stream_count": 2, "dense_batch_slot_count": 3,
+                "copy_compute_overlap_enabled": True, "batch_staging_backend": "triple_slot_pinned_direct_read"}
     for key, expected in expected.items():
         assert persisted[key] == expected
     assert persisted["accepted_cuda_training"] is True
     assert persisted["implementation_status"] == "accepted"
     assert persisted["dense_step_logits_bytes"] == persisted["dense_step_grad_logits_bytes"]
+    assert persisted["dense_logits_readback_bytes"] == 256 * 4
     assert persisted["dense_step_d_hidden_bytes"] > 0 and persisted["cublaslt_workspace_bytes"] > 0
     assert persisted["cuda_probe_passed"] is True
     assert_capability_fields(persisted)

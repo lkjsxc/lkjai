@@ -180,19 +180,6 @@ std::vector<float> DeviceTensor::copy_to_host_f32(cudaStream_t stream) const {
   return host;
 }
 
-CudaExecutionContext::CudaExecutionContext() {
-  require_cuda(cudaStreamCreate(&stream_), "cudaStreamCreate");
-  require_cublaslt(cublasLtCreate(&cublaslt_), "cublasLtCreate");
-  require_cudnn(cudnnCreate(&cudnn_), "cudnnCreate");
-  require_cudnn(cudnnSetStream(cudnn_, stream_), "cudnnSetStream");
-}
-
-CudaExecutionContext::~CudaExecutionContext() {
-  if (cudnn_) cudnnDestroy(cudnn_);
-  if (cublaslt_) cublasLtDestroy(cublaslt_);
-  if (stream_) cudaStreamDestroy(stream_);
-}
-
 const char* dtype_name(DeviceDType dtype) {
   return dtype == DeviceDType::f32 ? "f32" : "bf16";
 }
