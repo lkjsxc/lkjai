@@ -11,6 +11,8 @@ metrics.
   training report validation and Markdown summary helpers.
 - [benchmark_reports.py](benchmark_reports.py): train-report summary and
   promotion-gating helpers, including dense backward GEMM/scatter fields.
+- [compare_dense_speed.py](compare_dense_speed.py): compares matched baseline
+  and post-change dense reports for backward time and throughput.
 - [dense_40m_compat_support.py](dense_40m_compat_support.py): bounded 40M
   compatibility runner internals.
 - [dense_accepted_training_support.py](dense_accepted_training_support.py):
