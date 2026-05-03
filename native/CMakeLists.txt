@@ -42,14 +42,9 @@ endif()
 string(REPLACE ";" "," LKJAI_CUDA_ARCH_FLAGS "${CMAKE_CUDA_ARCHITECTURES}")
 find_package(CUDAToolkit REQUIRED)
 find_library(CUDNN_LIBRARY cudnn REQUIRED)
+include(cmake/NativeSources.cmake)
 
-add_library(lkjai_cuda STATIC
-  src/cuda_probe.cu
-  src/runtime_errors.cu
-  src/runtime_context.cu
-  src/runtime_device.cu
-  src/runtime_workspace.cu
-)
+add_library(lkjai_cuda STATIC ${LKJAI_CUDA_SOURCES})
 target_link_libraries(lkjai_cuda PUBLIC
   CUDA::cudart
   CUDA::cublas
@@ -61,48 +56,7 @@ target_compile_options(lkjai_cuda PUBLIC
 )
 target_compile_definitions(lkjai_cuda PUBLIC LKJAI_WITH_CUDA=1)
 
-add_library(lkjai_native_core STATIC
-  src/artifact.cpp
-  src/artifact_manifest.cpp
-  src/artifact_validate.cpp
-  src/capability_json.cpp
-  src/dense_model.cpp
-  src/env.cpp
-  src/json_min.cpp
-  src/packed_cache.cpp
-  src/packed_cache_reader.cpp
-  src/packed_cache_validate.cpp
-  src/train_data.cpp
-  src/train_report.cpp
-  src/dense_checkpoint.cpp
-  src/dense_cuda.cu
-  src/dense_cuda_common.cpp
-  src/dense_cuda_gemm.cu
-  src/dense_cuda_kernels.cu
-  src/dense_cuda_logits.cpp
-  src/dense_cuda_logits_reference.cpp
-  src/dense_cuda_state.cu
-  src/dense_cuda_step.cu
-  src/dense_cuda_train.cpp
-  src/dense_loss_trend.cpp
-  src/dense_report_util.cpp
-  src/dense_train.cpp
-  src/dense_train_artifact.cpp
-  src/dense_train_math.cpp
-  src/transformer_artifact.cpp
-  src/transformer_config.cpp
-  src/transformer_cuda.cu
-  src/transformer_forward.cpp
-  src/transformer_init.cpp
-  src/transformer_load.cpp
-  src/transformer_logits.cpp
-  src/transformer_optim.cpp
-  src/transformer_report.cpp
-  src/transformer_train.cpp
-  src/transformer_util.cpp
-  src/train_real.cpp
-  src/training_config.cpp
-)
+add_library(lkjai_native_core STATIC ${LKJAI_NATIVE_CORE_SOURCES})
 target_include_directories(lkjai_native_core PUBLIC src)
 target_link_libraries(lkjai_native_core PUBLIC lkjai_cuda)
 target_compile_definitions(lkjai_native_core PUBLIC

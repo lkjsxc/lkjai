@@ -1,0 +1,50 @@
+set(LKJAI_CUDA_SOURCES
+  src/cuda_probe.cu
+  src/runtime_errors.cu
+  src/runtime_context.cu
+  src/runtime_device.cu
+  src/runtime_workspace.cu
+)
+
+set(LKJAI_NATIVE_CORE_SOURCES
+  src/artifact.cpp
+  src/artifact_manifest.cpp
+  src/artifact_validate.cpp
+  src/capability_json.cpp
+  src/dense_checkpoint.cpp
+  src/dense_cuda.cu
+  src/dense_cuda_common.cpp
+  src/dense_cuda_gemm.cu
+  src/dense_cuda_kernels.cu
+  src/dense_cuda_logits.cpp
+  src/dense_cuda_logits_reference.cpp
+  src/dense_cuda_state.cu
+  src/dense_cuda_step.cu
+  src/dense_cuda_train.cpp
+  src/dense_loss_trend.cpp
+  src/dense_model.cpp
+  src/dense_report_util.cpp
+  src/dense_train.cpp
+  src/dense_train_artifact.cpp
+  src/dense_train_math.cpp
+  src/env.cpp
+  src/json_min.cpp
+  src/packed_cache.cpp
+  src/packed_cache_reader.cpp
+  src/packed_cache_validate.cpp
+  src/train_data.cpp
+  src/train_real.cpp
+  src/train_report.cpp
+  src/training_config.cpp
+  src/transformer_artifact.cpp
+  src/transformer_config.cpp
+  src/transformer_cuda.cu
+  src/transformer_forward.cpp
+  src/transformer_init.cpp
+  src/transformer_load.cpp
+  src/transformer_logits.cpp
+  src/transformer_optim.cpp
+  src/transformer_report.cpp
+  src/transformer_train.cpp
+  src/transformer_util.cpp
+)
