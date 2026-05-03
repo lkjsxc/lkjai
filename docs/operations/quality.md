@@ -15,7 +15,7 @@
 ## Compose Gate
 
 ```bash
-docker compose --progress quiet --profile verify up --build --abort-on-container-exit verify
+docker compose --progress quiet --profile verify run --rm verify
 ```
 
 `ops/verify.sh` keeps full logs in `/tmp/lkjai-verify-logs` and tails only failing

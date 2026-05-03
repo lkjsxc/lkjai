@@ -75,10 +75,32 @@ def accepted_training_summary_errors(row: dict) -> list[str]:
     _append_logits_errors(row, errors)
     _append_infer_errors(row, errors)
     _append_timing_errors(row, errors)
-    for key in ("forward_backend", "backward_backend", "optimizer_backend", "cuda_device_name"):
+    _append_backend_errors(row, errors)
+    for key in ("cuda_device_name",):
         if not row.get(key):
             errors.append(f"{key} must be present")
     return errors
+
+
+def _append_backend_errors(row: dict, errors: list[str]) -> None:
+    expected = {
+        "forward_backend": "cuda_bf16_cublaslt",
+        "backward_backend": "cuda_bf16_cublaslt_scatter",
+        "embedding_grad_backend": "token_scatter_add_fp32",
+        "optimizer_backend": "cuda_adamw_fp32",
+    }
+    for key, value in expected.items():
+        if row.get(key) != value:
+            errors.append(f"{key} must be {value}")
+    if row.get("backward_gemm_enabled") is not True:
+        errors.append("backward_gemm_enabled must be true")
+    for key in ("dense_step_logits_bytes", "dense_step_grad_logits_bytes",
+                "dense_step_d_hidden_bytes", "cublaslt_workspace_bytes"):
+        try:
+            if int(row.get(key, 0)) <= 0:
+                errors.append(f"{key} must be positive")
+        except (TypeError, ValueError):
+            errors.append(f"{key} must be numeric")
 
 
 def _append_token_errors(row: dict, errors: list[str]) -> None:

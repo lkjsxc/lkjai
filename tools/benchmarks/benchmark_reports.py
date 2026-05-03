@@ -109,6 +109,10 @@ def dense_promotion_errors(report: dict) -> list[str]:
         errors.append("buffer_reuse_enabled must be true")
     if report.get("timing_source") != "cuda_events_with_boundary_sync":
         errors.append("timing_source must be cuda_events_with_boundary_sync")
+    for key, expected in {"forward_backend": "cuda_bf16_cublaslt", "backward_backend": "cuda_bf16_cublaslt_scatter", "embedding_grad_backend": "token_scatter_add_fp32", "optimizer_backend": "cuda_adamw_fp32"}.items():
+        if report.get(key) != expected: errors.append(f"{key} must be {expected}")
+    if report.get("backward_gemm_enabled") is not True:
+        errors.append("backward_gemm_enabled must be true")
     try:
         initial_loss = float(report.get("initial_loss"))
         loss = float(report.get("loss"))

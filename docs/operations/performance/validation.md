@@ -5,9 +5,9 @@
 Native CUDA work is accepted by parity, stability, and runtime-contract tests,
 not by finite loss alone.
 
-The canonical hardware gate is RTX 3070 8GB. Larger GPUs, including
-RTX 5090/Blackwell, are benchmark profiles unless the same change also passes
-the RTX 3070 gate.
+The canonical hardware gate is RTX 3070. Larger GPUs, including RTX 4090/Ada
+and RTX 5090/Blackwell, are benchmark profiles unless the same change also
+passes the RTX 3070 gate.
 
 ## Required Checks
 
@@ -19,7 +19,7 @@ the RTX 3070 gate.
 | Config policy | every native/training config uses known keys and valid BF16 dimensions |
 | Forward | tiny-model logits parity against CPU FP32 reference |
 | Attention | MHA, GQA, masks, and sequence-length parity |
-| Backward | finite-difference checks on small layers |
+| Backward | dense cuBLASLt head/d-hidden GEMM plus token scatter-add report contract |
 | Optimizer | one optimizer step decreases or preserves tiny-batch loss trend |
 | Resume | restart equivalence for counters, LR, optimizer state, and checksums |
 | Export | load/save round trip, tokenizer/config checksum match, and dense BF16 export logits parity against FP32 checkpoint masters |
@@ -44,15 +44,21 @@ interactive diagnosis, but the `run --rm verify` form is the canonical gate.
   Blackwell `120-real` and `120-virtual`.
 - `native_dense_cuda_parity` now wraps `lkjai-native-dense-check` and fails if
   dense CUDA parity or additive hardware/build capability fields are missing.
+- `native_packed_train_contract` fails if dense train reports do not declare
+  `backward_backend=cuda_bf16_cublaslt_scatter`,
+  `backward_gemm_enabled=true`, `embedding_grad_backend`, step-buffer byte
+  counts, accepted dense CUDA status, resume equivalence, deterministic export
+  checksums, and BF16 export/reference logits parity.
 
 ## Metrics
 
 Benchmark reports must include:
 
 - training tokens/sec,
-- p50 and p95 microstep latency,
+- matched baseline/post `timings.backward` and `tokens_per_second` for dense
+  speed slices,
 - batch load, H2D, forward, backward, optimizer, checkpoint, and export timing,
-- peak and steady device memory,
+- dense logits, grad-logits, hidden-gradient, and cuBLASLt workspace bytes,
 - prefill tokens/sec after decode lands,
 - decode ms/token at batch `1`, `4`, and `8` after decode lands.
 
