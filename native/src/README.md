@@ -45,8 +45,9 @@ artifact inspection, and CUDA capability probing.
 - [dense_report_util.cpp](dense_report_util.cpp) and
   [dense_report_util.hpp](dense_report_util.hpp): dense report checksum,
   parameter-count, and loss-sample serialization helpers.
-- [runtime_device.cu](runtime_device.cu), [runtime_workspace.cu](runtime_workspace.cu),
-  [runtime_errors.cu](runtime_errors.cu), and [runtime_device.hpp](runtime_device.hpp):
+- [runtime_context.cu](runtime_context.cu), [runtime_device.cu](runtime_device.cu),
+  [runtime_workspace.cu](runtime_workspace.cu), [runtime_errors.cu](runtime_errors.cu),
+  and [runtime_device.hpp](runtime_device.hpp):
   reusable CUDA tensor/context substrate for later GEMM and attention work.
 - [runtime_device_check_main.cpp](runtime_device_check_main.cpp): BF16
   device-tensor round-trip check binary.

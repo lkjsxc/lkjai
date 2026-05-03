@@ -31,6 +31,8 @@ metrics.
   learning-control cache and Docker command helpers.
 - [dense_learning_control_support.py](dense_learning_control_support.py):
   dense learning-control validation and summary helpers.
+- [dense_runtime_contract.py](dense_runtime_contract.py): shared dense runtime
+  report-field defaults and parser helpers.
 - [promote_dense_debug.py](promote_dense_debug.py): accepted dense debug
   promotion entrypoint.
 - [run_matrix.py](run_matrix.py): benchmark matrix launcher.
