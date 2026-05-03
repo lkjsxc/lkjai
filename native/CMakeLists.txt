@@ -125,6 +125,10 @@ target_link_libraries(lkjai-native-packed-cache-reader-check
 )
 
 enable_testing()
+add_test(
+  NAME native_config_contract
+  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/config_contract.py ${CMAKE_CURRENT_SOURCE_DIR}/..
+)
 add_test(NAME native_inspect_missing COMMAND lkjai-native-inspect --model-dir /missing)
 set_tests_properties(native_inspect_missing PROPERTIES WILL_FAIL TRUE)
 add_test(

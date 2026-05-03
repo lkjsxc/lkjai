@@ -1,0 +1,19 @@
+{
+  "format": "lkjai-train-config-v1",
+  "name": "profile_120m_5090",
+  "description": "RTX 5090/Blackwell transformer profile target; not accepted transformer CUDA training.",
+  "preset": "agent",
+  "model_name": "lkjai-profile-120m-5090",
+  "model_kind": "transformer",
+  "native_config": "configs/native/native_120m_bf16_5090.json",
+  "packed_cache_dir": "/app/data/train/datasets/packed/train-causal_lm_full-seq1024",
+  "objective": "causal_lm_full",
+  "sequence_len": 1024,
+  "learning_rate": 0.0002,
+  "warmup_steps": 20,
+  "batch_size": 1,
+  "gradient_accumulation": 1,
+  "max_optimizer_steps": 32,
+  "save_latest_every_optimizer_steps": 8,
+  "seed": 42
+}

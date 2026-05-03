@@ -1,0 +1,19 @@
+{
+  "format": "lkjai-train-config-v1",
+  "name": "profile_20m_3070",
+  "description": "RTX 3070 transformer profile target; not accepted transformer CUDA training.",
+  "preset": "agent",
+  "model_name": "lkjai-profile-20m-3070",
+  "model_kind": "transformer",
+  "native_config": "configs/native/native_20m_bf16_3070.json",
+  "packed_cache_dir": "/app/data/train/datasets/packed/train-causal_lm_full-seq512",
+  "objective": "causal_lm_full",
+  "sequence_len": 512,
+  "learning_rate": 0.0003,
+  "warmup_steps": 10,
+  "batch_size": 1,
+  "gradient_accumulation": 1,
+  "max_optimizer_steps": 16,
+  "save_latest_every_optimizer_steps": 8,
+  "seed": 42
+}
