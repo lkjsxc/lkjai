@@ -14,6 +14,8 @@ Use this subtree for the native C++/CUDA train and serve contracts.
 - [strategy.md](strategy.md): rewrite boundary and migration order
 - [artifact.md](artifact.md): native checkpoint and weight files
 - [capability.md](capability.md): reusable CUDA capability JSON shape
+- [contract-inventory.md](contract-inventory.md): stable native contracts,
+  additive fields, diagnostics, and future-versioned surfaces
 - [cuda-stack.md](cuda-stack.md): pinned CUDA, vendor library, and precision stack
 - [dense-decoder.md](dense-decoder.md): current dense CUDA milestone and
   transformer roadmap

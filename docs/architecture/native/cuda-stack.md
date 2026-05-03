@@ -15,6 +15,24 @@ The phase-one native stack is deliberately narrow:
 - Shape kernels: CUTLASS only after cuBLASLt/cuDNN measurements justify it.
 - Distributed: NCCL only after single-GPU acceptance passes.
 
+## CUDA Architecture Policy
+
+Default native builds compile a consumer multi-arch set for Ampere, Ada, Hopper,
+and Blackwell: `86-real;86-virtual;89-real;89-virtual;90-real;90-virtual;120-real;120-virtual`.
+
+Selection precedence is:
+
+1. Explicit `-DCMAKE_CUDA_ARCHITECTURES=...`.
+2. `LKJAI_CUDA_ARCHS=...`.
+3. The repo default above.
+
+Use these focused builds when measuring specific targets:
+
+```bash
+LKJAI_CUDA_ARCHS='86-real;86-virtual' cmake -S native -B /tmp/lkjai-native-86 -G Ninja
+LKJAI_CUDA_ARCHS='120-real;120-virtual' cmake -S native -B /tmp/lkjai-native-120 -G Ninja
+```
+
 ## Hardware Gate
 
 - Native BF16 requires compute capability `8.0+`.
@@ -53,3 +71,12 @@ Upgrade one stack layer at a time. A stack upgrade must include:
 3. Training tokens/sec comparison on the active debug shape.
 4. Decode latency comparison once transformer decode exists.
 5. A rollback note in the training report if performance regresses.
+
+## Official References
+
+- NVIDIA CUDA Compiler Driver, CUDA 12.8 architecture names:
+  <https://docs.nvidia.com/cuda/archive/12.8.0/cuda-compiler-driver-nvcc/>
+- NVIDIA Blackwell Tuning Guide, CUDA 12.8:
+  <https://docs.nvidia.com/cuda/archive/12.8.1/blackwell-tuning-guide/>
+- NVIDIA stream-ordered memory allocator:
+  <https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/stream-ordered-memory-allocation.html>

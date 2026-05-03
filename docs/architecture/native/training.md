@@ -51,7 +51,8 @@ forward and backward kernels are device-resident.
   counts, BF16 export logits-check result, artifact paths/checksums, `status`,
   `failure_reason`, and `weight_changed=true`.
 - Capability reporting must show whether the run used CUDA, native BF16,
-  cuBLASLt, cuDNN, and SDPA-eligible shapes.
+  cuBLASLt, cuDNN, device memory, SM count, async allocation support, build
+  architecture flags, and SDPA device/library eligibility.
 - Dense reports must state the persistent packed-cache reader, physical `B*S`
   row layout with masked final-token loss, cuBLASLt plan cache, reusable step
   buffers, and CUDA-event timing source.
@@ -148,6 +149,10 @@ All native train reports use schema version `3`. Common fields include
 `cuda_probe_passed`, precision fields, `limitations`, artifact paths/checksums,
 losses, timings, and capability. `timings.h2d` is separate from
 `timings.forward`.
+
+Schema v3 capability fields are additive. Consumers must preserve existing
+fields and tolerate the hardware/build fields listed in
+[capability.md](capability.md).
 
 Dense reports declare `accepted_cuda_training=true`,
 `implementation_status=accepted`, `dense_cuda_path=true`,

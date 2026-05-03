@@ -11,8 +11,12 @@ Verification proves:
 ## Mandatory Command
 
 ```bash
-docker compose --progress quiet --profile verify up --build --abort-on-container-exit verify
+docker compose --progress quiet --profile verify run --rm verify
 ```
+
+The existing `up --build --abort-on-container-exit verify` form remains useful
+when inspecting Compose lifecycle behavior, but `run --rm verify` is the
+canonical pass/fail gate.
 
 ## Mandatory Checks in `ops/verify.sh`
 
@@ -35,7 +39,7 @@ container and prints only one pass line per check. On failure it prints the last
 Use this when an agent needs the failure without reading full Docker logs:
 
 ```bash
-VERIFY_TAIL_LINES=80 docker compose --progress quiet --profile verify up --build --abort-on-container-exit verify
+VERIFY_TAIL_LINES=80 docker compose --progress quiet --profile verify run --rm verify
 ```
 
 ## Scope Boundary

@@ -15,6 +15,7 @@ the RTX 3070 gate.
 |---|---|
 | Device substrate | allocation, free, shape, dtype, and host-device round trip |
 | Capability | CC, BF16, cuBLASLt, cuDNN, and SDPA eligibility JSON |
+| Build policy | default CUDA arch list includes Blackwell `120` and accepts focused env overrides |
 | Forward | tiny-model logits parity against CPU FP32 reference |
 | Attention | MHA, GQA, masks, and sequence-length parity |
 | Backward | finite-difference checks on small layers |
@@ -22,6 +23,15 @@ the RTX 3070 gate.
 | Resume | restart equivalence for counters, LR, optimizer state, and checksums |
 | Export | load/save round trip, tokenizer/config checksum match, and dense BF16 export logits parity against FP32 checkpoint masters |
 | Server | `/v1/models`, unsupported decode, and later real decode contracts |
+
+## Canonical Verify
+
+```bash
+docker compose --progress quiet --profile verify run --rm verify
+```
+
+The older `up --abort-on-container-exit verify` form is acceptable for
+interactive diagnosis, but the `run --rm verify` form is the canonical gate.
 
 ## Metrics
 

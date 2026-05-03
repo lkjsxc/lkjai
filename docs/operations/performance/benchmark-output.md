@@ -30,6 +30,11 @@ The report includes:
 - `cuda_available`
 - `cuda_device_name`
 - `cuda_arch_flags`
+- `cuda_driver_version`
+- `cuda_device_count`
+- `cuda_device_index`
+- `cuda_total_global_memory`
+- `cuda_sm_count`
 - `git_commit`
 - `build_type`
 - `config_path`
@@ -63,8 +68,9 @@ The report includes:
 
 `timings` includes `batch_load`, `h2d`, `forward`, `backward`, `optimizer`,
 `checkpoint`, and `export`. `capability` uses the reusable native capability
-JSON shape. Dense `logits_check` validates exported BF16 weights and, for train
-runs, records FP32 checkpoint reference tolerance fields.
+JSON shape, including additive hardware/build fields. Dense `logits_check`
+validates exported BF16 weights and, for train runs, records FP32 checkpoint
+reference tolerance fields.
 
 Successful schema v3 train reports use top-level `status=success`. Nested
 checks, including `logits_check.status` and `reference_check`, continue to use

@@ -11,12 +11,18 @@ Capability JSON includes:
 - `device`: `cuda` or `cpu`.
 - `gpu_name`: CUDA device name when available.
 - `compute_capability`: `[major, minor]`.
+- `cuda_driver_version`: integer CUDA driver version.
 - `cuda_runtime_version`: integer CUDA runtime version.
 - `cudnn_version`: integer cuDNN runtime version.
+- `cuda_device_count`: visible CUDA device count.
+- `cuda_device_index`: selected CUDA device index.
+- `cuda_total_global_memory`: selected device memory in bytes.
+- `cuda_sm_count`: selected device SM count.
+- `cuda_arch_flags`: CUDA architecture flags embedded in the native build.
 - `bf16_supported`: compute capability `8.0+`.
 - `cublaslt_available`: cuBLASLt handle creation succeeded.
 - `cudnn_available`: cuDNN handle creation succeeded.
-- `sdpa_eligible`: BF16 plus a shape/library gate that permits cuDNN SDPA.
+- `sdpa_eligible`: BF16 plus cuDNN availability in this foundation phase.
 - `async_alloc_supported`: CUDA memory-pool allocation is usable.
 - `warning`: human-readable degraded-mode reason.
 - `error`: hard failure reason for capability check executables.

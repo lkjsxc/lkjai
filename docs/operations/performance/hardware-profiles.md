@@ -10,6 +10,8 @@ The gate means:
 
 - `docker compose --progress quiet --profile verify run --rm verify` must pass
   on RTX 3070.
+- Focused 3070 native builds use
+  `LKJAI_CUDA_ARCHS='86-real;86-virtual'`.
 - Accepted dense reports must come from the dense BF16 CUDA path with
   `accepted_cuda_training=true`.
 - Transformer reports, decode probes, CUDA Graph experiments, and NCCL tests are
@@ -22,6 +24,10 @@ The gate means:
 RTX 5090/Blackwell is a higher-throughput profiling target. Use it to measure
 headroom, memory pressure, cuBLASLt/cuDNN behavior, CUDA Graph readiness, and
 future transformer kernels. Do not use it as the acceptance baseline.
+
+Focused Blackwell profile builds use
+`LKJAI_CUDA_ARCHS='120-real;120-virtual'`. The default native build also
+includes Blackwell `120-real` and `120-virtual` flags.
 
 When publishing a 5090 result, record it as a profile with:
 
@@ -47,6 +53,8 @@ When publishing a 5090 result, record it as a profile with:
   profiling future transformer and decode work.
 - cuDNN SDPA supports FP16/BF16 attention inputs for eligible shapes; eligibility
   is still a runtime capability/report field, not a blanket acceptance claim.
+- The new native profile configs are target/profile shapes, not accepted
+  transformer CUDA training.
 
 ## Official References
 
@@ -58,5 +66,7 @@ When publishing a 5090 result, record it as a profile with:
   <https://developer.nvidia.com/cuda/gpus>
 - NVIDIA CUDA C++ floating-point type requirements:
   <https://docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/mathematical-functions.html>
+- NVIDIA CUDA stream-ordered memory allocator:
+  <https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/stream-ordered-memory-allocation.html>
 - NVIDIA cuDNN frontend attention docs:
   <https://docs.nvidia.com/deeplearning/cudnn/frontend/latest/operations/Attention.html>

@@ -8,7 +8,7 @@ Serve the scratch model through one native C++/CUDA HTTP process.
 
 - `GET /healthz` reports process and artifact load status.
 - `GET /v1/models` reports model readiness, device, CUDA availability, GPU
-  name, and warning.
+  name, hardware/build capability fields, and warning.
 - `POST /v1/chat/completions` accepts `model`, `messages`, `max_tokens`, and
   `temperature`.
 - Successful chat responses will keep `choices[0].message.content` after
