@@ -4,7 +4,6 @@ import sys
 import tempfile
 from pathlib import Path
 
-
 def main() -> None:
     repo = Path(__file__).resolve().parents[2]
     sys.path.insert(0, str(repo / "tools" / "benchmarks"))
@@ -29,6 +28,12 @@ def main() -> None:
         "matmul_plan_cache_enabled": True,
         "buffer_reuse_enabled": True,
         "timing_source": "cuda_events_with_boundary_sync",
+        "backward_gemm_enabled": True,
+        "embedding_grad_backend": "token_scatter_add_fp32",
+        "dense_step_logits_bytes": 8192,
+        "dense_step_grad_logits_bytes": 8192,
+        "dense_step_d_hidden_bytes": 1024,
+        "cublaslt_workspace_bytes": 4194304,
         "cuda_device_name": "Synthetic CUDA",
         "cuda_driver_version": 12080,
         "cuda_runtime_version": 12080,
@@ -90,6 +95,9 @@ def main() -> None:
         assert summary["implementation_status"] == "accepted"
         assert summary["loader_backend"] == "persistent_packed_cache_reader"
         assert summary["matmul_plan_cache_enabled"] is True
+        assert summary["backward_gemm_enabled"] is True
+        assert summary["embedding_grad_backend"] == "token_scatter_add_fp32"
+        assert {k: summary[k] for k in ("dense_step_logits_bytes", "dense_step_grad_logits_bytes", "dense_step_d_hidden_bytes", "cublaslt_workspace_bytes")} == {"dense_step_logits_bytes": 8192, "dense_step_grad_logits_bytes": 8192, "dense_step_d_hidden_bytes": 1024, "cublaslt_workspace_bytes": 4194304}
         assert summary["cuda_driver_version"] == 12080
         assert summary["cuda_device_count"] == 1
         assert summary["cuda_total_global_memory"] == 8589934592
@@ -185,7 +193,5 @@ def main() -> None:
         missing_loader["loader_backend"] = ""
         errors = dense_promotion_errors(missing_loader)
         assert "loader_backend must be persistent_packed_cache_reader" in errors
-
-
 if __name__ == "__main__":
     main()

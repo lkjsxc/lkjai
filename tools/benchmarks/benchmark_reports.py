@@ -1,20 +1,16 @@
 import math
 from accepted_training_reports import accepted_training_summary_errors
-
 PROMOTABLE_RUN_PURPOSES = {"accepted_training", "dense_learning_control"}
-
 
 def _sample_loss(sample) -> float:
     if isinstance(sample, dict):
         return float(sample.get("loss"))
     return float(sample)
-
 def _finite(value) -> bool:
     try:
         return math.isfinite(float(value))
     except (TypeError, ValueError):
         return False
-
 def summarize_train_report(report: dict) -> dict:
     timings = report.get("timings", {})
     logits_check = report.get("logits_check", {})
@@ -44,6 +40,12 @@ def summarize_train_report(report: dict) -> dict:
         "parameter_count": int(report.get("parameter_count", 0)),
         "forward_backend": report.get("forward_backend", ""),
         "backward_backend": report.get("backward_backend", ""),
+        "backward_gemm_enabled": bool(report.get("backward_gemm_enabled", False)),
+        "embedding_grad_backend": report.get("embedding_grad_backend", ""),
+        "dense_step_logits_bytes": int(report.get("dense_step_logits_bytes", 0)),
+        "dense_step_grad_logits_bytes": int(report.get("dense_step_grad_logits_bytes", 0)),
+        "dense_step_d_hidden_bytes": int(report.get("dense_step_d_hidden_bytes", 0)),
+        "cublaslt_workspace_bytes": int(report.get("cublaslt_workspace_bytes", 0)),
         "optimizer_backend": report.get("optimizer_backend", ""),
         "cuda_device_name": report.get("cuda_device_name", ""),
         "cuda_driver_version": int(report.get("cuda_driver_version", 0)), "cuda_runtime_version": int(report.get("cuda_runtime_version", 0)),
@@ -81,8 +83,6 @@ def summarize_train_report(report: dict) -> dict:
         "logits_max_abs_diff": float(logits_check.get("max_abs_diff", 0.0)),
         "logits_tolerance": float(logits_check.get("tolerance", 0.0)),
     }
-
-
 def dense_promotion_errors(report: dict) -> list[str]:
     errors = []
     if report.get("schema_version") != 3:
@@ -155,14 +155,10 @@ def dense_promotion_errors(report: dict) -> list[str]:
     except (TypeError, ValueError):
         errors.append("logits_check max_abs_diff and tolerance must be numeric")
     return errors
-
-
 def validate_dense_promotion_report(report: dict) -> None:
     errors = dense_promotion_errors(report)
     if errors:
         raise ValueError("; ".join(errors))
-
-
 def is_promotable_dense_summary(row: dict) -> bool:
     try:
         checks = [
