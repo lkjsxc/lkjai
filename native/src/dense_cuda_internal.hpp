@@ -28,6 +28,7 @@ class DenseCudaState {
                           bool reset_grads = true);
   void adamw(float lr, int step);
   DenseTrainState copy_to_host();
+  size_t cublaslt_workspace_bytes() const { return workspace_.bytes_reserved(); }
 
  private:
   void zero_gradients();
@@ -55,6 +56,7 @@ class DenseCudaState {
   DeviceTensor step_hidden_;
   DeviceTensor step_out_;
   DeviceTensor step_grad_logits_;
+  DeviceTensor step_d_hidden_;
   DeviceTensor step_loss_;
   int step_rows_ = 0;
   uint16_t* host_tokens_ = nullptr;
@@ -104,13 +106,10 @@ void dense_launch_loss_grad(const float* logits, const uint16_t* tokens,
                             float* loss, int batch, int seq, int vocab,
                             int supervised, float grad_scale,
                             cudaStream_t stream);
-void dense_launch_head_grad(const float* grad_logits, const void* hidden,
-                            float* grad_head, int rows, int vocab,
-                            int hidden_size, cudaStream_t stream);
-void dense_launch_emb_grad(const float* grad_logits, const void* head,
-                           const uint16_t* tokens, float* grad_emb, int batch,
-                           int seq, int vocab, int hidden_size,
-                           cudaStream_t stream);
+void dense_launch_scatter_emb_grad(const uint16_t* tokens,
+                                   const float* d_hidden, float* grad_emb,
+                                   int batch, int seq, int vocab,
+                                   int hidden_size, cudaStream_t stream);
 void dense_launch_adamw(float* weight, float* m, float* v, const float* grad,
                         void* shadow, int n, float lr, int step,
                         cudaStream_t stream);

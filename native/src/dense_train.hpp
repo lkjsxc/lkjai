@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -86,6 +87,10 @@ struct DenseTrainReport {
   double optimizer_seconds = 0.0;
   double checkpoint_seconds = 0.0;
   double export_seconds = 0.0;
+  uint64_t dense_step_logits_bytes = 0;
+  uint64_t dense_step_grad_logits_bytes = 0;
+  uint64_t dense_step_d_hidden_bytes = 0;
+  uint64_t cublaslt_workspace_bytes = 0;
 };
 
 bool load_dense_config(const std::filesystem::path& path, DenseConfig* config,

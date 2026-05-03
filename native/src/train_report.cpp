@@ -34,7 +34,9 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << ",\"accepted_cuda_training\":true"
        << ",\"implementation_status\":\"accepted\""
        << ",\"forward_backend\":\"cuda_bf16_cublaslt\""
-       << ",\"backward_backend\":\"cuda_custom_or_gemm\""
+       << ",\"backward_backend\":\"cuda_bf16_cublaslt_scatter\""
+       << ",\"backward_gemm_enabled\":true"
+       << ",\"embedding_grad_backend\":\"token_scatter_add_fp32\""
        << ",\"optimizer_backend\":\"cuda_adamw_fp32\""
        << ",\"cuda_probe_passed\":"
        << (cuda_required_ok(cuda) ? "true" : "false")
@@ -86,6 +88,14 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << ",\"seq_len\":" << report.seq_len
        << ",\"grad_accum\":" << report.grad_accum
        << ",\"parameter_count\":" << dense_report_parameter_count(report)
+       << ",\"dense_step_logits_bytes\":"
+       << static_cast<unsigned long long>(report.dense_step_logits_bytes)
+       << ",\"dense_step_grad_logits_bytes\":"
+       << static_cast<unsigned long long>(report.dense_step_grad_logits_bytes)
+       << ",\"dense_step_d_hidden_bytes\":"
+       << static_cast<unsigned long long>(report.dense_step_d_hidden_bytes)
+       << ",\"cublaslt_workspace_bytes\":"
+       << static_cast<unsigned long long>(report.cublaslt_workspace_bytes)
        << ",\"tokens_seen\":" << report.input_tokens
        << ",\"input_tokens\":" << report.input_tokens
        << ",\"loss_tokens\":" << report.loss_tokens

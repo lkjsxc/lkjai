@@ -42,6 +42,7 @@ void DenseCudaState::ensure_step_buffers(int rows) {
   step_hidden_ = DeviceTensor({DeviceDType::bf16, {rows, h}}, ctx_->stream());
   step_out_ = DeviceTensor({DeviceDType::f32, {rows, v}}, ctx_->stream());
   step_grad_logits_ = DeviceTensor({DeviceDType::f32, {rows, v}}, ctx_->stream());
+  step_d_hidden_ = DeviceTensor({DeviceDType::f32, {rows, h}}, ctx_->stream());
   step_loss_ = DeviceTensor({DeviceDType::f32, {1}}, ctx_->stream());
   step_rows_ = rows;
 }
@@ -97,15 +98,13 @@ double DenseCudaState::forward_backward(const PackedBatch& batch,
   }
   {
     EventSpan timer(ctx_->stream(), "dense backward event");
-    dense_launch_head_grad(static_cast<float*>(step_grad_logits_.data()),
-                           step_hidden_.data(),
-                           static_cast<float*>(grad_head_.data()), rows, v, h,
-                           ctx_->stream());
-    dense_launch_emb_grad(static_cast<float*>(step_grad_logits_.data()),
-                          head_shadow_.data(), device_tokens_,
-                          static_cast<float*>(grad_emb_.data()),
-                          batch.batch_size, batch.sequence_len, v, h,
-                          ctx_->stream());
+    gemm_head_grad(step_grad_logits_, step_hidden_, rows);
+    gemm_d_hidden(step_grad_logits_, step_d_hidden_, rows);
+    dense_launch_scatter_emb_grad(device_tokens_,
+                                  static_cast<float*>(step_d_hidden_.data()),
+                                  static_cast<float*>(grad_emb_.data()),
+                                  batch.batch_size, batch.sequence_len, v, h,
+                                  ctx_->stream());
     if (bwd_seconds) *bwd_seconds += timer.seconds();
   }
   auto loss_host = step_loss_.copy_to_host_f32(ctx_->stream());

@@ -44,6 +44,12 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
     report->checkpoint_dir = opt.out_dir / "checkpoints" / "latest";
     report->export_dir = opt.out_dir / "exports" / opt.model_name;
     report->served_dir = opt.out_dir.parent_path() / "models" / opt.model_name;
+    int step_rows = opt.batch_size * seq_len;
+    report->dense_step_logits_bytes =
+        static_cast<uint64_t>(step_rows) * cfg.vocab_size * sizeof(float);
+    report->dense_step_grad_logits_bytes = report->dense_step_logits_bytes;
+    report->dense_step_d_hidden_bytes =
+        static_cast<uint64_t>(step_rows) * cfg.hidden_size * sizeof(float);
     DenseTrainState init;
     DenseCheckpointMetadata resume;
     if (opt.resume_dir.empty()) {
@@ -65,11 +71,11 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
       auto phase = std::chrono::steady_clock::now();
       double loss_sum = 0.0;
       int step = report->start_step + local;
+      PackedBatch batch;
       bool capture_step_logits =
           local == opt.max_steps ||
           (opt.checkpoint_interval > 0 && step % opt.checkpoint_interval == 0);
       for (int micro = 0; micro < opt.grad_accum; ++micro) {
-        PackedBatch batch;
         int first = ((report->start_step + local - 1) * opt.grad_accum +
                      micro) * opt.batch_size;
         phase = std::chrono::steady_clock::now();
@@ -157,6 +163,7 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
                                       &report->logits_checksum);
     }
     report->export_seconds += dense_seconds_since(phase);
+    report->cublaslt_workspace_bytes = state.cublaslt_workspace_bytes();
     if (!ok) {
       *error = "failed to write dense artifact";
       return false;

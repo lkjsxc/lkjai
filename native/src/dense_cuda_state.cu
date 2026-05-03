@@ -91,7 +91,6 @@ void DenseCudaState::zero_gradients() {
     require_cuda(cudaMemsetAsync(t->data(), 0, t->bytes(), ctx_->stream()),
                  "zero dense tensor");
   }
-  require_cuda(cudaStreamSynchronize(ctx_->stream()), "zero dense sync");
 }
 
 void DenseCudaState::adamw(float lr, int step) {
@@ -106,7 +105,6 @@ void DenseCudaState::adamw(float lr, int step) {
                      static_cast<float*>(v_head_.data()),
                      static_cast<float*>(grad_head_.data()), head_shadow_.data(),
                      n, lr, step, ctx_->stream());
-  require_cuda(cudaStreamSynchronize(ctx_->stream()), "adamw sync");
 }
 
 DenseTrainState DenseCudaState::copy_to_host() {

@@ -37,10 +37,9 @@ bool PackedCacheReader::load_batch(uint64_t first_window, int batch_size,
     *error = "invalid packed batch range";
     return false;
   }
-  batch->tokens.assign(
-      static_cast<size_t>(batch_size * status_.sequence_len), 0);
-  batch->loss_mask.assign(
-      static_cast<size_t>(batch_size * status_.sequence_len), 0);
+  auto items = static_cast<size_t>(batch_size * status_.sequence_len);
+  if (batch->tokens.size() != items) batch->tokens.resize(items);
+  if (batch->loss_mask.size() != items) batch->loss_mask.resize(items);
   batch->batch_size = batch_size;
   batch->sequence_len = status_.sequence_len;
   for (int row = 0; row < batch_size; ++row) {
