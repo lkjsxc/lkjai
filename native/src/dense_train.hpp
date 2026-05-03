@@ -46,6 +46,28 @@ struct DenseLossSample {
   double loss = 0.0;
 };
 
+struct DenseWeightTensorDelta {
+  std::string name;
+  uint64_t checked_elements = 0;
+  uint64_t changed_elements = 0;
+  double max_abs_delta = 0.0;
+  double mean_abs_delta = 0.0;
+  std::string status = "fail";
+};
+
+struct DenseWeightChangeReport {
+  int checked_tensors = 0;
+  int changed_tensors = 0;
+  uint64_t checked_elements = 0;
+  uint64_t changed_elements = 0;
+  double max_abs_delta = 0.0;
+  double mean_abs_delta = 0.0;
+  double tolerance = 0.0;
+  std::vector<DenseWeightTensorDelta> tensors;
+  std::string status = "unknown";
+  std::string reason;
+};
+
 struct DenseTrainReport {
   int steps = 0;
   int start_step = 0;
@@ -67,6 +89,7 @@ struct DenseTrainReport {
   double last_quarter_loss_mean = 0.0;
   std::string learning_status = "unknown";
   bool weight_changed = false;
+  DenseWeightChangeReport weight_change;
   std::string logits_checksum;
   bool logits_check_passed = false;
   std::string logits_check_json;

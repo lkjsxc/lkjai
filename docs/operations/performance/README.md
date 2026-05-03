@@ -18,6 +18,8 @@ This subtree is the canonical performance contract for `lkjai`.
   native benchmark tools.
 - [dense-evidence-record.md](dense-evidence-record.md): curated benchmark
   evidence format for dense CUDA throughput changes.
+- [dense-bf16-cuda-training-report.md](dense-bf16-cuda-training-report.md):
+  two-hour dense BF16 CUDA workflow, commands, and current cache blocker.
 - [dense-substrate-20260504.md](dense-substrate-20260504.md): RTX 3070
   evidence for dense autotune, async allocation, deferred timing, and cache
   reporting.

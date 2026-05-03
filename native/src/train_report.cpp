@@ -4,6 +4,7 @@
 #include <sstream>
 #include "capability_json.hpp"
 #include "dense_report_util.hpp"
+#include "dense_weight_change.hpp"
 #include "json_min.hpp"
 #ifndef LKJAI_GIT_COMMIT
 #define LKJAI_GIT_COMMIT "unknown"
@@ -16,7 +17,6 @@
 #endif
 namespace lkjai {
 namespace {
-
 void append_common(std::ostringstream* out, const DenseTrainReport& report,
                    const CudaStatus& cuda, const std::string& trainer_mode,
                    const std::string& status,
@@ -132,8 +132,9 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << json_escape(report.learning_status) << "\""
        << ",\"loss_finite\":true"
        << ",\"weight_changed\":"
-       << (report.weight_changed ? "true" : "false")
-       << ",\"elapsed_ms\":" << elapsed_ms
+       << (report.weight_changed ? "true" : "false") << ",\"weight_change\":";
+  append_dense_weight_change_json(*out, report.weight_change);
+  *out << ",\"elapsed_ms\":" << elapsed_ms
        << ",\"elapsed_seconds\":" << report.elapsed_seconds
        << ",\"tokens_per_second\":" << tokens_per_second
        << ",\"checkpoint_path\":\""
@@ -163,9 +164,7 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << ",\"export\":" << report.export_seconds << "}"
        << ",\"capability\":{" << capability_json_fields(cuda) << "}";
 }
-
 }  // namespace
-
 std::string dense_train_report_json(const DenseTrainReport& report,
                                     const CudaStatus& cuda,
                                     const std::string& trainer_mode,
@@ -176,7 +175,6 @@ std::string dense_train_report_json(const DenseTrainReport& report,
   out << "}";
   return out.str();
 }
-
 bool write_dense_train_report(const DenseTrainReport& report,
                               const CudaStatus& cuda,
                               const std::string& trainer_mode,
@@ -196,5 +194,4 @@ bool write_dense_train_report(const DenseTrainReport& report,
       << "\n";
   return true;
 }
-
 }  // namespace lkjai

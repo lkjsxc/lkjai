@@ -12,9 +12,11 @@ layouts are:
 - Q/K/V attention tensors are target transformer work, not current dense
   trainer behavior.
 
-Routine verification uses `configs/native/native_debug_bf16.json`. The 40M shape
-in `configs/native/native_40m_bf16.json` is for manual smoke and production-like
-runs only.
+Routine verification uses `configs/native/native_debug_bf16.json`. Dense
+production-like runs should use explicit dense-size configs such as
+`configs/native/native_dense_20m_bf16_3070.json` or
+`configs/native/native_dense_40m_bf16_3070.json`. Transformer profile configs
+are separate and do not size the accepted dense parameter count.
 
 ## Precision
 
@@ -32,6 +34,11 @@ Training requires `metadata.json`, `tokens.bin`, `loss_mask.bin`, and
 must be `uint16`, metadata counts must match file sizes, starts must stay within
 the token file, and `loss_mask` marks next-token labels that contribute to cross
 entropy.
+
+Validate the active cache with the Rust builder package
+`lkjai_packed_cache_builder` before long runs. The old smoke cache at
+`data/train/datasets/packed/train-causal_lm_full-seq1024` had seq16/vocab256
+metadata and was invalid for seq1024 dense BF16 jobs until rebuilt.
 
 ## CLI
 
@@ -123,6 +130,27 @@ This uses `run_purpose=bounded_compatibility_start_check`, builds a true
 tokenizer-derived 8-window `seq_len=1024` cache, and checks only that the
 larger dense configuration can start, checkpoint, export, and pass the logits
 reference path over four optimizer steps.
+
+## Two-Hour Dense BF16 Workflow
+
+The production-like two-hour path is:
+
+```sh
+python3 tools/benchmarks/run_dense_2h.py \
+  --run-id dense-2h-3070-$(date +%Y%m%d-%H%M%S) \
+  --native-config configs/native/native_dense_20m_bf16_3070.json \
+  --source data/train/datasets/train.jsonl \
+  --tokenizer data/train/tokenizer/tokenizer.json \
+  --cache data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --seq-len 1024 --sequence-count 8192 \
+  --batch-size 1 --grad-accum 8 \
+  --lr 0.0003 --pilot-steps 128 \
+  --target-seconds 7200 --full
+```
+
+The runner writes GPU identity, driver/runtime, CUDA arch flags, config/cache
+digests, loss samples, throughput, checkpoint/export paths, logits checks, and
+limitations into the benchmark bundle.
 
 ## Limitations
 

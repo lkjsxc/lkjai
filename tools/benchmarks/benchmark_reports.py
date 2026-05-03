@@ -2,13 +2,10 @@ import math
 from accepted_training_reports import accepted_training_summary_errors
 from dense_runtime_contract import TIMING_SOURCES, dense_runtime_errors, dense_runtime_summary_checks, summarize_runtime_fields, summarize_tuning_fields
 PROMOTABLE_RUN_PURPOSES = {"accepted_training", "dense_learning_control"}
-def _sample_loss(sample) -> float:
-    return float(sample.get("loss") if isinstance(sample, dict) else sample)
+def _sample_loss(sample) -> float: return float(sample.get("loss") if isinstance(sample, dict) else sample)
 def _finite(value) -> bool:
-    try:
-        return math.isfinite(float(value))
-    except (TypeError, ValueError):
-        return False
+    try: return math.isfinite(float(value))
+    except (TypeError, ValueError): return False
 def summarize_train_report(report: dict) -> dict:
     timings = report.get("timings", {})
     logits_check = report.get("logits_check", {})
@@ -58,14 +55,14 @@ def summarize_train_report(report: dict) -> dict:
         "loss_sample_interval": int(report.get("loss_sample_interval", 0)),
         "best_loss": float(report.get("best_loss", report.get("loss", 0.0))),
         "best_loss_step": int(report.get("best_loss_step", 0)),
-        "loss_delta": float(report.get(
-            "loss_delta",
-            float(report.get("initial_loss", 0.0)) - float(report.get("loss", 0.0)),
-        )),
+        "loss_delta": float(report.get("loss_delta", float(report.get("initial_loss", 0.0)) - float(report.get("loss", 0.0)))),
         "loss_decrease_fraction": float(report.get("loss_decrease_fraction", 0.0)),
         "first_quarter_loss_mean": float(report.get("first_quarter_loss_mean", 0.0)),
         "last_quarter_loss_mean": float(report.get("last_quarter_loss_mean", 0.0)),
         "learning_status": report.get("learning_status", ""),
+        "weight_changed": bool(report.get("weight_changed", False)),
+        "weight_change_status": report.get("weight_change", {}).get("status", ""),
+        "weight_change": report.get("weight_change", {}),
         "median_step_seconds": step_seconds,
         "median_tokens_per_second": float(report.get("tokens_per_second", 0.0)),
         "mean_loader_wait_seconds": float(timings.get("batch_load", 0.0)),
@@ -114,6 +111,8 @@ def dense_promotion_errors(report: dict) -> list[str]:
     if report.get("backward_gemm_enabled") is not True:
         errors.append("backward_gemm_enabled must be true")
     errors.extend(dense_runtime_errors(report))
+    weight_change = report.get("weight_change", {})
+    if report.get("weight_changed") is not True or weight_change.get("status") != "pass": errors.append("weight_change.status must be pass")
     try:
         initial_loss = float(report.get("initial_loss"))
         loss = float(report.get("loss"))
@@ -181,6 +180,8 @@ def is_promotable_dense_summary(row: dict) -> bool:
             float(row.get("loss", 0.0)) < float(row.get("initial_loss", 0.0)),
             _finite(row.get("loss", 0.0)),
             _finite(row.get("initial_loss", 0.0)),
+            row.get("weight_changed") is True,
+            row.get("weight_change_status") == "pass",
             bool(row.get("checkpoint_checksum")),
             bool(row.get("export_checksum")),
             bool(row.get("logits_checksum")),
@@ -188,8 +189,7 @@ def is_promotable_dense_summary(row: dict) -> bool:
             float(row.get("median_tokens_per_second", 0.0)) > 0.0,
             row.get("logits_check_status") == "pass",
             row.get("logits_reference_check") == "pass",
-            float(row.get("logits_max_abs_diff", 0.0))
-            <= float(row.get("logits_tolerance", 0.0)),
+            float(row.get("logits_max_abs_diff", 0.0)) <= float(row.get("logits_tolerance", 0.0)),
         ]
         if not all(checks):
             return False

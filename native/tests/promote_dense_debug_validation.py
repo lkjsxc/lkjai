@@ -63,6 +63,8 @@ def fixture_report() -> dict:
         "first_quarter_loss_mean": 2.0,
         "last_quarter_loss_mean": 1.0,
         "learning_status": "learning",
+        "weight_changed": True,
+        "weight_change": {"status": "pass"},
         "elapsed_seconds": 4.0,
         "tokens_per_second": 512.0,
         "checkpoint_path": "/app/data/perf-runs/run/case/repeat-01/checkpoints/latest",

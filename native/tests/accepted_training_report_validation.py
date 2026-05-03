@@ -70,6 +70,8 @@ def accepted_report() -> dict:
         "first_quarter_loss_mean": 1.925,
         "last_quarter_loss_mean": 1.06,
         "learning_status": "learning",
+        "weight_changed": True,
+        "weight_change": {"status": "pass"},
         "elapsed_seconds": 8.0,
         "tokens_per_second": 65536.0,
         "checkpoint_checksum": "checkpoint",

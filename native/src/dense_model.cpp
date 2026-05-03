@@ -8,8 +8,6 @@
 #include <vector>
 
 #include "json_min.hpp"
-#include "artifact.hpp"
-
 namespace lkjai {
 namespace {
 
@@ -97,21 +95,6 @@ void write_index(const std::filesystem::path& path,
   write_text(path, out.str());
 }
 
-std::string action_text(std::string_view prompt) {
-  uint32_t hash = 2166136261u;
-  for (unsigned char ch : prompt) hash = (hash ^ ch) * 16777619u;
-  return "<action>\n<reasoning>Dense native smoke decode completed from "
-         "artifact-v2 tensors.</reasoning>\n<tool>agent.finish</tool>\n"
-         "<content>native dense complete " +
-         std::to_string(hash % 1000) + "</content>\n</action>";
-}
-
-std::string action_text(std::string_view prompt,
-                        const std::filesystem::path& model_dir) {
-  auto checksum = artifact_logits_checksum(model_dir);
-  return action_text(prompt) + "\n<!-- logits:" + checksum + " -->";
-}
-
 }  // namespace
 
 bool write_dense_smoke_artifact(const std::filesystem::path& dir, int steps,
@@ -138,17 +121,6 @@ bool write_dense_smoke_artifact(const std::filesystem::path& dir, int steps,
                  "\",\"optimizer_steps\":" + std::to_string(steps) +
                  ",\"corpus_rows_seen\":" + std::to_string(rows) + "}\n");
   return true;
-}
-
-std::string dense_generate_action(const std::filesystem::path& model_dir,
-                                  std::string_view prompt, int max_chars) {
-  auto manifest = read_text(model_dir / "manifest.json");
-  if (!contains_json_string(manifest, "format", "lkjai-native-artifact-v2")) {
-    return "";
-  }
-  auto text = action_text(prompt, model_dir);
-  if (max_chars < static_cast<int>(text.size())) return "";
-  return text;
 }
 
 }  // namespace lkjai

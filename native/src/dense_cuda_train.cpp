@@ -5,6 +5,7 @@
 #include "cuda_probe.hpp"
 #include "dense_cuda_internal.hpp"
 #include "dense_loss_trend.hpp"
+#include "dense_weight_change.hpp"
 #include "json_min.hpp"
 namespace lkjai {
 bool run_dense_cuda_training(const DenseTrainOptions& opt,
@@ -62,7 +63,6 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
     DenseCudaState state(cfg, init, &ctx);
     report->start_step = resume.optimizer_steps;
     report->microsteps = resume.microsteps;
-    float before = init.emb.empty() ? 0.0f : init.emb.front();
     report->best_loss = std::numeric_limits<double>::infinity();
     std::vector<float> logits;
     auto started = std::chrono::steady_clock::now();
@@ -138,8 +138,8 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
       }
     }
     auto host = state.copy_to_host();
-    report->weight_changed =
-        !host.emb.empty() && std::fabs(host.emb.front() - before) > 0.0f;
+    report->weight_change = dense_weight_change_report(init, host);
+    report->weight_changed = report->weight_change.status == "pass";
     finalize_dense_loss_trend(report);
     auto phase = std::chrono::steady_clock::now();
     bool ok = write_dense_train_artifact(opt.out_dir / "checkpoints" / "latest",

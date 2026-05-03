@@ -11,6 +11,11 @@ so the C++ trainer can parse them without a third-party JSON dependency.
   used by routine native dense checks.
 - [native_accepted_dense_bf16.json](native_accepted_dense_bf16.json): small
   real packed-cache dense target for the `accepted_training` proof run.
+- [native_dense_20m_bf16_3070.json](native_dense_20m_bf16_3070.json):
+  explicit dense BF16 20M-size RTX 3070 run shape for seq1024 real-data runs.
+- [native_dense_40m_bf16_3070.json](native_dense_40m_bf16_3070.json):
+  explicit dense BF16 40M-size RTX 3070 run shape. It is separate from future
+  transformer profile shapes.
 - [native_transformer_debug_bf16.json](native_transformer_debug_bf16.json):
   tiny verification shape for explicit native transformer training. It uses
   learned positional embeddings and untied embeddings.
@@ -27,5 +32,7 @@ so the C++ trainer can parse them without a third-party JSON dependency.
 
 - Keep tensor dimensions explicit.
 - Routine verification must use the debug config, not the 40M shape.
+- Dense configs size the implemented embedding-plus-LM-head path. Transformer
+  profile configs do not imply dense parameter counts.
 - Profile configs must satisfy `heads * head_dim == hidden_size` and
   `heads % kv_heads == 0`, but they do not promote transformer training.

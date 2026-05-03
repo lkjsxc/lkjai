@@ -80,7 +80,7 @@ def main() -> None:
             "optimizer": 0.04,
         },
     }
-    payload.update({"dense_logits_readback_bytes": 1024, "loss_kernel_backend": "block_row_softmax_fp32", "loss_readback_mode": "optimizer_step_deferred_pinned", "logits_readback_mode": "single_row_capture", "dense_stream_count": 2, "dense_batch_slot_count": 3, "copy_compute_overlap_enabled": True, "batch_staging_backend": "triple_slot_pinned_direct_read"})
+    payload.update({"dense_logits_readback_bytes": 1024, "loss_kernel_backend": "block_row_softmax_fp32", "loss_readback_mode": "optimizer_step_deferred_pinned", "logits_readback_mode": "single_row_capture", "dense_stream_count": 2, "dense_batch_slot_count": 3, "copy_compute_overlap_enabled": True, "batch_staging_backend": "triple_slot_pinned_direct_read", "weight_changed": True, "weight_change": {"status": "pass"}})
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         report = root / "runs" / "train-report.json"
@@ -115,6 +115,7 @@ def main() -> None:
         assert summary["first_quarter_loss_mean"] == 2.0
         assert summary["last_quarter_loss_mean"] == 1.5
         assert summary["learning_status"] == "learning"
+        assert summary["weight_change_status"] == "pass"
         assert summary["median_step_seconds"] == 0.125
         assert summary["median_tokens_per_second"] == 128.0
         assert summary["logits_checksum"] == "abc"

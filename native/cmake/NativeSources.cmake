@@ -29,6 +29,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/dense_train.cpp
   src/dense_train_artifact.cpp
   src/dense_train_math.cpp
+  src/dense_weight_change.cpp
   src/env.cpp
   src/json_min.cpp
   src/packed_cache.cpp

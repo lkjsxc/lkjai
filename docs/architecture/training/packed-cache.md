@@ -46,6 +46,12 @@ HuggingFace `tokenizer.json`, extracts JSONL string fields named `text` and
 `content` in document order, and writes fixed non-overlapping windows. It does
 not use a byte fallback or duplicate tokenizer logic in C++.
 
+The long-run cache path
+`data/train/datasets/packed/train-causal_lm_full-seq1024` previously held a
+stale smoke fixture with `sequence_len=16`, `vocab_size=256`, and no
+`schema_version`. Validate this path before every seq1024 dense BF16 run; if
+validation reports those fields, rebuild it with the command below.
+
 ## Loader Rules
 
 - Real non-quick native training reads packed caches by default.
@@ -68,3 +74,26 @@ not use a byte fallback or duplicate tokenizer logic in C++.
   sequence-length/config mismatches, stale checksums, corrupt binary sizes,
   invalid fixed-window starts, and token ids outside the tokenizer or native
   config vocabulary.
+
+## Dense Seq1024 Rebuild
+
+```bash
+docker compose --progress quiet --profile verify run --rm --entrypoint cargo verify \
+  run -p lkjai_packed_cache_builder -- build \
+  --source /workspace/data/train/datasets/train.jsonl \
+  --tokenizer /workspace/data/train/tokenizer/tokenizer.json \
+  --config /workspace/configs/native/native_dense_20m_bf16_3070.json \
+  --out /workspace/data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --split train --objective causal_lm_full \
+  --seq-len 1024 --sequence-count 8192 \
+  --seed 20260504 --run-id dense-2h-3070
+```
+
+```bash
+docker compose --progress quiet --profile verify run --rm --entrypoint cargo verify \
+  run -p lkjai_packed_cache_builder -- validate \
+  --cache /workspace/data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --source /workspace/data/train/datasets/train.jsonl \
+  --tokenizer /workspace/data/train/tokenizer/tokenizer.json \
+  --config /workspace/configs/native/native_dense_20m_bf16_3070.json
+```

@@ -130,7 +130,7 @@ def main():
     assert "transformer_path" not in payload, payload
     assert payload["initial_loss"] > payload["loss"], payload
     assert payload["loss_finite"] is True, payload
-    assert payload["weight_changed"] is True, payload
+    assert payload["weight_changed"] is True and payload["weight_change"]["status"] == "pass", payload
     assert payload["logits_checksum"], payload
     for key in ["batch_load", "h2d", "forward", "backward", "optimizer", "checkpoint", "export"]:
         assert key in payload["timings"], payload

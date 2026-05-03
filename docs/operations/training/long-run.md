@@ -17,6 +17,9 @@ Run one measurable long training job for the 3070-first 40M scratch model.
 - Training defaults to `TRAIN_OBJECTIVE=causal_lm_full`.
 - The current native trainer consumes an existing packed cache; tokenizer and
   cache construction are separate operations.
+- Validate or rebuild
+  `data/train/datasets/packed/train-causal_lm_full-seq1024` before any long
+  dense run; this path previously held a stale seq16/vocab256 smoke cache.
 - Export writes the final dense artifact for the run.
 - Resume is explicit through `--resume DIR` and restores the dense FP32 master
   weights plus Adam moments from the checkpoint optimizer artifact.
@@ -63,7 +66,11 @@ unknown training-config keys instead of silently ignoring them.
 ## RTX 3070 Presets
 
 - `native_debug_bf16.json`: routine debug shape.
-- `native_40m_bf16.json`: target 40M shape for bounded manual runs.
+- `native_dense_20m_bf16_3070.json`: explicit dense 20M-size seq1024 shape
+  for the two-hour BF16 runner.
+- `native_dense_40m_bf16_3070.json`: explicit dense 40M-size seq1024 shape for
+  manual long runs.
+- `native_40m_bf16.json`: legacy scratch 40M shape for bounded manual runs.
 
 ## Accounting
 
@@ -114,3 +121,26 @@ docker compose --profile train run -d \
 ```
 
 Monitor with `docker logs -f lkjai-train-until-noon-20260503`.
+
+## Two-Hour Dense BF16 Run
+
+Use the benchmark runner for reproducible RTX 3070 two-hour jobs. It builds and
+validates the seq1024 cache, runs a pilot calibration, computes the optimizer
+step budget from measured step time, and writes JSON plus Markdown evidence.
+
+```bash
+python3 tools/benchmarks/run_dense_2h.py \
+  --run-id dense-2h-3070-$(date +%Y%m%d-%H%M%S) \
+  --native-config configs/native/native_dense_20m_bf16_3070.json \
+  --source data/train/datasets/train.jsonl \
+  --tokenizer data/train/tokenizer/tokenizer.json \
+  --cache data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --seq-len 1024 --sequence-count 8192 \
+  --batch-size 1 --grad-accum 8 \
+  --lr 0.0003 --pilot-steps 128 \
+  --target-seconds 7200 --full
+```
+
+The runner stores raw outputs under
+`artifacts/benchmarks/<run-id>/dense_2h_bf16_cuda/repeat-01/` and training
+artifacts under `data/perf-runs/<run-id>/dense_2h_bf16_cuda/`.

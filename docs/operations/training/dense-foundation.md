@@ -19,9 +19,15 @@ Use an existing reviewed packed-cache v2 directory, or build one through the
 Rust cache builder:
 
 ```sh
-cargo run -p lkjai-packed-cache-builder -- \
-  --config configs/corpus/public-pretrain.json \
-  --out data/train/datasets/packed/train-causal_lm_full-seq1024
+docker compose --progress quiet --profile verify run --rm --entrypoint cargo verify \
+  run -p lkjai_packed_cache_builder -- build \
+  --source /workspace/data/train/datasets/train.jsonl \
+  --tokenizer /workspace/data/train/tokenizer/tokenizer.json \
+  --config /workspace/configs/native/native_dense_20m_bf16_3070.json \
+  --out /workspace/data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --split train --objective causal_lm_full \
+  --seq-len 1024 --sequence-count 8192 \
+  --seed 20260504 --run-id dense-2h-3070
 ```
 
 The native trainer validates `metadata.json`, `tokens.bin`, `loss_mask.bin`,
@@ -147,6 +153,26 @@ python3 tools/benchmarks/run_dense_40m_compat.py \
 The 40M command is a bounded compatibility start-check. Promotion summaries
 must reject `run_purpose=bounded_compatibility_start_check`; it is never
 promotable as accepted training.
+
+The reproducible two-hour dense BF16 runner builds and validates the cache,
+runs a pilot calibration, computes target optimizer steps from measured step
+time, and runs the full job only when `--full` is present:
+
+```sh
+python3 tools/benchmarks/run_dense_2h.py \
+  --run-id dense-2h-3070-$(date +%Y%m%d-%H%M%S) \
+  --native-config configs/native/native_dense_20m_bf16_3070.json \
+  --source data/train/datasets/train.jsonl \
+  --tokenizer data/train/tokenizer/tokenizer.json \
+  --cache data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --seq-len 1024 --sequence-count 8192 \
+  --batch-size 1 --grad-accum 8 \
+  --lr 0.0003 --pilot-steps 128 \
+  --target-seconds 7200 --full
+```
+
+Without `--full`, the runner stops after pilot calibration and writes the same
+summary/report bundle with `full_status=skipped_without_full_flag`.
 
 ## Verify
 
