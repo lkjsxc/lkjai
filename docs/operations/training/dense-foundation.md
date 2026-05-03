@@ -47,7 +47,9 @@ Dense reports must declare `model_kind=dense`,
 `dense_cuda_path=true`, `loader_backend=persistent_packed_cache_reader`,
 `row_layout=dense_physical_bxseq_masked_final_token`,
 `matmul_plan_cache_enabled=true`, `buffer_reuse_enabled=true`, and
-`timing_source=cuda_events_with_boundary_sync`.
+`timing_source=cuda_events_with_boundary_sync`. Use
+`--loss-sample-interval N` or `TRAIN_LOSS_SAMPLE_INTERVAL=N` to add
+deterministic trend samples to the train report.
 
 ## Inspect
 
@@ -73,6 +75,29 @@ Use `lkjai-native-logits-check` for validation/reference-check tooling.
 
 ## Benchmark
 
+The canonical real-learning proof target is a controlled dense bigram run:
+
+```sh
+python3 tools/benchmarks/run_dense_learning_control.py \
+  --run-id dense-learning-control-20260503 \
+  --steps 1024 \
+  --sample-interval 0.25
+```
+
+It builds a deterministic packed-cache v2 target with `seq_len=16`,
+`vocab_size=256`, `row_count=128`, and cyclic token transitions over tokens
+`1..64`. The run uses `native_debug_bf16`, batch size `4`, gradient
+accumulation `1`, learning rate `0.001`, checkpoint interval `128`,
+`run_purpose=dense_learning_control`, and `MODEL_NAME=dense-learning-control`.
+
+Learning is demonstrated only when training succeeds, sampled losses are
+finite, final loss is at least 10% below initial loss, the last-quarter sample
+mean is below the first-quarter sample mean, weights changed, inspect passes,
+the BF16 export/reference logits check passes, and two dense inference calls
+for `--tokens 1,2,3` return matching checksums.
+
+The 40M command remains compatibility-only:
+
 ```sh
 python3 tools/benchmarks/run_dense_40m_compat.py \
   --run-id RUN_ID \
@@ -84,7 +109,8 @@ python3 tools/benchmarks/run_dense_40m_compat.py \
 The 40M command is a bounded compatibility start-check. Promotion summaries
 must reject it unless a later run also satisfies accepted dense criteria:
 accepted status, finite decreasing loss, valid artifacts, passing BF16
-export/reference checks, non-diagnostic run purpose, and positive throughput.
+export/reference checks, `run_purpose=accepted_training` or
+`run_purpose=dense_learning_control`, and positive throughput.
 
 ## Verify
 

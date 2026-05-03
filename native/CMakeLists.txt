@@ -66,6 +66,8 @@ add_library(lkjai_native_core STATIC
   src/dense_cuda_state.cu
   src/dense_cuda_step.cu
   src/dense_cuda_train.cpp
+  src/dense_loss_trend.cpp
+  src/dense_report_util.cpp
   src/dense_train.cpp
   src/dense_train_artifact.cpp
   src/dense_train_math.cpp

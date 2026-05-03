@@ -42,7 +42,18 @@ The report includes:
 - `optimizer_steps`
 - `microsteps`
 - `tokens_seen`
+- `loss_tokens`
+- `initial_loss`
 - `loss`
+- `loss_samples`
+- `loss_sample_interval`
+- `best_loss`
+- `best_loss_step`
+- `loss_delta`
+- `loss_decrease_fraction`
+- `first_quarter_loss_mean`
+- `last_quarter_loss_mean`
+- `learning_status`
 - `timings`
 - `limitations`
 - `capability`
@@ -79,6 +90,15 @@ Each summary includes:
 - `tokens_seen`
 - `initial_loss`
 - `loss`
+- `loss_samples`
+- `loss_sample_interval`
+- `best_loss`
+- `best_loss_step`
+- `loss_delta`
+- `loss_decrease_fraction`
+- `first_quarter_loss_mean`
+- `last_quarter_loss_mean`
+- `learning_status`
 - `median_tokens_per_second`
 - `median_step_seconds`
 - `mean_h2d_seconds`
@@ -105,6 +125,14 @@ Compatibility-only 40M start checks write
 `artifacts/benchmarks/<run-id>/dense_40m_compat_4/repeat-01/compatibility-summary.json`
 with `promotion_status=compatibility_only` and
 `run_purpose=bounded_compatibility_start_check`.
+
+Controlled dense learning runs write
+`artifacts/benchmarks/<run-id>/dense_learning_control_1024/repeat-01/learning-summary.json`
+and `benchmark-summary.json`. They include the exact Docker train command,
+train report capability fields, loss trend evidence, tokens/loss-token counts,
+batch/sequence/gradient/checkpoint settings, throughput/timings, checkpoint,
+export, logits, inspect, and repeated inference checksums, plus exact learning
+or promotion rejection reasons when the run is not promotable.
 
 CSV summaries use the same stable names for columns that fit flat tabular
 output. Nested capability fields are flattened with a `capability_` prefix.

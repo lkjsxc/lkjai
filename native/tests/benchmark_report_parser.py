@@ -34,6 +34,18 @@ def main() -> None:
         "tokens_seen": 32,
         "initial_loss": 2.0,
         "loss": 1.5,
+        "loss_samples": [
+            {"step": 1, "loss": 2.0},
+            {"step": 2, "loss": 1.5},
+        ],
+        "loss_sample_interval": 1,
+        "best_loss": 1.5,
+        "best_loss_step": 2,
+        "loss_delta": 0.5,
+        "loss_decrease_fraction": 0.25,
+        "first_quarter_loss_mean": 2.0,
+        "last_quarter_loss_mean": 1.5,
+        "learning_status": "learning",
         "elapsed_seconds": 0.25,
         "tokens_per_second": 128.0,
         "logits_checksum": "abc",
@@ -70,6 +82,14 @@ def main() -> None:
         assert summary["loader_backend"] == "persistent_packed_cache_reader"
         assert summary["matmul_plan_cache_enabled"] is True
         assert summary["optimizer_steps"] == 2
+        assert summary["loss_sample_interval"] == 1
+        assert summary["best_loss"] == 1.5
+        assert summary["best_loss_step"] == 2
+        assert summary["loss_delta"] == 0.5
+        assert summary["loss_decrease_fraction"] == 0.25
+        assert summary["first_quarter_loss_mean"] == 2.0
+        assert summary["last_quarter_loss_mean"] == 1.5
+        assert summary["learning_status"] == "learning"
         assert summary["median_step_seconds"] == 0.125
         assert summary["median_tokens_per_second"] == 128.0
         assert summary["logits_checksum"] == "abc"
@@ -121,6 +141,18 @@ def main() -> None:
         errors = dense_promotion_errors(compatibility)
         assert (
             "run_purpose bounded_compatibility_start_check is not promotable"
+            in errors
+        )
+
+        control = dict(payload)
+        control["run_purpose"] = "dense_learning_control"
+        validate_dense_promotion_report(control)
+
+        unknown_purpose = dict(payload)
+        unknown_purpose["run_purpose"] = "ad_hoc_smoke"
+        errors = dense_promotion_errors(unknown_purpose)
+        assert (
+            "run_purpose must be accepted_training or dense_learning_control"
             in errors
         )
 

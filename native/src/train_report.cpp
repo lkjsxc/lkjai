@@ -2,8 +2,8 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
-#include "artifact.hpp"
 #include "capability_json.hpp"
+#include "dense_report_util.hpp"
 #include "json_min.hpp"
 #ifndef LKJAI_GIT_COMMIT
 #define LKJAI_GIT_COMMIT "unknown"
@@ -16,51 +16,6 @@
 #endif
 namespace lkjai {
 namespace {
-std::string file_digest(const std::filesystem::path& path) {
-  std::ifstream in(path, std::ios::binary);
-  uint64_t hash = 1469598103934665603ull;
-  char ch = 0;
-  while (in.get(ch)) {
-    hash = (hash ^ static_cast<unsigned char>(ch)) * 1099511628211ull;
-  }
-  std::ostringstream out;
-  out << std::hex << hash;
-  return out.str();
-}
-
-std::string packed_cache_digest(const std::filesystem::path& dir) {
-  uint64_t hash = 1469598103934665603ull;
-  for (const auto& name :
-       {"metadata.json", "tokens.bin", "loss_mask.bin", "starts.bin"}) {
-    auto path = dir / name;
-    hash = (hash ^ artifact_text_checksum(name)[0]) * 1099511628211ull;
-    if (!std::filesystem::is_regular_file(path)) continue;
-    auto text = file_digest(path);
-    for (char ch : text) {
-      hash = (hash ^ static_cast<unsigned char>(ch)) * 1099511628211ull;
-    }
-    auto size = std::filesystem::file_size(path);
-    for (int i = 0; i < 8; ++i) {
-      hash = (hash ^ ((size >> (i * 8)) & 0xffu)) * 1099511628211ull;
-    }
-  }
-  std::ostringstream out;
-  out << std::hex << hash;
-  return out.str();
-}
-
-std::string manifest_checksum(const std::filesystem::path& dir) {
-  auto manifest = read_text(dir / "manifest.json");
-  auto checksum = json_first_string(manifest, "weights_checksum");
-  return checksum.empty() ? file_digest(dir / "weights.lkjw") : checksum;
-}
-
-long long parameter_count(const DenseTrainReport& report) {
-  auto config = read_text(report.config_path);
-  long long vocab = json_int_value(config, "vocab_size", 0);
-  long long hidden = json_int_value(config, "hidden_size", 0);
-  return 2 * vocab * hidden;
-}
 
 void append_common(std::ostringstream* out, const DenseTrainReport& report,
                    const CudaStatus& cuda, const std::string& trainer_mode,
@@ -107,12 +62,14 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << ",\"build_type\":\"" << json_escape(LKJAI_BUILD_TYPE) << "\""
        << ",\"config_path\":\"" << json_escape(report.config_path.string())
        << "\""
-       << ",\"config_digest\":\"" << file_digest(report.config_path) << "\""
+       << ",\"config_digest\":\""
+       << train_report_file_digest(report.config_path) << "\""
        << ",\"dataset_path\":\"" << json_escape(report.packed_cache.string())
        << "\""
        << ",\"packed_cache_path\":\""
        << json_escape(report.packed_cache.string()) << "\""
-       << ",\"dataset_digest\":\"" << packed_cache_digest(report.packed_cache)
+       << ",\"dataset_digest\":\""
+       << train_report_packed_cache_digest(report.packed_cache)
        << "\""
        << ",\"train_config_path\":\""
        << json_escape(report.train_config_path.string()) << "\""
@@ -120,7 +77,7 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << ",\"batch_size\":" << report.batch_size
        << ",\"seq_len\":" << report.seq_len
        << ",\"grad_accum\":" << report.grad_accum
-       << ",\"parameter_count\":" << parameter_count(report)
+       << ",\"parameter_count\":" << dense_report_parameter_count(report)
        << ",\"tokens_seen\":" << report.input_tokens
        << ",\"input_tokens\":" << report.input_tokens
        << ",\"loss_tokens\":" << report.loss_tokens
@@ -130,6 +87,18 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << ",\"microsteps\":" << report.microsteps
        << ",\"initial_loss\":" << report.initial_loss
        << ",\"loss\":" << report.loss
+       << ",\"loss_samples\":";
+  append_dense_loss_samples(out, report.loss_samples);
+  *out << ",\"loss_sample_interval\":" << report.loss_sample_interval
+       << ",\"best_loss\":" << report.best_loss
+       << ",\"best_loss_step\":" << report.best_loss_step
+       << ",\"loss_delta\":" << report.loss_delta
+       << ",\"loss_decrease_fraction\":" << report.loss_decrease_fraction
+       << ",\"first_quarter_loss_mean\":"
+       << report.first_quarter_loss_mean
+       << ",\"last_quarter_loss_mean\":" << report.last_quarter_loss_mean
+       << ",\"learning_status\":\""
+       << json_escape(report.learning_status) << "\""
        << ",\"loss_finite\":true"
        << ",\"weight_changed\":"
        << (report.weight_changed ? "true" : "false")
@@ -139,10 +108,11 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << ",\"checkpoint_path\":\""
        << json_escape(report.checkpoint_dir.string()) << "\""
        << ",\"checkpoint_checksum\":\""
-       << manifest_checksum(report.checkpoint_dir) << "\""
+       << train_report_manifest_checksum(report.checkpoint_dir) << "\""
        << ",\"export_path\":\"" << json_escape(report.export_dir.string())
        << "\""
-       << ",\"export_checksum\":\"" << manifest_checksum(report.export_dir)
+       << ",\"export_checksum\":\""
+       << train_report_manifest_checksum(report.export_dir)
        << "\""
        << ",\"served_path\":\"" << json_escape(report.served_dir.string())
        << "\""

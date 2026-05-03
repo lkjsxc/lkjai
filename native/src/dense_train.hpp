@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <string>
+#include <vector>
 
 namespace lkjai {
 
@@ -33,9 +34,15 @@ struct DenseTrainOptions {
   int max_steps = 2;
   int warmup_steps = 0;
   int checkpoint_interval = 1;
+  int loss_sample_interval = 0;
   int seed = -1;
   float lr = 1.0e-3f;
   std::filesystem::path train_config_path;
+};
+
+struct DenseLossSample {
+  int step = 0;
+  double loss = 0.0;
 };
 
 struct DenseTrainReport {
@@ -49,6 +56,15 @@ struct DenseTrainReport {
   int grad_accum = 1;
   double initial_loss = 0.0;
   double loss = 0.0;
+  int loss_sample_interval = 0;
+  std::vector<DenseLossSample> loss_samples;
+  double best_loss = 0.0;
+  int best_loss_step = 0;
+  double loss_delta = 0.0;
+  double loss_decrease_fraction = 0.0;
+  double first_quarter_loss_mean = 0.0;
+  double last_quarter_loss_mean = 0.0;
+  std::string learning_status = "unknown";
   bool weight_changed = false;
   std::string logits_checksum;
   bool logits_check_passed = false;

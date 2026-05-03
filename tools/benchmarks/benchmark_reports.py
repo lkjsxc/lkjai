@@ -1,3 +1,22 @@
+import math
+
+
+PROMOTABLE_RUN_PURPOSES = {"accepted_training", "dense_learning_control"}
+
+
+def _sample_loss(sample) -> float:
+    if isinstance(sample, dict):
+        return float(sample.get("loss"))
+    return float(sample)
+
+
+def _finite(value) -> bool:
+    try:
+        return math.isfinite(float(value))
+    except (TypeError, ValueError):
+        return False
+
+
 def summarize_train_report(report: dict) -> dict:
     timings = report.get("timings", {})
     logits_check = report.get("logits_check", {})
@@ -22,6 +41,27 @@ def summarize_train_report(report: dict) -> dict:
         "tokens_seen": int(report.get("tokens_seen", report.get("input_tokens", 0))),
         "initial_loss": float(report.get("initial_loss", 0.0)),
         "loss": float(report.get("loss", 0.0)),
+        "loss_samples": report.get("loss_samples", []),
+        "loss_sample_interval": int(report.get("loss_sample_interval", 0)),
+        "best_loss": float(report.get("best_loss", report.get("loss", 0.0))),
+        "best_loss_step": int(report.get("best_loss_step", 0)),
+        "loss_delta": float(
+            report.get(
+                "loss_delta",
+                float(report.get("initial_loss", 0.0))
+                - float(report.get("loss", 0.0)),
+            )
+        ),
+        "loss_decrease_fraction": float(
+            report.get("loss_decrease_fraction", 0.0)
+        ),
+        "first_quarter_loss_mean": float(
+            report.get("first_quarter_loss_mean", 0.0)
+        ),
+        "last_quarter_loss_mean": float(
+            report.get("last_quarter_loss_mean", 0.0)
+        ),
+        "learning_status": report.get("learning_status", ""),
         "median_step_seconds": step_seconds,
         "median_tokens_per_second": float(report.get("tokens_per_second", 0.0)),
         "mean_loader_wait_seconds": float(timings.get("batch_load", 0.0)),
@@ -53,6 +93,8 @@ def dense_promotion_errors(report: dict) -> list[str]:
         errors.append("status must be success")
     if report.get("run_purpose") == "bounded_compatibility_start_check":
         errors.append("run_purpose bounded_compatibility_start_check is not promotable")
+    elif report.get("run_purpose") not in PROMOTABLE_RUN_PURPOSES:
+        errors.append("run_purpose must be accepted_training or dense_learning_control")
     if report.get("loader_backend") != "persistent_packed_cache_reader":
         errors.append("loader_backend must be persistent_packed_cache_reader")
     if report.get("row_layout") != "dense_physical_bxseq_masked_final_token":
@@ -64,14 +106,27 @@ def dense_promotion_errors(report: dict) -> list[str]:
     if report.get("timing_source") != "cuda_events_with_boundary_sync":
         errors.append("timing_source must be cuda_events_with_boundary_sync")
     try:
-        if not float(report.get("loss")) < float(report.get("initial_loss")):
+        initial_loss = float(report.get("initial_loss"))
+        loss = float(report.get("loss"))
+        if not math.isfinite(initial_loss) or not math.isfinite(loss):
+            errors.append("loss and initial_loss must be finite")
+        elif not loss < initial_loss:
             errors.append("loss must be lower than initial_loss")
     except (TypeError, ValueError):
         errors.append("loss and initial_loss must be numeric")
+    samples = report.get("loss_samples", [])
+    if samples:
+        try:
+            if not all(math.isfinite(_sample_loss(sample)) for sample in samples):
+                errors.append("loss_samples must be finite")
+        except (TypeError, ValueError):
+            errors.append("loss_samples must be numeric")
     if not report.get("checkpoint_checksum"):
         errors.append("checkpoint_checksum must be present")
     if not report.get("export_checksum"):
         errors.append("export_checksum must be present")
+    if not report.get("logits_checksum"):
+        errors.append("logits_checksum must be present")
     timings = report.get("timings", {})
     try:
         if float(timings.get("h2d")) < 0.0:
@@ -113,15 +168,18 @@ def is_promotable_dense_summary(row: dict) -> bool:
             row.get("accepted_cuda_training") is True,
             row.get("implementation_status") == "accepted",
             row.get("status") == "success",
-            row.get("run_purpose", "") != "bounded_compatibility_start_check",
+            row.get("run_purpose", "") in PROMOTABLE_RUN_PURPOSES,
             row.get("loader_backend") == "persistent_packed_cache_reader",
             row.get("row_layout") == "dense_physical_bxseq_masked_final_token",
             row.get("matmul_plan_cache_enabled") is True,
             row.get("buffer_reuse_enabled") is True,
             row.get("timing_source") == "cuda_events_with_boundary_sync",
             float(row.get("loss", 0.0)) < float(row.get("initial_loss", 0.0)),
+            _finite(row.get("loss", 0.0)),
+            _finite(row.get("initial_loss", 0.0)),
             bool(row.get("checkpoint_checksum")),
             bool(row.get("export_checksum")),
+            bool(row.get("logits_checksum")),
             float(row.get("mean_h2d_seconds", -1.0)) >= 0.0,
             float(row.get("median_tokens_per_second", 0.0)) > 0.0,
             row.get("logits_check_status") == "pass",

@@ -7,6 +7,7 @@ def fixture_report() -> dict:
     return {
         "schema_version": 3,
         "trainer_mode": "train",
+        "run_purpose": "accepted_training",
         "status": "success",
         "model_kind": "dense",
         "accepted_cuda_training": True,
@@ -27,6 +28,19 @@ def fixture_report() -> dict:
         "start_step": 0,
         "initial_loss": 2.0,
         "loss": 1.0,
+        "loss_samples": [
+            {"step": 1, "loss": 2.0},
+            {"step": 64, "loss": 1.4},
+            {"step": 128, "loss": 1.0},
+        ],
+        "loss_sample_interval": 64,
+        "best_loss": 1.0,
+        "best_loss_step": 128,
+        "loss_delta": 1.0,
+        "loss_decrease_fraction": 0.5,
+        "first_quarter_loss_mean": 2.0,
+        "last_quarter_loss_mean": 1.0,
+        "learning_status": "learning",
         "elapsed_seconds": 4.0,
         "tokens_per_second": 512.0,
         "checkpoint_path": "/app/data/perf-runs/run/case/repeat-01/checkpoints/latest",
@@ -86,6 +100,13 @@ def main() -> None:
     nondescending["loss"] = nondescending["initial_loss"]
     assert "loss must be lower than initial_loss" in dense_promotion_errors(
         nondescending
+    )
+
+    unknown_purpose = fixture_report()
+    unknown_purpose["run_purpose"] = "ad_hoc_smoke"
+    assert (
+        "run_purpose must be accepted_training or dense_learning_control"
+        in dense_promotion_errors(unknown_purpose)
     )
 
 

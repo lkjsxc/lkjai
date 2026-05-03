@@ -40,7 +40,6 @@ float float_value(int argc, char** argv, const std::string& name,
     return fallback;
   }
 }
-
 float env_float(const char* name, float fallback) {
   try {
     return std::stof(env_string(name, std::to_string(fallback)));
@@ -83,6 +82,8 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
   opt->checkpoint_interval =
       env_int("TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS",
               opt->checkpoint_interval);
+  opt->loss_sample_interval =
+      env_int("TRAIN_LOSS_SAMPLE_INTERVAL", opt->loss_sample_interval);
   opt->batch_size = env_int("TRAIN_BATCH_SIZE", opt->batch_size);
   opt->seq_len = env_int("TRAIN_SEQUENCE_LEN", opt->seq_len);
   opt->grad_accum = env_int("TRAIN_GRADIENT_ACCUMULATION", opt->grad_accum);
@@ -102,8 +103,8 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
     *error = "model kind must be dense or transformer";
     return false;
   }
-  if (opt->model_kind == "transformer" && !config_explicit &&
-      opt->config_path == std::filesystem::path("configs/native/native_debug_bf16.json")) {
+  if (opt->model_kind == "transformer" && !config_explicit && opt->config_path ==
+      std::filesystem::path("configs/native/native_debug_bf16.json")) {
     opt->config_path = "configs/native/native_transformer_debug_bf16.json";
   }
   opt->packed_cache = value(argc, argv, "--packed-cache",
@@ -116,6 +117,8 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
   opt->warmup_steps = int_value(argc, argv, "--warmup-steps", opt->warmup_steps);
   opt->checkpoint_interval =
       int_value(argc, argv, "--checkpoint-interval", opt->checkpoint_interval);
+  opt->loss_sample_interval = int_value(
+      argc, argv, "--loss-sample-interval", opt->loss_sample_interval);
   opt->lr = float_value(argc, argv, "--lr", opt->lr);
   opt->resume_dir = value(argc, argv, "--resume", "");
   opt->export_artifact = value(argc, argv, "--export-artifact", "");
@@ -150,9 +153,9 @@ TransformerTrainOptions transformer_options(const DenseTrainOptions& in) {
 
 int run_corpus_training(int argc, char** argv) {
   if (flag(argc, argv, "--help")) {
-    std::cout << "usage: lkjai-native-train --train --packed-cache DIR "
-                 "--config FILE --out DIR [--mode dense|transformer] "
-                 "[--max-steps N] [--run-purpose NAME]\n";
+    std::cout << "usage: lkjai-native-train --train --packed-cache DIR --config "
+                 "FILE --out DIR [--mode dense|transformer] [--max-steps N] "
+                 "[--run-purpose NAME] [--loss-sample-interval N]\n";
     return 0;
   }
   DenseTrainOptions opt;

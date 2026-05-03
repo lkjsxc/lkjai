@@ -1,9 +1,11 @@
 #include "dense_cuda.hpp"
 
 #include <cmath>
+#include <limits>
 
 #include "cuda_probe.hpp"
 #include "dense_cuda_internal.hpp"
+#include "dense_loss_trend.hpp"
 #include "json_min.hpp"
 
 namespace lkjai {
@@ -38,6 +40,7 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
     report->batch_size = opt.batch_size;
     report->seq_len = seq_len;
     report->grad_accum = opt.grad_accum;
+    report->loss_sample_interval = opt.loss_sample_interval;
     report->checkpoint_dir = opt.out_dir / "checkpoints" / "latest";
     report->export_dir = opt.out_dir / "exports" / opt.model_name;
     report->served_dir = opt.out_dir.parent_path() / "models" / opt.model_name;
@@ -55,6 +58,7 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
     report->start_step = resume.optimizer_steps;
     report->microsteps = resume.microsteps;
     float before = init.emb.empty() ? 0.0f : init.emb.front();
+    report->best_loss = std::numeric_limits<double>::infinity();
     std::vector<float> logits;
     auto started = std::chrono::steady_clock::now();
     for (int local = 1; local <= opt.max_steps; ++local) {
@@ -87,6 +91,16 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
         return false;
       }
       int step = report->start_step + local;
+      if (report->loss < report->best_loss) {
+        report->best_loss = report->loss;
+        report->best_loss_step = step;
+      }
+      bool should_sample = local == 1 || local == opt.max_steps ||
+                           (opt.loss_sample_interval > 0 &&
+                            step % opt.loss_sample_interval == 0);
+      if (should_sample) {
+        report->loss_samples.push_back({step, report->loss});
+      }
       phase = std::chrono::steady_clock::now();
       state.adamw(dense_step_lr(opt, step), step);
       report->optimizer_seconds += dense_seconds_since(phase);
@@ -106,6 +120,7 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
     auto host = state.copy_to_host();
     report->weight_changed =
         !host.emb.empty() && std::fabs(host.emb.front() - before) > 0.0f;
+    finalize_dense_loss_trend(report);
     auto phase = std::chrono::steady_clock::now();
     bool ok = write_dense_train_artifact(opt.out_dir / "checkpoints" / "latest",
                                          host, report->steps, report->microsteps,
