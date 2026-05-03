@@ -6,6 +6,13 @@ This directory contains test helpers for native CTest cases.
 
 ## Contents
 
+- [config_contract.py](config_contract.py): validates native and training config
+  keys, BF16 dtype, dimension invariants, vocab/context bounds, and local
+  config references.
+- [cuda_arch_contract.py](cuda_arch_contract.py): validates the CMake, Docker,
+  and Compose CUDA architecture policy, including Blackwell `120` defaults.
+- [dense_check_contract.py](dense_check_contract.py): wraps the dense CUDA
+  parity binary and checks additive hardware/build capability fields.
 - [server_chat_contract.py](server_chat_contract.py): starts the native server
   against a dense export and checks chat returns explicit unsupported decode.
 - [packed_train_contract.py](packed_train_contract.py): creates a minimal

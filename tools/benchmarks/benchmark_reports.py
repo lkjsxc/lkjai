@@ -1,7 +1,5 @@
 import math
-
 from accepted_training_reports import accepted_training_summary_errors
-
 
 PROMOTABLE_RUN_PURPOSES = {"accepted_training", "dense_learning_control"}
 
@@ -11,13 +9,11 @@ def _sample_loss(sample) -> float:
         return float(sample.get("loss"))
     return float(sample)
 
-
 def _finite(value) -> bool:
     try:
         return math.isfinite(float(value))
     except (TypeError, ValueError):
         return False
-
 
 def summarize_train_report(report: dict) -> dict:
     timings = report.get("timings", {})
@@ -50,14 +46,10 @@ def summarize_train_report(report: dict) -> dict:
         "backward_backend": report.get("backward_backend", ""),
         "optimizer_backend": report.get("optimizer_backend", ""),
         "cuda_device_name": report.get("cuda_device_name", ""),
-        "cuda_driver_version": int(report.get("cuda_driver_version", 0)),
-        "cuda_runtime_version": int(report.get("cuda_runtime_version", 0)),
-        "cudnn_version": int(report.get("cudnn_version", 0)),
-        "cuda_device_count": int(report.get("cuda_device_count", 0)),
-        "cuda_device_index": int(report.get("cuda_device_index", 0)),
-        "cuda_total_global_memory": int(report.get("cuda_total_global_memory", 0)),
-        "cuda_sm_count": int(report.get("cuda_sm_count", 0)),
-        "cuda_arch_flags": report.get("cuda_arch_flags", ""),
+        "cuda_driver_version": int(report.get("cuda_driver_version", 0)), "cuda_runtime_version": int(report.get("cuda_runtime_version", 0)),
+        "cudnn_version": int(report.get("cudnn_version", 0)), "cuda_device_count": int(report.get("cuda_device_count", 0)),
+        "cuda_device_index": int(report.get("cuda_device_index", 0)), "cuda_total_global_memory": int(report.get("cuda_total_global_memory", 0)),
+        "cuda_sm_count": int(report.get("cuda_sm_count", 0)), "cuda_arch_flags": report.get("cuda_arch_flags", ""),
         "initial_loss": float(report.get("initial_loss", 0.0)),
         "loss": float(report.get("loss", 0.0)),
         "loss_samples": report.get("loss_samples", []),

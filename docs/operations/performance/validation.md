@@ -16,6 +16,7 @@ the RTX 3070 gate.
 | Device substrate | allocation, free, shape, dtype, and host-device round trip |
 | Capability | CC, BF16, cuBLASLt, cuDNN, and SDPA eligibility JSON |
 | Build policy | default CUDA arch list includes Blackwell `120` and accepts focused env overrides |
+| Config policy | every native/training config uses known keys and valid BF16 dimensions |
 | Forward | tiny-model logits parity against CPU FP32 reference |
 | Attention | MHA, GQA, masks, and sequence-length parity |
 | Backward | finite-difference checks on small layers |
@@ -32,6 +33,17 @@ docker compose --progress quiet --profile verify run --rm verify
 
 The older `up --abort-on-container-exit verify` form is acceptable for
 interactive diagnosis, but the `run --rm verify` form is the canonical gate.
+
+## Foundation CTest Gates
+
+- `native_config_contract` passes only when native/training configs use known
+  keys, BF16 dtype, valid vocab/context bounds, valid `heads * head_dim`, valid
+  `heads % kv_heads`, and existing repo-local native config references.
+- `native_cuda_arch_contract` passes only when CMake, Docker, and Compose keep
+  `LKJAI_CUDA_ARCHS` support and the default CMake policy still includes
+  Blackwell `120-real` and `120-virtual`.
+- `native_dense_cuda_parity` now wraps `lkjai-native-dense-check` and fails if
+  dense CUDA parity or additive hardware/build capability fields are missing.
 
 ## Metrics
 

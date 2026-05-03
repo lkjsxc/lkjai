@@ -7,15 +7,12 @@
 #include "artifact.hpp"
 #include "capability_json.hpp"
 #include "json_min.hpp"
-
 #ifndef LKJAI_GIT_COMMIT
 #define LKJAI_GIT_COMMIT "unknown"
 #endif
-
 #ifndef LKJAI_BUILD_TYPE
 #define LKJAI_BUILD_TYPE "unknown"
 #endif
-
 #ifndef LKJAI_CUDA_ARCH_FLAGS
 #define LKJAI_CUDA_ARCH_FLAGS "unknown"
 #endif
@@ -102,15 +99,11 @@ void append_transformer(std::ostringstream* out,
        << ",\"transformer_cuda_probe\":true"
        << ",\"cuda_available\":" << (cuda.available ? "true" : "false")
        << ",\"cuda_device_name\":\"" << json_escape(cuda.device) << "\""
-       << ",\"cuda_driver_version\":" << cuda.cuda_driver_version
-       << ",\"cuda_runtime_version\":" << cuda.cuda_runtime_version
-       << ",\"cudnn_version\":" << cuda.cudnn_version
-       << ",\"cuda_device_count\":" << cuda.device_count
+       << ",\"cuda_driver_version\":" << cuda.cuda_driver_version << ",\"cuda_runtime_version\":" << cuda.cuda_runtime_version
+       << ",\"cudnn_version\":" << cuda.cudnn_version << ",\"cuda_device_count\":" << cuda.device_count
        << ",\"cuda_device_index\":" << cuda.device_index
-       << ",\"cuda_total_global_memory\":"
-       << static_cast<unsigned long long>(cuda.total_global_memory)
-       << ",\"cuda_sm_count\":" << cuda.sm_count
-       << ",\"cuda_arch_flags\":\"" << json_escape(LKJAI_CUDA_ARCH_FLAGS)
+       << ",\"cuda_total_global_memory\":" << static_cast<unsigned long long>(cuda.total_global_memory)
+       << ",\"cuda_sm_count\":" << cuda.sm_count << ",\"cuda_arch_flags\":\"" << json_escape(LKJAI_CUDA_ARCH_FLAGS)
        << "\",\"git_commit\":\"" << json_escape(LKJAI_GIT_COMMIT) << "\""
        << ",\"build_type\":\"" << json_escape(LKJAI_BUILD_TYPE) << "\""
        << ",\"config_path\":\"" << json_escape(report.config_path.string())

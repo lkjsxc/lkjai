@@ -30,6 +30,12 @@ canonical pass/fail gate.
 8. `cargo run --bin lkjai -- quality check-lines`
 9. `cargo run --bin lkjai -- quality no-node`
 
+The native CTest set includes config-contract, CUDA architecture policy,
+capability-field, server unsupported-decode, packed-cache, report-schema, and
+artifact/logits gates. Any missing additive capability field, missing Blackwell
+`120` default arch flag, invalid profile config, accepted transformer report, or
+chat response with `choices` fails the gate.
+
 ## Compact Logs
 
 `ops/verify.sh` writes full command logs under `/tmp/lkjai-verify-logs` inside the
