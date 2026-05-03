@@ -64,6 +64,10 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
     for (int local = 1; local <= opt.max_steps; ++local) {
       auto phase = std::chrono::steady_clock::now();
       double loss_sum = 0.0;
+      int step = report->start_step + local;
+      bool capture_step_logits =
+          local == opt.max_steps ||
+          (opt.checkpoint_interval > 0 && step % opt.checkpoint_interval == 0);
       for (int micro = 0; micro < opt.grad_accum; ++micro) {
         PackedBatch batch;
         int first = ((report->start_step + local - 1) * opt.grad_accum +
@@ -73,8 +77,11 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
                                &batch, error)) return false;
         report->batch_load_seconds += dense_seconds_since(phase);
         double h2d = 0.0, fwd = 0.0, bwd = 0.0;
+        std::vector<float>* logits_out =
+            (capture_step_logits && micro == opt.grad_accum - 1) ? &logits
+                                                                 : nullptr;
         double loss = state.forward_backward(
-            batch, &logits, &h2d, &fwd, &bwd, 1.0f / opt.grad_accum,
+            batch, logits_out, &h2d, &fwd, &bwd, 1.0f / opt.grad_accum,
             micro == 0);
         report->h2d_seconds += h2d;
         report->forward_seconds += fwd;
@@ -90,7 +97,6 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
         *error = "dense CUDA training produced non-finite loss";
         return false;
       }
-      int step = report->start_step + local;
       if (report->loss < report->best_loss) {
         report->best_loss = report->loss;
         report->best_loss_step = step;
@@ -105,7 +111,7 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
       state.adamw(dense_step_lr(opt, step), step);
       report->optimizer_seconds += dense_seconds_since(phase);
       report->steps = step;
-      report->logits_checksum = dense_checksum_floats(logits);
+      if (!logits.empty()) report->logits_checksum = dense_checksum_floats(logits);
       if (opt.checkpoint_interval > 0 && step % opt.checkpoint_interval == 0) {
         phase = std::chrono::steady_clock::now();
         auto host = state.copy_to_host();

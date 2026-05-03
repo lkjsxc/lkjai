@@ -9,6 +9,7 @@ import time
 from pathlib import Path
 
 from benchmark_reports import (
+    accepted_training_summary_errors,
     dense_promotion_errors,
     is_promotable_dense_summary,
     summarize_train_report,

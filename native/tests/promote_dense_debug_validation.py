@@ -7,7 +7,7 @@ def fixture_report() -> dict:
     return {
         "schema_version": 3,
         "trainer_mode": "train",
-        "run_purpose": "accepted_training",
+        "run_purpose": "dense_learning_control",
         "status": "success",
         "model_kind": "dense",
         "accepted_cuda_training": True,

@@ -35,6 +35,12 @@ artifact inspection, and CUDA capability probing.
 - [dense_checkpoint.cpp](dense_checkpoint.cpp): dense optimizer checkpoint
   restore and compatibility checks.
 - [dense_check_main.cpp](dense_check_main.cpp): dense CUDA check binary.
+- [dense_loss_trend.cpp](dense_loss_trend.cpp) and
+  [dense_loss_trend.hpp](dense_loss_trend.hpp): dense sampled-loss trend
+  classification helpers.
+- [dense_report_util.cpp](dense_report_util.cpp) and
+  [dense_report_util.hpp](dense_report_util.hpp): dense report checksum,
+  parameter-count, and loss-sample serialization helpers.
 - [runtime_device.cu](runtime_device.cu), [runtime_workspace.cu](runtime_workspace.cu),
   [runtime_errors.cu](runtime_errors.cu), and [runtime_device.hpp](runtime_device.hpp):
   reusable CUDA tensor/context substrate for later GEMM and attention work.

@@ -9,11 +9,14 @@ so the C++ trainer can parse them without a third-party JSON dependency.
 
 - [native_debug_bf16.json](native_debug_bf16.json): tiny verification shape
   used by routine native dense checks.
+- [native_accepted_dense_bf16.json](native_accepted_dense_bf16.json): small
+  real packed-cache dense target for the `accepted_training` proof run.
 - [native_transformer_debug_bf16.json](native_transformer_debug_bf16.json):
   tiny verification shape for explicit native transformer training. It uses
   learned positional embeddings and untied embeddings.
 - [native_40m_bf16.json](native_40m_bf16.json): scratch 40M target shape for
-  manual smoke runs and production-oriented experiments.
+  manual smoke runs and production-oriented experiments. It is not the current
+  accepted-training target.
 
 ## Rules
 

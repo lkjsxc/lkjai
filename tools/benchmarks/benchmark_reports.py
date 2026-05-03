@@ -1,5 +1,7 @@
 import math
 
+from accepted_training_reports import accepted_training_summary_errors
+
 
 PROMOTABLE_RUN_PURPOSES = {"accepted_training", "dense_learning_control"}
 
@@ -39,28 +41,28 @@ def summarize_train_report(report: dict) -> dict:
         "optimizer_steps": steps,
         "microsteps": int(report.get("microsteps", 0)),
         "tokens_seen": int(report.get("tokens_seen", report.get("input_tokens", 0))),
+        "loss_tokens": int(report.get("loss_tokens", 0)),
+        "batch_size": int(report.get("batch_size", 0)),
+        "seq_len": int(report.get("seq_len", 0)),
+        "grad_accum": int(report.get("grad_accum", 0)),
+        "parameter_count": int(report.get("parameter_count", 0)),
+        "forward_backend": report.get("forward_backend", ""),
+        "backward_backend": report.get("backward_backend", ""),
+        "optimizer_backend": report.get("optimizer_backend", ""),
+        "cuda_device_name": report.get("cuda_device_name", ""),
         "initial_loss": float(report.get("initial_loss", 0.0)),
         "loss": float(report.get("loss", 0.0)),
         "loss_samples": report.get("loss_samples", []),
         "loss_sample_interval": int(report.get("loss_sample_interval", 0)),
         "best_loss": float(report.get("best_loss", report.get("loss", 0.0))),
         "best_loss_step": int(report.get("best_loss_step", 0)),
-        "loss_delta": float(
-            report.get(
-                "loss_delta",
-                float(report.get("initial_loss", 0.0))
-                - float(report.get("loss", 0.0)),
-            )
-        ),
-        "loss_decrease_fraction": float(
-            report.get("loss_decrease_fraction", 0.0)
-        ),
-        "first_quarter_loss_mean": float(
-            report.get("first_quarter_loss_mean", 0.0)
-        ),
-        "last_quarter_loss_mean": float(
-            report.get("last_quarter_loss_mean", 0.0)
-        ),
+        "loss_delta": float(report.get(
+            "loss_delta",
+            float(report.get("initial_loss", 0.0)) - float(report.get("loss", 0.0)),
+        )),
+        "loss_decrease_fraction": float(report.get("loss_decrease_fraction", 0.0)),
+        "first_quarter_loss_mean": float(report.get("first_quarter_loss_mean", 0.0)),
+        "last_quarter_loss_mean": float(report.get("last_quarter_loss_mean", 0.0)),
         "learning_status": report.get("learning_status", ""),
         "median_step_seconds": step_seconds,
         "median_tokens_per_second": float(report.get("tokens_per_second", 0.0)),
@@ -69,6 +71,8 @@ def summarize_train_report(report: dict) -> dict:
         "mean_forward_seconds": float(timings.get("forward", 0.0)),
         "mean_backward_seconds": float(timings.get("backward", 0.0)),
         "mean_optimizer_seconds": float(timings.get("optimizer", 0.0)),
+        "mean_checkpoint_seconds": float(timings.get("checkpoint", 0.0)),
+        "mean_export_seconds": float(timings.get("export", 0.0)),
         "logits_checksum": report.get("logits_checksum", ""),
         "checkpoint_checksum": report.get("checkpoint_checksum", ""),
         "export_checksum": report.get("export_checksum", ""),
@@ -187,6 +191,10 @@ def is_promotable_dense_summary(row: dict) -> bool:
             float(row.get("logits_max_abs_diff", 0.0))
             <= float(row.get("logits_tolerance", 0.0)),
         ]
-        return all(checks)
+        if not all(checks):
+            return False
+        if row.get("run_purpose") == "accepted_training":
+            return not accepted_training_summary_errors(row)
+        return True
     except (TypeError, ValueError):
         return False

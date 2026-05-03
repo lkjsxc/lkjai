@@ -19,7 +19,7 @@ def main() -> None:
     payload = {
         "schema_version": 3,
         "trainer_mode": "smoke",
-        "run_purpose": "accepted_training",
+        "run_purpose": "dense_learning_control",
         "status": "success",
         "model_kind": "dense",
         "accepted_cuda_training": True,
@@ -74,7 +74,7 @@ def main() -> None:
         summary = summarize_train_report(loaded)
         assert summary["schema_version"] == 3
         assert summary["trainer_mode"] == "smoke"
-        assert summary["run_purpose"] == "accepted_training"
+        assert summary["run_purpose"] == "dense_learning_control"
         assert summary["status"] == "success"
         assert summary["model_kind"] == "dense"
         assert summary["accepted_cuda_training"] is True
@@ -82,6 +82,7 @@ def main() -> None:
         assert summary["loader_backend"] == "persistent_packed_cache_reader"
         assert summary["matmul_plan_cache_enabled"] is True
         assert summary["optimizer_steps"] == 2
+        assert summary["loss_tokens"] == 0
         assert summary["loss_sample_interval"] == 1
         assert summary["best_loss"] == 1.5
         assert summary["best_loss_step"] == 2
