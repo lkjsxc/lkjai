@@ -158,6 +158,10 @@ add_test(
   COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/benchmark_report_parser.py
 )
 add_test(
+  NAME native_accepted_training_report_validation
+  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/accepted_training_report_validation.py
+)
+add_test(
   NAME native_promote_dense_debug_validation
   COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/promote_dense_debug_validation.py
 )

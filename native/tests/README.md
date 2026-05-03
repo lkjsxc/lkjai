@@ -25,6 +25,7 @@ This directory contains test helpers for native CTest cases.
   parsing of the stable native train-report JSON contract, including
   compatibility-only run-purpose filtering.
 - [accepted_training_report_validation.py](accepted_training_report_validation.py):
-  checks accepted dense training summary validation and token accounting.
+  CTest-wired check for accepted dense training summary validation and token
+  accounting.
 - [promote_dense_debug_validation.py](promote_dense_debug_validation.py):
   dry-checks dense debug promotion validation and summary shaping.
