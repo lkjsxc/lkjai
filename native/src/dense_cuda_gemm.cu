@@ -1,6 +1,7 @@
 #include "dense_cuda_internal.hpp"
 
 #include <cublasLt.h>
+#include <algorithm>
 
 namespace lkjai {
 namespace {
@@ -16,17 +17,9 @@ void set_row_major(cublasLtMatrixLayout_t layout) {
 }
 
 struct Ops {
-  cublasOperation_t transa;
-  cublasOperation_t transb;
-  cudaDataType_t a_type;
-  cudaDataType_t b_type;
-  cudaDataType_t c_type;
-  int a_rows;
-  int a_cols;
-  int b_rows;
-  int b_cols;
-  int c_rows;
-  int c_cols;
+  cublasOperation_t transa, transb;
+  cudaDataType_t a_type, b_type, c_type;
+  int a_rows, a_cols, b_rows, b_cols, c_rows, c_cols;
 };
 
 Ops ops_for(DenseGemmKind kind, int rows, int vocab, int hidden) {
@@ -60,6 +53,7 @@ struct DenseMatmulPlan {
   cublasLtMatmulPreference_t pref = nullptr;
   cublasLtMatmulAlgo_t algo{};
   bool has_algo = false;
+  int algo_id = -1;
   size_t workspace_bytes = 4 * 1024 * 1024;
 };
 
@@ -83,8 +77,7 @@ DenseMatmulPlan* make_plan(DenseGemmKind kind, cublasLtHandle_t handle,
   plan->vocab = vocab;
   plan->hidden = hidden;
   auto ops = ops_for(kind, rows, vocab, hidden);
-  require_cublaslt(cublasLtMatmulDescCreate(&plan->op, CUBLAS_COMPUTE_32F,
-                                            CUDA_R_32F),
+  require_cublaslt(cublasLtMatmulDescCreate(&plan->op, CUBLAS_COMPUTE_32F, CUDA_R_32F),
                    "cublasLtMatmulDescCreate");
   require_cublaslt(cublasLtMatmulDescSetAttribute(
                        plan->op, CUBLASLT_MATMUL_DESC_TRANSA, &ops.transa,
@@ -94,30 +87,34 @@ DenseMatmulPlan* make_plan(DenseGemmKind kind, cublasLtHandle_t handle,
                        plan->op, CUBLASLT_MATMUL_DESC_TRANSB, &ops.transb,
                        sizeof(ops.transb)),
                    "cublasLt transb");
-  require_cublaslt(cublasLtMatrixLayoutCreate(
-                       &plan->a, ops.a_type, ops.a_rows, ops.a_cols,
-                       ops.a_cols), "cublasLt A layout");
-  require_cublaslt(cublasLtMatrixLayoutCreate(
-                       &plan->b, ops.b_type, ops.b_rows, ops.b_cols,
-                       ops.b_cols), "cublasLt B layout");
-  require_cublaslt(cublasLtMatrixLayoutCreate(
-                       &plan->c, ops.c_type, ops.c_rows, ops.c_cols,
-                       ops.c_cols), "cublasLt C layout");
+  require_cublaslt(cublasLtMatrixLayoutCreate(&plan->a, ops.a_type, ops.a_rows, ops.a_cols, ops.a_cols), "cublasLt A layout");
+  require_cublaslt(cublasLtMatrixLayoutCreate(&plan->b, ops.b_type, ops.b_rows, ops.b_cols, ops.b_cols), "cublasLt B layout");
+  require_cublaslt(cublasLtMatrixLayoutCreate(&plan->c, ops.c_type, ops.c_rows, ops.c_cols, ops.c_cols), "cublasLt C layout");
   for (auto layout : {plan->a, plan->b, plan->c}) set_row_major(layout);
   require_cublaslt(cublasLtMatmulPreferenceCreate(&plan->pref),
                    "cublasLt preference");
-  require_cublaslt(cublasLtMatmulPreferenceSetAttribute(
-                       plan->pref, CUBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES,
-                       &plan->workspace_bytes, sizeof(plan->workspace_bytes)),
-                   "cublasLt workspace pref");
-  cublasLtMatmulHeuristicResult_t heuristic{};
-  int returned = 0;
-  auto hs = cublasLtMatmulAlgoGetHeuristic(handle, plan->op, plan->a, plan->b,
-                                           plan->c, plan->c, plan->pref, 1,
-                                           &heuristic, &returned);
-  if (hs == CUBLAS_STATUS_SUCCESS && returned > 0) {
-    plan->algo = heuristic.algo;
-    plan->has_algo = true;
+  const auto& tuning = dense_runtime_tuning();
+  if (!tuning.autotune_enabled()) return plan;
+  int ordinal = 0;
+  for (auto workspace : tuning.workspace_bytes) {
+    require_cublaslt(cublasLtMatmulPreferenceSetAttribute(
+                         plan->pref, CUBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES,
+                         &workspace, sizeof(workspace)),
+                     "cublasLt workspace pref");
+    cublasLtMatmulHeuristicResult_t results[8]{};
+    int returned = 0;
+    auto hs = cublasLtMatmulAlgoGetHeuristic(
+        handle, plan->op, plan->a, plan->b, plan->c, plan->c, plan->pref, 8,
+        results, &returned);
+    if (hs != CUBLAS_STATUS_SUCCESS || returned <= 0) continue;
+    for (int i = 0; i < returned; ++i, ++ordinal) {
+      if (results[i].state != CUBLAS_STATUS_SUCCESS) continue;
+      plan->algo = results[i].algo;
+      plan->has_algo = true;
+      plan->algo_id = ordinal;
+      plan->workspace_bytes = std::max(workspace, results[i].workspaceSize);
+      return plan;
+    }
   }
   return plan;
 }
@@ -139,6 +136,32 @@ DenseMatmulPlan* ensure_plan(DenseMatmulPlan** slot, DenseGemmKind kind,
 
 void destroy_dense_matmul_plan(DenseMatmulPlan* plan) { destroy_plan(plan); }
 
+namespace {
+DenseMatmulStats stats_for(const DenseMatmulPlan* plan) {
+  return plan ? DenseMatmulStats{plan->algo_id, plan->workspace_bytes}
+              : DenseMatmulStats{};
+}
+}  // namespace
+
+DenseMatmulStats DenseCudaState::logits_matmul_stats() const {
+  return stats_for(logits_plan_);
+}
+DenseMatmulStats DenseCudaState::head_grad_matmul_stats() const {
+  return stats_for(head_grad_plan_);
+}
+DenseMatmulStats DenseCudaState::hidden_grad_matmul_stats() const {
+  return stats_for(hidden_grad_plan_);
+}
+
+void run_plan(CudaExecutionContext* ctx, DenseMatmulPlan* plan, const void* a,
+              const void* b, void* c, void* d, float alpha, float beta,
+              void* ws, const char* label) {
+  require_cublaslt(cublasLtMatmul(
+      ctx->cublaslt(), plan->op, &alpha, a, plan->a, b, plan->b, &beta, c,
+      plan->c, d, plan->c, plan->has_algo ? &plan->algo : nullptr, ws,
+      plan->workspace_bytes, ctx->stream()), label);
+}
+
 void DenseCudaState::gemm(const DeviceTensor& hidden, DeviceTensor& out,
                           int rows) {
   auto* plan = ensure_plan(&logits_plan_, DenseGemmKind::logits,
@@ -146,13 +169,8 @@ void DenseCudaState::gemm(const DeviceTensor& hidden, DeviceTensor& out,
                            cfg_.hidden_size);
   float alpha = 1.0f, beta = 0.0f;
   void* ws = workspace_.allocate(plan->workspace_bytes);
-  require_cublaslt(cublasLtMatmul(ctx_->cublaslt(), plan->op, &alpha,
-                                  hidden.data(), plan->a, head_shadow_.data(),
-                                  plan->b, &beta, out.data(), plan->c,
-                                  out.data(), plan->c,
-                                  plan->has_algo ? &plan->algo : nullptr, ws,
-                                  plan->workspace_bytes, ctx_->stream()),
-                   "dense bf16 matmul");
+  run_plan(ctx_, plan, hidden.data(), head_shadow_.data(), out.data(),
+           out.data(), alpha, beta, ws, "dense bf16 matmul");
 }
 
 void DenseCudaState::gemm_head_grad(const DeviceTensor& grad_logits,
@@ -162,13 +180,8 @@ void DenseCudaState::gemm_head_grad(const DeviceTensor& grad_logits,
                            cfg_.hidden_size);
   float alpha = 1.0f, beta = 1.0f;
   void* ws = workspace_.allocate(plan->workspace_bytes);
-  require_cublaslt(cublasLtMatmul(ctx_->cublaslt(), plan->op, &alpha,
-                                  grad_logits.data(), plan->a, hidden.data(),
-                                  plan->b, &beta, grad_head_.data(), plan->c,
-                                  grad_head_.data(), plan->c,
-                                  plan->has_algo ? &plan->algo : nullptr, ws,
-                                  plan->workspace_bytes, ctx_->stream()),
-                   "dense head grad matmul");
+  run_plan(ctx_, plan, grad_logits.data(), hidden.data(), grad_head_.data(),
+           grad_head_.data(), alpha, beta, ws, "dense head grad matmul");
 }
 
 void DenseCudaState::gemm_d_hidden(const DeviceTensor& grad_logits,
@@ -178,14 +191,9 @@ void DenseCudaState::gemm_d_hidden(const DeviceTensor& grad_logits,
                            cfg_.hidden_size);
   float alpha = 1.0f, beta = 0.0f;
   void* ws = workspace_.allocate(plan->workspace_bytes);
-  require_cublaslt(cublasLtMatmul(ctx_->cublaslt(), plan->op, &alpha,
-                                  grad_logits.data(), plan->a,
-                                  step_head_f32_.data(), plan->b, &beta,
-                                  d_hidden.data(), plan->c, d_hidden.data(),
-                                  plan->c,
-                                  plan->has_algo ? &plan->algo : nullptr, ws,
-                                  plan->workspace_bytes, ctx_->stream()),
-                   "dense d_hidden matmul");
+  run_plan(ctx_, plan, grad_logits.data(), step_head_f32_.data(),
+           d_hidden.data(), d_hidden.data(), alpha, beta, ws,
+           "dense d_hidden matmul");
 }
 
 }  // namespace lkjai

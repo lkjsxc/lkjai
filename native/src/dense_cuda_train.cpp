@@ -76,7 +76,10 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
           (opt.checkpoint_interval > 0 && step % opt.checkpoint_interval == 0);
       for (int micro = 0; micro < opt.grad_accum; ++micro) {
         int slot = micro % 3;
-        if (micro >= 3) loss_sum += state.slot_loss(slot);
+        if (micro >= 3) {
+          loss_sum += state.slot_loss(slot);
+          state.take_deferred_timings(&report->h2d_seconds, &report->forward_seconds, &report->backward_seconds);
+        }
         int first = ((report->start_step + local - 1) * opt.grad_accum +
                      micro) * opt.batch_size;
         phase = std::chrono::steady_clock::now();
@@ -86,15 +89,11 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
                                     opt.batch_size, pinned.tokens,
                                     pinned.mask, error)) return false;
         report->batch_load_seconds += dense_seconds_since(phase);
-        double h2d = 0.0, fwd = 0.0, bwd = 0.0;
         bool capture = capture_step_logits && micro == opt.grad_accum - 1;
-        state.stage_batch_slot(slot, opt.batch_size, seq_len, &h2d);
-        state.forward_backward_slot(slot, capture, &fwd, &bwd,
+        state.stage_batch_slot(slot, opt.batch_size, seq_len, nullptr);
+        state.forward_backward_slot(slot, capture, nullptr, nullptr,
                                     1.0f / opt.grad_accum, micro == 0);
         if (capture) capture_slot = slot;
-        report->h2d_seconds += h2d;
-        report->forward_seconds += fwd;
-        report->backward_seconds += bwd;
         report->microsteps += 1;
         report->input_tokens += opt.batch_size * seq_len;
         report->loss_tokens += dense_supervised_count_raw(
@@ -103,6 +102,7 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
       int pending = std::min(opt.grad_accum, 3);
       for (int i = opt.grad_accum - pending; i < opt.grad_accum; ++i) {
         loss_sum += state.slot_loss(i % 3);
+        state.take_deferred_timings(&report->h2d_seconds, &report->forward_seconds, &report->backward_seconds);
       }
       if (capture_slot >= 0) state.slot_logits(capture_slot, &logits);
       report->loss = loss_sum / opt.grad_accum;
@@ -171,7 +171,7 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
                                       &report->logits_checksum);
     }
     report->export_seconds += dense_seconds_since(phase);
-    report->cublaslt_workspace_bytes = state.cublaslt_workspace_bytes();
+    dense_fill_runtime_report(state, report);
     if (!ok) {
       *error = "failed to write dense artifact";
       return false;

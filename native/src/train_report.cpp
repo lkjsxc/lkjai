@@ -62,7 +62,9 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << ",\"accumulation_dtype\":\"f32\""
        << ",\"export_dtype\":\"bf16\""
        << ",\"dense_cuda_path\":true"
-       << ",\"loader_backend\":\"persistent_packed_cache_reader\",\"row_layout\":\"dense_physical_bxseq_masked_final_token\",\"matmul_plan_cache_enabled\":true,\"buffer_reuse_enabled\":true,\"timing_source\":\"cuda_events_with_boundary_sync\""
+       << ",\"loader_backend\":\"persistent_packed_cache_reader\",\"row_layout\":\"dense_physical_bxseq_masked_final_token\",\"matmul_plan_cache_enabled\":true,\"buffer_reuse_enabled\":true,\"timing_source\":\""
+       << (report.dense_timing_mode == "deferred" ? "cuda_events_deferred_slot_sync" : "cuda_events_with_boundary_sync")
+       << "\""
        << ",\"cuda_available\":" << (cuda.available ? "true" : "false")
        << ",\"cuda_device_name\":\"" << json_escape(cuda.device) << "\""
        << ",\"cuda_driver_version\":" << cuda.cuda_driver_version
@@ -104,7 +106,9 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << ",\"dense_logits_readback_bytes\":"
        << static_cast<unsigned long long>(report.dense_logits_readback_bytes)
        << ",\"cublaslt_workspace_bytes\":"
-       << static_cast<unsigned long long>(report.cublaslt_workspace_bytes)
+       << static_cast<unsigned long long>(report.cublaslt_workspace_bytes);
+  append_dense_tuning_fields(out, report);
+  *out
        << ",\"tokens_seen\":" << report.input_tokens
        << ",\"input_tokens\":" << report.input_tokens
        << ",\"loss_tokens\":" << report.loss_tokens

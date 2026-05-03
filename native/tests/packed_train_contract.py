@@ -39,16 +39,9 @@ def run_train(train_bin: str, root: Path, repo: Path, steps: int, extra=None):
             "TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS": "1",
         }
     )
-    cmd = [
-        train_bin,
-        "--train",
-        "--config",
-        str(repo / "configs" / "native" / "native_debug_bf16.json"),
-        "--seq-len",
-        "8",
-        "--max-steps",
-        str(steps),
-    ]
+    cmd = [train_bin, "--train", "--config",
+           str(repo / "configs" / "native" / "native_debug_bf16.json"),
+           "--seq-len", "8", "--max-steps", str(steps)]
     if extra:
         cmd.extend(extra)
     result = subprocess.run(cmd, env=env, text=True, capture_output=True, check=True)
@@ -65,7 +58,7 @@ def run_train(train_bin: str, root: Path, repo: Path, steps: int, extra=None):
         assert persisted[key] == expected
     assert persisted["dense_cuda_path"] is True
     expected = {"loader_backend": "persistent_packed_cache_reader", "row_layout": "dense_physical_bxseq_masked_final_token",
-                "matmul_plan_cache_enabled": True, "buffer_reuse_enabled": True, "timing_source": "cuda_events_with_boundary_sync",
+                "matmul_plan_cache_enabled": True, "buffer_reuse_enabled": True, "timing_source": "cuda_events_deferred_slot_sync",
                 "forward_backend": "cuda_bf16_cublaslt", "backward_backend": "cuda_bf16_cublaslt_scatter",
                 "backward_gemm_enabled": True, "embedding_grad_backend": "token_scatter_add_fp32", "optimizer_backend": "cuda_adamw_fp32",
                 "loss_kernel_backend": "block_row_softmax_fp32", "loss_readback_mode": "optimizer_step_deferred_pinned",
@@ -78,6 +71,13 @@ def run_train(train_bin: str, root: Path, repo: Path, steps: int, extra=None):
     assert persisted["dense_step_logits_bytes"] == persisted["dense_step_grad_logits_bytes"]
     assert persisted["dense_logits_readback_bytes"] == 256 * 4
     assert persisted["dense_step_d_hidden_bytes"] > 0 and persisted["cublaslt_workspace_bytes"] > 0
+    assert persisted["dense_autotune_enabled"] is True and persisted["dense_autotune_mode"] == "heuristic"
+    assert persisted["dense_workspace_sweep_bytes"] and persisted["dense_timing_mode"] == "deferred"
+    assert persisted["dense_allocator_backend"] in {"cuda_malloc_async_pool", "cuda_malloc"}
+    assert persisted["dense_workspace_high_water_bytes"] >= persisted["cublaslt_workspace_bytes"]
+    assert persisted["dense_workspace_reallocations"] >= 1 and persisted["dense_head_f32_cache_enabled"] is True
+    local_steps = persisted["optimizer_steps"] - persisted["start_step"]
+    assert persisted["dense_head_f32_cache_refreshes"] >= local_steps
     assert persisted["cuda_probe_passed"] is True
     assert_capability_fields(persisted)
     assert persisted["logits_check"]["validation_target"] == "exported_bf16_weights"

@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
 #include <vector>
 
 #include <cublasLt.h>
@@ -58,13 +59,21 @@ class DeviceWorkspace {
   void* allocate(size_t bytes);
   void reset();
   bool async_supported() const { return async_supported_; }
+  const std::string& backend() const { return backend_; }
   size_t bytes_reserved() const { return bytes_reserved_; }
+  size_t high_water_bytes() const { return high_water_bytes_; }
+  int reallocations() const { return reallocations_; }
+  uint64_t release_threshold_bytes() const { return release_threshold_bytes_; }
 
  private:
   cudaStream_t stream_ = nullptr;
   void* data_ = nullptr;
   size_t bytes_reserved_ = 0;
+  size_t high_water_bytes_ = 0;
+  int reallocations_ = 0;
+  uint64_t release_threshold_bytes_ = 0;
   bool async_supported_ = false;
+  std::string backend_ = "legacy";
 };
 
 class CudaExecutionContext {

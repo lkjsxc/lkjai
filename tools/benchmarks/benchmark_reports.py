@@ -1,6 +1,6 @@
 import math
 from accepted_training_reports import accepted_training_summary_errors
-from dense_runtime_contract import dense_runtime_errors, dense_runtime_summary_checks, summarize_runtime_fields
+from dense_runtime_contract import TIMING_SOURCES, dense_runtime_errors, dense_runtime_summary_checks, summarize_runtime_fields, summarize_tuning_fields
 PROMOTABLE_RUN_PURPOSES = {"accepted_training", "dense_learning_control"}
 def _sample_loss(sample) -> float:
     return float(sample.get("loss") if isinstance(sample, dict) else sample)
@@ -45,6 +45,7 @@ def summarize_train_report(report: dict) -> dict:
         "dense_step_d_hidden_bytes": int(report.get("dense_step_d_hidden_bytes", 0)),
         **summarize_runtime_fields(report),
         "cublaslt_workspace_bytes": int(report.get("cublaslt_workspace_bytes", 0)),
+        **summarize_tuning_fields(report),
         "optimizer_backend": report.get("optimizer_backend", ""),
         "cuda_device_name": report.get("cuda_device_name", ""),
         "cuda_driver_version": int(report.get("cuda_driver_version", 0)), "cuda_runtime_version": int(report.get("cuda_runtime_version", 0)),
@@ -106,8 +107,8 @@ def dense_promotion_errors(report: dict) -> list[str]:
         errors.append("matmul_plan_cache_enabled must be true")
     if report.get("buffer_reuse_enabled") is not True:
         errors.append("buffer_reuse_enabled must be true")
-    if report.get("timing_source") != "cuda_events_with_boundary_sync":
-        errors.append("timing_source must be cuda_events_with_boundary_sync")
+    if report.get("timing_source") not in TIMING_SOURCES:
+        errors.append("timing_source must be a known CUDA event mode")
     for key, expected in {"forward_backend": "cuda_bf16_cublaslt", "backward_backend": "cuda_bf16_cublaslt_scatter", "embedding_grad_backend": "token_scatter_add_fp32", "optimizer_backend": "cuda_adamw_fp32"}.items():
         if report.get(key) != expected: errors.append(f"{key} must be {expected}")
     if report.get("backward_gemm_enabled") is not True:
@@ -160,8 +161,7 @@ def dense_promotion_errors(report: dict) -> list[str]:
         errors.append("logits_check max_abs_diff and tolerance must be numeric")
     return errors
 def validate_dense_promotion_report(report: dict) -> None:
-    errors = dense_promotion_errors(report)
-    if errors: raise ValueError("; ".join(errors))
+    if errors := dense_promotion_errors(report): raise ValueError("; ".join(errors))
 def is_promotable_dense_summary(row: dict) -> bool:
     try:
         checks = [
@@ -176,7 +176,7 @@ def is_promotable_dense_summary(row: dict) -> bool:
             row.get("row_layout") == "dense_physical_bxseq_masked_final_token",
             row.get("matmul_plan_cache_enabled") is True,
             row.get("buffer_reuse_enabled") is True,
-            row.get("timing_source") == "cuda_events_with_boundary_sync",
+            row.get("timing_source") in TIMING_SOURCES,
             dense_runtime_summary_checks(row),
             float(row.get("loss", 0.0)) < float(row.get("initial_loss", 0.0)),
             _finite(row.get("loss", 0.0)),

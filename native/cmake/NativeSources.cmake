@@ -4,6 +4,7 @@ set(LKJAI_CUDA_SOURCES
   src/runtime_context.cu
   src/runtime_device.cu
   src/runtime_workspace.cu
+  src/dense_cuda_tuning.cpp
 )
 
 set(LKJAI_NATIVE_CORE_SOURCES
@@ -18,6 +19,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/dense_cuda_kernels.cu
   src/dense_cuda_logits.cpp
   src/dense_cuda_logits_reference.cpp
+  src/dense_cuda_report.cpp
   src/dense_cuda_state.cu
   src/dense_cuda_step.cu
   src/dense_cuda_train.cpp

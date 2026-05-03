@@ -92,6 +92,23 @@ struct DenseTrainReport {
   uint64_t dense_step_d_hidden_bytes = 0;
   uint64_t dense_logits_readback_bytes = 0;
   uint64_t cublaslt_workspace_bytes = 0;
+  bool dense_autotune_enabled = false;
+  std::string dense_autotune_mode;
+  std::string dense_workspace_sweep_bytes;
+  int dense_cublaslt_logits_algo_id = -1;
+  int dense_cublaslt_head_grad_algo_id = -1;
+  int dense_cublaslt_hidden_grad_algo_id = -1;
+  uint64_t dense_cublaslt_logits_workspace_bytes = 0;
+  uint64_t dense_cublaslt_head_grad_workspace_bytes = 0;
+  uint64_t dense_cublaslt_hidden_grad_workspace_bytes = 0;
+  std::string dense_allocator_backend;
+  bool dense_async_alloc_supported = false;
+  uint64_t dense_mempool_release_threshold_bytes = 0;
+  uint64_t dense_workspace_high_water_bytes = 0;
+  int dense_workspace_reallocations = 0;
+  std::string dense_timing_mode = "deferred";
+  bool dense_head_f32_cache_enabled = true;
+  int dense_head_f32_cache_refreshes = 0;
 };
 
 bool load_dense_config(const std::filesystem::path& path, DenseConfig* config,

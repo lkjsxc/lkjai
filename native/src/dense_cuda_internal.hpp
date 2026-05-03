@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "dense_train_internal.hpp"
+#include "dense_cuda_tuning.hpp"
 #include "runtime_device.hpp"
 
 namespace lkjai {
@@ -20,6 +21,11 @@ struct DenseMatmulPlan;
 struct DenseCudaPinnedBatch {
   uint16_t* tokens = nullptr;
   uint8_t* mask = nullptr;
+};
+
+struct DenseMatmulStats {
+  int algo_id = -1;
+  size_t workspace_bytes = 0;
 };
 
 class DenseCudaState {
@@ -40,11 +46,26 @@ class DenseCudaState {
                              float grad_scale = 1.0f,
                              bool reset_grads = true);
   void wait_batch_slot(int slot);
+  void take_deferred_timings(double* h2d, double* forward, double* backward);
   double slot_loss(int slot);
   void slot_logits(int slot, std::vector<float>* logits);
   void adamw(float lr, int step);
   DenseTrainState copy_to_host();
   size_t cublaslt_workspace_bytes() const { return workspace_.bytes_reserved(); }
+  size_t workspace_high_water_bytes() const {
+    return workspace_.high_water_bytes();
+  }
+  int workspace_reallocations() const { return workspace_.reallocations(); }
+  const std::string& workspace_backend() const { return workspace_.backend(); }
+  bool workspace_async_supported() const { return workspace_.async_supported(); }
+  uint64_t workspace_release_threshold_bytes() const {
+    return workspace_.release_threshold_bytes();
+  }
+  const DenseRuntimeTuning& tuning() const { return tuning_; }
+  DenseMatmulStats logits_matmul_stats() const;
+  DenseMatmulStats head_grad_matmul_stats() const;
+  DenseMatmulStats hidden_grad_matmul_stats() const;
+  int head_f32_cache_refreshes() const { return head_f32_cache_refreshes_; }
 
  private:
   void zero_gradients();
@@ -58,6 +79,7 @@ class DenseCudaState {
 
   DenseConfig cfg_;
   CudaExecutionContext* ctx_ = nullptr;
+  DenseRuntimeTuning tuning_;
   DeviceWorkspace workspace_;
   DeviceTensor emb_;
   DeviceTensor head_;
@@ -77,6 +99,11 @@ class DenseCudaState {
   DeviceTensor step_head_f32_;
   DeviceTensor step_loss_;
   int step_rows_ = 0;
+  bool step_head_f32_valid_ = false;
+  int head_f32_cache_refreshes_ = 0;
+  double pending_h2d_seconds_ = 0.0;
+  double pending_forward_seconds_ = 0.0;
+  double pending_backward_seconds_ = 0.0;
   struct Slot {
     uint16_t* host_tokens = nullptr;
     uint8_t* host_mask = nullptr;
@@ -92,8 +119,14 @@ class DenseCudaState {
     int supervised = 0;
     bool used = false;
     bool capture_logits = false;
+    bool timings_accounted = true;
     cudaEvent_t h2d_done = nullptr;
     cudaEvent_t compute_done = nullptr;
+    cudaEvent_t h2d_start = nullptr;
+    cudaEvent_t forward_start = nullptr;
+    cudaEvent_t forward_done = nullptr;
+    cudaEvent_t backward_start = nullptr;
+    cudaEvent_t backward_done = nullptr;
   };
   static constexpr int kBatchSlots = 3;
   Slot slots_[kBatchSlots];
@@ -103,6 +136,7 @@ class DenseCudaState {
 };
 
 void destroy_dense_matmul_plan(DenseMatmulPlan* plan);
+void dense_fill_runtime_report(DenseCudaState& state, DenseTrainReport* report);
 
 double dense_seconds_since(std::chrono::steady_clock::time_point start);
 float dense_step_lr(const DenseTrainOptions& opt, int step);

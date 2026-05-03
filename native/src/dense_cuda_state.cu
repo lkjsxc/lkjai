@@ -10,9 +10,10 @@ namespace lkjai {
 DenseCudaState::DenseCudaState(const DenseConfig& cfg,
                                const DenseTrainState& host,
                                CudaExecutionContext* ctx)
-    : cfg_(cfg),
-      ctx_(ctx),
-      workspace_(ctx->stream()),
+      : cfg_(cfg),
+        ctx_(ctx),
+        tuning_(dense_runtime_tuning()),
+        workspace_(ctx->stream()),
       emb_({DeviceDType::f32, {cfg.vocab_size, cfg.hidden_size}},
            ctx->stream()),
       head_({DeviceDType::f32, {cfg.vocab_size, cfg.hidden_size}},
@@ -58,16 +59,30 @@ DenseCudaState::~DenseCudaState() {
     if (slot.device_mask) cudaFree(slot.device_mask);
     if (slot.h2d_done) cudaEventDestroy(slot.h2d_done);
     if (slot.compute_done) cudaEventDestroy(slot.compute_done);
+    if (slot.h2d_start) cudaEventDestroy(slot.h2d_start);
+    if (slot.forward_start) cudaEventDestroy(slot.forward_start);
+    if (slot.forward_done) cudaEventDestroy(slot.forward_done);
+    if (slot.backward_start) cudaEventDestroy(slot.backward_start);
+    if (slot.backward_done) cudaEventDestroy(slot.backward_done);
   }
 }
+
+namespace {
+void ensure_event(cudaEvent_t* event, const char* label) {
+  if (!*event) require_cuda(cudaEventCreate(event), label);
+}
+}  // namespace
 
 void DenseCudaState::ensure_slot_buffers(int slot_index, size_t token_count,
                                          size_t mask_count) {
   auto& slot = slots_[slot_index % kBatchSlots];
-  if (!slot.h2d_done) require_cuda(cudaEventCreateWithFlags(
-      &slot.h2d_done, cudaEventDisableTiming), "batch h2d event");
-  if (!slot.compute_done) require_cuda(cudaEventCreateWithFlags(
-      &slot.compute_done, cudaEventDisableTiming), "batch compute event");
+  ensure_event(&slot.h2d_start, "batch h2d start");
+  ensure_event(&slot.h2d_done, "batch h2d done");
+  ensure_event(&slot.forward_start, "batch forward start");
+  ensure_event(&slot.forward_done, "batch forward done");
+  ensure_event(&slot.backward_start, "batch backward start");
+  ensure_event(&slot.backward_done, "batch backward done");
+  ensure_event(&slot.compute_done, "batch compute done");
   if (!slot.host_loss) require_cuda(cudaMallocHost(
       reinterpret_cast<void**>(&slot.host_loss), sizeof(float)), "pinned loss");
   if (token_count > slot.token_capacity) {
@@ -116,6 +131,7 @@ void DenseCudaState::adamw(float lr, int step) {
                      static_cast<float*>(v_head_.data()),
                      static_cast<float*>(grad_head_.data()), head_shadow_.data(),
                      n, lr, step, ctx_->stream());
+  step_head_f32_valid_ = false;
 }
 
 DenseTrainState DenseCudaState::copy_to_host() {

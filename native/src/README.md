@@ -27,11 +27,15 @@ artifact inspection, and CUDA capability probing.
   [dense_cuda_kernels.cu](dense_cuda_kernels.cu),
   [dense_cuda_logits.cpp](dense_cuda_logits.cpp),
   [dense_cuda_logits_reference.cpp](dense_cuda_logits_reference.cpp),
+  [dense_cuda_report.cpp](dense_cuda_report.cpp),
   [dense_cuda_state.cu](dense_cuda_state.cu),
-  [dense_cuda_step.cu](dense_cuda_step.cu), and
+  [dense_cuda_step.cu](dense_cuda_step.cu),
+  [dense_cuda_tuning.cpp](dense_cuda_tuning.cpp),
+  [dense_cuda_tuning.hpp](dense_cuda_tuning.hpp), and
   [dense_cuda_train.cpp](dense_cuda_train.cpp): dense BF16 CUDA trainer,
   logits check, cuBLASLt forward/backward GEMM wrapper, scatter-add embedding
-  gradient kernel, reusable step buffers, and state management.
+  gradient kernel, runtime tuning, report fields, reusable step buffers, and
+  state management.
 - [dense_checkpoint.cpp](dense_checkpoint.cpp): dense optimizer checkpoint
   restore and compatibility checks.
 - [dense_check_main.cpp](dense_check_main.cpp): dense CUDA check binary.
