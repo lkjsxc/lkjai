@@ -2,9 +2,9 @@
 
 ## Acceptance Gate
 
-RTX 3070 8GB is the hard validation gate for accepted native CUDA work. A change
+RTX 3070 is the hard validation gate for accepted native CUDA work. A change
 that only passes on larger or newer GPUs is a benchmark result, not an accepted
-default.
+default. NVIDIA's CUDA GPU table lists RTX 3070 under compute capability 8.6.
 
 The gate means:
 
@@ -19,17 +19,22 @@ The gate means:
 - 40M start checks are compatibility diagnostics until a longer 40M run meets
   the documented promotion criteria.
 
-## Benchmark Profile
+## Benchmark Profiles
 
-RTX 5090/Blackwell is a higher-throughput profiling target. Use it to measure
-headroom, memory pressure, cuBLASLt/cuDNN behavior, CUDA Graph readiness, and
-future transformer kernels. Do not use it as the acceptance baseline.
+RTX 4090/Ada and RTX 5090/Blackwell are higher-throughput profiling targets.
+Use them to measure headroom, memory pressure, cuBLASLt/cuDNN behavior, CUDA
+Graph readiness, and future transformer kernels. Do not use them as the
+acceptance baseline.
 
 Focused Blackwell profile builds use
 `LKJAI_CUDA_ARCHS='120-real;120-virtual'`. The default native build also
 includes Blackwell `120-real` and `120-virtual` flags.
 
-When publishing a 5090 result, record it as a profile with:
+Focused Ada profile builds may use `LKJAI_CUDA_ARCHS='89-real;89-virtual'`.
+The default native build also includes Ada `89-real` and `89-virtual` flags.
+
+When publishing a 4090, 5090, or generic recent NVIDIA GPU result, record it as
+a profile with:
 
 - GPU name and compute capability,
 - driver, CUDA toolkit, and cuDNN versions,
@@ -41,32 +46,37 @@ When publishing a 5090 result, record it as a profile with:
 
 | Profile | Role | Official facts | Repo policy |
 |---|---|---|---|
-| RTX 3070 | Acceptance gate | Ampere, 8 GB GDDR6, compute capability 8.6 | Must pass verify and dense acceptance on 8GB |
-| RTX 5090 | Benchmark target | Blackwell, 32 GB GDDR7, compute capability 12.0 | Profile only; cannot relax the 3070 gate |
+| RTX 3070 | Acceptance gate | CUDA table lists compute capability 8.6 | Must pass verify and dense acceptance |
+| RTX 4090/Ada | Benchmark target | CUDA table lists RTX 4090 and Ada GPUs under compute capability 8.9 | Profile only; cannot relax the 3070 gate |
+| RTX 5090/Blackwell | Benchmark target | CUDA table lists RTX 5090 under compute capability 12.0 | Profile only; cannot relax the 3070 gate |
+| Recent NVIDIA GPU | Diagnostic target | Record the CUDA table compute capability and report fields | Profile only unless separately accepted |
 
 ## Capability Notes
 
-- CUDA BF16 requires compute capability 8.0 or higher.
-- RTX 3070 compute capability 8.6 satisfies the BF16 requirement, so it remains
-  the smallest supported acceptance profile.
-- RTX 5090 compute capability 12.0 and larger memory make it useful for
-  profiling future transformer and decode work.
-- cuDNN SDPA supports FP16/BF16 attention inputs for eligible shapes; eligibility
-  is still a runtime capability/report field, not a blanket acceptance claim.
+- RTX 3070 compute capability 8.6 remains the acceptance profile for dense
+  BF16 CUDA work.
+- RTX 4090/Ada compute capability 8.9 and RTX 5090/Blackwell compute
+  capability 12.0 are profile targets for future transformer and decode work.
+- Blackwell tuning follows NVIDIA's Blackwell guide: start from general CUDA
+  best practices, then tune architecture-specific occupancy, memory, and launch
+  behavior after correctness gates pass.
+- cuDNN provides tuned primitives for attention, matmul, pooling, convolution,
+  and normalization. SDPA eligibility is a runtime capability/report field, not
+  a blanket acceptance claim.
+- Stream-ordered allocation remains guarded by the runtime capability field
+  because CUDA exposes device support through memory-pool attributes.
 - The new native profile configs are target/profile shapes, not accepted
   transformer CUDA training.
 
 ## Official References
 
-- NVIDIA RTX 3070 reference specs:
-  <https://www.nvidia.com/en-gb/geforce/graphics-cards/30-series/rtx-3070/>
-- NVIDIA RTX 5090 reference specs:
-  <https://www.nvidia.com/en-ph/geforce/graphics-cards/50-series/rtx-5090/>
-- NVIDIA CUDA GPU compute capability table:
-  <https://developer.nvidia.com/cuda/gpus>
-- NVIDIA CUDA C++ floating-point type requirements:
-  <https://docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/mathematical-functions.html>
-- NVIDIA CUDA stream-ordered memory allocator:
-  <https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/stream-ordered-memory-allocation.html>
-- NVIDIA cuDNN frontend attention docs:
-  <https://docs.nvidia.com/deeplearning/cudnn/frontend/latest/operations/Attention.html>
+- CUDA 12.8 release notes:
+  <https://docs.nvidia.com/cuda/archive/12.8.0/cuda-toolkit-release-notes/index.html>
+- CUDA GPU compute capability:
+  <https://developer.nvidia.com/cuda-gpus>
+- Blackwell tuning guide:
+  <https://docs.nvidia.com/cuda/archive/12.8.2/blackwell-tuning-guide/index.html>
+- CUDA stream-ordered allocator:
+  <https://docs.nvidia.com/cuda/archive/13.1.2/cuda-driver-api/group__CUDA__MALLOC__ASYNC.html>
+- cuDNN documentation:
+  <https://docs.nvidia.com/cudnn/index.html>

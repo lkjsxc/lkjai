@@ -30,8 +30,8 @@ artifact inspection, and CUDA capability probing.
   [dense_cuda_state.cu](dense_cuda_state.cu),
   [dense_cuda_step.cu](dense_cuda_step.cu), and
   [dense_cuda_train.cpp](dense_cuda_train.cpp): dense BF16 CUDA trainer,
-  logits check, GEMM wrapper, kernels, reusable step buffers, and state
-  management.
+  logits check, cuBLASLt forward/backward GEMM wrapper, scatter-add embedding
+  gradient kernel, reusable step buffers, and state management.
 - [dense_checkpoint.cpp](dense_checkpoint.cpp): dense optimizer checkpoint
   restore and compatibility checks.
 - [dense_check_main.cpp](dense_check_main.cpp): dense CUDA check binary.
@@ -98,3 +98,6 @@ artifact inspection, and CUDA capability probing.
 
 - Keep native source files at `<= 200` lines.
 - Build and test through Docker Compose.
+- Dense CUDA optimization ownership lives in the `dense_cuda_*` files. Keep
+  transformer CUDA, decode, graphs, and NCCL changes in their own documented
+  phases.

@@ -10,7 +10,7 @@ metrics.
 - [accepted_training_reports.py](accepted_training_reports.py): accepted dense
   training report validation and Markdown summary helpers.
 - [benchmark_reports.py](benchmark_reports.py): train-report summary and
-  promotion-gating helpers.
+  promotion-gating helpers, including dense backward GEMM/scatter fields.
 - [dense_40m_compat_support.py](dense_40m_compat_support.py): bounded 40M
   compatibility runner internals.
 - [dense_accepted_training_support.py](dense_accepted_training_support.py):
@@ -47,3 +47,6 @@ metrics.
 - Use only supported native modes: dense smoke and bounded packed-cache train.
 - Parse `runs/train-report.json` or stdout report JSON; do not depend on
   `perf-steps.jsonl`.
+- Dense speed comparisons must use matched baseline/post reports and compare
+  backward time, throughput, config digest, batch, sequence length, gradient
+  accumulation, and CUDA architecture flags.

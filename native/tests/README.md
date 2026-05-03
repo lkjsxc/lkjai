@@ -18,7 +18,7 @@ This directory contains test helpers for native CTest cases.
 - [packed_train_contract.py](packed_train_contract.py): creates a minimal
   packed-cache v2 dataset, checks dense CUDA training, artifact schema, logits,
   BF16 export parity against FP32 checkpoint masters, true checkpoint resume,
-  and deterministic continuation.
+  deterministic continuation, and dense backward GEMM/scatter report fields.
 - [packed_cache_reader_check.cpp](packed_cache_reader_check.cpp): checks the
   persistent packed-cache reader, wraparound, mismatch, corrupt starts, and
   truncated file rejection.
@@ -30,7 +30,7 @@ This directory contains test helpers for native CTest cases.
   experimental transformer training contract and report status.
 - [benchmark_report_parser.py](benchmark_report_parser.py): checks benchmark
   parsing of the stable native train-report JSON contract, including
-  compatibility-only run-purpose filtering.
+  compatibility-only run-purpose filtering and dense step-buffer fields.
 - [accepted_training_report_validation.py](accepted_training_report_validation.py):
   CTest-wired check for accepted dense training summary validation and token
   accounting.

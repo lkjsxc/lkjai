@@ -55,7 +55,8 @@ forward and backward kernels are device-resident.
   architecture flags, and SDPA device/library eligibility.
 - Dense reports must state the persistent packed-cache reader, physical `B*S`
   row layout with masked final-token loss, cuBLASLt plan cache, reusable step
-  buffers, and CUDA-event timing source.
+  buffers, dense backward GEMM/scatter status, step-buffer byte counts, and
+  CUDA-event timing source.
 - Chat and autoregressive decode remain out of scope. Native server
   `/v1/chat/completions` continues to return HTTP `422` with no `choices` for
   dense and transformer artifacts until decode is implemented.
@@ -157,14 +158,17 @@ fields and tolerate the hardware/build fields listed in
 Dense reports declare `accepted_cuda_training=true`,
 `implementation_status=accepted`, `dense_cuda_path=true`,
 `forward_backend=cuda_bf16_cublaslt`,
-`backward_backend=cuda_custom_or_gemm`, and
+`backward_backend=cuda_bf16_cublaslt_scatter`,
+`backward_gemm_enabled=true`,
+`embedding_grad_backend=token_scatter_add_fp32`, and
 `optimizer_backend=cuda_adamw_fp32`. They also declare
 `loader_backend=persistent_packed_cache_reader`,
 `row_layout=dense_physical_bxseq_masked_final_token`,
 `matmul_plan_cache_enabled=true`, `buffer_reuse_enabled=true`, and
-`timing_source=cuda_events_with_boundary_sync`. Dense logits checks compare
-BF16 exports against FP32 checkpoint masters when a reference checkpoint is
-available.
+`timing_source=cuda_events_with_boundary_sync`. Dense reports include logits,
+grad-logits, hidden-gradient, and cuBLASLt workspace byte counts as additive
+schema-v3 fields. Dense logits checks compare BF16 exports against FP32
+checkpoint masters when a reference checkpoint is available.
 
 Transformer reports declare `accepted_cuda_training=false`,
 `implementation_status=experimental`, `transformer_status=experimental`,

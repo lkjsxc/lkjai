@@ -70,7 +70,8 @@ optimizer steps. It is not a 40M or production-scale performance baseline.
 - run id: `dense-debug-promote-20260502-175250`
 - command: `python3 tools/benchmarks/promote_dense_debug.py --run-id dense-debug-promote-20260502-175250 --steps 128 --resume-steps 1 --sample-interval 0.25`
 - device: NVIDIA GeForce RTX 3070
-- backend: forward `cuda_bf16_cublaslt`, backward `cuda_custom_or_gemm`,
+- backend: forward `cuda_bf16_cublaslt`, backward
+  `cuda_bf16_cublaslt_scatter`,
   optimizer `cuda_adamw_fp32`
 - shape: batch 1, seq_len 16, hidden 32, vocab 256, parameters 16,384
 - loss: 5.54545 initial to 5.21614 final

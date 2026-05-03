@@ -20,6 +20,12 @@ The report includes:
 - `implementation_status`
 - `forward_backend`
 - `backward_backend`
+- `backward_gemm_enabled`
+- `embedding_grad_backend`
+- `dense_step_logits_bytes`
+- `dense_step_grad_logits_bytes`
+- `dense_step_d_hidden_bytes`
+- `cublaslt_workspace_bytes`
 - `optimizer_backend`
 - `cuda_probe_passed`
 - `precision_mode`
@@ -101,6 +107,12 @@ Each summary includes:
 - `parameter_count`
 - `forward_backend`
 - `backward_backend`
+- `backward_gemm_enabled`
+- `embedding_grad_backend`
+- `dense_step_logits_bytes`
+- `dense_step_grad_logits_bytes`
+- `dense_step_d_hidden_bytes`
+- `cublaslt_workspace_bytes`
 - `optimizer_backend`
 - `cuda_device_name`
 - `initial_loss`
@@ -160,6 +172,12 @@ command, Docker image, cache metadata, token accounting, loss samples, timings,
 throughput, checkpoint/export/logits/packed-cache checksums, inspect output,
 BF16 export/reference logits-check output, repeated inference outputs, promotion
 status, and exact rejection reasons.
+
+Dense speed comparisons use matched pre-change and post-change reports. Compare
+`timings.backward`, `tokens_per_second`, `config_digest`, `batch_size`,
+`seq_len`, `grad_accum`, and `cuda_arch_flags`; accept a dense speed slice only
+when correctness gates pass and backward time improves or throughput is not
+more than 5 percent worse.
 
 Accepted-training promotion requires `run_purpose=accepted_training`,
 `status=success`, at least 1024 optimizer steps, at least 8 finite loss samples,
