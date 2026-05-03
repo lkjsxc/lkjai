@@ -35,10 +35,10 @@ Ops ops_for(DenseGemmKind kind, int rows, int vocab, int hidden) {
             rows, hidden, vocab, hidden, rows, vocab};
   }
   if (kind == DenseGemmKind::head_grad) {
-    return {CUBLAS_OP_T, CUBLAS_OP_N, CUDA_R_32F, CUDA_R_16BF, CUDA_R_32F,
+    return {CUBLAS_OP_T, CUBLAS_OP_N, CUDA_R_32F, CUDA_R_32F, CUDA_R_32F,
             rows, vocab, rows, hidden, vocab, hidden};
   }
-  return {CUBLAS_OP_N, CUBLAS_OP_N, CUDA_R_32F, CUDA_R_16BF, CUDA_R_32F,
+  return {CUBLAS_OP_N, CUBLAS_OP_N, CUDA_R_32F, CUDA_R_32F, CUDA_R_32F,
           rows, vocab, vocab, hidden, rows, hidden};
 }
 
@@ -180,7 +180,7 @@ void DenseCudaState::gemm_d_hidden(const DeviceTensor& grad_logits,
   void* ws = workspace_.allocate(plan->workspace_bytes);
   require_cublaslt(cublasLtMatmul(ctx_->cublaslt(), plan->op, &alpha,
                                   grad_logits.data(), plan->a,
-                                  head_shadow_.data(), plan->b, &beta,
+                                  step_head_f32_.data(), plan->b, &beta,
                                   d_hidden.data(), plan->c, d_hidden.data(),
                                   plan->c,
                                   plan->has_algo ? &plan->algo : nullptr, ws,

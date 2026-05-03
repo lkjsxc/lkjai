@@ -54,9 +54,11 @@ class DenseCudaState {
   DeviceTensor m_head_;
   DeviceTensor v_head_;
   DeviceTensor step_hidden_;
+  DeviceTensor step_hidden_f32_;
   DeviceTensor step_out_;
   DeviceTensor step_grad_logits_;
   DeviceTensor step_d_hidden_;
+  DeviceTensor step_head_f32_;
   DeviceTensor step_loss_;
   int step_rows_ = 0;
   uint16_t* host_tokens_ = nullptr;
@@ -101,6 +103,8 @@ std::string dense_logits_check_json(const DenseConfig& cfg,
 void dense_launch_gather(const uint16_t* tokens, const void* emb, void* hidden,
                          int batch, int seq, int vocab, int hidden_size,
                          cudaStream_t stream);
+void dense_launch_bf16_to_f32(const void* bf16, float* f32, int n,
+                              cudaStream_t stream);
 void dense_launch_loss_grad(const float* logits, const uint16_t* tokens,
                             const uint8_t* mask, float* grad_logits,
                             float* loss, int batch, int seq, int vocab,

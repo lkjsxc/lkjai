@@ -27,6 +27,11 @@ __global__ void gather_kernel(const uint16_t* tokens, const __nv_bfloat16* emb,
   hidden[idx] = emb[token * hidden_size + h];
 }
 
+__global__ void bf16_to_f32_kernel(const __nv_bfloat16* in, float* out, int n) {
+  int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  if (idx < n) out[idx] = __bfloat162float(in[idx]);
+}
+
 __global__ void loss_kernel(const float* logits, const uint16_t* tokens,
                             const uint8_t* mask, float* grad_logits,
                             float* loss_out, int batch, int seq, int vocab,
@@ -100,6 +105,13 @@ void dense_launch_gather(const uint16_t* tokens, const void* emb, void* hidden,
       tokens, static_cast<const __nv_bfloat16*>(emb),
       static_cast<__nv_bfloat16*>(hidden), batch, seq, vocab, hidden_size);
   require_cuda(cudaGetLastError(), "gather_embeddings_kernel");
+}
+
+void dense_launch_bf16_to_f32(const void* bf16, float* f32, int n,
+                              cudaStream_t stream) {
+  bf16_to_f32_kernel<<<(n + 255) / 256, 256, 0, stream>>>(
+      static_cast<const __nv_bfloat16*>(bf16), f32, n);
+  require_cuda(cudaGetLastError(), "dense_bf16_to_f32_kernel");
 }
 
 void dense_launch_loss_grad(const float* logits, const uint16_t* tokens,
