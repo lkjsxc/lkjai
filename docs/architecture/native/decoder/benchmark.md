@@ -15,8 +15,8 @@ The decoder smoke gate must run through Docker Compose and prove:
 
 ## Two-Hour Gate
 
-The accepted same-model demo requires one RTX 3070 run using native wall-clock
-stop:
+The accepted same-model demo requires a full CUDA BF16 decoder backend and one
+RTX 3070 run using native wall-clock stop:
 
 ```bash
 python3 tools/benchmarks/run_decoder_2h.py \
@@ -26,8 +26,21 @@ python3 tools/benchmarks/run_decoder_2h.py \
   --full
 ```
 
-The runner must execute the full run when `--full` is present. A dry-run script
-is not accepted evidence.
+Commit `a806c88` makes `--full` and `--require-accepted-cuda` run an acceptance
+probe first. The runner must fail when the report is P0/reference or partial
+CUDA. A dry-run script, P0 server contract, or embedding/head-only CUDA slice is
+not accepted evidence.
+
+Use smoke mode for current partial CUDA work:
+
+```bash
+python3 tools/benchmarks/run_decoder_2h.py \
+  --run-id decoder-smoke-$(date +%Y%m%d-%H%M%S) \
+  --native-config configs/native/decoder_18m_bf16_3070.json \
+  --cache data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --seq-len 1024 \
+  --smoke-steps 2
+```
 
 ## Evidence
 

@@ -30,6 +30,8 @@ This directory contains test helpers for native CTest cases.
   experimental transformer training contract and report status.
 - [decoder_train_contract.py](decoder_train_contract.py): checks decoder
   train/export/logits and server chat `choices` contract.
+- [decoder_acceptance_gate.py](decoder_acceptance_gate.py): checks that P0 and
+  partial CUDA decoder reports cannot pass full acceptance.
 - [benchmark_report_parser.py](benchmark_report_parser.py): checks benchmark
   parsing of the stable native train-report JSON contract, including
   compatibility-only run-purpose filtering and dense step-buffer fields.

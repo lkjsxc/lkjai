@@ -39,6 +39,8 @@ metrics.
   dense learning-control validation and summary helpers.
 - [dense_runtime_contract.py](dense_runtime_contract.py): shared dense runtime
   report-field defaults and parser helpers.
+- [decoder_acceptance.py](decoder_acceptance.py): full CUDA decoder acceptance
+  predicate shared by tests and runners.
 - [promote_dense_debug.py](promote_dense_debug.py): accepted dense debug
   promotion entrypoint.
 - [run_matrix.py](run_matrix.py): benchmark matrix launcher.

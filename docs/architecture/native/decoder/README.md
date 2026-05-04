@@ -16,6 +16,8 @@ Use this subtree for the chat-capable native `decoder` model kind.
 - [training.md](training.md): CUDA training ownership, wall-clock stop, and reports
 - [decode.md](decode.md): native autoregressive decode, sampler, KV cache, and API
 - [benchmark.md](benchmark.md): smoke, two-hour, and evidence requirements
+- [cuda-progress.md](cuda-progress.md): P0 commits, partial CUDA slice evidence,
+  and remaining acceptance gap
 
 ## Boundary
 
