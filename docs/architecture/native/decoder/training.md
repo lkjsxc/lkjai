@@ -44,3 +44,11 @@ Decoder reports use schema version `3` with additive fields:
 Reports are accepted only after finite loss, nonzero weight change,
 checkpoint/export validation, logits checks, server decode checks, and the
 documented benchmark gate pass.
+
+## Current P0
+
+The first implementation may report `implementation_status=experimental`,
+`decoder_cuda_path=false`, `attention_backend=host_reference`, and
+`decode_supported=false` while still validating the `decoder` model kind,
+artifact kind, logits path, native deadline fields, and server `choices`
+contract. That P0 is not accepted CUDA decoder training.

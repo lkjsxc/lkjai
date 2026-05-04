@@ -7,6 +7,7 @@ namespace lkjai {
 
 struct TransformerConfig {
   std::string model = "native-debug-bf16";
+  std::string kind = "transformer";
   std::string dtype = "bf16";
   int vocab_size = 256;
   int context = 16;
@@ -36,6 +37,7 @@ struct TransformerTrainOptions {
   int seq_len = 0;
   int grad_accum = 1;
   int max_steps = 2;
+  int target_seconds = 0;
   int warmup_steps = 0;
   int checkpoint_interval = 1;
   int seed = -1;
@@ -60,6 +62,9 @@ struct TransformerTrainReport {
   int ffn_size = 0;
   int context = 0;
   long long parameter_count = 0;
+  int target_seconds = 0;
+  bool deadline_hit = false;
+  std::string stop_reason = "max_steps";
   double initial_loss = 0.0;
   double loss = 0.0;
   bool non_embedding_weight_changed = false;
@@ -74,6 +79,7 @@ struct TransformerTrainReport {
   std::filesystem::path checkpoint_dir;
   std::filesystem::path export_dir;
   std::filesystem::path served_dir;
+  std::string model_kind = "transformer";
   double elapsed_seconds = 0.0;
   double batch_load_seconds = 0.0;
   double h2d_seconds = 0.0;

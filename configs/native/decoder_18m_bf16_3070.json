@@ -1,0 +1,18 @@
+{
+  "model": "decoder-18m-bf16-3070",
+  "model_kind": "decoder",
+  "dtype": "bf16",
+  "vocab_size": 8192,
+  "context": 1024,
+  "layers": 8,
+  "hidden_size": 512,
+  "heads": 8,
+  "kv_heads": 2,
+  "head_dim": 64,
+  "ffn_size": 1536,
+  "activation": "swiglu",
+  "rope_theta": 10000,
+  "rms_norm_eps": 0.00001,
+  "tie_embeddings": false,
+  "seed": 20260504
+}

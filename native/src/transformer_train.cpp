@@ -35,6 +35,11 @@ bool run_transformer_training(const TransformerTrainOptions& opt,
     return false;
   }
   if (!transformer_cuda_step_probe(error)) return false;
+  if (opt.model_kind != "transformer" && opt.model_kind != "decoder") {
+    *error = "transformer trainer model_kind must be transformer or decoder";
+    return false;
+  }
+  cfg.kind = opt.model_kind;
   if (opt.seed >= 0) cfg.seed = opt.seed;
   if (cfg.tie_embeddings) {
     *error = "transformer mode requires tie_embeddings=false";
@@ -63,20 +68,15 @@ bool run_transformer_training(const TransformerTrainOptions& opt,
     return false;
   }
   TransformerState state;
-    report->train_config_path = opt.train_config_path;
-    report->run_purpose = opt.run_purpose;
-  report->config_path = opt.config_path;
-  report->packed_cache = opt.packed_cache;
-  report->batch_size = opt.batch_size;
-  report->seq_len = seq_len;
-  report->grad_accum = opt.grad_accum;
-  report->layers = cfg.layers;
-  report->heads = cfg.heads;
-  report->kv_heads = cfg.kv_heads;
-  report->hidden_size = cfg.hidden_size;
-  report->head_dim = cfg.head_dim;
-  report->ffn_size = cfg.ffn_size;
-  report->context = cfg.context;
+  report->train_config_path = opt.train_config_path;
+  report->run_purpose = opt.run_purpose;
+  report->config_path = opt.config_path; report->model_kind = opt.model_kind;
+  report->packed_cache = opt.packed_cache; report->batch_size = opt.batch_size;
+  report->seq_len = seq_len; report->grad_accum = opt.grad_accum;
+  report->layers = cfg.layers; report->heads = cfg.heads;
+  report->kv_heads = cfg.kv_heads; report->hidden_size = cfg.hidden_size;
+  report->head_dim = cfg.head_dim; report->ffn_size = cfg.ffn_size;
+  report->context = cfg.context; report->target_seconds = opt.target_seconds;
   report->checkpoint_dir = opt.out_dir / "checkpoints" / "latest";
   report->export_dir = opt.out_dir / "exports" / opt.model_name;
   report->served_dir = opt.out_dir.parent_path() / "models" / opt.model_name;
@@ -96,6 +96,12 @@ bool run_transformer_training(const TransformerTrainOptions& opt,
   float before = state.layers.front().q_proj.w.front();
   auto started = std::chrono::steady_clock::now();
   for (int local = 1; local <= opt.max_steps; ++local) {
+    if (opt.target_seconds > 0 &&
+        seconds_since(started) >= static_cast<double>(opt.target_seconds)) {
+      report->deadline_hit = true;
+      report->stop_reason = "wall_clock_deadline";
+      break;
+    }
     double loss_sum = 0.0;
     ForwardResult fwd;
     for (int micro = 0; micro < opt.grad_accum; ++micro) {
@@ -144,29 +150,21 @@ bool run_transformer_training(const TransformerTrainOptions& opt,
     }
     report->steps = step;
   }
+  if (!report->deadline_hit) report->stop_reason = "max_steps";
   report->non_embedding_weight_changed =
       std::fabs(state.layers.front().q_proj.w.front() - before) > 0.0f;
   auto export_dir = opt.out_dir / "exports" / opt.model_name;
   auto served_dir = opt.out_dir.parent_path() / "models" / opt.model_name;
   auto phase = std::chrono::steady_clock::now();
-  bool ok = write_transformer_artifact(opt.out_dir / "checkpoints" / "latest",
-                                       state, report->steps, report->microsteps,
-                                       opt.batch_size, seq_len, opt.grad_accum,
-                                       report->loss, true,
-                                       &report->logits_checksum) &&
-            write_transformer_artifact(opt.out_dir / "checkpoints" / "final",
-                                       state, report->steps, report->microsteps,
-                                       opt.batch_size, seq_len, opt.grad_accum,
-                                       report->loss, true,
-                                       &report->logits_checksum) &&
-            write_transformer_artifact(export_dir, state, report->steps,
-                                       report->microsteps, opt.batch_size,
-                                       seq_len, opt.grad_accum, report->loss, false,
-                                       &report->logits_checksum) &&
-            write_transformer_artifact(served_dir, state, report->steps,
-                                       report->microsteps, opt.batch_size,
-                                       seq_len, opt.grad_accum, report->loss, false,
-                                       &report->logits_checksum);
+  auto write = [&](const std::filesystem::path& dir, bool checkpoint) {
+    return write_transformer_artifact(dir, state, report->steps,
+                                      report->microsteps, opt.batch_size,
+                                      seq_len, opt.grad_accum, report->loss,
+                                      checkpoint, &report->logits_checksum);
+  };
+  bool ok = write(opt.out_dir / "checkpoints" / "latest", true) &&
+            write(opt.out_dir / "checkpoints" / "final", true) &&
+            write(export_dir, false) && write(served_dir, false);
   if (ok && !opt.export_artifact.empty()) {
     ok = write_transformer_artifact(opt.export_artifact, state, report->steps,
                                     report->microsteps, opt.batch_size, seq_len,

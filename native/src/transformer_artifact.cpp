@@ -95,6 +95,7 @@ void params(const TransformerState& s, Fn fn) {
 std::string config_json(const TransformerConfig& c) {
   std::ostringstream out;
   out << "{\"model\":\"" << json_escape(c.model) << "\",\"dtype\":\"bf16\","
+      << "\"model_kind\":\"" << json_escape(c.kind) << "\","
       << "\"vocab_size\":" << c.vocab_size << ",\"context\":" << c.context
       << ",\"layers\":" << c.layers << ",\"hidden_size\":" << c.hidden_size
       << ",\"heads\":" << c.heads << ",\"kv_heads\":" << c.kv_heads
@@ -106,12 +107,14 @@ std::string config_json(const TransformerConfig& c) {
   return out.str();
 }
 
-std::string manifest_json(const std::string& artifact_kind,
+std::string manifest_json(const TransformerConfig& cfg,
+                          const std::string& artifact_kind,
                           std::string_view config,
                           std::string_view tokenizer,
                           const std::string& weights_checksum) {
   std::ostringstream out;
-  out << "{\"format\":\"lkjai-native-artifact-v2\",\"kind\":\"transformer\","
+  out << "{\"format\":\"lkjai-native-artifact-v2\",\"kind\":\""
+      << json_escape(cfg.kind) << "\","
       << "\"artifact_kind\":\"" << artifact_kind << "\","
       << "\"weights_checksum\":\"" << json_escape(weights_checksum) << "\","
       << "\"config_checksum\":\"" << artifact_text_checksum(config) << "\","
@@ -145,8 +148,9 @@ bool write_transformer_artifact(const std::filesystem::path& dir,
   auto config = config_json(state.cfg);
   auto tokenizer = "{\"format\":\"uint16-packed-cache\",\"vocab_size\":" +
                    std::to_string(state.cfg.vocab_size) + "}\n";
-  text(dir / "manifest.json", manifest_json(checkpoint ? "checkpoint" : "export",
-                                            config, tokenizer, *checksum));
+  text(dir / "manifest.json",
+       manifest_json(state.cfg, checkpoint ? "checkpoint" : "export", config,
+                     tokenizer, *checksum));
   text(dir / "config.json", config);
   text(dir / "tokenizer.json", tokenizer);
   text(dir / "trainer_state.json",

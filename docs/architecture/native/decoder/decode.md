@@ -25,6 +25,10 @@ The server loads artifact `tokenizer.json`, serializes OpenAI-style chat
 messages into the documented XML-like prompt format, encodes prompt tokens, and
 decodes generated tokens back to assistant text.
 
+The experimental P0 decode path may use a deterministic native byte-to-token
+bridge until the full tokenizer bridge lands. Accepted decoder decode requires
+the artifact tokenizer path above.
+
 ## Decode Loop
 
 - Prefill consumes the prompt up to the configured context.

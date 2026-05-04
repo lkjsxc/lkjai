@@ -19,6 +19,14 @@ so the C++ trainer can parse them without a third-party JSON dependency.
 - [native_transformer_debug_bf16.json](native_transformer_debug_bf16.json):
   tiny verification shape for explicit native transformer training. It uses
   learned positional embeddings and untied embeddings.
+- [decoder_debug_bf16.json](decoder_debug_bf16.json): tiny verification shape
+  for explicit native decoder plumbing.
+- [decoder_18m_bf16_3070.json](decoder_18m_bf16_3070.json): first RTX 3070
+  same-model decoder demo target.
+- [decoder_40m_bf16_3070.json](decoder_40m_bf16_3070.json): RTX 3070 decoder
+  profile target after the 18M path is accepted.
+- [decoder_140m_bf16_5090.json](decoder_140m_bf16_5090.json): RTX
+  5090/Blackwell decoder profile target.
 - [native_20m_bf16_3070.json](native_20m_bf16_3070.json): RTX 3070
   transformer profile target for future CUDA-forward profiling. It is not
   accepted transformer CUDA training.

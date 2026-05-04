@@ -28,6 +28,8 @@ This directory contains test helpers for native CTest cases.
   checks v1-to-v2 cache migration and trains from the migrated cache.
 - [transformer_train_contract.py](transformer_train_contract.py): checks the
   experimental transformer training contract and report status.
+- [decoder_train_contract.py](decoder_train_contract.py): checks decoder
+  train/export/logits and server chat `choices` contract.
 - [benchmark_report_parser.py](benchmark_report_parser.py): checks benchmark
   parsing of the stable native train-report JSON contract, including
   compatibility-only run-purpose filtering and dense step-buffer fields.

@@ -33,6 +33,7 @@ struct DenseTrainOptions {
   int seq_len = 0;
   int grad_accum = 1;
   int max_steps = 2;
+  int target_seconds = 0;
   int warmup_steps = 0;
   int checkpoint_interval = 1;
   int loss_sample_interval = 0;

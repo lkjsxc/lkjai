@@ -12,6 +12,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/artifact_manifest.cpp
   src/artifact_validate.cpp
   src/capability_json.cpp
+  src/decoder_decode.cpp
   src/dense_checkpoint.cpp
   src/dense_cuda.cu
   src/dense_cuda_common.cpp
@@ -48,6 +49,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/transformer_logits.cpp
   src/transformer_optim.cpp
   src/transformer_report.cpp
+  src/transformer_report_io.cpp
   src/transformer_train.cpp
   src/transformer_util.cpp
 )

@@ -65,6 +65,8 @@ void append_transformer(std::ostringstream* out,
                         const std::string& trainer_mode,
                         const std::string& status,
                         const std::string& failure_reason) {
+  auto kind = report.model_kind.empty() ? std::string("transformer")
+                                        : report.model_kind;
   double tokens_per_second =
       report.elapsed_seconds > 0.0
           ? static_cast<double>(report.input_tokens) / report.elapsed_seconds
@@ -73,10 +75,12 @@ void append_transformer(std::ostringstream* out,
        << ",\"trainer_mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"run_purpose\":\"" << json_escape(report.run_purpose) << "\""
-       << ",\"model_kind\":\"transformer\""
+       << ",\"model_kind\":\"" << json_escape(kind) << "\""
        << ",\"accepted_cuda_training\":false"
        << ",\"implementation_status\":\"experimental\""
        << ",\"transformer_status\":\"experimental\""
+       << ",\"decoder_status\":\""
+       << (kind == "decoder" ? "experimental" : "not_applicable") << "\""
        << ",\"forward_backend\":\"host_reference\""
        << ",\"backward_backend\":\"host_surrogate\""
        << ",\"optimizer_backend\":\"host_adamw_fp32\""
@@ -96,6 +100,10 @@ void append_transformer(std::ostringstream* out,
        << ",\"master_dtype\":\"f32\",\"shadow_dtype\":\"bf16\""
        << ",\"accumulation_dtype\":\"f32\",\"export_dtype\":\"bf16\""
        << ",\"dense_cuda_path\":false,\"transformer_cuda_path\":false"
+       << ",\"decoder_cuda_path\":false,\"decode_supported\":false"
+       << ",\"attention_backend\":\"host_reference\""
+       << ",\"matmul_backend\":\"host_reference\""
+       << ",\"kv_cache_backend\":\"none\""
        << ",\"transformer_cuda_probe\":true"
        << ",\"cuda_available\":" << (cuda.available ? "true" : "false")
        << ",\"cuda_device_name\":\"" << json_escape(cuda.device) << "\""
@@ -125,6 +133,10 @@ void append_transformer(std::ostringstream* out,
        << ",\"ffn_size\":" << report.ffn_size
        << ",\"context\":" << report.context
        << ",\"parameter_count\":" << report.parameter_count
+       << ",\"target_seconds\":" << report.target_seconds
+       << ",\"deadline_hit\":"
+       << (report.deadline_hit ? "true" : "false")
+       << ",\"stop_reason\":\"" << json_escape(report.stop_reason) << "\""
        << ",\"tokens_seen\":" << report.input_tokens
        << ",\"input_tokens\":" << report.input_tokens
        << ",\"loss_tokens\":" << report.loss_tokens
@@ -174,26 +186,6 @@ std::string transformer_train_report_json(const TransformerTrainReport& report,
   append_transformer(&out, report, cuda, trainer_mode, status, failure_reason);
   out << "}";
   return out.str();
-}
-
-bool write_transformer_train_report(const TransformerTrainReport& report,
-                                    const CudaStatus& cuda,
-                                    const std::string& trainer_mode,
-                                    const std::string& status,
-                                    const std::string& failure_reason,
-                                    std::string* error) {
-  auto path = report.checkpoint_dir.parent_path().parent_path() / "runs" /
-              "train-report.json";
-  std::filesystem::create_directories(path.parent_path());
-  std::ofstream out(path);
-  if (!out) {
-    *error = "failed to write train report: " + path.string();
-    return false;
-  }
-  out << transformer_train_report_json(report, cuda, trainer_mode, status,
-                                       failure_reason)
-      << "\n";
-  return true;
 }
 
 }  // namespace lkjai

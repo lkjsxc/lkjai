@@ -43,6 +43,12 @@ bool load_transformer_config(const std::filesystem::path& path,
   }
   config->model = json_first_string(text, "model");
   if (config->model.empty()) config->model = "native-debug-bf16";
+  config->kind = json_first_string(text, "model_kind");
+  if (config->kind.empty()) config->kind = "transformer";
+  if (config->kind != "transformer" && config->kind != "decoder") {
+    *error = "native transformer config model_kind must be transformer or decoder";
+    return false;
+  }
   config->dtype = json_first_string(text, "dtype");
   if (config->dtype != "bf16") {
     *error = "native transformer config dtype must be bf16";

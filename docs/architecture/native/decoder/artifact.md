@@ -18,6 +18,7 @@ Decoder exports use `lkjai-native-artifact-v2` with `manifest.json.kind` set to
 ## Required Weight Tensors
 
 - `tok_embeddings`
+- `pos_embeddings`
 - `layers.N.attn_norm`
 - `layers.N.attn.q_proj`
 - `layers.N.attn.k_proj`
@@ -31,6 +32,11 @@ Decoder exports use `lkjai-native-artifact-v2` with `manifest.json.kind` set to
 - `lm_head`
 
 `N` is zero-based and must match `config.json.layers`.
+
+`pos_embeddings` is retained for the first experimental decoder plumbing slice
+because it reuses the existing transformer-compatible artifact loader. The
+accepted CUDA decoder path replaces learned position tensors with RoPE-owned
+Q/K transforms before promotion.
 
 ## Checkpoints
 

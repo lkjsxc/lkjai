@@ -2,6 +2,7 @@
 
 #include "artifact.hpp"
 #include "capability_json.hpp"
+#include "decoder_decode.hpp"
 #include "cuda_probe.hpp"
 #include "env.hpp"
 #include "http_server.hpp"
@@ -46,6 +47,15 @@ HttpResponse chat_json(const HttpRequest& request,
   auto manifest = lkjai::read_text(artifact.model_dir / "manifest.json");
   if (lkjai::contains_json_string(manifest, "kind", "transformer")) {
     return {422, error_json("native transformer autoregressive decode is unsupported")};
+  }
+  if (lkjai::contains_json_string(manifest, "kind", "decoder")) {
+    std::string json;
+    std::string error;
+    if (!lkjai::decoder_chat_json(artifact.model_dir, artifact.model_name,
+                                  request.body, &json, &error)) {
+      return {500, error_json(error)};
+    }
+    return {200, json};
   }
   if (lkjai::contains_json_string(manifest, "kind", "dense")) {
     return {422, error_json("native dense autoregressive decode is unsupported")};

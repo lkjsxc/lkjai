@@ -19,6 +19,9 @@ artifact inspection, and CUDA capability probing.
   [capability_json.hpp](capability_json.hpp): shared capability JSON fields.
 - [cuda_probe.cu](cuda_probe.cu) and [cuda_probe.hpp](cuda_probe.hpp): CUDA
   availability checks.
+- [decoder_decode.cpp](decoder_decode.cpp) and
+  [decoder_decode.hpp](decoder_decode.hpp): decoder artifact autoregressive
+  HTTP chat response helper.
 - [dense_cuda.cu](dense_cuda.cu) and [dense_cuda.hpp](dense_cuda.hpp):
   dense CUDA parity and public training/logits entrypoints.
 - [dense_cuda_common.cpp](dense_cuda_common.cpp),
@@ -83,7 +86,8 @@ artifact inspection, and CUDA capability probing.
 - [train_real.cpp](train_real.cpp) and [train_real.hpp](train_real.hpp):
   corpus-backed native training loop used by non-smoke runs.
 - [train_report.cpp](train_report.cpp), [train_report.hpp](train_report.hpp),
-  and [transformer_report.cpp](transformer_report.cpp): stable train-report
+  [transformer_report.cpp](transformer_report.cpp), and
+  [transformer_report_io.cpp](transformer_report_io.cpp): stable train-report
   JSON writers.
 - [training_config.cpp](training_config.cpp) and
   [training_config.hpp](training_config.hpp): JSON training-run config loading

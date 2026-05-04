@@ -77,7 +77,7 @@ bool same_config(const TransformerConfig& a, const TransformerConfig& b,
       a.heads != b.heads || a.kv_heads != b.kv_heads ||
       a.head_dim != b.head_dim || a.ffn_size != b.ffn_size ||
       a.activation != b.activation || a.tie_embeddings != b.tie_embeddings ||
-      a.seed != b.seed) {
+      a.seed != b.seed || a.kind != b.kind) {
     *error = "transformer checkpoint config mismatch";
     return false;
   }
@@ -104,9 +104,10 @@ bool load_transformer_checkpoint(const std::filesystem::path& dir,
                                  TransformerState* state, int* steps,
                                  int* microsteps, std::string* error) {
   auto manifest = read_text(dir / "manifest.json");
-  if (!contains_json_string(manifest, "kind", "transformer") ||
+  if (!(contains_json_string(manifest, "kind", "transformer") ||
+        contains_json_string(manifest, "kind", "decoder")) ||
       !contains_json_string(manifest, "artifact_kind", "checkpoint")) {
-    *error = "resume path must be a transformer checkpoint artifact";
+    *error = "resume path must be a transformer or decoder checkpoint artifact";
     return false;
   }
   TransformerConfig checkpoint_cfg;

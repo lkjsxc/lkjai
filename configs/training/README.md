@@ -12,6 +12,8 @@ Training configs pin long-running scratch model settings.
   dense BF16 real packed-cache run target for RTX 3070.
 - [dense_12h_40m_3070.json](dense_12h_40m_3070.json): dense BF16 40M-size
   long-run target separate from transformer profile configs.
+- [decoder_2h_18m_3070.json](decoder_2h_18m_3070.json): same-model decoder
+  two-hour target for RTX 3070 acceptance.
 - [profile_20m_3070.json](profile_20m_3070.json): RTX 3070 transformer
   profile target for future native CUDA measurements, not accepted training.
 - [profile_120m_5090.json](profile_120m_5090.json): RTX 5090/Blackwell
@@ -24,5 +26,7 @@ Training configs pin long-running scratch model settings.
   keys are rejected rather than silently ignored.
 - Dense training configs must set `model_kind` to `dense` and point at explicit
   dense-size native configs when parameter count matters.
+- Decoder training configs must set `model_kind` to `decoder` and include
+  `target_seconds` for wall-clock-bounded acceptance runs.
 - Profile training configs must use only `lkjai-train-config-v1` keys and must
   not claim accepted transformer CUDA training.

@@ -106,8 +106,8 @@ bool inspect_artifact(const std::filesystem::path& model_dir,
     return false;
   }
   auto kind = json_first_string(manifest_text, "kind");
-  if (kind != "dense" && kind != "transformer") {
-    *error = "manifest kind must be dense or transformer";
+  if (kind != "dense" && kind != "transformer" && kind != "decoder") {
+    *error = "manifest kind must be dense, transformer, or decoder";
     return false;
   }
   if (artifact_kind == "checkpoint" &&
@@ -120,7 +120,8 @@ bool inspect_artifact(const std::filesystem::path& model_dir,
       !validate_dense_optimizer(model_dir, error)) {
     return false;
   }
-  if (kind == "transformer" && artifact_kind == "checkpoint" &&
+  if ((kind == "transformer" || kind == "decoder") &&
+      artifact_kind == "checkpoint" &&
       !validate_transformer_optimizer(model_dir, config_text, error)) {
     return false;
   }

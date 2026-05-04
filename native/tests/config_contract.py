@@ -6,6 +6,7 @@ from pathlib import Path
 
 NATIVE_KEYS = {
     "model",
+    "model_kind",
     "dtype",
     "vocab_size",
     "context",
@@ -38,6 +39,7 @@ TRAIN_KEYS = {
     "gradient_accumulation",
     "max_optimizer_steps",
     "save_latest_every_optimizer_steps",
+    "target_seconds",
     "seed",
 }
 
@@ -56,7 +58,8 @@ def validate_native(path: Path) -> dict:
     cfg = load(path)
     extra = sorted(set(cfg) - NATIVE_KEYS)
     require(not extra, f"{path}: unknown keys {extra}")
-    missing = sorted(NATIVE_KEYS - set(cfg))
+    required = NATIVE_KEYS - {"model_kind"}
+    missing = sorted(required - set(cfg))
     require(not missing, f"{path}: missing keys {missing}")
     require(cfg["dtype"] == "bf16", f"{path}: dtype must be bf16")
     require(cfg["activation"] == "swiglu", f"{path}: activation must be swiglu")
@@ -97,7 +100,9 @@ def validate_training(path: Path, repo: Path, natives: dict[Path, dict]) -> None
     require(cfg.get("format") == "lkjai-train-config-v1", f"{path}: bad format")
     require(cfg.get("objective") == "causal_lm_full", f"{path}: bad objective")
     if "model_kind" in cfg:
-        require(cfg["model_kind"] in {"dense", "transformer"}, f"{path}: bad kind")
+        require(cfg["model_kind"] in {"dense", "transformer", "decoder"}, f"{path}: bad kind")
+    if "target_seconds" in cfg:
+        require(int(cfg["target_seconds"]) > 0, f"{path}: target_seconds must be positive")
     native_path = resolve_repo_path(repo, cfg.get("native_config", ""))
     require(native_path.is_file(), f"{path}: native_config missing")
     native = natives[native_path]

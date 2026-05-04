@@ -17,7 +17,7 @@ bool known_key(std::string_view key) {
       "model_kind", "native_config", "packed_cache_dir", "objective", "sequence_len",
       "learning_rate", "warmup_steps", "batch_size",
       "gradient_accumulation", "max_optimizer_steps",
-      "save_latest_every_optimizer_steps", "seed"};
+      "save_latest_every_optimizer_steps", "target_seconds", "seed"};
   return std::find(known.begin(), known.end(), key) != known.end();
 }
 
@@ -97,6 +97,8 @@ bool apply_training_config(const std::filesystem::path& path,
       json_int_value(text, "gradient_accumulation", opt->grad_accum);
   opt->max_steps =
       json_int_value(text, "max_optimizer_steps", opt->max_steps);
+  opt->target_seconds =
+      json_int_value(text, "target_seconds", opt->target_seconds);
   opt->warmup_steps = json_int_value(text, "warmup_steps", opt->warmup_steps);
   opt->checkpoint_interval = json_int_value(
       text, "save_latest_every_optimizer_steps", opt->checkpoint_interval);

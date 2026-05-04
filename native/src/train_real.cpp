@@ -3,10 +3,8 @@
 #include <iostream>
 #include <string>
 #include "cuda_probe.hpp"
-#include "capability_json.hpp"
 #include "dense_train.hpp"
 #include "env.hpp"
-#include "json_min.hpp"
 #include "training_config.hpp"
 #include "train_report.hpp"
 #include "transformer_train.hpp"
@@ -59,8 +57,7 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
     train_config = "configs/training/scratch_40m_12h.json";
     if (!apply_training_config(train_config, opt, error)) return false;
   }
-  if (opt->config_path !=
-      std::filesystem::path("configs/native/native_debug_bf16.json")) {
+  if (opt->config_path != std::filesystem::path("configs/native/native_debug_bf16.json")) {
     config_explicit = true;
   }
   opt->out_dir = env_string("DATA_DIR", opt->out_dir.empty()
@@ -79,9 +76,8 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
           : opt->packed_cache.string());
   opt->max_steps = env_int("TRAIN_MAX_OPTIMIZER_STEPS",
                            env_int("TRAIN_MAX_STEPS", opt->max_steps));
-  opt->checkpoint_interval =
-      env_int("TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS",
-              opt->checkpoint_interval);
+  opt->target_seconds = env_int("TRAIN_TARGET_SECONDS", opt->target_seconds);
+  opt->checkpoint_interval = env_int("TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS", opt->checkpoint_interval);
   opt->loss_sample_interval =
       env_int("TRAIN_LOSS_SAMPLE_INTERVAL", opt->loss_sample_interval);
   opt->batch_size = env_int("TRAIN_BATCH_SIZE", opt->batch_size);
@@ -99,13 +95,17 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
     config_explicit = true;
   }
   opt->model_kind = value(argc, argv, "--mode", opt->model_kind);
-  if (opt->model_kind != "dense" && opt->model_kind != "transformer") {
-    *error = "model kind must be dense or transformer";
+  if (opt->model_kind != "dense" && opt->model_kind != "transformer" &&
+      opt->model_kind != "decoder") {
+    *error = "model kind must be dense, transformer, or decoder";
     return false;
   }
-  if (opt->model_kind == "transformer" && !config_explicit && opt->config_path ==
-      std::filesystem::path("configs/native/native_debug_bf16.json")) {
-    opt->config_path = "configs/native/native_transformer_debug_bf16.json";
+  if (!config_explicit &&
+      opt->config_path == std::filesystem::path("configs/native/native_debug_bf16.json")) {
+    if (opt->model_kind == "transformer")
+      opt->config_path = "configs/native/native_transformer_debug_bf16.json";
+    else if (opt->model_kind == "decoder")
+      opt->config_path = "configs/native/decoder_debug_bf16.json";
   }
   opt->packed_cache = value(argc, argv, "--packed-cache",
                             opt->packed_cache.string());
@@ -114,6 +114,7 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
   opt->seq_len = int_value(argc, argv, "--seq-len", opt->seq_len);
   opt->grad_accum = int_value(argc, argv, "--grad-accum", opt->grad_accum);
   opt->max_steps = int_value(argc, argv, "--max-steps", opt->max_steps);
+  opt->target_seconds = int_value(argc, argv, "--target-seconds", opt->target_seconds);
   opt->warmup_steps = int_value(argc, argv, "--warmup-steps", opt->warmup_steps);
   opt->checkpoint_interval =
       int_value(argc, argv, "--checkpoint-interval", opt->checkpoint_interval);
@@ -141,6 +142,7 @@ TransformerTrainOptions transformer_options(const DenseTrainOptions& in) {
   out.seq_len = in.seq_len;
   out.grad_accum = in.grad_accum;
   out.max_steps = in.max_steps;
+  out.target_seconds = in.target_seconds;
   out.warmup_steps = in.warmup_steps;
   out.checkpoint_interval = in.checkpoint_interval;
   out.seed = in.seed;
@@ -153,9 +155,7 @@ TransformerTrainOptions transformer_options(const DenseTrainOptions& in) {
 
 int run_corpus_training(int argc, char** argv) {
   if (flag(argc, argv, "--help")) {
-    std::cout << "usage: lkjai-native-train --train --packed-cache DIR --config "
-                 "FILE --out DIR [--mode dense|transformer] [--max-steps N] "
-                 "[--run-purpose NAME] [--loss-sample-interval N]\n";
+    std::cout << "usage: lkjai-native-train --train [--mode dense|transformer|decoder]\n";
     return 0;
   }
   DenseTrainOptions opt;
@@ -165,9 +165,10 @@ int run_corpus_training(int argc, char** argv) {
     std::cerr << "native training config failed: " << error << "\n";
     return 2;
   }
-  if (opt.model_kind == "transformer") {
+  if (opt.model_kind == "transformer" || opt.model_kind == "decoder") {
     TransformerTrainReport transformer_report;
     auto transformer_opt = transformer_options(opt);
+    transformer_opt.model_kind = opt.model_kind;
     if (!run_transformer_training(transformer_opt, &transformer_report, &error)) {
       std::cerr << "native transformer CUDA training failed: " << error << "\n";
       return 2;
@@ -196,5 +197,4 @@ int run_corpus_training(int argc, char** argv) {
             << "\n";
   return report.weight_changed ? 0 : 3;
 }
-
 }  // namespace lkjai
