@@ -3,8 +3,8 @@
 ## Goal
 
 Grow the current dense BF16 CUDA foundation into a device-resident decoder
-training and serving engine without changing the external Rust/runtime
-contracts.
+training, serving, and agent runtime system without Rust or Python product
+code.
 
 ## Milestones
 
@@ -19,9 +19,10 @@ contracts.
 | 7 | Real backward | projection, attention, norm, MLP, loss, and embedding gradients |
 | 8 | Optimizer | AdamW with FP32 state and BF16 refresh; FP16 scaler fallback |
 | 9 | Resume/export | atomic snapshots, exact restart metadata, stripped serving export |
-| 10 | Decode | autoregressive decoder decode, contiguous KV cache, sampler |
-| 11 | Graphing | CUDA Graph buckets after shapes and launch order are stable |
-| 12 | NCCL | single-node data parallel after single-GPU correctness and profiling |
+| 10 | Native runtime | C++ `/api/chat`, tools, transcripts, memory, and model client |
+| 11 | Decode | autoregressive decoder decode, contiguous KV cache, sampler |
+| 12 | Graphing | CUDA Graph buckets after shapes and launch order are stable |
+| 13 | NCCL | single-node data parallel after single-GPU correctness and profiling |
 
 ## Acceptance Style
 
@@ -49,11 +50,11 @@ That slice is useful for contracts, but it is not the final trainer.
 
 ## Decoder Target
 
-The next implementation target is accepted `decoder` CUDA training:
-device-resident cuBLASLt projections, fused pointwise kernels, cuDNN SDPA,
-decoder backward, contiguous BF16 KV-cache decode, accepted report fields, and
-two-hour RTX 3070 evidence. NCCL stays after single-GPU correctness and
-profiling.
+The next implementation target is accepted `decoder` CUDA training for the
+40M RTX 3070 preset: device-resident cuBLASLt projections, fused pointwise
+kernels, cuDNN SDPA, decoder backward, contiguous BF16 KV-cache decode, native
+runtime chat, accepted report fields, and two-hour RTX 3070 evidence. NCCL
+stays after single-GPU correctness and profiling.
 
 See [decoder/README.md](decoder/README.md) for the same-model chat path. See
 [transformer-cuda-roadmap.md](transformer-cuda-roadmap.md) for the retained

@@ -39,8 +39,8 @@
 
 ## Python Default Serving
 
-- Accepted for current v1 serving.
-- Native Rust tensor decoding remains a future implementation direction.
+- Rejected for active serving.
+- Native C++/CUDA tensor decoding is the implementation direction.
 - The web app and inference runtime must remain separate containers.
 
 ## Deterministic Inference Stub

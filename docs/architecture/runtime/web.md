@@ -2,16 +2,16 @@
 
 ## Stack
 
-- Rust binary named `lkjai`.
-- Axum for HTTP routing.
-- Tokio for async runtime.
-- Server-rendered HTML for `GET /`.
+- Native binary named `lkjai-native-runtime`.
+- Minimal native HTTP server for routing.
+- Blocking native model-client calls are acceptable until batching exists.
+- `GET /` returns a compact native service descriptor.
 - JSON APIs for chat and transcripts.
 - OpenAI-compatible model endpoint for generation.
-- The transcript UI labels reasoning, plan, tool call, tool result, memory,
+- API transcripts label reasoning, plan, tool call, tool result, memory,
   finish, assistant, and error events.
-- The transcript UI has per-client toggles for every event kind.
-- Client visibility controls never alter persisted run transcripts.
+- Client visibility controls are API fields and never alter persisted run
+  transcripts.
 
 ## Bind Defaults
 

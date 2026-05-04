@@ -25,4 +25,5 @@
   never default serving or training dependencies.
 - Agent behavior is taught through local structured trajectories, not inherited
   from an upstream chat model.
-- Rust inference is the default direction for serving scratch artifacts.
+- Native C++ inference and agent runtime are the default direction for serving
+  scratch artifacts and running product chat.

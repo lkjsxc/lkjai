@@ -43,7 +43,11 @@ services:
     profiles: ["web"]
     build:
       context: .
-      dockerfile: ops/docker/Dockerfile.runtime
+      dockerfile: ops/docker/Dockerfile.native
+      args:
+        LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
+    command: ["lkjai-native-runtime"]
+    entrypoint: []
     ports:
       - "127.0.0.1:${APP_PORT:-8080}:8080"
     environment:
@@ -55,16 +59,15 @@ services:
       AGENT_TOOL_PROFILE: ${AGENT_TOOL_PROFILE:-readonly}
       TOOL_WORKSPACE_DIR: ${TOOL_WORKSPACE_DIR:-/app/data/workspace}
       KJXLKJ_API_URL: ${KJXLKJ_API_URL:-http://host.docker.internal:8080}
-      KJXLKJ_SESSION_COOKIE: ${KJXLKJ_SESSION_COOKIE:-}
+      KJXLKJ_USER: ${KJXLKJ_USER:-default}
+      KJXLKJ_BEARER_TOKEN: ${KJXLKJ_BEARER_TOKEN:-}
     volumes:
       - ./data:/app/data
       - ./docs:/app/data/workspace/docs:ro
-      - ./apps:/app/data/workspace/apps:ro
       - ./training:/app/data/workspace/training:ro
       - ./corpus:/app/data/workspace/corpus:ro
       - ./configs:/app/data/workspace/configs:ro
       - ./README.md:/app/data/workspace/README.md:ro
-      - ./Cargo.toml:/app/data/workspace/Cargo.toml:ro
       - ./compose.yaml:/app/data/workspace/compose.yaml:ro
     depends_on:
       inference:
@@ -114,13 +117,10 @@ services:
     working_dir: /workspace
     environment:
       DATA_DIR: /workspace/data/verify
-      CARGO_TARGET_DIR: /target
       LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
     volumes:
       - .:/workspace:ro
       - ./data:/workspace/data
-      - verify-cargo:/usr/local/cargo/registry
-      - verify-target:/target
     deploy:
       resources:
         reservations:
@@ -128,7 +128,3 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
-
-volumes:
-  verify-cargo:
-  verify-target:

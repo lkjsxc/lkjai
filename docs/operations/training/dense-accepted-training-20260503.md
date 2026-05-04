@@ -17,10 +17,11 @@ Canonical run id: `dense-accepted-training-20260503`
 ## Command
 
 ```sh
-python3 tools/benchmarks/run_dense_accepted_training.py \
-  --run-id dense-accepted-training-20260503 \
-  --steps 1024 \
-  --sample-interval 0.25
+docker compose --profile train run --rm train \
+  --train --mode dense \
+  --config /workspace/configs/native/native_accepted_dense_bf16.json \
+  --packed-cache /app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --seq-len 128 --max-steps 1024 --loss-sample-interval 64
 ```
 
 The runner used the default selected learning rate `0.001`, batch size `4`,

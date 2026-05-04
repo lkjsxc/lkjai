@@ -2,7 +2,7 @@
 
 ## Accepted Defaults
 
-- Runtime orchestrator: Rust with axum.
+- Runtime orchestrator: native C++ HTTP service.
 - Inference runtime: separate native C++/CUDA OpenAI-compatible service.
 - Serving model family: local scratch decoder-only transformer.
 - Training scale: `scratch-40m` by default for the current corpus;
@@ -36,8 +36,8 @@
   variables used only as explicit overrides.
 - Model-facing prompt XML uses no attributes so canonical tags can remain
   atomic tokens.
-- Product Python training and inference are removed in favor of native
-  C++/CUDA binaries.
+- Product Rust and Python runtime/tooling paths are removed in favor of native
+  C++/CUDA binaries and CTest gates.
 - Native model artifacts use `lkjai-native-artifact-v2` flat binary weights.
 - Native serving failures are surfaced as non-success responses, not valid
   fallback XML actions.
@@ -51,9 +51,8 @@
 
 - From-scratch training is the research question, even when weaker than
   pretrained workflows.
-- Serving and training through native CUDA removes Python from the critical
-  product path while preserving the Rust HTTP integration boundary.
-- Rust remains the web and agent runtime direction.
+- Serving, training, runtime, and verification through native C++ removes the
+  old mixed Rust/Python/CUDA split.
 - SQLite keeps memory simple, inspectable, and local.
 - Health probes prevent silent fallback to fake responses.
 - Real training requires real data; synthetic trajectories bootstrap behavior.

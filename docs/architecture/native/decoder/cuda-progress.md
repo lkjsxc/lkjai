@@ -80,7 +80,7 @@ Verification commands for this change set:
 cmake -S native -B /tmp/lkjai-native-build -G Ninja
 cmake --build /tmp/lkjai-native-build --parallel
 ctest --test-dir /tmp/lkjai-native-build --output-on-failure
-docker compose --progress quiet --profile verify run --rm verify
+docker compose --progress quiet --profile verify run --build --rm verify
 ```
 
 Actual result on this change set: the local shell did not have `cmake` or

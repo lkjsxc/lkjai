@@ -7,7 +7,8 @@ This record captures the RTX 3070 dense BF16 CUDA acceptance run produced on
 
 - Run id: `dense-2h-3070-20260504-040649`.
 - Status: `pass`; full status: `completed`.
-- Workflow: `tools/benchmarks/run_dense_2h.py --full`.
+- Workflow: native packed-cache validation plus
+  `lkjai-native-train --train --mode dense` full run.
 - Native config: `configs/native/native_dense_20m_bf16_3070.json`.
 - Cache: `data/train/datasets/packed/train-causal_lm_full-seq1024`.
 - Cache validation: `sequence_count=8192`, `token_count=8388608`, packed
@@ -68,15 +69,10 @@ state changed. The gate now compares both trainable FP32 master tensors:
 ## Reproduction
 
 ```bash
-python3 tools/benchmarks/run_dense_2h.py \
-  --run-id dense-2h-3070-$(date +%Y%m%d-%H%M%S) \
-  --image lkjai-native-bench --no-build --skip-cache-build \
-  --native-config configs/native/native_dense_20m_bf16_3070.json \
-  --source data/train/datasets/train.jsonl \
-  --tokenizer data/train/tokenizer/tokenizer.json \
-  --cache data/train/datasets/packed/train-causal_lm_full-seq1024 \
-  --seq-len 1024 --sequence-count 8192 \
-  --batch-size 1 --grad-accum 8 \
-  --lr 0.0003 --pilot-steps 128 \
-  --target-seconds 7200 --full
+docker compose --profile train run --rm train \
+  --train --mode dense \
+  --config /workspace/configs/native/native_dense_20m_bf16_3070.json \
+  --packed-cache /app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --seq-len 1024 --batch-size 1 --grad-accum 8 \
+  --lr 0.0003 --max-steps TARGET_STEPS
 ```

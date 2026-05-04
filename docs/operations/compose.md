@@ -3,7 +3,7 @@
 ## Profiles
 
 - `inference`: native OpenAI-compatible scratch inference service.
-- `web`: Rust axum agent orchestrator plus its inference dependency.
+- `web`: native C++ agent API runtime plus its inference dependency.
 - `train`: native scratch training container.
 - `verify`: repository verification container.
 
@@ -27,6 +27,8 @@
 - Web writes transcripts and memory under `/app/data/agent`.
 - Web uses `/app/data/workspace` as the only filesystem root for tools.
 - Web must not mount the host root.
+- Web uses `KJXLKJ_USER` and `KJXLKJ_BEARER_TOKEN` for typed
+  `/api/users/{user}/resources/...` calls.
 
 ## GPU
 
@@ -46,7 +48,7 @@ mkdir -p data/models/lkjai-scratch-40m data/train data/agent data/workspace
 docker compose --profile inference up --build inference
 docker compose --profile web up --build web
 docker compose --profile train up --build train
-docker compose --progress quiet --profile verify up --build --abort-on-container-exit verify
+docker compose --progress quiet --profile verify run --build --rm verify
 ```
 
 ## Compact Output

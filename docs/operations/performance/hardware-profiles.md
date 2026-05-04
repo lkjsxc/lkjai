@@ -8,7 +8,7 @@ default. NVIDIA's CUDA GPU table lists RTX 3070 under compute capability 8.6.
 
 The gate means:
 
-- `docker compose --progress quiet --profile verify run --rm verify` must pass
+- `docker compose --progress quiet --profile verify run --build --rm verify` must pass
   on RTX 3070.
 - Focused 3070 native builds use
   `LKJAI_CUDA_ARCHS='86-real;86-virtual'`.

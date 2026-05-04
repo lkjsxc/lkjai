@@ -76,7 +76,8 @@ seq16/vocab256 packed cache, batch size 1, gradient accumulation 1, and 128
 optimizer steps. It is not a 40M or production-scale performance baseline.
 
 - run id: `dense-debug-promote-20260502-175250`
-- command: `python3 tools/benchmarks/promote_dense_debug.py --run-id dense-debug-promote-20260502-175250 --steps 128 --resume-steps 1 --sample-interval 0.25`
+- command family: native packed-cache build, `lkjai-native-train --train
+  --mode dense --max-steps 128`, inspect, logits check, and resume check
 - device: NVIDIA GeForce RTX 3070
 - backend: forward `cuda_bf16_cublaslt`, backward
   `cuda_bf16_cublaslt_scatter`,
@@ -116,11 +117,11 @@ Matched dense learning-control run on RTX 3070:
 The 40M dense shape is checked with a bounded start-only command:
 
 ```sh
-python3 tools/benchmarks/run_dense_40m_compat.py \
-  --run-id RUN_ID \
-  --steps 4 \
-  --sequence-count 8 \
-  --sample-interval 0.25
+docker compose --profile train run --rm train \
+  --train --mode dense \
+  --config /workspace/configs/native/native_40m_bf16.json \
+  --packed-cache /app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --seq-len 1024 --max-steps 4
 ```
 
 The runner builds and validates a deterministic cache under

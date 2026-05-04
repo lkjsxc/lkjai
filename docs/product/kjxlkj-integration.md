@@ -19,6 +19,9 @@ typed resource APIs.
 
 - `lkjai` should target `kjxlkj` resource APIs, not filesystem-shaped note
   folders.
+- `lkjai` uses `Authorization: Bearer <token>` with `KJXLKJ_USER` selecting
+  the personal space.
+- Browser session cookies are not part of the integration contract.
 - Read, search, history, and preview may run directly.
 - Create and update operations must first produce
   `{"kind":"request_confirmation", ...}` and must not execute until the next
@@ -28,10 +31,10 @@ typed resource APIs.
 
 ## Route Mapping
 
-- `resource.search` -> `GET /api/resources/search`
-- `resource.fetch` -> `GET /api/resources/{id}`
-- `resource.history` -> `GET /api/resources/{id}/history`
-- `resource.preview_markdown` -> `POST /admin/markdown-preview`
-- `resource.create_note` -> `POST /api/resources/notes`
-- `resource.create_media` -> `POST /api/resources/media`
-- `resource.update_resource` -> `PUT /api/resources/{id}`
+- `resource.search` -> `GET /api/users/{user}/resources/search`
+- `resource.fetch` -> `GET /api/users/{user}/resources/{ref}`
+- `resource.history` -> `GET /api/users/{user}/resources/{ref}/history`
+- `resource.preview_markdown` -> `POST /api/users/{user}/resources/preview-markdown`
+- `resource.create_note` -> `POST /api/users/{user}/resources/notes`
+- `resource.create_media` -> `POST /api/users/{user}/resources/media`
+- `resource.update_resource` -> `PUT /api/users/{user}/resources/{ref}`

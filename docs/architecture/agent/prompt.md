@@ -7,9 +7,10 @@ schema.
 
 ## Files
 
-- Canonical system prompt: `apps/runtime/prompts/codex-40m-system.txt`
-- Inactive YOLO supplement: `apps/runtime/prompts/codex-40m-yolo.txt`
-- Runtime loader: `apps/runtime/src/agent/prompt.rs`
+- Canonical system prompt: native runtime configuration.
+- Inactive YOLO supplement: docs-only until the mutable native profile is
+  accepted.
+- Runtime loader: native C++ runtime prompt serializer.
 
 ## Contract
 

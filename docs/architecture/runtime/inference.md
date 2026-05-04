@@ -7,8 +7,8 @@ honestly.
 
 ## Contract
 
-- The web runtime must call a separate inference endpoint.
-- The runtime must verify model readiness before serving chat requests.
+- The native API runtime must call a separate inference endpoint.
+- The runtime must verify model readiness before reporting chat readiness.
 - Model readiness uses `GET /v1/models` with a `5` second timeout.
 - Compose process health uses `GET /healthz` so the web UI can report missing
   model artifacts instead of being blocked by dependency startup.
@@ -20,12 +20,13 @@ honestly.
 ## Request And Response
 
 - Request fields: `model`, `messages`, `max_tokens`, `temperature`.
-- The Rust client consumes `choices[0].message.content` from decoder artifacts.
+- The C++ model client consumes `choices[0].message.content` from decoder
+  artifacts.
 - Dense and transformer artifacts return unsupported decode, so product chat
   quality gates require decoder exports with the real tokenizer.
 - Every accepted future model step must return one XML action.
-- The runtime system prompt is tracked in `prompts/codex-40m-system.txt` and
-  loaded by `apps/runtime/src/agent/prompt.rs`.
+- The runtime system prompt is tracked in native runtime configuration and must
+  use the same XML-like serialization as training data.
 - The action contract uses `<tool>...`, not `<type>...`.
 - Parse repair is allowed in the agent loop, but there is no non-model fallback.
 - Plain user text must stay plain when sent to the serving model. Do not wrap

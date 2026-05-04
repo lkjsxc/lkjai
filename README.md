@@ -1,9 +1,9 @@
 # lkjai
 
-`lkjai` is a docs-first from-scratch multi-turn agent research system for RTX
-3070 8GB: train a minimal dense BF16 CUDA model locally, load dense artifacts
-through a native OpenAI-compatible runtime, and orchestrate
-data-directory tool use, memory, summaries, and XML actions in Rust.
+`lkjai` is a docs-first CUDA C++ agent research system for RTX 3070 8GB:
+train dense BF16 scratch models locally, serve native artifacts through an
+OpenAI-compatible endpoint, and run the agent API, tools, memory, summaries,
+tokenizer, cache builder, benchmarks, and verification through native C++.
 
 Treat [docs/README.md](docs/README.md) as the only active canon for behavior,
 architecture, operations, and repository policy.
@@ -20,7 +20,7 @@ architecture, operations, and repository policy.
 ## Current Shape
 
 - Compose profiles: `inference`, `web`, `train`, `verify`.
-- `web` runs the Rust agent orchestrator.
+- `web` runs the native C++ agent API runtime.
 - `inference` loads native artifacts and currently returns explicit unsupported
   chat decode for dense exports.
 - `train` runs native dense CUDA smoke or packed-cache training from scratch.
@@ -34,8 +34,8 @@ architecture, operations, and repository policy.
 - Canonical XML-like prompt and action tags are single tokenizer tokens.
 - `TRAIN_MAX_STEPS` means optimizer steps; summaries separately report
   microsteps, optimizer steps, input tokens, and loss-bearing tokens.
-- Optional Kimi synthetic corpus tooling remains under `tools/` and is not part
-  of the product train or serve path.
+- Optional synthetic corpus artifacts remain under `corpus/`; generation tools
+  are not part of the active product train or serve path.
 
 ## Rule
 

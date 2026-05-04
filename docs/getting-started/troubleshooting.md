@@ -52,15 +52,14 @@ Fix:
 
 ## Verify Profile Fails
 
-Symptom: `docker compose --profile verify up --build --abort-on-container-exit verify`
+Symptom: `docker compose --progress quiet --profile verify run --build --rm verify`
 exits non-zero.
 
 Check:
-- Rust formatting: `cargo fmt -- --check`.
-- Rust tests: `cargo test`.
 - Native tests: `ctest --test-dir /tmp/lkjai-native-build --output-on-failure`.
-- Line limits: `cargo run --bin lkjai -- quality check-lines`.
-- Docs topology: `cargo run --bin lkjai -- docs validate-topology`.
+- Line limits: `lkjai-native-repo-check line-limits --repo /workspace`.
+- Docs topology: `lkjai-native-repo-check docs-topology --repo /workspace`.
+- Links: `lkjai-native-repo-check docs-links --repo /workspace`.
 
 Fix each failing gate before retrying.
 

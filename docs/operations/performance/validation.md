@@ -28,7 +28,7 @@ passes the RTX 3070 gate.
 ## Canonical Verify
 
 ```bash
-docker compose --progress quiet --profile verify run --rm verify
+docker compose --progress quiet --profile verify run --build --rm verify
 ```
 
 The older `up --abort-on-container-exit verify` form is acceptable for

@@ -28,29 +28,23 @@ state.
 docker build -f ops/docker/Dockerfile.native --target build \
   -t lkjai-native-build-check:local .
 
-docker compose --progress quiet --profile verify run --rm verify
+docker compose --progress quiet --profile verify run --build --rm verify
 ```
 
 Both commands passed after the patch set.
 
 ## Dense Learning Control
 
-Baseline command:
+Baseline command family:
 
 ```bash
-python3 tools/benchmarks/run_dense_learning_control.py \
-  --run-id dense-substrate-baseline-20260504-rtx3070 \
-  --steps 1024 \
-  --sample-interval 0.25
+lkjai-native-train --train --mode dense --max-steps 1024
 ```
 
-Post-change command:
+Post-change command family:
 
 ```bash
-python3 tools/benchmarks/run_dense_learning_control.py \
-  --run-id dense-substrate-post-20260504-rtx3070 \
-  --steps 1024 \
-  --sample-interval 0.25
+lkjai-native-train --train --mode dense --max-steps 1024
 ```
 
 | Field | Baseline | Post-change |
@@ -91,11 +85,11 @@ Transient dense buffers in the debug learning-control run were:
 Command:
 
 ```bash
-python3 tools/benchmarks/run_dense_40m_compat.py \
-  --run-id dense-40m-compat-20260504-rtx3070 \
-  --steps 4 \
-  --sequence-count 8 \
-  --image lkjai-native-bench-20260504
+docker compose --profile train run --rm train \
+  --train --mode dense \
+  --config /workspace/configs/native/native_40m_bf16.json \
+  --packed-cache /app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --seq-len 1024 --max-steps 4
 ```
 
 Result:

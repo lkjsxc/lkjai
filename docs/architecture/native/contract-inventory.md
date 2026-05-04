@@ -15,7 +15,7 @@ future transformer CUDA work measurable.
 - Artifact kinds: `export` and `checkpoint`.
 - Artifact model kinds: `dense` and `transformer`.
 - Train report schema: `schema_version=3`.
-- Rust HTTP boundary: `/api/chat` and `/api/model`.
+- Native runtime HTTP boundary: `/api/chat`, `/api/model`, and `/api/runs/{id}`.
 - Native HTTP boundary: `/v1/models` and `/v1/chat/completions`.
 - Native health boundary: `/healthz`.
 

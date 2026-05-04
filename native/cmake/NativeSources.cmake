@@ -43,6 +43,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/native_tokenizer_codec.cpp
   src/native_tokenizer_json.cpp
   src/packed_cache.cpp
+  src/packed_cache_build.cpp
   src/packed_cache_reader.cpp
   src/packed_cache_validate.cpp
   src/train_data.cpp

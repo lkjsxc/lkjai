@@ -4,8 +4,8 @@
 
 - Docs files stay at `<= 300` lines.
 - Authored source files stay at `<= 200` lines.
-- Shell, Python, Rust, CSS, JavaScript, TOML, and Markdown source files are
-  checked unless explicitly excluded.
+- Shell, C++, CUDA, CSS, JavaScript, JSON, YAML, TOML, and Markdown source
+  files are checked unless explicitly excluded.
 
 ## README Topology
 

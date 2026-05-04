@@ -2,13 +2,11 @@
 
 ## Surface
 
-- `GET /` serves the first-screen chat application.
-- The UI exposes a chat transcript, prompt box, run id, model state, and tool
-  results.
-- The UI displays reasoning, plan, tool, observation, memory, assistant, and
-  error events.
-- The client can show or hide every event kind that is visible in the
-  transcript.
+- `GET /` serves a compact native service descriptor.
+- `POST /api/chat` is the primary product chat surface.
+- API clients receive transcript run id, model state, and tool results.
+- The runtime persists reasoning, plan, tool, observation, memory, assistant,
+  and error events.
 - Visibility settings are client-side preferences sent with chat requests.
 - The app is local-only by default.
 - There is no login in v1.

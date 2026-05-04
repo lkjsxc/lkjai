@@ -29,7 +29,7 @@ docker compose --profile web up --build web
 This starts both containers:
 
 - `inference`: scratch OpenAI-compatible model server.
-- `web`: Rust agent and browser UI.
+- `web`: native C++ agent API runtime.
 
 Web app endpoint:
 

@@ -16,11 +16,11 @@ decoder-only transformer training, autoregressive chat, or model competency.
 ## Build Cache
 
 Use an existing reviewed packed-cache v2 directory, or build one through the
-Rust cache builder:
+native cache builder:
 
 ```sh
-docker compose --progress quiet --profile verify run --rm --entrypoint cargo verify \
-  run -p lkjai_packed_cache_builder -- build \
+docker compose --profile train run --rm --entrypoint lkjai-native-packed-cache train \
+  build \
   --source /workspace/data/train/datasets/train.jsonl \
   --tokenizer /workspace/data/train/tokenizer/tokenizer.json \
   --config /workspace/configs/native/native_dense_20m_bf16_3070.json \
@@ -93,13 +93,15 @@ The dense benchmark tiers are intentionally separate:
   accepted-training evidence.
 - Transformer train/decode: future work and not part of this dense milestone.
 
-The controlled dense bigram run remains useful for debugging:
+The controlled dense bigram run remains useful for debugging. Build a small
+native packed cache, run `lkjai-native-train`, then inspect the export:
 
 ```sh
-python3 tools/benchmarks/run_dense_learning_control.py \
-  --run-id dense-learning-control-20260503 \
-  --steps 1024 \
-  --sample-interval 0.25
+docker compose --profile train run --rm train \
+  --train --mode dense \
+  --config /workspace/configs/native/native_debug_bf16.json \
+  --packed-cache /app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --seq-len 16 --max-steps 1024 --loss-sample-interval 64
 ```
 
 It builds a deterministic packed-cache v2 target with `seq_len=16`,
@@ -117,10 +119,11 @@ for `--tokens 1,2,3` return matching checksums.
 The accepted dense target is the canonical real-data proof:
 
 ```sh
-python3 tools/benchmarks/run_dense_accepted_training.py \
-  --run-id dense-accepted-training-20260503 \
-  --steps 1024 \
-  --sample-interval 0.25
+docker compose --profile train run --rm train \
+  --train --mode dense \
+  --config /workspace/configs/native/native_accepted_dense_bf16.json \
+  --packed-cache /app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --seq-len 128 --max-steps 1024 --loss-sample-interval 64
 ```
 
 It builds a deterministic packed-cache v2 target from
@@ -140,45 +143,39 @@ BF16 reference tolerance `0.01`, passing inspect/logits checks, two matching
 dense infer checksums, positive throughput, and required dense timing/backend
 metadata.
 
-The 40M command remains compatibility-only:
+The 40M dense command remains compatibility-only:
 
 ```sh
-python3 tools/benchmarks/run_dense_40m_compat.py \
-  --run-id RUN_ID \
-  --steps 4 \
-  --sequence-count 8 \
-  --sample-interval 0.25
+docker compose --profile train run --rm train \
+  --train --mode dense \
+  --config /workspace/configs/native/native_40m_bf16.json \
+  --packed-cache /app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --seq-len 1024 --max-steps 4
 ```
 
 The 40M command is a bounded compatibility start-check. Promotion summaries
 must reject `run_purpose=bounded_compatibility_start_check`; it is never
 promotable as accepted training.
 
-The reproducible two-hour dense BF16 runner builds and validates the cache,
-runs a pilot calibration, computes target optimizer steps from measured step
-time, and runs the full job only when `--full` is present:
+The reproducible two-hour dense BF16 run is native-only. Build/validate the
+cache first, run a short pilot to estimate step time, then run the target
+optimizer-step count in a fresh data directory:
 
 ```sh
-python3 tools/benchmarks/run_dense_2h.py \
-  --run-id dense-2h-3070-$(date +%Y%m%d-%H%M%S) \
-  --native-config configs/native/native_dense_20m_bf16_3070.json \
-  --source data/train/datasets/train.jsonl \
-  --tokenizer data/train/tokenizer/tokenizer.json \
-  --cache data/train/datasets/packed/train-causal_lm_full-seq1024 \
-  --seq-len 1024 --sequence-count 8192 \
-  --batch-size 1 --grad-accum 8 \
-  --lr 0.0003 --pilot-steps 128 \
-  --target-seconds 7200 --full
+docker compose --profile train run --rm train \
+  --train --mode dense \
+  --config /workspace/configs/native/native_dense_20m_bf16_3070.json \
+  --packed-cache /app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --seq-len 1024 --batch-size 1 --grad-accum 8 \
+  --lr 0.0003 --max-steps TARGET_STEPS
 ```
 
-Without `--full`, the runner stops after pilot calibration and writes the same
-summary/report bundle with `full_status=skipped_without_full_flag`.
+Record pilot and full run reports under ignored `artifacts/` paths.
 
 ## Verify
 
 ```sh
-cargo test --workspace
-docker compose --progress quiet --profile verify run --rm verify
+docker compose --progress quiet --profile verify run --build --rm verify
 ```
 
 Native CTest in the verify profile covers persistent packed-cache reads,

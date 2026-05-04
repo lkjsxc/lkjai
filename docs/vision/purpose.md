@@ -10,7 +10,8 @@
 - Use external memory and summaries instead of unrealistic native context.
 - Improve behavior through tokenizer, corpus, language-model training, and
   agent-style supervised trajectories.
-- Host the user-facing application with Rust and axum.
+- Host the agent API with native C++ so product runtime code uses the same
+  language family as training, serving, tooling, and verification.
 
 ## Audience
 

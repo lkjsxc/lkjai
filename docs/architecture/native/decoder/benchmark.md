@@ -19,11 +19,11 @@ The accepted same-model demo requires a full CUDA BF16 decoder backend and one
 RTX 3070 run using native wall-clock stop:
 
 ```bash
-python3 tools/benchmarks/run_decoder_2h.py \
-  --run-id decoder-2h-3070-$(date +%Y%m%d-%H%M%S) \
-  --native-config configs/native/decoder_18m_bf16_3070.json \
-  --target-seconds 7200 \
-  --full
+docker compose --profile train run --rm train \
+  --train --mode decoder \
+  --config /workspace/configs/native/decoder_40m_bf16_3070.json \
+  --packed-cache /app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --seq-len 1024 --target-seconds 7200
 ```
 
 Commit `a806c88` makes `--full` and `--require-accepted-cuda` run an acceptance
@@ -34,12 +34,11 @@ not accepted evidence.
 Use smoke mode for current partial CUDA work:
 
 ```bash
-python3 tools/benchmarks/run_decoder_2h.py \
-  --run-id decoder-smoke-$(date +%Y%m%d-%H%M%S) \
-  --native-config configs/native/decoder_18m_bf16_3070.json \
-  --cache data/train/datasets/packed/train-causal_lm_full-seq1024 \
-  --seq-len 1024 \
-  --smoke-steps 2
+docker compose --profile train run --rm train \
+  --train --mode decoder \
+  --config /workspace/configs/native/decoder_debug_bf16.json \
+  --packed-cache /app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --seq-len 1024 --max-steps 2
 ```
 
 ## Evidence

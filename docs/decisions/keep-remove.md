@@ -3,14 +3,14 @@
 ## Keep
 
 - Docs-first canon and topology validation.
-- Rust axum web runtime.
 - Docker Compose profiles.
 - JSONL transcript persistence.
 - Local-only default bind.
 - Host-YOLO tool concept with explicit transcript logging.
 - Data-directory workspace boundary for file and shell tools.
 - Docs link validation, line limits, and no-Node gate.
-- Native C++/CUDA product binaries for train and serve.
+- Native C++/CUDA product binaries for train, serve, runtime, tooling, and
+  verification.
 
 ## Remove Or Replace
 
@@ -22,8 +22,8 @@
 - 512 MiB artifact limit as a core success criterion.
 - Direct natural-language tool routing as the main agent mechanism.
 - Host root mounts for agent file and shell tools.
-- Python inference, Python training, PyTorch checkpoints, and product Python
-  tests.
+- Rust runtime/tool crates, Python tooling/tests, PyTorch checkpoints, and
+  cookie/session resource integration.
 
 ## Reframe
 

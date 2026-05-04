@@ -124,21 +124,17 @@ Monitor with `docker logs -f lkjai-train-until-noon-20260503`.
 
 ## Two-Hour Dense BF16 Run
 
-Use the benchmark runner for reproducible RTX 3070 two-hour jobs. It builds and
-validates the seq1024 cache, runs a pilot calibration, computes the optimizer
-step budget from measured step time, and writes JSON plus Markdown evidence.
+Use native train commands for reproducible RTX 3070 two-hour jobs. Build and
+validate the seq1024 cache, run a pilot calibration, compute the optimizer step
+budget from measured step time, and write JSON plus Markdown evidence.
 
 ```bash
-python3 tools/benchmarks/run_dense_2h.py \
-  --run-id dense-2h-3070-$(date +%Y%m%d-%H%M%S) \
-  --native-config configs/native/native_dense_20m_bf16_3070.json \
-  --source data/train/datasets/train.jsonl \
-  --tokenizer data/train/tokenizer/tokenizer.json \
-  --cache data/train/datasets/packed/train-causal_lm_full-seq1024 \
-  --seq-len 1024 --sequence-count 8192 \
-  --batch-size 1 --grad-accum 8 \
-  --lr 0.0003 --pilot-steps 128 \
-  --target-seconds 7200 --full
+docker compose --profile train run --rm train \
+  --train --mode dense \
+  --config /workspace/configs/native/native_dense_20m_bf16_3070.json \
+  --packed-cache /app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --seq-len 1024 --batch-size 1 --grad-accum 8 \
+  --lr 0.0003 --max-steps TARGET_STEPS
 ```
 
 The runner stores raw outputs under

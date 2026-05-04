@@ -11,7 +11,7 @@ Verification proves:
 ## Mandatory Command
 
 ```bash
-docker compose --progress quiet --profile verify run --rm verify
+docker compose --progress quiet --profile verify run --build --rm verify
 ```
 
 The existing `up --build --abort-on-container-exit verify` form remains useful
@@ -20,15 +20,14 @@ canonical pass/fail gate.
 
 ## Mandatory Checks in `ops/verify.sh`
 
-1. `cargo fmt -- --check`
-2. `cargo test`
-3. `cmake -S native -B /tmp/lkjai-native-build -G Ninja`
-4. `cmake --build /tmp/lkjai-native-build --parallel`
-5. `ctest --test-dir /tmp/lkjai-native-build --output-on-failure`
-6. `cargo run --bin lkjai -- docs validate-topology`
-7. `cargo run --bin lkjai -- docs validate-links`
-8. `cargo run --bin lkjai -- quality check-lines`
-9. `cargo run --bin lkjai -- quality no-node`
+1. `cmake -S native -B /tmp/lkjai-native-build -G Ninja`
+2. `cmake --build /tmp/lkjai-native-build --parallel`
+3. `ctest --test-dir /tmp/lkjai-native-build --output-on-failure`
+4. `lkjai-native-repo-check docs-topology --repo /workspace`
+5. `lkjai-native-repo-check docs-links --repo /workspace`
+6. `lkjai-native-repo-check corpus-actions -- FILE...`
+7. `lkjai-native-repo-check line-limits --repo /workspace`
+8. `lkjai-native-repo-check no-node --repo /workspace`
 
 The native CTest set includes config-contract, CUDA architecture policy,
 capability-field, dense/transformer unsupported-decode, decoder chat,
@@ -45,7 +44,7 @@ container and prints only one pass line per check. On failure it prints the last
 Use this when an agent needs the failure without reading full Docker logs:
 
 ```bash
-VERIFY_TAIL_LINES=80 docker compose --progress quiet --profile verify run --rm verify
+VERIFY_TAIL_LINES=80 docker compose --progress quiet --profile verify run --build --rm verify
 ```
 
 ## Scope Boundary

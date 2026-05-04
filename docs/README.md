@@ -26,7 +26,8 @@
 6. Remove conflicting legacy behavior instead of preserving it.
 7. Docs-first workflow is mandatory: change docs, then code, then retrain.
 8. Evaluation claims must match the real runtime path and actual tool execution.
-9. Product training and serving must not depend on Python.
+9. Product training, serving, runtime, verification, and benchmark tooling must
+   not depend on Rust or Python.
 
 ## Top-Level Sections
 

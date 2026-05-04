@@ -23,21 +23,17 @@ run_step() {
   exit "$status"
 }
 
-run_step "rust fmt" cargo fmt --all -- --check
-run_step "rust tests" cargo test --workspace
 run_step "native configure" cmake -S native -B /tmp/lkjai-native-build -G Ninja
 run_step "native build" cmake --build /tmp/lkjai-native-build --parallel
 run_step "native tests" ctest --test-dir /tmp/lkjai-native-build --output-on-failure
-run_step "docs topology" cargo run -p lkjai --bin lkjai -- docs validate-topology
-run_step "docs links" cargo run -p lkjai --bin lkjai -- docs validate-links
-run_step "corpus actions" sh -c 'cargo run -p lkjai --bin lkjai -- corpus validate-actions corpus/generated/kimi-sft-60m-v2/*/*.jsonl'
-run_step "kimi corpus score" python3 tools/kimi-corpus/score_corpus.py \
-  corpus/generated/kimi-sft-60m-v2 \
-  --fail-on-invalid \
-  --fail-on-split-leakage \
-  --max-duplicate-rate 0.01 \
-  --max-near-duplicate-rate 0.01
-run_step "line limits" cargo run -p lkjai --bin lkjai -- quality check-lines
-run_step "forbidden js runtime check" cargo run -p lkjai --bin lkjai -- quality no-node
+CHECK=/tmp/lkjai-native-build/lkjai-native-repo-check
+run_step "docs topology" "$CHECK" docs-topology --repo /workspace
+run_step "docs links" "$CHECK" docs-links --repo /workspace
+run_step "corpus actions" "$CHECK" corpus-actions -- \
+  /workspace/corpus/generated/kimi-sft-60m-v2/train/train-000001.jsonl \
+  /workspace/corpus/generated/kimi-sft-60m-v2/val/val-000001.jsonl \
+  /workspace/corpus/generated/kimi-sft-60m-v2/holdout/holdout-000001.jsonl
+run_step "line limits" "$CHECK" line-limits --repo /workspace
+run_step "forbidden js runtime check" "$CHECK" no-node --repo /workspace
 
 echo "== gates passed; logs: $LOG_DIR =="

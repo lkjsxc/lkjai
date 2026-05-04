@@ -35,8 +35,8 @@ must be `uint16`, metadata counts must match file sizes, starts must stay within
 the token file, and `loss_mask` marks next-token labels that contribute to cross
 entropy.
 
-Validate the active cache with the Rust builder package
-`lkjai_packed_cache_builder` before long runs. The old smoke cache at
+Validate the active cache with `lkjai-native-packed-cache validate` before
+long runs. The old smoke cache at
 `data/train/datasets/packed/train-causal_lm_full-seq1024` had seq16/vocab256
 metadata and was invalid for seq1024 dense BF16 jobs until rebuilt.
 
@@ -81,7 +81,7 @@ declare `accepted_cuda_training=false`.
 Routine verification is:
 
 ```sh
-docker compose --progress quiet --profile verify run --rm verify
+docker compose --progress quiet --profile verify run --build --rm verify
 ```
 
 The native CTest suite checks CUDA BF16 capability, packed-cache consumption,
@@ -119,11 +119,11 @@ RTX 3070:
 Do not add this to routine verification or promotion aggregates:
 
 ```sh
-python3 tools/benchmarks/run_dense_40m_compat.py \
-  --run-id RUN_ID \
-  --steps 4 \
-  --sequence-count 8 \
-  --sample-interval 0.25
+docker compose --profile train run --rm train \
+  --train --mode dense \
+  --config /workspace/configs/native/native_40m_bf16.json \
+  --packed-cache /app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --seq-len 1024 --max-steps 4
 ```
 
 This uses `run_purpose=bounded_compatibility_start_check`, builds a true
@@ -136,16 +136,12 @@ reference path over four optimizer steps.
 The production-like two-hour path is:
 
 ```sh
-python3 tools/benchmarks/run_dense_2h.py \
-  --run-id dense-2h-3070-$(date +%Y%m%d-%H%M%S) \
-  --native-config configs/native/native_dense_20m_bf16_3070.json \
-  --source data/train/datasets/train.jsonl \
-  --tokenizer data/train/tokenizer/tokenizer.json \
-  --cache data/train/datasets/packed/train-causal_lm_full-seq1024 \
-  --seq-len 1024 --sequence-count 8192 \
-  --batch-size 1 --grad-accum 8 \
-  --lr 0.0003 --pilot-steps 128 \
-  --target-seconds 7200 --full
+docker compose --profile train run --rm train \
+  --train --mode dense \
+  --config /workspace/configs/native/native_dense_20m_bf16_3070.json \
+  --packed-cache /app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --seq-len 1024 --batch-size 1 --grad-accum 8 \
+  --lr 0.0003 --max-steps TARGET_STEPS
 ```
 
 The runner writes GPU identity, driver/runtime, CUDA arch flags, config/cache

@@ -70,7 +70,7 @@ not required unless a future change removes or redefines existing fields.
 
 ## Acceptance
 
-- `docker compose --progress quiet --profile verify run --rm verify` passes on
+- `docker compose --progress quiet --profile verify run --build --rm verify` passes on
   the RTX 3070 acceptance profile.
 - Dense train reports remain accepted CUDA training.
 - Transformer train reports remain experimental.

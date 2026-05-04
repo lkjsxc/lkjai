@@ -7,7 +7,8 @@ LM-head path. This does not claim transformer training, autoregressive decode,
 or chat competency.
 
 - run id: `dense-learning-control-20260503`
-- command: `python3 tools/benchmarks/run_dense_learning_control.py --run-id dense-learning-control-20260503 --steps 1024 --sample-interval 0.25`
+- command family: native packed-cache build plus
+  `lkjai-native-train --train --mode dense --max-steps 1024`
 - image used: `lkjai-dense-learning-control:dense-learning-control-20260503`
 - run purpose: `dense_learning_control`
 - model: `dense-learning-control`

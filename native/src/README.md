@@ -78,12 +78,20 @@ artifact inspection, and CUDA capability probing.
   logits probe, including dense BF16 export parity against FP32 checkpoints.
 - [packed_cache.cpp](packed_cache.cpp) and [packed_cache.hpp](packed_cache.hpp):
   packed-cache v2 validation and compatible v1 migration.
+- [packed_cache_build.cpp](packed_cache_build.cpp) and
+  [packed_cache_build.hpp](packed_cache_build.hpp): native packed-cache build
+  and validate CLI support.
 - [packed_cache_reader.cpp](packed_cache_reader.cpp): persistent packed-cache
   reader for dense training batches.
 - [packed_cache_validate.cpp](packed_cache_validate.cpp): packed-cache metadata,
   file size, and row-bound validation.
 - [packed_cache_main.cpp](packed_cache_main.cpp): packed-cache migration CLI.
 - [server_main.cpp](server_main.cpp): OpenAI-compatible inference entrypoint.
+- [runtime_main.cpp](runtime_main.cpp), [native_http_client.cpp](native_http_client.cpp),
+  and [native_http_client.hpp](native_http_client.hpp): native agent API
+  runtime and blocking HTTP model client.
+- [repo_check_main.cpp](repo_check_main.cpp) and `repo_check_*`: native docs,
+  corpus, and repository quality checks.
 - [train_main.cpp](train_main.cpp): scratch training entrypoint.
 - [train_data.cpp](train_data.cpp) and [train_data.hpp](train_data.hpp):
   JSONL corpus cursor and row extraction helpers.

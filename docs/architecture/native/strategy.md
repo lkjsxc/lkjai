@@ -4,28 +4,30 @@
 
 - Product training and serving run through native C++/CUDA binaries.
 - The model API remains a separate local HTTP service.
-- The Rust web runtime stays the agent orchestrator and HTTP client.
-- Python is not a product training or inference dependency.
+- The native C++ runtime owns agent orchestration, tools, transcripts, memory,
+  model-client calls, and `kjxlkj` integration.
+- Rust and Python are not product, verification, benchmark, or tooling
+  dependencies.
 - Existing `.pt` checkpoints are not protected.
 
 ## Rewrite Boundary
 
 Keep:
 
-- Rust web runtime and agent loop.
 - OpenAI-compatible `/v1/models` and `/v1/chat/completions` contracts.
+- Native `/api/chat`, `/api/model`, `/api/runs/{id}`, and `/healthz`
+  contracts.
 - Docker Compose profiles.
-- `kjxlkj` HTTP integration assumptions.
+- `kjxlkj` typed machine API integration.
 - Docs-first workflow and line-limit gates.
 
 Replace:
 
-- Python inference server.
-- Python generation loop.
-- Python scratch model execution.
-- Python training step orchestration.
-- Python packed-cache product reader.
-- PyTorch checkpoint format.
+- Rust web runtime and Rust tool crates.
+- Python benchmark, diagnostics, report, and test harnesses.
+- Python or PyTorch scratch model execution.
+- Rust packed-cache builder and reader utilities.
+- Cookie/session `kjxlkj` resource access.
 
 ## First Optimization Target
 

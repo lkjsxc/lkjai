@@ -40,11 +40,10 @@ Make training consume tokenizer output, not raw JSONL, during real runs.
 - `starts_checksum`,
 - `packed_data_checksum`.
 
-The deterministic builder is
-`cargo run -p lkjai_packed_cache_builder -- build ...`. It loads the
-HuggingFace `tokenizer.json`, extracts JSONL string fields named `text` and
-`content` in document order, and writes fixed non-overlapping windows. It does
-not use a byte fallback or duplicate tokenizer logic in C++.
+The deterministic builder is `lkjai-native-packed-cache build ...`. It loads
+the local byte-level BPE `tokenizer.json`, extracts JSONL string fields named
+`text` and `content` in document order, and writes fixed non-overlapping
+windows. The native tokenizer is the single active tokenizer implementation.
 
 The long-run cache path
 `data/train/datasets/packed/train-causal_lm_full-seq1024` previously held a
@@ -78,8 +77,8 @@ validation reports those fields, rebuild it with the command below.
 ## Dense Seq1024 Rebuild
 
 ```bash
-docker compose --progress quiet --profile verify run --rm --entrypoint cargo verify \
-  run -p lkjai_packed_cache_builder -- build \
+docker compose --profile train run --rm --entrypoint lkjai-native-packed-cache train \
+  build \
   --source /workspace/data/train/datasets/train.jsonl \
   --tokenizer /workspace/data/train/tokenizer/tokenizer.json \
   --config /workspace/configs/native/native_dense_20m_bf16_3070.json \
@@ -90,8 +89,8 @@ docker compose --progress quiet --profile verify run --rm --entrypoint cargo ver
 ```
 
 ```bash
-docker compose --progress quiet --profile verify run --rm --entrypoint cargo verify \
-  run -p lkjai_packed_cache_builder -- validate \
+docker compose --profile train run --rm --entrypoint lkjai-native-packed-cache train \
+  validate \
   --cache /workspace/data/train/datasets/packed/train-causal_lm_full-seq1024 \
   --source /workspace/data/train/datasets/train.jsonl \
   --tokenizer /workspace/data/train/tokenizer/tokenizer.json \

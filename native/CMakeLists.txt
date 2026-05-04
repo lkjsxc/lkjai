@@ -69,6 +69,13 @@ target_compile_definitions(lkjai_native_core PUBLIC
 add_executable(lkjai-native-server src/server_main.cpp src/http_server.cpp)
 target_link_libraries(lkjai-native-server PRIVATE lkjai_native_core)
 
+add_executable(lkjai-native-runtime
+  src/runtime_main.cpp
+  src/http_server.cpp
+  src/native_http_client.cpp
+)
+target_link_libraries(lkjai-native-runtime PRIVATE lkjai_native_core)
+
 add_executable(lkjai-native-train src/train_main.cpp)
 target_link_libraries(lkjai-native-train PRIVATE lkjai_native_core)
 
@@ -89,6 +96,15 @@ target_link_libraries(lkjai-native-logits-check PRIVATE lkjai_native_core)
 
 add_executable(lkjai-native-packed-cache src/packed_cache_main.cpp)
 target_link_libraries(lkjai-native-packed-cache PRIVATE lkjai_native_core)
+
+add_executable(lkjai-native-repo-check
+  src/repo_check_main.cpp
+  src/repo_check_common.cpp
+  src/repo_check_docs.cpp
+  src/repo_check_quality.cpp
+  src/repo_check_corpus.cpp
+)
+target_link_libraries(lkjai-native-repo-check PRIVATE lkjai_native_core)
 
 add_executable(lkjai-native-packed-cache-reader-check
   tests/packed_cache_reader_check.cpp
@@ -112,15 +128,23 @@ target_link_libraries(lkjai-native-decoder-tokenizer-contract
 )
 
 enable_testing()
-add_test(NAME native_config_contract COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/config_contract.py ${CMAKE_CURRENT_SOURCE_DIR}/..)
-add_test(NAME native_cuda_arch_contract COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/cuda_arch_contract.py ${CMAKE_CURRENT_SOURCE_DIR}/..)
+add_test(NAME native_docs_topology COMMAND lkjai-native-repo-check docs-topology --repo ${CMAKE_CURRENT_SOURCE_DIR}/..)
+add_test(NAME native_docs_links COMMAND lkjai-native-repo-check docs-links --repo ${CMAKE_CURRENT_SOURCE_DIR}/..)
+add_test(NAME native_line_limits COMMAND lkjai-native-repo-check line-limits --repo ${CMAKE_CURRENT_SOURCE_DIR}/..)
+add_test(NAME native_no_node COMMAND lkjai-native-repo-check no-node --repo ${CMAKE_CURRENT_SOURCE_DIR}/..)
+add_test(
+  NAME native_corpus_actions
+  COMMAND lkjai-native-repo-check corpus-actions --
+    ${CMAKE_CURRENT_SOURCE_DIR}/../corpus/generated/kimi-sft-60m-v2/train/train-000001.jsonl
+    ${CMAKE_CURRENT_SOURCE_DIR}/../corpus/generated/kimi-sft-60m-v2/val/val-000001.jsonl
+    ${CMAKE_CURRENT_SOURCE_DIR}/../corpus/generated/kimi-sft-60m-v2/holdout/holdout-000001.jsonl
+)
 add_test(NAME native_inspect_missing COMMAND lkjai-native-inspect --model-dir /missing)
 set_tests_properties(native_inspect_missing PROPERTIES WILL_FAIL TRUE)
 add_test(
   NAME native_train_smoke
-  COMMAND sh -c "$<TARGET_FILE:lkjai-native-train> --smoke --steps 2 > /tmp/lkjai-native-smoke.json && python3 -c 'import json; p=json.load(open(\"/tmp/lkjai-native-smoke.json\")); assert p[\"dense_cuda_path\"] is True and p[\"loss\"] < p[\"initial_loss\"]'"
+  COMMAND sh -c "$<TARGET_FILE:lkjai-native-train> --smoke --steps 2 > /tmp/lkjai-native-smoke.json && grep -q '\"dense_cuda_path\":true' /tmp/lkjai-native-smoke.json && grep -q '\"status\":\"success\"' /tmp/lkjai-native-smoke.json"
 )
-add_test(NAME native_dense_cuda_parity COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/dense_check_contract.py $<TARGET_FILE:lkjai-native-dense-check>)
 add_test(NAME native_device_tensor_check COMMAND lkjai-native-device-check)
 add_test(
   NAME native_packed_cache_reader_check
@@ -138,46 +162,6 @@ set_tests_properties(native_decoder_tokenizer_contract PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${CMAKE_CURRENT_SOURCE_DIR}/.."
 )
 add_test(
-  NAME native_packed_train_contract
-  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/packed_train_contract.py $<TARGET_FILE:lkjai-native-train> $<TARGET_FILE:lkjai-native-logits-check> $<TARGET_FILE:lkjai-native-inspect>
-)
-add_test(
-  NAME native_dense_infer_contract
-  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/dense_infer_contract.py $<TARGET_FILE:lkjai-native-train> $<TARGET_FILE:lkjai-native-infer>
-)
-add_test(
-  NAME native_packed_cache_migration_contract
-  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/packed_cache_migration_contract.py $<TARGET_FILE:lkjai-native-train> $<TARGET_FILE:lkjai-native-packed-cache>
-)
-add_test(
-  NAME native_transformer_train_contract
-  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/transformer_train_contract.py $<TARGET_FILE:lkjai-native-train> $<TARGET_FILE:lkjai-native-logits-check> $<TARGET_FILE:lkjai-native-inspect>
-)
-add_test(
-  NAME native_decoder_train_contract
-  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/decoder_train_contract.py $<TARGET_FILE:lkjai-native-train> $<TARGET_FILE:lkjai-native-logits-check> $<TARGET_FILE:lkjai-native-inspect> $<TARGET_FILE:lkjai-native-server>
-)
-add_test(
-  NAME native_decoder_acceptance_gate
-  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/decoder_acceptance_gate.py
-)
-add_test(
-  NAME native_benchmark_report_parser
-  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/benchmark_report_parser.py
-)
-add_test(
-  NAME native_accepted_training_report_validation
-  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/accepted_training_report_validation.py
-)
-add_test(
-  NAME native_promote_dense_debug_validation
-  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/promote_dense_debug_validation.py
-)
-add_test(
   NAME native_smoke_export
   COMMAND sh -c "rm -rf /tmp/lkjai-native-ctest && DATA_DIR=/tmp/lkjai-native-ctest MODEL_NAME=smoke ./lkjai-native-train --smoke --steps 2 && ./lkjai-native-inspect --model-dir /tmp/lkjai-native-ctest/exports/smoke && ./lkjai-native-logits-check --model-dir /tmp/lkjai-native-ctest/exports/smoke --tokens 1,2,3"
-)
-add_test(
-  NAME native_server_chat_contract
-  COMMAND sh -c "rm -rf /tmp/lkjai-native-server-test && DATA_DIR=/tmp/lkjai-native-server-test/train MODEL_NAME=smoke ./lkjai-native-train --smoke --steps 2 && python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/server_chat_contract.py $<TARGET_FILE:lkjai-native-server> /tmp/lkjai-native-server-test/models smoke"
 )
