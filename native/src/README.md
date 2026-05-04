@@ -45,6 +45,9 @@ artifact inspection, and CUDA capability probing.
 - [dense_report_util.cpp](dense_report_util.cpp) and
   [dense_report_util.hpp](dense_report_util.hpp): dense report checksum,
   parameter-count, and loss-sample serialization helpers.
+- [dense_weight_change.cpp](dense_weight_change.cpp) and
+  [dense_weight_change.hpp](dense_weight_change.hpp): dense tensor delta
+  summaries used by accepted training reports.
 - [runtime_context.cu](runtime_context.cu), [runtime_device.cu](runtime_device.cu),
   [runtime_workspace.cu](runtime_workspace.cu), [runtime_errors.cu](runtime_errors.cu),
   and [runtime_device.hpp](runtime_device.hpp):

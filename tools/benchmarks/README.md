@@ -13,6 +13,12 @@ metrics.
   promotion-gating helpers, including dense backward GEMM/scatter fields.
 - [compare_dense_speed.py](compare_dense_speed.py): compares matched baseline
   and post-change dense reports for backward time and throughput.
+- [dense_2h_paths.py](dense_2h_paths.py): Docker image, host path, and
+  packed-cache helpers for the RTX 3070 dense two-hour runner.
+- [dense_2h_report.py](dense_2h_report.py): dense two-hour pilot/full summary
+  and Markdown evidence helpers.
+- [dense_2h_train.py](dense_2h_train.py): dense two-hour train/check command
+  helpers.
 - [dense_40m_compat_support.py](dense_40m_compat_support.py): bounded 40M
   compatibility runner internals.
 - [dense_accepted_training_support.py](dense_accepted_training_support.py):
@@ -36,6 +42,8 @@ metrics.
 - [promote_dense_debug.py](promote_dense_debug.py): accepted dense debug
   promotion entrypoint.
 - [run_matrix.py](run_matrix.py): benchmark matrix launcher.
+- [run_dense_2h.py](run_dense_2h.py): reproducible RTX 3070 dense BF16
+  two-hour benchmark entrypoint.
 - [run_dense_40m_compat.py](run_dense_40m_compat.py): bounded
   `native_40m_bf16` compatibility start check.
 - [run_dense_accepted_training.py](run_dense_accepted_training.py): accepted
