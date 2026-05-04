@@ -15,6 +15,10 @@ from dense_2h_paths import (
     run_json,
 )
 from run_support import ROOT, Telemetry, load_train_report, run
+from decoder_acceptance import (
+    explain_decoder_acceptance,
+    is_accepted_cuda_decoder,
+)
 
 
 CASE = "decoder_2h_bf16_cuda"
@@ -41,7 +45,9 @@ def parse_args():
     parser.add_argument("--model-name", default="decoder-2h-18m-3070")
     parser.add_argument("--sample-interval", type=float, default=0.25)
     parser.add_argument("--seed", type=int, default=20260504)
+    parser.add_argument("--smoke-steps", type=int, default=0)
     parser.add_argument("--full", action="store_true")
+    parser.add_argument("--require-accepted-cuda", action="store_true")
     parser.add_argument("--no-build", action="store_true")
     parser.add_argument("--skip-cache-build", action="store_true")
     return parser.parse_args()
@@ -76,22 +82,39 @@ def export_checks(args, out_dir: Path, data_dir: Path) -> dict:
     return {"inspect": inspect, "logits": logits}
 
 
-def run_full(args, out_dir: Path) -> dict:
-    data_dir = ROOT / "data" / "perf-runs" / args.run_id / CASE / "full"
+def run_training(args, out_dir: Path, phase: str, max_steps: int) -> dict:
+    data_dir = ROOT / "data" / "perf-runs" / args.run_id / CASE / phase
     data_dir.mkdir(parents=True, exist_ok=True)
+    original = args.max_steps
+    args.max_steps = max_steps
     command = train_command(args, data_dir)
-    (out_dir / "train-command.json").write_text(json.dumps(command, indent=2) + "\n")
+    args.max_steps = original
+    (out_dir / f"{phase}-train-command.json").write_text(
+        json.dumps(command, indent=2) + "\n"
+    )
     started = time.monotonic()
     with Telemetry(out_dir, args.sample_interval):
-        code = run(command, out_dir / "train.log", os.environ.copy())
+        code = run(command, out_dir / f"{phase}-train.log", os.environ.copy())
     wall = time.monotonic() - started
     try:
-        report = load_train_report(data_dir, out_dir / "train.log")
+        report = load_train_report(data_dir, out_dir / f"{phase}-train.log")
     except FileNotFoundError:
         report = {"status": "fail", "model_kind": "decoder"}
     checks = export_checks(args, out_dir, data_dir) if code == 0 else {}
     return {"returncode": code, "wall_elapsed_seconds": wall,
             "report": report, "checks": checks, "data_dir": str(data_dir)}
+
+
+def run_full(args, out_dir: Path) -> dict:
+    probe = run_training(args, out_dir, "acceptance-probe", min(args.max_steps, 2))
+    message = explain_decoder_acceptance(probe["report"])
+    if probe["returncode"] != 0 or not is_accepted_cuda_decoder(probe["report"]):
+        return {"returncode": 3, "probe": probe, "acceptance_message": message}
+    full = run_training(args, out_dir, "full", args.max_steps)
+    full["acceptance_message"] = explain_decoder_acceptance(full["report"])
+    if not is_accepted_cuda_decoder(full["report"]):
+        full["returncode"] = 3
+    return full
 
 
 def main():
@@ -103,11 +126,22 @@ def main():
     cache = build_and_validate_cache(args, out_dir)
     summary = {"report_kind": CASE, "run_id": args.run_id,
                "target_seconds": args.target_seconds, "cache": cache,
-               "full_status": "not_requested"}
-    if args.full:
+               "full_status": "not_requested", "smoke_status": "not_requested"}
+    if args.smoke_steps > 0:
+        smoke = run_training(args, out_dir, "smoke", args.smoke_steps)
+        summary["smoke"] = smoke
+        summary["smoke_status"] = "completed" if smoke["returncode"] == 0 else "failed"
+        if smoke["returncode"] != 0:
+            print(json.dumps({"runner_status": "failed", "summary": str(out_dir)}))
+            raise SystemExit(smoke["returncode"])
+    if args.full or args.require_accepted_cuda:
         full = run_full(args, out_dir)
         summary["full"] = full
         summary["full_status"] = "completed" if full["returncode"] == 0 else "failed"
+        if full["returncode"] != 0:
+            print(json.dumps({"runner_status": "failed", "summary": str(out_dir),
+                              "message": full.get("acceptance_message", "")}))
+            raise SystemExit(full["returncode"])
     text = json.dumps(summary, indent=2) + "\n"
     (out_dir / "decoder-2h-summary.json").write_text(text, encoding="utf-8")
     (out_dir / "benchmark-summary.json").write_text(text, encoding="utf-8")
