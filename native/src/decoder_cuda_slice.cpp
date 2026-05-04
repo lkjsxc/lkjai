@@ -1,0 +1,153 @@
+#include "transformer_train.hpp"
+
+#include <chrono>
+#include <cmath>
+
+#include "cuda_probe.hpp"
+#include "decoder_cuda_slice_internal.hpp"
+#include "dense_cuda_internal.hpp"
+#include "json_min.hpp"
+#include "packed_cache.hpp"
+#include "runtime_device.hpp"
+#include "transformer_state.hpp"
+
+namespace lkjai {
+namespace {
+
+double since(std::chrono::steady_clock::time_point start) {
+  return std::chrono::duration<double>(std::chrono::steady_clock::now() - start)
+      .count();
+}
+
+float lr_at(const TransformerTrainOptions& opt, int step) {
+  if (opt.warmup_steps <= 0 || step > opt.warmup_steps) return opt.lr;
+  return opt.lr * static_cast<float>(step) / static_cast<float>(opt.warmup_steps);
+}
+
+}  // namespace
+
+bool run_decoder_cuda_slice_training(const TransformerTrainOptions& opt,
+                                     TransformerTrainReport* report,
+                                     std::string* error) {
+  TransformerConfig cfg;
+  if (!load_transformer_config(opt.config_path, &cfg, error)) return false;
+  if (opt.model_kind != "decoder") {
+    *error = "decoder CUDA slice requires model_kind=decoder";
+    return false;
+  }
+  auto status = cuda_status();
+  if (!cuda_required_ok(status)) {
+    *error = "CUDA BF16/cuBLASLt capability unavailable: " +
+             (status.error.empty() ? status.warning : status.error);
+    return false;
+  }
+  if (opt.seed >= 0) cfg.seed = opt.seed;
+  cfg.kind = "decoder";
+  int seq_len = opt.seq_len > 0 ? opt.seq_len : cfg.context;
+  if (opt.batch_size <= 0 || opt.grad_accum <= 0 || opt.max_steps <= 0) {
+    *error = "batch_size, grad_accum, and max_steps must be positive";
+    return false;
+  }
+  if (seq_len > cfg.context) {
+    *error = "requested seq_len exceeds decoder config context";
+    return false;
+  }
+  PackedCacheReader reader;
+  if (!reader.open(opt.packed_cache, seq_len, cfg.vocab_size, error)) return false;
+  TransformerState state;
+  init_transformer_state(cfg, &state);
+  auto before_emb = state.tok_embeddings.w;
+  auto before_head = state.lm_head.w;
+  auto dense = decoder_dense_state(decoder_dense_cfg(cfg), state);
+  CudaExecutionContext ctx;
+  DenseCudaState cuda(dense.cfg, dense, &ctx);
+  report->train_config_path = opt.train_config_path;
+  report->run_purpose = opt.run_purpose;
+  report->config_path = opt.config_path;
+  report->model_kind = "decoder";
+  report->packed_cache = opt.packed_cache;
+  report->batch_size = opt.batch_size;
+  report->seq_len = seq_len;
+  report->grad_accum = opt.grad_accum;
+  report->layers = cfg.layers;
+  report->heads = cfg.heads;
+  report->kv_heads = cfg.kv_heads;
+  report->hidden_size = cfg.hidden_size;
+  report->head_dim = cfg.head_dim;
+  report->ffn_size = cfg.ffn_size;
+  report->context = cfg.context;
+  report->target_seconds = opt.target_seconds;
+  report->checkpoint_dir = opt.out_dir / "checkpoints" / "latest";
+  report->export_dir = opt.out_dir / "exports" / opt.model_name;
+  report->served_dir = opt.out_dir.parent_path() / "models" / opt.model_name;
+  report->parameter_count = transformer_parameter_count(state);
+  auto started = std::chrono::steady_clock::now();
+  std::vector<float> logits;
+  for (int local = 1; local <= opt.max_steps; ++local) {
+    if (opt.target_seconds > 0 &&
+        since(started) >= static_cast<double>(opt.target_seconds)) {
+      report->deadline_hit = true;
+      report->stop_reason = "wall_clock_deadline";
+      break;
+    }
+    double loss_sum = 0.0;
+    for (int micro = 0; micro < opt.grad_accum; ++micro) {
+      PackedBatch batch;
+      int first = ((local - 1) * opt.grad_accum + micro) * opt.batch_size;
+      auto phase = std::chrono::steady_clock::now();
+      if (!reader.load_batch(first, opt.batch_size, &batch, error)) return false;
+      report->batch_load_seconds += since(phase);
+      bool capture = local == opt.max_steps && micro == opt.grad_accum - 1;
+      loss_sum += cuda.forward_backward(batch, capture ? &logits : nullptr,
+                                        &report->h2d_seconds,
+                                        &report->forward_seconds,
+                                        &report->backward_seconds,
+                                        1.0f / opt.grad_accum, micro == 0);
+      report->microsteps += 1;
+      report->input_tokens += opt.batch_size * seq_len;
+      report->loss_tokens += dense_supervised_count(batch);
+    }
+    report->steps = local;
+    report->loss = loss_sum / opt.grad_accum;
+    if (local == 1) report->initial_loss = report->loss;
+    if (!std::isfinite(report->loss)) {
+      *error = "decoder CUDA slice produced non-finite loss";
+      return false;
+    }
+    auto phase = std::chrono::steady_clock::now();
+    cuda.adamw(lr_at(opt, local), local);
+    report->optimizer_seconds += since(phase);
+    if (!logits.empty()) report->logits_checksum = dense_checksum_floats(logits);
+  }
+  if (!report->deadline_hit) report->stop_reason = "max_steps";
+  auto host = cuda.copy_to_host();
+  report->trainable_weight_changed =
+      dense_max_abs_diff(before_emb, host.emb) > 0.0 ||
+      dense_max_abs_diff(before_head, host.head) > 0.0;
+  report->non_embedding_weight_changed =
+      dense_max_abs_diff(before_head, host.head) > 0.0;
+  decoder_copy_dense_back(host, &state);
+  auto phase = std::chrono::steady_clock::now();
+  if (!decoder_write_all(opt, state, report, seq_len)) {
+    *error = "failed to write decoder CUDA slice artifact";
+    return false;
+  }
+  report->checkpoint_export_seconds += since(phase);
+  report->export_seconds = report->checkpoint_export_seconds;
+  decoder_fill_cuda_slice_report(cuda, report);
+  report->elapsed_seconds = since(started);
+  std::string logits_json, logits_error;
+  report->logits_check_passed =
+      transformer_logits_check(report->export_dir, "1,2,3", &logits_json,
+                               &logits_error);
+  report->logits_check_json = logits_json;
+  report->logits_check_checksum =
+      report->logits_check_passed ? json_first_string(logits_json, "checksum") : "";
+  if (!report->logits_check_passed) {
+    *error = "exported decoder BF16 logits check failed: " + logits_error;
+    return false;
+  }
+  return true;
+}
+
+}  // namespace lkjai

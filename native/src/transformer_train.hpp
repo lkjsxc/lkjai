@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <filesystem>
 #include <string>
 
@@ -68,6 +69,7 @@ struct TransformerTrainReport {
   double initial_loss = 0.0;
   double loss = 0.0;
   bool non_embedding_weight_changed = false;
+  bool trainable_weight_changed = false;
   bool logits_check_passed = false;
   std::string logits_check_json;
   std::string logits_check_checksum;
@@ -88,6 +90,21 @@ struct TransformerTrainReport {
   double optimizer_seconds = 0.0;
   double checkpoint_export_seconds = 0.0;
   double export_seconds = 0.0;
+  bool decoder_cuda_path = false;
+  std::string implementation_status = "experimental";
+  std::string transformer_status = "experimental";
+  std::string decoder_status = "not_applicable";
+  std::string forward_backend = "host_reference";
+  std::string backward_backend = "host_surrogate";
+  std::string optimizer_backend = "host_adamw_fp32";
+  std::string attention_backend = "host_reference";
+  std::string matmul_backend = "host_reference";
+  std::string kv_cache_backend = "none";
+  std::string decoder_cuda_slice = "none";
+  std::string decoder_block_backend = "host_reference";
+  uint64_t cublaslt_workspace_bytes = 0;
+  uint64_t workspace_high_water_bytes = 0;
+  int workspace_reallocations = 0;
 };
 
 bool load_transformer_config(const std::filesystem::path& path,
@@ -95,6 +112,9 @@ bool load_transformer_config(const std::filesystem::path& path,
 bool run_transformer_training(const TransformerTrainOptions& opt,
                               TransformerTrainReport* report,
                               std::string* error);
+bool run_decoder_cuda_slice_training(const TransformerTrainOptions& opt,
+                                     TransformerTrainReport* report,
+                                     std::string* error);
 bool transformer_logits_check(const std::filesystem::path& model_dir,
                               const std::string& token_csv,
                               std::string* json, std::string* error);

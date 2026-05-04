@@ -64,7 +64,19 @@ def main():
     result = subprocess.run(cmd, env=env, text=True, capture_output=True, check=True)
     report = json.loads(result.stdout)
     assert report["model_kind"] == "decoder", report
-    assert report["decoder_status"] == "experimental", report
+    assert report["decoder_status"] == "partial_cuda", report
+    assert report["implementation_status"] == "partial_cuda", report
+    assert report["accepted_cuda_training"] is False, report
+    assert report["decoder_cuda_path"] is True, report
+    assert report["decoder_cuda_slice"] == "embedding_lm_head", report
+    assert report["decoder_block_backend"] == "static_reference", report
+    assert report["forward_backend"] == "cuda_bf16_embedding_lm_head", report
+    assert report["backward_backend"] == "cuda_bf16_embedding_lm_head", report
+    assert report["optimizer_backend"] == "cuda_adamw_fp32", report
+    assert report["attention_backend"] == "not_implemented", report
+    assert report["matmul_backend"] == "cublaslt", report
+    assert report["loss_finite"] is True, report
+    assert report["weight_changed"] is True, report
     assert report["target_seconds"] == 60, report
     artifact = root / "train" / "exports" / "decoder-smoke"
     manifest = json.loads((artifact / "manifest.json").read_text())

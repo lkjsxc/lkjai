@@ -133,6 +133,10 @@ add_test(
   COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/decoder_train_contract.py $<TARGET_FILE:lkjai-native-train> $<TARGET_FILE:lkjai-native-logits-check> $<TARGET_FILE:lkjai-native-inspect> $<TARGET_FILE:lkjai-native-server>
 )
 add_test(
+  NAME native_decoder_acceptance_gate
+  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/decoder_acceptance_gate.py
+)
+add_test(
   NAME native_benchmark_report_parser
   COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/benchmark_report_parser.py
 )

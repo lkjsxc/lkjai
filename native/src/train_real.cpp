@@ -182,7 +182,7 @@ int run_corpus_training(int argc, char** argv) {
     std::cout << transformer_train_report_json(transformer_report, cuda, "train",
                                                "success", "")
               << "\n";
-    return transformer_report.non_embedding_weight_changed ? 0 : 3;
+    return transformer_report.trainable_weight_changed ? 0 : 3;
   }
   if (!run_dense_training(opt, &report, &error)) {
     std::cerr << "native dense CUDA training failed: " << error << "\n";

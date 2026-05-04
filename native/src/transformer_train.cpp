@@ -26,6 +26,9 @@ double seconds_since(std::chrono::steady_clock::time_point start) {
 bool run_transformer_training(const TransformerTrainOptions& opt,
                               TransformerTrainReport* report,
                               std::string* error) {
+  if (opt.model_kind == "decoder") {
+    return run_decoder_cuda_slice_training(opt, report, error);
+  }
   TransformerConfig cfg;
   if (!load_transformer_config(opt.config_path, &cfg, error)) return false;
   auto cuda = cuda_status();
@@ -153,6 +156,7 @@ bool run_transformer_training(const TransformerTrainOptions& opt,
   if (!report->deadline_hit) report->stop_reason = "max_steps";
   report->non_embedding_weight_changed =
       std::fabs(state.layers.front().q_proj.w.front() - before) > 0.0f;
+  report->trainable_weight_changed = report->non_embedding_weight_changed;
   auto export_dir = opt.out_dir / "exports" / opt.model_name;
   auto served_dir = opt.out_dir.parent_path() / "models" / opt.model_name;
   auto phase = std::chrono::steady_clock::now();

@@ -1,9 +1,7 @@
 #include "train_report.hpp"
-
 #include <filesystem>
 #include <fstream>
 #include <sstream>
-
 #include "artifact.hpp"
 #include "capability_json.hpp"
 #include "json_min.hpp"
@@ -16,10 +14,8 @@
 #ifndef LKJAI_CUDA_ARCH_FLAGS
 #define LKJAI_CUDA_ARCH_FLAGS "unknown"
 #endif
-
 namespace lkjai {
 namespace {
-
 std::string file_digest(const std::filesystem::path& path) {
   std::ifstream in(path, std::ios::binary);
   uint64_t hash = 1469598103934665603ull;
@@ -31,7 +27,6 @@ std::string file_digest(const std::filesystem::path& path) {
   out << std::hex << hash;
   return out.str();
 }
-
 std::string packed_cache_digest(const std::filesystem::path& dir) {
   uint64_t hash = 1469598103934665603ull;
   for (const auto& name :
@@ -52,38 +47,38 @@ std::string packed_cache_digest(const std::filesystem::path& dir) {
   out << std::hex << hash;
   return out.str();
 }
-
 std::string manifest_checksum(const std::filesystem::path& dir) {
   auto manifest = read_text(dir / "manifest.json");
   auto checksum = json_first_string(manifest, "weights_checksum");
   return checksum.empty() ? file_digest(dir / "weights.lkjw") : checksum;
 }
-
 void append_transformer(std::ostringstream* out,
                         const TransformerTrainReport& report,
                         const CudaStatus& cuda,
-                        const std::string& trainer_mode,
-                        const std::string& status,
+                        const std::string& trainer_mode, const std::string& status,
                         const std::string& failure_reason) {
-  auto kind = report.model_kind.empty() ? std::string("transformer")
-                                        : report.model_kind;
-  double tokens_per_second =
-      report.elapsed_seconds > 0.0
-          ? static_cast<double>(report.input_tokens) / report.elapsed_seconds
-          : 0.0;
+  auto kind = report.model_kind.empty() ? std::string("transformer") : report.model_kind;
+  auto impl = report.implementation_status.empty()
+                  ? std::string("experimental")
+                  : report.implementation_status;
+  auto decoder_status = report.decoder_status.empty() ? std::string(
+      kind == "decoder" ? "experimental" : "not_applicable") : report.decoder_status;
+  double tokens_per_second = report.elapsed_seconds > 0.0
+      ? static_cast<double>(report.input_tokens) / report.elapsed_seconds : 0.0;
   *out << "{\"schema_version\":3"
        << ",\"trainer_mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"run_purpose\":\"" << json_escape(report.run_purpose) << "\""
        << ",\"model_kind\":\"" << json_escape(kind) << "\""
        << ",\"accepted_cuda_training\":false"
-       << ",\"implementation_status\":\"experimental\""
-       << ",\"transformer_status\":\"experimental\""
-       << ",\"decoder_status\":\""
-       << (kind == "decoder" ? "experimental" : "not_applicable") << "\""
-       << ",\"forward_backend\":\"host_reference\""
-       << ",\"backward_backend\":\"host_surrogate\""
-       << ",\"optimizer_backend\":\"host_adamw_fp32\""
+       << ",\"implementation_status\":\"" << json_escape(impl) << "\""
+       << ",\"transformer_status\":\""
+       << json_escape(report.transformer_status) << "\""
+       << ",\"decoder_status\":\"" << json_escape(decoder_status) << "\""
+       << ",\"forward_backend\":\"" << json_escape(report.forward_backend)
+       << "\",\"backward_backend\":\"" << json_escape(report.backward_backend)
+       << "\",\"optimizer_backend\":\""
+       << json_escape(report.optimizer_backend) << "\""
        << ",\"cuda_probe_passed\":"
        << (cuda_required_ok(cuda) ? "true" : "false")
        << ",\"status\":\"" << json_escape(status) << "\""
@@ -93,17 +88,31 @@ void append_transformer(std::ostringstream* out,
                ? "\"bounded_compatibility_start_check\","
                : "")
        << "\"experimental_not_accepted_cuda_training\","
-          "\"host_reference_forward\","
-          "\"host_surrogate_backward\","
-          "\"autoregressive_decode_unsupported\"]"
+       << (report.decoder_cuda_path ? "\"partial_cuda_decoder_slice\","
+                                    : "\"host_reference_forward\",")
+       << (report.decoder_cuda_path ? "\"decoder_blocks_static_reference\","
+                                    : "\"host_surrogate_backward\",")
+       << "\"autoregressive_decode_unsupported\"]"
        << ",\"precision_mode\":\"fp32-master-bf16-shadow-bf16-export\""
        << ",\"master_dtype\":\"f32\",\"shadow_dtype\":\"bf16\""
        << ",\"accumulation_dtype\":\"f32\",\"export_dtype\":\"bf16\""
        << ",\"dense_cuda_path\":false,\"transformer_cuda_path\":false"
-       << ",\"decoder_cuda_path\":false,\"decode_supported\":false"
-       << ",\"attention_backend\":\"host_reference\""
-       << ",\"matmul_backend\":\"host_reference\""
-       << ",\"kv_cache_backend\":\"none\""
+       << ",\"decoder_cuda_path\":"
+       << (report.decoder_cuda_path ? "true" : "false")
+       << ",\"decode_supported\":false"
+       << ",\"decoder_cuda_slice\":\""
+       << json_escape(report.decoder_cuda_slice) << "\""
+       << ",\"decoder_block_backend\":\""
+       << json_escape(report.decoder_block_backend) << "\""
+       << ",\"attention_backend\":\""
+       << json_escape(report.attention_backend) << "\""
+       << ",\"matmul_backend\":\"" << json_escape(report.matmul_backend)
+       << "\",\"kv_cache_backend\":\"" << json_escape(report.kv_cache_backend)
+       << "\",\"cublaslt_workspace_bytes\":"
+       << static_cast<unsigned long long>(report.cublaslt_workspace_bytes)
+       << ",\"workspace_high_water_bytes\":"
+       << static_cast<unsigned long long>(report.workspace_high_water_bytes)
+       << ",\"workspace_reallocations\":" << report.workspace_reallocations
        << ",\"transformer_cuda_probe\":true"
        << ",\"cuda_available\":" << (cuda.available ? "true" : "false")
        << ",\"cuda_device_name\":\"" << json_escape(cuda.device) << "\""
@@ -147,6 +156,8 @@ void append_transformer(std::ostringstream* out,
        << ",\"initial_loss\":" << report.initial_loss
        << ",\"loss\":" << report.loss << ",\"loss_finite\":true"
        << ",\"weight_changed\":"
+       << (report.trainable_weight_changed ? "true" : "false")
+       << ",\"non_embedding_weight_changed\":"
        << (report.non_embedding_weight_changed ? "true" : "false")
        << ",\"elapsed_ms\":" << report.elapsed_seconds * 1000.0
        << ",\"elapsed_seconds\":" << report.elapsed_seconds
@@ -174,18 +185,13 @@ void append_transformer(std::ostringstream* out,
        << ",\"export\":" << report.export_seconds << "}"
        << ",\"capability\":{" << capability_json_fields(cuda) << "}";
 }
-
 }  // namespace
-
 std::string transformer_train_report_json(const TransformerTrainReport& report,
                                           const CudaStatus& cuda,
-                                          const std::string& trainer_mode,
-                                          const std::string& status,
+                                          const std::string& trainer_mode, const std::string& status,
                                           const std::string& failure_reason) {
   std::ostringstream out;
   append_transformer(&out, report, cuda, trainer_mode, status, failure_reason);
-  out << "}";
-  return out.str();
+  out << "}"; return out.str();
 }
-
 }  // namespace lkjai

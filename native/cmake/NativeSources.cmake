@@ -13,6 +13,8 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/artifact_validate.cpp
   src/capability_json.cpp
   src/decoder_decode.cpp
+  src/decoder_cuda_slice.cpp
+  src/decoder_cuda_slice_util.cpp
   src/dense_checkpoint.cpp
   src/dense_cuda.cu
   src/dense_cuda_common.cpp
