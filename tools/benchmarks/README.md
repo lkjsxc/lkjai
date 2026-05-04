@@ -50,6 +50,8 @@ metrics.
   dense real packed-cache training runner.
 - [run_dense_learning_control.py](run_dense_learning_control.py): synthetic
   dense learning-control proof runner.
+- [run_decoder_2h.py](run_decoder_2h.py): wall-clock-bounded decoder
+  benchmark runner for the same-model chat path.
 - [run_support.py](run_support.py): shared Docker and metrics helpers.
 
 ## Rules
