@@ -31,6 +31,7 @@ struct TransformerTrainOptions {
   std::filesystem::path out_dir;
   std::filesystem::path resume_dir;
   std::filesystem::path export_artifact;
+  std::filesystem::path tokenizer_path;
   std::string model_name = "lkjai-scratch-40m";
   std::string model_kind = "transformer";
   std::string run_purpose;
@@ -102,6 +103,7 @@ struct TransformerTrainReport {
   std::string kv_cache_backend = "none";
   std::string decoder_cuda_slice = "none";
   std::string decoder_block_backend = "host_reference";
+  bool decode_supported = false;
   uint64_t cublaslt_workspace_bytes = 0;
   uint64_t workspace_high_water_bytes = 0;
   int workspace_reallocations = 0;

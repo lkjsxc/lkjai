@@ -101,7 +101,8 @@ RMSNorm, and LM head. The config records `vocab_size`, `context`, `layers`,
 `hidden_size`, `heads`, `kv_heads`, `head_dim`, `ffn_size`, `activation`,
 `rope_theta`, `rms_norm_eps`, `tie_embeddings`, and `seed`.
 
-Transformer chat decode remains unsupported until the decode milestone lands.
+Transformer chat decode remains unsupported. Decoder artifacts own chat-capable
+serving.
 
 ## Compatibility
 

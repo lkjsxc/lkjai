@@ -45,7 +45,7 @@ that path.
 
 ## Decode Contract
 
-Until milestone 7 lands, native server `/v1/chat/completions` must return HTTP
-`422` with an unsupported-decode error and no `choices` field for both dense and
-transformer artifacts. Successful `choices[0].message.content` responses are a
-future decode milestone, not a current serving capability.
+Native server `/v1/chat/completions` must return HTTP `422` with an
+unsupported-decode error and no `choices` field for dense and transformer
+artifacts. Successful `choices[0].message.content` responses belong to decoder
+artifacts only.

@@ -12,6 +12,7 @@ artifacts:
 - `choices[0].message.role=assistant`
 - `choices[0].message.content`
 - `choices[0].finish_reason`
+- `choices[0].lkjai_stop_reason`
 - `usage.prompt_tokens`
 - `usage.completion_tokens`
 - `usage.total_tokens`
@@ -21,21 +22,40 @@ decode with no `choices`.
 
 ## Prompt And Tokenizer
 
-The server loads artifact `tokenizer.json`, serializes OpenAI-style chat
-messages into the documented XML-like prompt format, encodes prompt tokens, and
-decodes generated tokens back to assistant text.
+The server loads artifact `tokenizer.json`, parses ordered OpenAI-style
+`messages[]`, serializes them into the documented XML-like prompt format,
+encodes prompt tokens, and decodes generated tokens back to assistant text.
 
-The experimental P0 decode path may use a deterministic native byte-to-token
-bridge until the full tokenizer bridge lands. Accepted decoder decode requires
-the artifact tokenizer path above.
+The native tokenizer bridge implements the repo byte-level BPE subset needed by
+the local tokenizer: added atomic tags, byte-level prompt text, BPE merges, and
+special-token skipping on decode. Prompt serialization preserves raw message
+content for training compatibility, uses paired XML-like tags, and ends with
+`<assistant_action>\n`.
+
+Serialization order is deterministic:
+
+```text
+<dialogue>
+<message>
+<role>ROLE</role>
+<tool_name>NAME</tool_name>
+<content>CONTENT</content>
+</message>
+</dialogue>
+<assistant_action>
+```
+
+`<tool_name>` is emitted only when a tool name is present. Roles must be one of
+`system`, `user`, `assistant`, or `tool`; malformed decoder chat requests return
+HTTP `400` with no `choices`.
 
 ## Decode Loop
 
 - Prefill consumes the prompt up to the configured context.
 - Incremental decode appends one token at a time.
-- The first implementation uses a native-owned contiguous KV cache.
+- Accepted decode uses a native-owned contiguous BF16 KV cache.
 - Paged KV cache is a later batching optimization.
-- Steady-state decode must not allocate device memory per token.
+- Steady-state accepted decode must not allocate device memory per token.
 
 ## Sampling
 
@@ -48,5 +68,15 @@ Supported request controls:
 - `seed`
 
 Stop when the model emits `<eos>`, `</action>`, or the `max_tokens` cap.
-Invalid or unsupported sampler values return JSON errors instead of silently
-falling back.
+`finish_reason` is `stop` for `<eos>` or `</action>` and `length` for the token
+cap. The additive `lkjai_stop_reason` is `eos`, `end_action`, or `max_tokens`.
+
+Sampler validation rejects invalid values instead of clamping:
+
+- `max_tokens` must be in `[1,512]`.
+- `temperature` must be finite and non-negative.
+- `top_k` must be in `[0,vocab_size]`.
+- `top_p` must be in `(0,1]`.
+- `seed` must be non-negative.
+
+`temperature=0` uses deterministic argmax.

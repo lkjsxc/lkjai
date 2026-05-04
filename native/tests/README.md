@@ -22,6 +22,10 @@ This directory contains test helpers for native CTest cases.
 - [packed_cache_reader_check.cpp](packed_cache_reader_check.cpp): checks the
   persistent packed-cache reader, wraparound, mismatch, corrupt starts, and
   truncated file rejection.
+- [decoder_tokenizer_contract.cpp](decoder_tokenizer_contract.cpp): checks
+  atomic XML-like tags, ordered prompt serialization, and tokenizer round trip.
+- [decoder_cuda_norm_check.cpp](decoder_cuda_norm_check.cpp): checks BF16
+  CUDA RMSNorm parity against a CPU reference.
 - [dense_infer_contract.py](dense_infer_contract.py): checks dense BF16 export
   logits inference JSON and invalid artifact/token rejection.
 - [packed_cache_migration_contract.py](packed_cache_migration_contract.py):
@@ -29,7 +33,7 @@ This directory contains test helpers for native CTest cases.
 - [transformer_train_contract.py](transformer_train_contract.py): checks the
   experimental transformer training contract and report status.
 - [decoder_train_contract.py](decoder_train_contract.py): checks decoder
-  train/export/logits and server chat `choices` contract.
+  train/export/logits, artifact inspection, and server chat `choices` contract.
 - [decoder_acceptance_gate.py](decoder_acceptance_gate.py): checks that P0 and
   partial CUDA decoder reports cannot pass full acceptance.
 - [benchmark_report_parser.py](benchmark_report_parser.py): checks benchmark

@@ -11,8 +11,8 @@ API contracts.
 - You need runtime expectations for a real model-backed assistant.
 
 Current native dense artifacts load and expose readiness/logits validation, but
-they do not yet support autoregressive chat decode. Product chat is blocked on
-the native decode milestone.
+they do not support autoregressive chat decode. Decoder artifacts are the
+chat-capable product target when exported with the real local tokenizer.
 
 ## Child Index
 

@@ -62,7 +62,8 @@ bool write_transformer_artifact(const std::filesystem::path& dir,
                                 const TransformerState& state, int step,
                                 int microsteps, int batch_size, int seq_len,
                                 int grad_accum, double loss, bool checkpoint,
-                                std::string* checksum);
+                                std::string* checksum,
+                                const std::filesystem::path& tokenizer_path = {});
 bool load_transformer_artifact(const std::filesystem::path& dir,
                                TransformerState* state, std::string* error);
 bool load_transformer_checkpoint(const std::filesystem::path& dir,

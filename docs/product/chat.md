@@ -31,8 +31,8 @@
   an accepted default.
 - Current native dense and transformer artifacts do not produce chat responses.
   They return HTTP `422` unsupported decode with no `choices` field.
-- Native decoder artifacts are the accepted same-model path for successful chat
-  `choices` responses.
+- Native decoder artifacts are the same-model product target for successful
+  chat `choices` responses.
 
 ## Default Safety Boundary
 

@@ -15,6 +15,12 @@ First CUDA progress after P0:
 - `01dac62`: adds partial CUDA BF16 decoder smoke training.
 - `a806c88`: gates full two-hour decoder acceptance on a full accepted CUDA
   decoder report.
+- Current change: decoder exports copy and checksum the real byte-level BPE
+  tokenizer, native serving serializes XML-like chat prompts, and decoder chat
+  decode uses tokenizer ids plus sampler controls.
+- Current hardening: ordered `messages[]` parsing, strict sampler validation,
+  tokenizer checksum and atomic-tag inspection, decoder acceptance-gate
+  hardening, and standalone BF16 RMSNorm CUDA parity.
 
 ## What Is CUDA-Backed
 
@@ -28,6 +34,10 @@ existing dense CUDA substrate:
 - CUDA kernels for BF16/FP32 casts, CE loss/gradient, scatter-add embedding
   gradients, and AdamW updates.
 - Reusable CUDA workspace and report fields for workspace usage.
+
+The RMSNorm CUDA slice is standalone: BF16 input/output, FP32 weight, FP32
+sum-of-squares reduction, and one row per CUDA block. It has parity coverage
+against a CPU reference but is not wired into decoder block training.
 
 The exported artifact remains `manifest.json.kind=decoder`, so inspect,
 logits-check, and native server P0 chat contracts continue to operate on the
@@ -47,9 +57,9 @@ must say:
 - `attention_backend=not_implemented`
 
 Before acceptance, the repo still needs CUDA decoder block forward/backward,
-RMSNorm, RoPE, attention or GQA, SwiGLU MLP, full optimizer coverage for block
-tensors, KV-cache-backed decode, tokenizer-owned prompt handling, and a real
-two-hour RTX acceptance run.
+RMSNorm integration and backward coverage, RoPE, attention or GQA, SwiGLU MLP,
+full optimizer coverage for block tensors, contiguous BF16 KV-cache decode, no
+per-token device allocations, and a real two-hour RTX acceptance run.
 
 ## Hardware Implications
 
@@ -64,11 +74,17 @@ Blackwell decoder performance.
 
 ## Verification
 
-Verified command:
+Verification commands for this change set:
 
 ```bash
+cmake -S native -B /tmp/lkjai-native-build -G Ninja
+cmake --build /tmp/lkjai-native-build --parallel
+ctest --test-dir /tmp/lkjai-native-build --output-on-failure
 docker compose --progress quiet --profile verify run --rm verify
 ```
 
-Result on this change set: pass. The actual two-hour acceptance job was not
-run, because a full accepted CUDA decoder backend does not exist yet.
+Actual result on this change set: the local shell did not have `cmake` or
+`ninja`, so direct host configure/build commands were not runnable. Docker
+verify ran native configure, native build, and CTest inside the verify image and
+passed. The two-hour acceptance job is still not applicable because a full
+accepted CUDA decoder backend does not exist yet.

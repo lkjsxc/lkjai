@@ -35,6 +35,7 @@ def main() -> None:
             "matmul_backend": "cublaslt",
             "attention_backend": "not_implemented",
             "decoder_block_backend": "static_reference",
+            "decode_supported": True,
         }
     )
     assert not is_accepted_cuda_decoder(partial)

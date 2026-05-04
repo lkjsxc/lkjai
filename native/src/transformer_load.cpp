@@ -93,7 +93,13 @@ bool load_transformer_artifact(const std::filesystem::path& dir,
   init_transformer_state(cfg, state);
   auto index = read_text(dir / "weights.index.json");
   bool ok = true;
-  params(state, [&](Parameter* p) { ok = ok && read_param(dir, index, p); });
+  params(state, [&](Parameter* p) {
+    if (cfg.kind == "decoder" && p->name == "pos_embeddings" &&
+        index.find("\"name\":\"pos_embeddings\"") == std::string::npos) {
+      return;
+    }
+    ok = ok && read_param(dir, index, p);
+  });
   if (!ok) *error = "failed to load transformer artifact tensors";
   return ok;
 }
@@ -130,6 +136,10 @@ bool load_transformer_checkpoint(const std::filesystem::path& dir,
   auto index = read_text(dir / "optimizer.index.json");
   bool ok = true;
   params(state, [&](Parameter* p) {
+    if (checkpoint_cfg.kind == "decoder" && p->name == "pos_embeddings" &&
+        index.find("\"name\":\"master.pos_embeddings\"") == std::string::npos) {
+      return;
+    }
     ok = ok && read_f32_tensor(dir, index, "master." + p->name, &p->w);
     ok = ok && read_f32_tensor(dir, index, "adam_m." + p->name, &p->m);
     ok = ok && read_f32_tensor(dir, index, "adam_v." + p->name, &p->v);

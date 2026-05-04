@@ -31,10 +31,13 @@ bool validate_manifest(std::string_view text, std::string_view config,
     return false;
   }
   if (!contains_json_string(text, "config_checksum",
-                            artifact_text_checksum(config)) ||
-      !contains_json_string(text, "tokenizer_checksum",
+                            artifact_text_checksum(config))) {
+    *error = "manifest config_checksum mismatch";
+    return false;
+  }
+  if (!contains_json_string(text, "tokenizer_checksum",
                             artifact_text_checksum(tokenizer))) {
-    *error = "manifest checksum mismatch";
+    *error = "manifest tokenizer_checksum mismatch";
     return false;
   }
   return true;

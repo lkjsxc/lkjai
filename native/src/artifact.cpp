@@ -9,6 +9,7 @@
 #include "artifact_manifest.hpp"
 #include "artifact_validate.hpp"
 #include "json_min.hpp"
+#include "native_tokenizer.hpp"
 
 namespace lkjai {
 namespace {
@@ -124,6 +125,14 @@ bool inspect_artifact(const std::filesystem::path& model_dir,
       artifact_kind == "checkpoint" &&
       !validate_transformer_optimizer(model_dir, config_text, error)) {
     return false;
+  }
+  if (kind == "decoder") {
+    NativeTokenizer parsed;
+    if (!load_native_tokenizer(tokenizer, &parsed, error)) return false;
+    if (!validate_decoder_tokenizer(
+            parsed, json_int_value(config_text, "vocab_size", 0), error)) {
+      return false;
+    }
   }
   auto index_text = read_text(index);
   auto weight_bytes = std::filesystem::file_size(weights);

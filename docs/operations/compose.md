@@ -16,8 +16,9 @@
 - Web waits for inference process health before serving traffic.
 - Model readiness is reported separately through `/api/model` and
   `GET /v1/models`.
-- Inference loads exported dense artifacts; chat decode currently returns HTTP
-  `422` unsupported with no `choices` field.
+- Inference loads exported native artifacts. Dense and transformer artifacts
+  return HTTP `422` unsupported with no `choices`; decoder artifacts can return
+  choices when exported with the real local tokenizer.
 - Inference must not use exact supervised lookup, prompt matching, or canned
   response tables.
 - Training writes datasets, tokenizer, checkpoints, exports, and logs under

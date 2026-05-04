@@ -5,15 +5,17 @@
 - Training uses CUDA when the native trainer detects a usable device.
 - Training stack uses local C++/CUDA scratch-model code.
 - Training containers target CUDA `12.8` and cuDNN `9`.
-- The current accepted trainer is dense BF16 CUDA. It requires BF16-capable
-  CUDA and reports failure clearly when that capability is unavailable.
+- The current accepted trainer is dense BF16 CUDA. It is the foundation and
+  benchmark substrate, not the final product mode.
+- `decoder` is the product training target. It remains partial until reports
+  prove `decoder_cuda_slice=full_decoder`, CUDA attention/backward, contiguous
+  BF16 KV-cache decode, and the decoder benchmark gate.
 - Dense training uses FP32 master weights and Adam state, BF16 CUDA shadow
   tensors for forward/backward, FP32 accumulation, and BF16 export.
 - Accepted reports must say `accepted_cuda_training=true`,
   `implementation_status=accepted`, and `dense_cuda_path=true`.
-- Transformer mode must say `accepted_cuda_training=false` and
-  `implementation_status=experimental` until device-resident forward/backward
-  kernels exist.
+- `transformer` is retained as reference-only plumbing and must say
+  `accepted_cuda_training=false`.
 - Batch size 2 with gradient accumulation 4 is the default 40M config.
 - `grad_accum` is implemented as multiple dense CUDA microsteps before one
   AdamW optimizer step.

@@ -41,10 +41,10 @@ Inference API endpoint:
 - `curl --fail http://127.0.0.1:8081/v1/models`
 
 The inference implementation loads exported scratch artifacts and exposes
-readiness plus logits-oriented native checks. Current dense artifacts do not
-support autoregressive chat decode: `POST /v1/chat/completions` returns HTTP
-`422` with an unsupported-decode error and no `choices` field until the decode
-milestone lands.
+readiness plus logits-oriented native checks. Dense and transformer artifacts
+return HTTP `422` with no `choices` for `/v1/chat/completions`. Decoder
+artifacts can return chat choices only when the artifact includes the real local
+byte-level BPE `tokenizer.json`.
 
 ## Run Inference Alone
 
@@ -84,8 +84,8 @@ Expected training artifacts:
 - `data/train/runs/train-report.json`: native train report.
 - `data/train/exports/lkjai-scratch-40m/`: serving artifact export.
 
-Behavioral chat evaluation remains blocked until native autoregressive decode
-exists.
+Behavioral chat evaluation is meaningful only for decoder artifacts. Dense
+exports remain training and diagnostics artifacts.
 
 ## Inspect Runtime Outputs
 

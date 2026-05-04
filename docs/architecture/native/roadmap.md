@@ -40,6 +40,8 @@ The repository currently has:
 - native artifact export and logits inspection,
 - a CUDA BF16/library capability smoke,
 - a dtype-aware CUDA tensor substrate with BF16 round-trip coverage,
+- decoder artifacts that copy and checksum the real byte-level BPE tokenizer,
+- native decoder prompt serialization, tokenization, sampling, and stop checks,
 - an experimental transformer reference path that reports
   `accepted_cuda_training=false`.
 
@@ -49,8 +51,9 @@ That slice is useful for contracts, but it is not the final trainer.
 
 The next implementation target is accepted `decoder` CUDA training:
 device-resident cuBLASLt projections, fused pointwise kernels, cuDNN SDPA,
-decoder backward, native wall-clock stop, and then decode. NCCL stays after single-GPU correctness
-and profiling.
+decoder backward, contiguous BF16 KV-cache decode, accepted report fields, and
+two-hour RTX 3070 evidence. NCCL stays after single-GPU correctness and
+profiling.
 
 See [decoder/README.md](decoder/README.md) for the same-model chat path. See
 [transformer-cuda-roadmap.md](transformer-cuda-roadmap.md) for the retained

@@ -12,7 +12,9 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/artifact_manifest.cpp
   src/artifact_validate.cpp
   src/capability_json.cpp
+  src/decoder_chat_request.cpp
   src/decoder_decode.cpp
+  src/decoder_cuda_norm.cu
   src/decoder_cuda_slice.cpp
   src/decoder_cuda_slice_util.cpp
   src/dense_checkpoint.cpp
@@ -35,6 +37,11 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/dense_weight_change.cpp
   src/env.cpp
   src/json_min.cpp
+  src/native_chat_prompt.cpp
+  src/native_chat_prompt_serialize.cpp
+  src/native_tokenizer.cpp
+  src/native_tokenizer_codec.cpp
+  src/native_tokenizer_json.cpp
   src/packed_cache.cpp
   src/packed_cache_reader.cpp
   src/packed_cache_validate.cpp

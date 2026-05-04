@@ -41,9 +41,6 @@ HttpResponse chat_json(const HttpRequest& request,
   if (!requested_model.empty() && requested_model != artifact.model_name) {
     return {404, error_json("requested model is not loaded")};
   }
-  if (lkjai::json_string_values(request.body, "content").empty()) {
-    return {400, error_json("chat request must include message content")};
-  }
   auto manifest = lkjai::read_text(artifact.model_dir / "manifest.json");
   if (lkjai::contains_json_string(manifest, "kind", "transformer")) {
     return {422, error_json("native transformer autoregressive decode is unsupported")};
@@ -51,9 +48,10 @@ HttpResponse chat_json(const HttpRequest& request,
   if (lkjai::contains_json_string(manifest, "kind", "decoder")) {
     std::string json;
     std::string error;
+    int status = 500;
     if (!lkjai::decoder_chat_json(artifact.model_dir, artifact.model_name,
-                                  request.body, &json, &error)) {
-      return {500, error_json(error)};
+                                  request.body, &json, &status, &error)) {
+      return {status, error_json(error)};
     }
     return {200, json};
   }

@@ -20,9 +20,9 @@ honestly.
 ## Request And Response
 
 - Request fields: `model`, `messages`, `max_tokens`, `temperature`.
-- The Rust client consumes `choices[0].message.content` after decode lands.
-- Current dense artifacts return unsupported decode, so product chat quality
-  gates are blocked until the decode milestone.
+- The Rust client consumes `choices[0].message.content` from decoder artifacts.
+- Dense and transformer artifacts return unsupported decode, so product chat
+  quality gates require decoder exports with the real tokenizer.
 - Every accepted future model step must return one XML action.
 - The runtime system prompt is tracked in `prompts/codex-40m-system.txt` and
   loaded by `apps/runtime/src/agent/prompt.rs`.

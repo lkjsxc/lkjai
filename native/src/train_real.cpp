@@ -11,39 +11,26 @@
 namespace lkjai {
 namespace {
 bool flag(int argc, char** argv, const std::string& name) {
-  for (int i = 1; i < argc; ++i) {
-    if (argv[i] == name) return true;
-  }
+  for (int i = 1; i < argc; ++i) if (argv[i] == name) return true;
   return false;
 }
 std::string value(int argc, char** argv, const std::string& name,
                   const std::string& fallback) {
-  for (int i = 1; i + 1 < argc; ++i) {
-    if (argv[i] == name) return argv[i + 1];
-  }
+  for (int i = 1; i + 1 < argc; ++i) if (argv[i] == name) return argv[i + 1];
   return fallback;
 }
 int int_value(int argc, char** argv, const std::string& name, int fallback) {
-  try {
-    return std::stoi(value(argc, argv, name, std::to_string(fallback)));
-  } catch (...) {
-    return fallback;
-  }
+  try { return std::stoi(value(argc, argv, name, std::to_string(fallback))); }
+  catch (...) { return fallback; }
 }
 float float_value(int argc, char** argv, const std::string& name,
                   float fallback) {
-  try {
-    return std::stof(value(argc, argv, name, std::to_string(fallback)));
-  } catch (...) {
-    return fallback;
-  }
+  try { return std::stof(value(argc, argv, name, std::to_string(fallback))); }
+  catch (...) { return fallback; }
 }
 float env_float(const char* name, float fallback) {
-  try {
-    return std::stof(env_string(name, std::to_string(fallback)));
-  } catch (...) {
-    return fallback;
-  }
+  try { return std::stof(env_string(name, std::to_string(fallback))); }
+  catch (...) { return fallback; }
 }
 
 bool options(int argc, char** argv, DenseTrainOptions* opt,
@@ -77,7 +64,8 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
   opt->max_steps = env_int("TRAIN_MAX_OPTIMIZER_STEPS",
                            env_int("TRAIN_MAX_STEPS", opt->max_steps));
   opt->target_seconds = env_int("TRAIN_TARGET_SECONDS", opt->target_seconds);
-  opt->checkpoint_interval = env_int("TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS", opt->checkpoint_interval);
+  opt->checkpoint_interval = env_int(
+      "TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS", opt->checkpoint_interval);
   opt->loss_sample_interval =
       env_int("TRAIN_LOSS_SAMPLE_INTERVAL", opt->loss_sample_interval);
   opt->batch_size = env_int("TRAIN_BATCH_SIZE", opt->batch_size);
@@ -88,6 +76,8 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
   opt->lr = env_float("TRAIN_LEARNING_RATE", opt->lr);
   auto env_kind = env_string("TRAIN_MODEL_KIND", "");
   if (!env_kind.empty()) opt->model_kind = env_kind;
+  auto env_tokenizer = env_string("TRAIN_TOKENIZER", "");
+  if (!env_tokenizer.empty()) opt->tokenizer_path = env_tokenizer;
   opt->run_purpose = env_string("TRAIN_RUN_PURPOSE", opt->run_purpose);
   auto cli_config = value(argc, argv, "--config", "");
   if (!cli_config.empty()) {
@@ -95,8 +85,10 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
     config_explicit = true;
   }
   opt->model_kind = value(argc, argv, "--mode", opt->model_kind);
-  if (opt->model_kind != "dense" && opt->model_kind != "transformer" &&
-      opt->model_kind != "decoder") {
+  bool known_kind = opt->model_kind == "dense" ||
+                    opt->model_kind == "transformer" ||
+                    opt->model_kind == "decoder";
+  if (!known_kind) {
     *error = "model kind must be dense, transformer, or decoder";
     return false;
   }
@@ -114,8 +106,10 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
   opt->seq_len = int_value(argc, argv, "--seq-len", opt->seq_len);
   opt->grad_accum = int_value(argc, argv, "--grad-accum", opt->grad_accum);
   opt->max_steps = int_value(argc, argv, "--max-steps", opt->max_steps);
-  opt->target_seconds = int_value(argc, argv, "--target-seconds", opt->target_seconds);
-  opt->warmup_steps = int_value(argc, argv, "--warmup-steps", opt->warmup_steps);
+  opt->target_seconds =
+      int_value(argc, argv, "--target-seconds", opt->target_seconds);
+  opt->warmup_steps =
+      int_value(argc, argv, "--warmup-steps", opt->warmup_steps);
   opt->checkpoint_interval =
       int_value(argc, argv, "--checkpoint-interval", opt->checkpoint_interval);
   opt->loss_sample_interval = int_value(
@@ -123,6 +117,8 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
   opt->lr = float_value(argc, argv, "--lr", opt->lr);
   opt->resume_dir = value(argc, argv, "--resume", "");
   opt->export_artifact = value(argc, argv, "--export-artifact", "");
+  opt->tokenizer_path =
+      value(argc, argv, "--tokenizer", opt->tokenizer_path.string());
   opt->run_purpose = value(argc, argv, "--run-purpose", opt->run_purpose);
   if (opt->run_purpose.empty()) opt->run_purpose = "accepted_training";
   return true;
@@ -135,6 +131,7 @@ TransformerTrainOptions transformer_options(const DenseTrainOptions& in) {
   out.out_dir = in.out_dir;
   out.resume_dir = in.resume_dir;
   out.export_artifact = in.export_artifact;
+  out.tokenizer_path = in.tokenizer_path;
   out.model_name = in.model_name;
   out.model_kind = "transformer";
   out.run_purpose = in.run_purpose;

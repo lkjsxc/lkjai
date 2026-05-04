@@ -104,8 +104,8 @@ int main(int argc, char** argv) {
   auto cuda = lkjai::cuda_status();
   if (has_flag(argc, argv, "--help")) {
     std::cout << "usage: lkjai-native-train --smoke [--steps N] | --train "
-                 "[--mode dense|transformer] [--packed-cache DIR] "
-                 "[--config FILE]\n";
+                 "[--mode dense|transformer|decoder] [--packed-cache DIR] "
+                 "[--config FILE] [--tokenizer FILE]\n";
     return 0;
   }
   if (has_flag(argc, argv, "--train")) {

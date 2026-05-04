@@ -61,8 +61,8 @@ for reference plumbing, but it is experimental until it is replaced or retired.
   CUDA-event timing source.
 - Chat and autoregressive decode remain out of scope for dense and transformer
   artifacts. Native server `/v1/chat/completions` returns HTTP `422` with no
-  `choices` for those kinds. Decoder artifacts must return `choices` after the
-  decoder decode milestone lands.
+  `choices` for those kinds. Decoder artifacts with the real local tokenizer
+  may return `choices`, even while full CUDA decoder training remains partial.
 
 ## Current Implementations
 

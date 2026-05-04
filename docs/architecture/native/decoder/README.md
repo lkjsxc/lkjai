@@ -21,7 +21,14 @@ Use this subtree for the chat-capable native `decoder` model kind.
 
 ## Boundary
 
-`decoder` is the target chat-capable path. `dense` remains the accepted BF16
-CUDA foundation until `decoder` has its own evidence. The retained
-`transformer` path is experimental host/reference plumbing and must not be
-promoted as accepted CUDA training.
+| Mode | Status | Boundary |
+|---|---|---|
+| `dense` | Foundation | Accepted CUDA BF16 dense trainer and CUDA benchmark substrate. |
+| `decoder` | Product target | Requires real tokenizer artifacts, decoder-shaped weights, native prompt serialization, and full CUDA decoder evidence before acceptance. |
+| `transformer` | Reference-only | CPU/host parity source while decoder pieces are migrated; not a product training mode. |
+
+The current decoder implementation exports real decoder artifacts with the
+repo byte-level BPE tokenizer and can serve decoder chat choices through the
+native tokenizer bridge. It now has standalone RMSNorm CUDA parity coverage,
+but still reports partial CUDA training because attention, MLP, norm
+integration, RoPE, and full backward kernels are not complete.

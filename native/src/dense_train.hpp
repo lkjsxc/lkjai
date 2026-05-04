@@ -26,6 +26,7 @@ struct DenseTrainOptions {
   std::filesystem::path out_dir;
   std::filesystem::path resume_dir;
   std::filesystem::path export_artifact;
+  std::filesystem::path tokenizer_path;
   std::string model_name = "lkjai-scratch-40m";
   std::string model_kind = "dense";
   std::string run_purpose;

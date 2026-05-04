@@ -104,10 +104,11 @@ bool validate_transformer_weight_index(std::string_view text,
                                        uint64_t weight_bytes,
                                        std::string* error) {
   if (!validate_tensor_ranges(text, weight_bytes, error) ||
-      !require_tensor(text, "tok_embeddings", error) ||
-      !require_tensor(text, "pos_embeddings", error)) {
+      !require_tensor(text, "tok_embeddings", error)) {
     return false;
   }
+  bool decoder = contains_json_string(config, "model_kind", "decoder");
+  if (!decoder && !require_tensor(text, "pos_embeddings", error)) return false;
   int layers = json_int_value(config, "layers", 1);
   for (int layer = 0; layer < layers; ++layer) {
     auto p = "layers." + std::to_string(layer) + ".";
@@ -144,10 +145,11 @@ bool validate_transformer_optimizer(const std::filesystem::path& model_dir,
            require_tensor(text, "adam_m." + name, error) &&
            require_tensor(text, "adam_v." + name, error);
   };
-  if (!require_triplet("tok_embeddings") ||
-      !require_triplet("pos_embeddings")) {
+  bool decoder = contains_json_string(config, "model_kind", "decoder");
+  if (!require_triplet("tok_embeddings")) {
     return false;
   }
+  if (!decoder && !require_triplet("pos_embeddings")) return false;
   int layers = json_int_value(config, "layers", 1);
   for (int layer = 0; layer < layers; ++layer) {
     auto p = "layers." + std::to_string(layer) + ".";

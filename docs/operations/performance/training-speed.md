@@ -19,7 +19,9 @@ marked as a separate preset.
 ## Baseline Facts
 
 - Host target: NVIDIA RTX 3070, SM 8.6, 8 GiB VRAM.
-- Accepted product training is native C++/CUDA dense BF16 only.
+- Accepted CUDA training evidence is native C++/CUDA dense BF16 today.
+- Decoder is the product target, but full decoder CUDA reports and two-hour
+  evidence are still required before it replaces dense in accepted aggregates.
 - Historical PyTorch speed records are background data, not product
   optimization knobs.
 - Current dense reports expose logits, grad-logits, hidden-gradient,
@@ -57,8 +59,8 @@ marked as a separate preset.
 - Default native launch mode: plain launches; CUDA Graph replay is roadmap
   after dense and transformer launch order are stable.
 - BF16 remains preferred when CUDA reports support.
-- Serving decode remains unsupported in the accepted path; training speed
-  remains the first-order objective.
+- Dense serving decode remains unsupported in the accepted dense path; training
+  speed remains the first-order objective until decoder CUDA acceptance.
 
 ## Non-Goals
 

@@ -7,12 +7,35 @@ or PyTorch in the product path.
 
 ## CUDA Ownership
 
+Accepted full decoder CUDA training requires:
+
 - cuBLASLt owns QKV, output, MLP, and LM-head GEMMs.
 - cuDNN SDPA owns BF16 causal/GQA attention when capability checks pass.
 - Custom kernels own RMSNorm/residual fusion, RoPE, SwiGLU glue, CE loss,
   BF16/FP32 casts, AdamW helpers, KV writes, logits filtering, and sampling.
 - FP32 master weights and Adam moments are the optimizer state.
 - BF16 shadows are refreshed after optimizer updates and exported for serving.
+
+The current partial decoder slice only uses the dense CUDA embedding/LM-head
+substrate. It must not be described as accepted full decoder CUDA training.
+
+The next CUDA slice adds a standalone BF16 RMSNorm kernel with FP32
+sum-of-squares reduction, FP32 weights, and one row per CUDA block. It is
+verified by parity tests only. It is not wired into full decoder training and
+does not change decoder acceptance status.
+
+## Public Invocation
+
+```bash
+lkjai-native-train --train --mode decoder \
+  --config configs/native/decoder_18m_bf16_3070.json \
+  --tokenizer data/train/tokenizer/tokenizer.json \
+  --packed-cache data/train/datasets/packed/train-causal_lm_full-seq1024
+```
+
+Environment equivalents are `TRAIN_MODEL_KIND=decoder`,
+`TRAIN_NATIVE_CONFIG`, `TRAIN_TOKENIZER`, `TRAIN_PACKED_CACHE_DIR`, and
+`TRAIN_TARGET_SECONDS`.
 
 ## Wall-Clock Stop
 
@@ -62,9 +85,14 @@ decoder config/artifact/logits/server `choices` contracts only.
 Commit `01dac62` adds the first partial CUDA-backed decoder training slice:
 `implementation_status=partial_cuda`, `decoder_cuda_path=true`,
 `decoder_cuda_slice=embedding_lm_head`, `matmul_backend=cublaslt`, and
-`optimizer_backend=cuda_adamw_fp32`. Token embeddings and LM head are trained
-with device-resident BF16 shadows, FP32 masters, FP32 Adam state, and reusable
-CUDA workspaces.
+`optimizer_backend=cuda_adamw_fp32`. It copies and checksums the real
+byte-level BPE tokenizer into decoder artifacts, sets `decode_supported=true`,
+and serves decoder chat through native prompt serialization and tokenization.
+
+Current hardening keeps that status unchanged while tightening the contract:
+ordered `messages[]` parsing, sampler rejection instead of clamping,
+tokenizer checksum and atomic-tag inspection, and standalone RMSNorm CUDA
+parity coverage.
 
 The decoder blocks remain `decoder_block_backend=static_reference`, attention
 remains `attention_backend=not_implemented`, and `accepted_cuda_training=false`.

@@ -129,7 +129,8 @@ bool write_transformer_artifact(const std::filesystem::path& dir,
                                 const TransformerState& state, int step,
                                 int microsteps, int batch_size, int seq_len,
                                 int grad_accum, double loss, bool checkpoint,
-                                std::string* checksum) {
+                                std::string* checksum,
+                                const std::filesystem::path& tokenizer_path) {
   std::filesystem::create_directories(dir);
   std::ofstream weights(dir / "weights.lkjw", std::ios::binary);
   if (!weights) return false;
@@ -146,8 +147,13 @@ bool write_transformer_artifact(const std::filesystem::path& dir,
   *checksum = weight_hash.str();
   text(dir / "weights.index.json", index.str());
   auto config = config_json(state.cfg);
-  auto tokenizer = "{\"format\":\"uint16-packed-cache\",\"vocab_size\":" +
-                   std::to_string(state.cfg.vocab_size) + "}\n";
+  if (state.cfg.kind == "decoder" && tokenizer_path.empty()) return false;
+  auto tokenizer = tokenizer_path.empty()
+                       ? "{\"format\":\"uint16-packed-cache\",\"vocab_size\":" +
+                             std::to_string(state.cfg.vocab_size) + "}\n"
+                       : read_text(tokenizer_path);
+  if (state.cfg.kind == "decoder" && tokenizer.empty()) return false;
+  if (!tokenizer.empty() && tokenizer.back() != '\n') tokenizer.push_back('\n');
   text(dir / "manifest.json",
        manifest_json(state.cfg, checkpoint ? "checkpoint" : "export", config,
                      tokenizer, *checksum));

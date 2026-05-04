@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <vector>
 #include "artifact.hpp"
 #include "capability_json.hpp"
 #include "json_min.hpp"
@@ -65,6 +66,16 @@ void append_transformer(std::ostringstream* out,
       kind == "decoder" ? "experimental" : "not_applicable") : report.decoder_status;
   double tokens_per_second = report.elapsed_seconds > 0.0
       ? static_cast<double>(report.input_tokens) / report.elapsed_seconds : 0.0;
+  std::vector<std::string> limitations;
+  if (report.run_purpose == "bounded_compatibility_start_check")
+    limitations.push_back("bounded_compatibility_start_check");
+  limitations.push_back("experimental_not_accepted_cuda_training");
+  limitations.push_back(report.decoder_cuda_path ? "partial_cuda_decoder_slice"
+                                                 : "host_reference_forward");
+  limitations.push_back(report.decoder_cuda_path ? "decoder_blocks_static_reference"
+                                                 : "host_surrogate_backward");
+  if (!report.decode_supported)
+    limitations.push_back("autoregressive_decode_unsupported");
   *out << "{\"schema_version\":3"
        << ",\"trainer_mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"mode\":\"" << json_escape(trainer_mode) << "\""
@@ -83,23 +94,19 @@ void append_transformer(std::ostringstream* out,
        << (cuda_required_ok(cuda) ? "true" : "false")
        << ",\"status\":\"" << json_escape(status) << "\""
        << ",\"failure_reason\":\"" << json_escape(failure_reason) << "\""
-       << ",\"limitations\":["
-       << (report.run_purpose == "bounded_compatibility_start_check"
-               ? "\"bounded_compatibility_start_check\","
-               : "")
-       << "\"experimental_not_accepted_cuda_training\","
-       << (report.decoder_cuda_path ? "\"partial_cuda_decoder_slice\","
-                                    : "\"host_reference_forward\",")
-       << (report.decoder_cuda_path ? "\"decoder_blocks_static_reference\","
-                                    : "\"host_surrogate_backward\",")
-       << "\"autoregressive_decode_unsupported\"]"
+       << ",\"limitations\":[";
+  for (size_t i = 0; i < limitations.size(); ++i)
+    *out << (i ? "," : "") << "\"" << json_escape(limitations[i]) << "\"";
+  *out
+       << "]"
        << ",\"precision_mode\":\"fp32-master-bf16-shadow-bf16-export\""
        << ",\"master_dtype\":\"f32\",\"shadow_dtype\":\"bf16\""
        << ",\"accumulation_dtype\":\"f32\",\"export_dtype\":\"bf16\""
        << ",\"dense_cuda_path\":false,\"transformer_cuda_path\":false"
        << ",\"decoder_cuda_path\":"
        << (report.decoder_cuda_path ? "true" : "false")
-       << ",\"decode_supported\":false"
+       << ",\"decode_supported\":"
+       << (report.decode_supported ? "true" : "false")
        << ",\"decoder_cuda_slice\":\""
        << json_escape(report.decoder_cuda_slice) << "\""
        << ",\"decoder_block_backend\":\""
@@ -184,14 +191,10 @@ void append_transformer(std::ostringstream* out,
        << ",\"checkpoint\":" << report.checkpoint_export_seconds
        << ",\"export\":" << report.export_seconds << "}"
        << ",\"capability\":{" << capability_json_fields(cuda) << "}";
-}
-}  // namespace
-std::string transformer_train_report_json(const TransformerTrainReport& report,
-                                          const CudaStatus& cuda,
-                                          const std::string& trainer_mode, const std::string& status,
-                                          const std::string& failure_reason) {
-  std::ostringstream out;
-  append_transformer(&out, report, cuda, trainer_mode, status, failure_reason);
-  out << "}"; return out.str();
-}
+} }  // namespace
+std::string transformer_train_report_json(
+    const TransformerTrainReport& report, const CudaStatus& cuda,
+    const std::string& trainer_mode, const std::string& status,
+    const std::string& failure_reason) {
+  std::ostringstream out; append_transformer(&out, report, cuda, trainer_mode, status, failure_reason); out << "}"; return out.str(); }
 }  // namespace lkjai

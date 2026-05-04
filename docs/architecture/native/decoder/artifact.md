@@ -15,10 +15,20 @@ Decoder exports use `lkjai-native-artifact-v2` with `manifest.json.kind` set to
 - `trainer_state.json`
 - `optimizer.index.json` and `optimizer.lkjw` for checkpoints only
 
+`tokenizer.json` must be the local byte-level BPE tokenizer used to build the
+packed cache. Decoder training/export chooses it from explicit `--tokenizer`,
+`TRAIN_TOKENIZER`, training config `tokenizer`, or the repo default
+`data/train/tokenizer/tokenizer.json`; missing or invalid decoder tokenizers
+fail instead of writing a dummy file.
+
+The manifest checksum covers this file and `lkjai-native-inspect` reports a
+tokenizer checksum mismatch separately from config checksum mismatch. Inspect
+also validates the byte-level BPE shape plus required atomic prompt/action tags,
+including `<tool_name>` and `</tool_name>`.
+
 ## Required Weight Tensors
 
 - `tok_embeddings`
-- `pos_embeddings`
 - `layers.N.attn_norm`
 - `layers.N.attn.q_proj`
 - `layers.N.attn.k_proj`
@@ -33,10 +43,9 @@ Decoder exports use `lkjai-native-artifact-v2` with `manifest.json.kind` set to
 
 `N` is zero-based and must match `config.json.layers`.
 
-`pos_embeddings` is retained for the first experimental decoder plumbing slice
-because it reuses the existing transformer-compatible artifact loader. The
-accepted CUDA decoder path replaces learned position tensors with RoPE-owned
-Q/K transforms before promotion.
+Accepted decoder exports use RoPE and do not require learned
+`pos_embeddings`. Older artifacts may still contain `pos_embeddings` while
+reference loader compatibility is being retired.
 
 ## Checkpoints
 
@@ -52,7 +61,8 @@ optimizer step metadata.
 
 ## Serving Load
 
-The native server may return `200` from `/v1/models` only after the decoder
-artifact loads, the tokenizer loads, and all required tensor ranges validate.
-Dense and transformer artifacts may still load for readiness checks, but only
-decoder artifacts can produce chat choices.
+The native server may return `200` from `/v1/models` only after the artifact
+loads, checksums match, and tensor ranges validate. Decoder artifacts also load
+and validate the tokenizer before `/v1/chat/completions` can produce choices.
+Dense and transformer artifacts may still load for diagnostics, but they do
+not produce chat choices.

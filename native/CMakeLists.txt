@@ -97,6 +97,20 @@ target_link_libraries(lkjai-native-packed-cache-reader-check
   PRIVATE lkjai_native_core
 )
 
+add_executable(lkjai-native-decoder-cuda-norm-check
+  tests/decoder_cuda_norm_check.cpp
+)
+target_link_libraries(lkjai-native-decoder-cuda-norm-check
+  PRIVATE lkjai_native_core
+)
+
+add_executable(lkjai-native-decoder-tokenizer-contract
+  tests/decoder_tokenizer_contract.cpp
+)
+target_link_libraries(lkjai-native-decoder-tokenizer-contract
+  PRIVATE lkjai_native_core
+)
+
 enable_testing()
 add_test(NAME native_config_contract COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/config_contract.py ${CMAKE_CURRENT_SOURCE_DIR}/..)
 add_test(NAME native_cuda_arch_contract COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tests/cuda_arch_contract.py ${CMAKE_CURRENT_SOURCE_DIR}/..)
@@ -111,6 +125,17 @@ add_test(NAME native_device_tensor_check COMMAND lkjai-native-device-check)
 add_test(
   NAME native_packed_cache_reader_check
   COMMAND lkjai-native-packed-cache-reader-check
+)
+add_test(
+  NAME native_decoder_cuda_rmsnorm_parity
+  COMMAND lkjai-native-decoder-cuda-norm-check
+)
+add_test(
+  NAME native_decoder_tokenizer_contract
+  COMMAND lkjai-native-decoder-tokenizer-contract
+)
+set_tests_properties(native_decoder_tokenizer_contract PROPERTIES
+  ENVIRONMENT "LKJAI_REPO_ROOT=${CMAKE_CURRENT_SOURCE_DIR}/.."
 )
 add_test(
   NAME native_packed_train_contract

@@ -2,6 +2,14 @@
 
 Use this subtree for the native C++/CUDA train and serve contracts.
 
+## Status Canon
+
+| Mode | Status | Public Role |
+|---|---|---|
+| `dense` | CUDA foundation | Accepted BF16 training substrate and benchmark continuity path. |
+| `decoder` | Product target | Same-model train/export/serve goal; current CUDA slice is partial until full block kernels and acceptance evidence land. |
+| `transformer` | Reference-only | Host/reference parity and migration checks; not a public product mode. |
+
 ## Read This Section When
 
 - You need the product runtime boundary after Python removal.
@@ -23,8 +31,8 @@ Use this subtree for the native C++/CUDA train and serve contracts.
   report fields, and benchmark gate
 - [dense-substrate.md](dense-substrate.md): accepted dense CUDA tuning surface,
   runtime tunables, and acceptance boundaries
-- [dense-decoder.md](dense-decoder.md): current dense CUDA milestone and
-  transformer roadmap
+- [dense-decoder.md](dense-decoder.md): dense foundation relationship to the
+  decoder target
 - [decoder/README.md](decoder/README.md): chat-capable decoder model kind,
   artifact, training, decode, and benchmark contracts
 - [device-tensor.md](device-tensor.md): device tensor ownership and copy rules

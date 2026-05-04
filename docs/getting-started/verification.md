@@ -31,10 +31,10 @@ canonical pass/fail gate.
 9. `cargo run --bin lkjai -- quality no-node`
 
 The native CTest set includes config-contract, CUDA architecture policy,
-capability-field, server unsupported-decode, packed-cache, report-schema, and
-artifact/logits gates. Any missing additive capability field, missing Blackwell
-`120` default arch flag, invalid profile config, accepted transformer report, or
-chat response with `choices` fails the gate.
+capability-field, dense/transformer unsupported-decode, decoder chat,
+packed-cache, report-schema, and artifact/logits gates. Any missing additive
+capability field, missing Blackwell `120` default arch flag, invalid profile
+config, or accepted transformer report fails the gate.
 
 ## Compact Logs
 

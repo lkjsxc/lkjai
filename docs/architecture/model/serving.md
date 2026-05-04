@@ -22,7 +22,8 @@ artifacts prove load and logits, while raw generation belongs to the native
 - Successful decoder responses expose `choices[0].message.content`.
 - Current dense and transformer artifacts return HTTP `422` unsupported decode
   with no `choices` field.
-- Decoder artifacts return `choices` after decoder decode lands.
+- Decoder artifacts with the real local tokenizer may return `choices`; dense
+  and transformer artifacts must not.
 
 ## Runtime Rules
 

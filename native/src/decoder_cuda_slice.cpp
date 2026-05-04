@@ -7,6 +7,7 @@
 #include "decoder_cuda_slice_internal.hpp"
 #include "dense_cuda_internal.hpp"
 #include "json_min.hpp"
+#include "native_tokenizer.hpp"
 #include "packed_cache.hpp"
 #include "runtime_device.hpp"
 #include "transformer_state.hpp"
@@ -24,6 +25,15 @@ float lr_at(const TransformerTrainOptions& opt, int step) {
   return opt.lr * static_cast<float>(step) / static_cast<float>(opt.warmup_steps);
 }
 
+std::filesystem::path default_tokenizer_for_config(
+    const std::filesystem::path& config_path) {
+  auto abs = std::filesystem::absolute(config_path);
+  auto native_dir = abs.parent_path();
+  auto configs_dir = native_dir.parent_path();
+  auto repo = configs_dir.parent_path();
+  return repo / "data" / "train" / "tokenizer" / "tokenizer.json";
+}
+
 }  // namespace
 
 bool run_decoder_cuda_slice_training(const TransformerTrainOptions& opt,
@@ -35,6 +45,7 @@ bool run_decoder_cuda_slice_training(const TransformerTrainOptions& opt,
     *error = "decoder CUDA slice requires model_kind=decoder";
     return false;
   }
+  if (!decoder_validate_layer_shapes(cfg, error)) return false;
   auto status = cuda_status();
   if (!cuda_required_ok(status)) {
     *error = "CUDA BF16/cuBLASLt capability unavailable: " +
@@ -43,6 +54,14 @@ bool run_decoder_cuda_slice_training(const TransformerTrainOptions& opt,
   }
   if (opt.seed >= 0) cfg.seed = opt.seed;
   cfg.kind = "decoder";
+  auto tokenizer_path = opt.tokenizer_path.empty()
+                            ? default_tokenizer_for_config(opt.config_path)
+                            : opt.tokenizer_path;
+  NativeTokenizer tokenizer;
+  if (!load_native_tokenizer(tokenizer_path, &tokenizer, error)) return false;
+  if (!validate_decoder_tokenizer(tokenizer, cfg.vocab_size, error)) return false;
+  auto effective = opt;
+  effective.tokenizer_path = tokenizer_path;
   int seq_len = opt.seq_len > 0 ? opt.seq_len : cfg.context;
   if (opt.batch_size <= 0 || opt.grad_accum <= 0 || opt.max_steps <= 0) {
     *error = "batch_size, grad_accum, and max_steps must be positive";
@@ -128,7 +147,7 @@ bool run_decoder_cuda_slice_training(const TransformerTrainOptions& opt,
       dense_max_abs_diff(before_head, host.head) > 0.0;
   decoder_copy_dense_back(host, &state);
   auto phase = std::chrono::steady_clock::now();
-  if (!decoder_write_all(opt, state, report, seq_len)) {
+  if (!decoder_write_all(effective, state, report, seq_len)) {
     *error = "failed to write decoder CUDA slice artifact";
     return false;
   }
