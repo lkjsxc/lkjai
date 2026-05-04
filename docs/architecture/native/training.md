@@ -3,9 +3,9 @@
 ## Goal
 
 Train native BF16 CUDA models without Python or PyTorch in the product path.
-The current accepted CUDA training path is dense BF16 CUDA only. Transformer
-mode remains available for reference plumbing, but it is experimental until its
-forward and backward kernels are device-resident.
+The current accepted CUDA training path is dense BF16 CUDA only. The next
+accepted target is the `decoder` model kind. Transformer mode remains available
+for reference plumbing, but it is experimental until it is replaced or retired.
 
 ## Owned By Native Code
 
@@ -19,6 +19,8 @@ forward and backward kernels are device-resident.
 - Reusable dense CUDA step buffers and cached cuBLASLt plans for steady shapes.
 - Experimental transformer host/reference training with a CUDA capability
   probe, checkpoints, export, and logits checks.
+- Target decoder CUDA training with BF16 weights, FP32 optimizer state, native
+  deadline stop, export, and decode checks.
 - Stable training reports and benchmark records.
 
 ## Data Flow
@@ -57,9 +59,10 @@ forward and backward kernels are device-resident.
   row layout with masked final-token loss, cuBLASLt plan cache, reusable step
   buffers, dense backward GEMM/scatter status, step-buffer byte counts, and
   CUDA-event timing source.
-- Chat and autoregressive decode remain out of scope. Native server
-  `/v1/chat/completions` continues to return HTTP `422` with no `choices` for
-  dense and transformer artifacts until decode is implemented.
+- Chat and autoregressive decode remain out of scope for dense and transformer
+  artifacts. Native server `/v1/chat/completions` returns HTTP `422` with no
+  `choices` for those kinds. Decoder artifacts must return `choices` after the
+  decoder decode milestone lands.
 
 ## Current Implementations
 
@@ -112,9 +115,9 @@ forward and backward kernels are device-resident.
 `TRAIN_CONFIG` is the training-run config. `TRAIN_NATIVE_CONFIG` or `--config`
 selects the native model-shape config. Model kind precedence is:
 
-1. CLI `--mode dense|transformer`
-2. `TRAIN_MODEL_KIND=dense|transformer`
-3. `TRAIN_CONFIG.model_kind=dense|transformer`
+1. CLI `--mode dense|transformer|decoder`
+2. `TRAIN_MODEL_KIND=dense|transformer|decoder`
+3. `TRAIN_CONFIG.model_kind=dense|transformer|decoder`
 4. default `dense`
 
 Other training values follow the existing order: CLI flags override environment
@@ -122,10 +125,10 @@ variables, environment variables override `TRAIN_CONFIG`, and the JSON config
 overrides native defaults. Invalid model kinds and unsupported model/config
 combinations fail before training starts.
 
-Wall-clock stop, fixed eval, behavioral eval, autoregressive decode, automatic
-tokenizer/corpus preparation, transformer performance kernels, and larger
-transformer shapes remain target operations work, not current native trainer
-behavior.
+Wall-clock stop is target decoder behavior and not yet implemented for the
+current dense trainer. Fixed eval, behavioral eval, automatic tokenizer/corpus
+preparation, transformer performance kernels, and larger transformer shapes
+remain target operations work.
 
 ## Artifact Layout
 
@@ -169,6 +172,9 @@ Dense reports declare `accepted_cuda_training=true`,
 grad-logits, hidden-gradient, and cuBLASLt workspace byte counts as additive
 schema-v3 fields. Dense logits checks compare BF16 exports against FP32
 checkpoint masters when a reference checkpoint is available.
+
+Decoder reports declare `model_kind=decoder` and use additive schema-v3 fields
+from [decoder/training.md](decoder/training.md).
 
 Transformer reports declare `accepted_cuda_training=false`,
 `implementation_status=experimental`, `transformer_status=experimental`,

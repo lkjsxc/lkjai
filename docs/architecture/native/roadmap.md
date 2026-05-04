@@ -2,7 +2,7 @@
 
 ## Goal
 
-Grow the current dense BF16 CUDA foundation into a device-resident transformer
+Grow the current dense BF16 CUDA foundation into a device-resident decoder
 training and serving engine without changing the external Rust/runtime
 contracts.
 
@@ -19,7 +19,7 @@ contracts.
 | 7 | Real backward | projection, attention, norm, MLP, loss, and embedding gradients |
 | 8 | Optimizer | AdamW with FP32 state and BF16 refresh; FP16 scaler fallback |
 | 9 | Resume/export | atomic snapshots, exact restart metadata, stripped serving export |
-| 10 | Decode | autoregressive transformer decode, contiguous KV cache, sampler |
+| 10 | Decode | autoregressive decoder decode, contiguous KV cache, sampler |
 | 11 | Graphing | CUDA Graph buckets after shapes and launch order are stable |
 | 12 | NCCL | single-node data parallel after single-GPU correctness and profiling |
 
@@ -45,12 +45,13 @@ The repository currently has:
 
 That slice is useful for contracts, but it is not the final trainer.
 
-## Transformer CUDA Roadmap
+## Decoder Target
 
-The next implementation target is accepted transformer CUDA training:
+The next implementation target is accepted `decoder` CUDA training:
 device-resident cuBLASLt projections, fused pointwise kernels, cuDNN SDPA,
-transformer backward, and then decode. NCCL stays after single-GPU correctness
+decoder backward, native wall-clock stop, and then decode. NCCL stays after single-GPU correctness
 and profiling.
 
-See [transformer-cuda-roadmap.md](transformer-cuda-roadmap.md) for the detailed
-acceptance order and current unsupported decode contract.
+See [decoder/README.md](decoder/README.md) for the same-model chat path. See
+[transformer-cuda-roadmap.md](transformer-cuda-roadmap.md) for the retained
+experimental transformer path and current unsupported decode contract.

@@ -25,6 +25,8 @@ Use this subtree for the native C++/CUDA train and serve contracts.
   runtime tunables, and acceptance boundaries
 - [dense-decoder.md](dense-decoder.md): current dense CUDA milestone and
   transformer roadmap
+- [decoder/README.md](decoder/README.md): chat-capable decoder model kind,
+  artifact, training, decode, and benchmark contracts
 - [device-tensor.md](device-tensor.md): device tensor ownership and copy rules
 - [failure-policy.md](failure-policy.md): unsupported, degraded, and failure behavior
 - [roadmap.md](roadmap.md): staged native implementation backlog

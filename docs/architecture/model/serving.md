@@ -2,8 +2,9 @@
 
 ## Goal
 
-Load exported scratch artifacts through one native service. Current artifacts
-prove load and logits, while raw generation is still a target decode milestone.
+Load exported scratch artifacts through one native service. Current dense
+artifacts prove load and logits, while raw generation belongs to the native
+`decoder` milestone.
 
 ## Server
 
@@ -18,9 +19,10 @@ prove load and logits, while raw generation is still a target decode milestone.
 - `POST /v1/chat/completions`
 - `GET /v1/models`
 - Request fields: `model`, `messages`, `max_tokens`, `temperature`.
-- Successful decode responses will expose `choices[0].message.content`.
-- Current dense artifacts return HTTP `422` unsupported decode with no
-  `choices` field.
+- Successful decoder responses expose `choices[0].message.content`.
+- Current dense and transformer artifacts return HTTP `422` unsupported decode
+  with no `choices` field.
+- Decoder artifacts return `choices` after decoder decode lands.
 
 ## Runtime Rules
 
