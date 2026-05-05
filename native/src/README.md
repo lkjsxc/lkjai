@@ -31,7 +31,10 @@ artifact inspection, and CUDA capability probing.
   [decoder_cuda_block.hpp](decoder_cuda_block.hpp), and
   [decoder_cuda_block_internal.hpp](decoder_cuda_block_internal.hpp): partial
   decoder block forward substrate probe covering RMSNorm, RoPE, BF16
-  cuBLASLt projections, and SwiGLU glue.
+  cuBLASLt projections, residual adds, down projection, and SwiGLU glue.
+- [decoder_cuda_residual.cu](decoder_cuda_residual.cu) and
+  [decoder_cuda_residual.hpp](decoder_cuda_residual.hpp): BF16 residual-add
+  helper for decoder block probes and later full forward wiring.
 - [decoder_cuda_slice.cpp](decoder_cuda_slice.cpp),
   [decoder_cuda_slice_internal.hpp](decoder_cuda_slice_internal.hpp), and
   [decoder_cuda_slice_util.cpp](decoder_cuda_slice_util.cpp): partial decoder

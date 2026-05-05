@@ -105,7 +105,9 @@ int main() {
   if (!probe.outputs_finite || !probe.rmsnorm_checked ||
       !probe.rope_checked || !probe.qkv_projection_checked ||
       !probe.attention_checked || !probe.o_projection_checked ||
-      !probe.swiglu_checked ||
+      !probe.attention_residual_checked || !probe.mlp_norm_checked ||
+      !probe.swiglu_checked || !probe.down_projection_checked ||
+      !probe.block_residual_checked ||
       probe.shape.q_width != debug.hidden_size ||
       probe.projection_workspace_bytes == 0) {
     std::cerr << "decoder forward substrate probe did not prove all checks\n";

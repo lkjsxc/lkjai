@@ -32,7 +32,11 @@ struct DecoderCudaForwardSubstrateReport {
   bool qkv_projection_checked = false;
   bool attention_checked = false;
   bool o_projection_checked = false;
+  bool attention_residual_checked = false;
+  bool mlp_norm_checked = false;
   bool swiglu_checked = false;
+  bool down_projection_checked = false;
+  bool block_residual_checked = false;
   bool outputs_finite = false;
   uint64_t projection_workspace_bytes = 0;
 };

@@ -8,6 +8,7 @@
 
 #include "decoder_cuda_block_internal.hpp"
 #include "decoder_cuda_norm.hpp"
+#include "decoder_cuda_residual.hpp"
 #include "runtime_device.hpp"
 
 namespace lkjai {
@@ -73,6 +74,7 @@ bool decoder_cuda_forward_substrate_probe(
     DeviceTensor v = bf16_tensor(ctx.stream(), rows, kv_width);
     DeviceTensor attn = bf16_tensor(ctx.stream(), rows, cfg.hidden_size);
     DeviceTensor o = bf16_tensor(ctx.stream(), rows, cfg.hidden_size);
+    DeviceTensor attn_resid = bf16_tensor(ctx.stream(), rows, cfg.hidden_size);
     DeviceTensor wq = bf16_tensor(ctx.stream(), cfg.hidden_size, cfg.hidden_size);
     DeviceTensor wk = bf16_tensor(ctx.stream(), kv_width, cfg.hidden_size);
     DeviceTensor wv = bf16_tensor(ctx.stream(), kv_width, cfg.hidden_size);
@@ -113,28 +115,59 @@ bool decoder_cuda_forward_substrate_probe(
                               wo.data(), o.data(), rows, cfg.hidden_size,
                               cfg.hidden_size, ws, kProjectionWorkspaceBytes);
     local.o_projection_checked = finite_tensor(o, ctx.stream());
+    decoder_launch_residual_add_bf16(x.data(), o.data(), attn_resid.data(),
+                                     rows * cfg.hidden_size, ctx.stream());
+    local.attention_residual_checked = finite_tensor(attn_resid, ctx.stream());
+    DeviceTensor mlp_norm = bf16_tensor(ctx.stream(), rows, cfg.hidden_size);
+    DeviceTensor mlp_w({DeviceDType::f32, {cfg.hidden_size}}, ctx.stream());
+    std::vector<float> mlp_weight(cfg.hidden_size);
+    for (int i = 0; i < cfg.hidden_size; ++i)
+      mlp_weight[i] = 0.7f + static_cast<float>(i % 31) * 0.012f;
+    mlp_w.copy_from_host_f32(mlp_weight, ctx.stream());
+    decoder_launch_rmsnorm_bf16(attn_resid.data(),
+                                static_cast<float*>(mlp_w.data()),
+                                mlp_norm.data(), rows, cfg.hidden_size,
+                                cfg.rms_norm_eps, ctx.stream());
+    local.mlp_norm_checked = finite_tensor(mlp_norm, ctx.stream());
     DeviceTensor gate = bf16_tensor(ctx.stream(), rows, cfg.ffn_size);
     DeviceTensor up = bf16_tensor(ctx.stream(), rows, cfg.ffn_size);
     DeviceTensor swiglu = bf16_tensor(ctx.stream(), rows, cfg.ffn_size);
+    DeviceTensor down = bf16_tensor(ctx.stream(), rows, cfg.hidden_size);
+    DeviceTensor out = bf16_tensor(ctx.stream(), rows, cfg.hidden_size);
     DeviceTensor wg = bf16_tensor(ctx.stream(), cfg.ffn_size, cfg.hidden_size);
     DeviceTensor wu = bf16_tensor(ctx.stream(), cfg.ffn_size, cfg.hidden_size);
+    DeviceTensor wd = bf16_tensor(ctx.stream(), cfg.hidden_size, cfg.ffn_size);
     fill_tensor(&wg, static_cast<size_t>(cfg.ffn_size) * cfg.hidden_size,
                 0.015f, ctx.stream());
     fill_tensor(&wu, static_cast<size_t>(cfg.ffn_size) * cfg.hidden_size,
                 0.017f, ctx.stream());
-    decoder_cuda_project_bf16(ctx.cublaslt(), ctx.stream(), norm.data(),
+    fill_tensor(&wd, static_cast<size_t>(cfg.hidden_size) * cfg.ffn_size,
+                0.013f, ctx.stream());
+    decoder_cuda_project_bf16(ctx.cublaslt(), ctx.stream(), mlp_norm.data(),
                               wg.data(), gate.data(), rows, cfg.hidden_size,
                               cfg.ffn_size, ws, kProjectionWorkspaceBytes);
-    decoder_cuda_project_bf16(ctx.cublaslt(), ctx.stream(), norm.data(),
+    decoder_cuda_project_bf16(ctx.cublaslt(), ctx.stream(), mlp_norm.data(),
                               wu.data(), up.data(), rows, cfg.hidden_size,
                               cfg.ffn_size, ws, kProjectionWorkspaceBytes);
     decoder_launch_swiglu_bf16(gate.data(), up.data(), swiglu.data(),
                                rows * cfg.ffn_size, ctx.stream());
     local.swiglu_checked = finite_tensor(swiglu, ctx.stream());
+    decoder_cuda_project_bf16(ctx.cublaslt(), ctx.stream(), swiglu.data(),
+                              wd.data(), down.data(), rows, cfg.ffn_size,
+                              cfg.hidden_size, ws, kProjectionWorkspaceBytes);
+    local.down_projection_checked = finite_tensor(down, ctx.stream());
+    decoder_launch_residual_add_bf16(attn_resid.data(), down.data(),
+                                     out.data(), rows * cfg.hidden_size,
+                                     ctx.stream());
+    local.block_residual_checked = finite_tensor(out, ctx.stream());
     local.outputs_finite = local.rmsnorm_checked && local.rope_checked &&
                            local.qkv_projection_checked &&
                            local.attention_checked &&
-                           local.o_projection_checked && local.swiglu_checked;
+                           local.o_projection_checked &&
+                           local.attention_residual_checked &&
+                           local.mlp_norm_checked && local.swiglu_checked &&
+                           local.down_projection_checked &&
+                           local.block_residual_checked;
     local.projection_workspace_bytes = workspace.high_water_bytes();
     if (report) *report = local;
     if (local.outputs_finite) return true;
