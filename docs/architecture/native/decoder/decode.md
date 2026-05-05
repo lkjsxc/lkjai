@@ -13,12 +13,18 @@ artifacts:
 - `choices[0].message.content`
 - `choices[0].finish_reason`
 - `choices[0].lkjai_stop_reason`
+- `choices[0].lkjai_decode_backend`
+- `choices[0].lkjai_kv_cache_backend`
 - `usage.prompt_tokens`
 - `usage.completion_tokens`
 - `usage.total_tokens`
 
 Dense and transformer artifacts continue to return HTTP `422` unsupported
 decode with no `choices`.
+
+Current decoder artifacts return `lkjai_decode_backend=host_reference_recompute`
+and `lkjai_kv_cache_backend=none`. Those fields are deliberately visible so
+partial decoder serving is not confused with accepted KV-cache decode.
 
 ## Prompt And Tokenizer
 
@@ -54,6 +60,8 @@ HTTP `400` with no `choices`.
 - Prefill consumes the prompt up to the configured context.
 - Incremental decode appends one token at a time.
 - Accepted decode uses a native-owned contiguous BF16 KV cache.
+- The current decoder bridge recomputes the host/reference forward path and
+  reports `lkjai_kv_cache_backend=none`.
 - Paged KV cache is a later batching optimization.
 - Steady-state accepted decode must not allocate device memory per token.
 

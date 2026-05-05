@@ -56,6 +56,11 @@ must say:
 - `decoder_block_backend=static_reference`
 - `attention_backend=not_implemented`
 
+Decoder chat serving is also partial. Successful decoder `choices` responses
+must disclose `lkjai_decode_backend=host_reference_recompute` and
+`lkjai_kv_cache_backend=none` until the accepted contiguous BF16 KV-cache path
+lands.
+
 Before acceptance, the repo still needs CUDA decoder block forward/backward,
 RMSNorm integration and backward coverage, RoPE, attention or GQA, SwiGLU MLP,
 full optimizer coverage for block tensors, contiguous BF16 KV-cache decode, no
