@@ -21,10 +21,10 @@ First CUDA progress after P0:
 - Current hardening: ordered `messages[]` parsing, strict sampler validation,
   tokenizer checksum and atomic-tag inspection, decoder acceptance-gate
   hardening, and standalone BF16 RMSNorm CUDA parity.
-- Current forward substrate: decoder block metadata validation plus a CUDA
-  probe for BF16 RMSNorm, BF16 RoPE, row-major BF16 cuBLASLt Q/K/V/O
-  projections, and BF16 SwiGLU glue.
-- Current attention hook: deterministic BF16 causal GQA CUDA parity plus
+- Current forward substrate: decoder block metadata validation plus CUDA BF16
+  RMSNorm, row-major cuBLASLt Q/K/V, RoPE, causal GQA attention, O projection
+  from attention output, and BF16 SwiGLU glue.
+- Current attention hook: deterministic BF16 causal MHA/GQA CUDA parity plus
   reusable cuBLASLt projection plan-cache coverage.
 
 ## What Is CUDA-Backed
@@ -41,10 +41,10 @@ existing dense CUDA substrate:
 - Reusable CUDA workspace and report fields for workspace usage.
 
 The decoder block forward substrate is standalone and probed before the
-existing decoder CUDA slice runs. It validates decoder metadata, launches the
-RMSNorm primitive, applies RoPE to Q/K tensors, probes Q/K/V/O projection
-GEMMs through cuBLASLt, and runs `silu(gate) * up`. It is forward-only evidence
-and does not train block tensors.
+existing decoder CUDA slice runs. It validates decoder metadata, launches
+RMSNorm, projects Q/K/V, applies RoPE, runs causal GQA attention, projects the
+attention output through O, and runs `silu(gate) * up`. It is forward-only
+evidence and does not train block tensors.
 
 The exported artifact remains `manifest.json.kind=decoder`, so inspect,
 logits-check, and native server P0 chat contracts continue to operate on the
@@ -75,10 +75,10 @@ must disclose `lkjai_decode_backend=host_reference_recompute` and
 `lkjai_kv_cache_backend=none` until the accepted contiguous BF16 KV-cache path
 lands.
 
-Before acceptance, the repo still needs the CUDA attention hook wired into full
-decoder forward, full block backward, down projection and optimizer coverage for
-block tensors, contiguous BF16 KV-cache decode, no per-token device allocations,
-and a real two-hour RTX acceptance run.
+Before acceptance, the repo still needs this forward substrate wired into the
+trainer as full decoder forward, full block backward, down projection and
+optimizer coverage for block tensors, contiguous BF16 KV-cache decode, no
+per-token device allocations, and a real two-hour RTX acceptance run.
 
 ## Hardware Implications
 

@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <exception>
 #include <iostream>
+#include <string>
 #include <vector>
 
 #include "decoder_cuda_block.hpp"
@@ -61,6 +62,43 @@ bool close(const std::vector<float>& a, const std::vector<float>& b) {
   return true;
 }
 
+bool run_attention_case(lkjai::CudaExecutionContext* ctx, int heads,
+                        int kv_heads, const std::string& label) {
+  constexpr int batch = 1;
+  constexpr int seq = 4;
+  constexpr int head_dim = 8;
+  std::vector<float> q(batch * seq * heads * head_dim);
+  std::vector<float> k(batch * seq * kv_heads * head_dim);
+  std::vector<float> v(k.size());
+  for (size_t i = 0; i < q.size(); ++i) {
+    q[i] = std::sin(float(i) * 0.11f + float(heads) * 0.01f);
+  }
+  for (size_t i = 0; i < k.size(); ++i) {
+    k[i] = std::cos(float(i) * 0.09f + float(kv_heads) * 0.02f);
+    v[i] = std::sin(float(i) * 0.05f) * 0.7f;
+  }
+  lkjai::DeviceTensor dq({lkjai::DeviceDType::bf16,
+                          {batch, seq, heads, head_dim}}, ctx->stream());
+  lkjai::DeviceTensor dk({lkjai::DeviceDType::bf16,
+                          {batch, seq, kv_heads, head_dim}}, ctx->stream());
+  lkjai::DeviceTensor dv({lkjai::DeviceDType::bf16,
+                          {batch, seq, kv_heads, head_dim}}, ctx->stream());
+  lkjai::DeviceTensor dout({lkjai::DeviceDType::bf16,
+                            {batch, seq, heads, head_dim}}, ctx->stream());
+  dq.copy_from_host_f32(q, ctx->stream());
+  dk.copy_from_host_f32(k, ctx->stream());
+  dv.copy_from_host_f32(v, ctx->stream());
+  lkjai::decoder_launch_causal_gqa_attention_bf16(
+      dq.data(), dk.data(), dv.data(), dout.data(), batch, seq, heads,
+      kv_heads, head_dim, ctx->stream());
+  if (close(dout.copy_to_host_f32(ctx->stream()),
+            cpu_attention(q, k, v, batch, seq, heads, kv_heads, head_dim))) {
+    return true;
+  }
+  std::cerr << label << " attention parity failed\n";
+  return false;
+}
+
 }  // namespace
 
 int main() {
@@ -88,31 +126,8 @@ int main() {
       std::cerr << "projection plan cache was not reused\n";
       return 1;
     }
-    constexpr int batch = 1;
-    constexpr int seq = 4;
-    constexpr int heads = 4;
-    constexpr int kv_heads = 2;
-    constexpr int head_dim = 8;
-    std::vector<float> q(batch * seq * heads * head_dim);
-    std::vector<float> k(batch * seq * kv_heads * head_dim);
-    std::vector<float> v(k.size());
-    for (size_t i = 0; i < q.size(); ++i) q[i] = std::sin(float(i) * 0.11f);
-    for (size_t i = 0; i < k.size(); ++i) {
-      k[i] = std::cos(float(i) * 0.09f);
-      v[i] = std::sin(float(i) * 0.05f) * 0.7f;
-    }
-    lkjai::DeviceTensor dq({lkjai::DeviceDType::bf16, {batch, seq, heads, head_dim}}, ctx.stream());
-    lkjai::DeviceTensor dk({lkjai::DeviceDType::bf16, {batch, seq, kv_heads, head_dim}}, ctx.stream());
-    lkjai::DeviceTensor dv({lkjai::DeviceDType::bf16, {batch, seq, kv_heads, head_dim}}, ctx.stream());
-    lkjai::DeviceTensor dout({lkjai::DeviceDType::bf16, {batch, seq, heads, head_dim}}, ctx.stream());
-    dq.copy_from_host_f32(q, ctx.stream());
-    dk.copy_from_host_f32(k, ctx.stream());
-    dv.copy_from_host_f32(v, ctx.stream());
-    lkjai::decoder_launch_causal_gqa_attention_bf16(
-        dq.data(), dk.data(), dv.data(), dout.data(), batch, seq, heads,
-        kv_heads, head_dim, ctx.stream());
-    if (!close(dout.copy_to_host_f32(ctx.stream()),
-               cpu_attention(q, k, v, batch, seq, heads, kv_heads, head_dim))) {
+    if (!run_attention_case(&ctx, 4, 4, "MHA") ||
+        !run_attention_case(&ctx, 4, 2, "GQA")) {
       return 1;
     }
   } catch (const std::exception& e) {

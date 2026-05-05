@@ -18,7 +18,8 @@ configured `heads`, `kv_heads`, and `head_dim`.
 
 ## Current Status
 
-The host reference implements causal GQA with RoPE. A CUDA parity hook now
-checks BF16 causal GQA attention on deterministic MHA/GQA-style shapes, but the
-trainer report must stay `accepted_cuda_training=false` until the full decoder
-forward and backward path uses it.
+The host reference implements causal GQA with RoPE. The CUDA forward substrate
+now runs BF16 causal GQA attention between RoPE and the O projection, and CTest
+checks deterministic MHA and GQA shapes against the host reference. Trainer
+reports still stay `accepted_cuda_training=false` until full decoder forward and
+backward training uses this path.

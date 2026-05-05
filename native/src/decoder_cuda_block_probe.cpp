@@ -42,58 +42,6 @@ void fill_tensor(DeviceTensor* tensor, size_t elements, float scale,
 
 }  // namespace
 
-bool decoder_cuda_block_shape(const TransformerConfig& cfg,
-                              DecoderCudaBlockShape* shape,
-                              std::string* error) {
-  if (cfg.kind != "decoder") {
-    *error = "decoder CUDA block requires model_kind=decoder";
-    return false;
-  }
-  if (cfg.dtype != "bf16") {
-    *error = "decoder CUDA block requires dtype=bf16";
-    return false;
-  }
-  if (cfg.hidden_size <= 0 || cfg.heads <= 0 || cfg.kv_heads <= 0 ||
-      cfg.head_dim <= 0 || cfg.ffn_size <= 0 || cfg.context <= 1 ||
-      cfg.layers <= 0 || cfg.vocab_size <= 0) {
-    *error = "decoder CUDA block config has invalid non-positive dimensions";
-    return false;
-  }
-  if (cfg.heads * cfg.head_dim != cfg.hidden_size) {
-    *error = "decoder CUDA block heads * head_dim must equal hidden_size";
-    return false;
-  }
-  if (cfg.heads % cfg.kv_heads != 0) {
-    *error = "decoder CUDA block heads must be divisible by kv_heads";
-    return false;
-  }
-  if (cfg.head_dim % 2 != 0) {
-    *error = "decoder CUDA block RoPE requires even head_dim";
-    return false;
-  }
-  if (cfg.ffn_size < cfg.hidden_size) {
-    *error = "decoder CUDA block ffn_size must be at least hidden_size";
-    return false;
-  }
-  if (cfg.activation != "swiglu") {
-    *error = "decoder CUDA block requires swiglu activation";
-    return false;
-  }
-  if (shape) {
-    shape->hidden = cfg.hidden_size;
-    shape->heads = cfg.heads;
-    shape->kv_heads = cfg.kv_heads;
-    shape->head_dim = cfg.head_dim;
-    shape->q_width = cfg.hidden_size;
-    shape->k_width = cfg.kv_heads * cfg.head_dim;
-    shape->v_width = cfg.kv_heads * cfg.head_dim;
-    shape->o_width = cfg.hidden_size;
-    shape->ffn_width = cfg.ffn_size;
-    shape->gqa_group_size = cfg.heads / cfg.kv_heads;
-  }
-  return true;
-}
-
 bool decoder_cuda_forward_substrate_probe(
     const TransformerConfig& cfg, DecoderCudaForwardSubstrateReport* report,
     std::string* error) {
@@ -123,6 +71,7 @@ bool decoder_cuda_forward_substrate_probe(
     DeviceTensor q = bf16_tensor(ctx.stream(), rows, cfg.hidden_size);
     DeviceTensor k = bf16_tensor(ctx.stream(), rows, kv_width);
     DeviceTensor v = bf16_tensor(ctx.stream(), rows, kv_width);
+    DeviceTensor attn = bf16_tensor(ctx.stream(), rows, cfg.hidden_size);
     DeviceTensor o = bf16_tensor(ctx.stream(), rows, cfg.hidden_size);
     DeviceTensor wq = bf16_tensor(ctx.stream(), cfg.hidden_size, cfg.hidden_size);
     DeviceTensor wk = bf16_tensor(ctx.stream(), kv_width, cfg.hidden_size);
@@ -147,19 +96,23 @@ bool decoder_cuda_forward_substrate_probe(
     decoder_cuda_project_bf16(ctx.cublaslt(), ctx.stream(), norm.data(),
                               wv.data(), v.data(), rows, cfg.hidden_size,
                               kv_width, ws, kProjectionWorkspaceBytes);
-    decoder_cuda_project_bf16(ctx.cublaslt(), ctx.stream(), norm.data(),
-                              wo.data(), o.data(), rows, cfg.hidden_size,
-                              cfg.hidden_size, ws, kProjectionWorkspaceBytes);
     local.qkv_projection_checked =
         finite_tensor(q, ctx.stream()) && finite_tensor(k, ctx.stream()) &&
         finite_tensor(v, ctx.stream());
-    local.o_projection_checked = finite_tensor(o, ctx.stream());
     decoder_launch_rope_bf16(q.data(), batch, seq, cfg.heads, cfg.head_dim,
                              cfg.rope_theta, ctx.stream());
     decoder_launch_rope_bf16(k.data(), batch, seq, cfg.kv_heads, cfg.head_dim,
                              cfg.rope_theta, ctx.stream());
     local.rope_checked =
         finite_tensor(q, ctx.stream()) && finite_tensor(k, ctx.stream());
+    decoder_launch_causal_gqa_attention_bf16(
+        q.data(), k.data(), v.data(), attn.data(), batch, seq, cfg.heads,
+        cfg.kv_heads, cfg.head_dim, ctx.stream());
+    local.attention_checked = finite_tensor(attn, ctx.stream());
+    decoder_cuda_project_bf16(ctx.cublaslt(), ctx.stream(), attn.data(),
+                              wo.data(), o.data(), rows, cfg.hidden_size,
+                              cfg.hidden_size, ws, kProjectionWorkspaceBytes);
+    local.o_projection_checked = finite_tensor(o, ctx.stream());
     DeviceTensor gate = bf16_tensor(ctx.stream(), rows, cfg.ffn_size);
     DeviceTensor up = bf16_tensor(ctx.stream(), rows, cfg.ffn_size);
     DeviceTensor swiglu = bf16_tensor(ctx.stream(), rows, cfg.ffn_size);
@@ -180,6 +133,7 @@ bool decoder_cuda_forward_substrate_probe(
     local.swiglu_checked = finite_tensor(swiglu, ctx.stream());
     local.outputs_finite = local.rmsnorm_checked && local.rope_checked &&
                            local.qkv_projection_checked &&
+                           local.attention_checked &&
                            local.o_projection_checked && local.swiglu_checked;
     local.projection_workspace_bytes = workspace.high_water_bytes();
     if (report) *report = local;

@@ -30,6 +30,7 @@ struct DecoderCudaForwardSubstrateReport {
   bool rmsnorm_checked = false;
   bool rope_checked = false;
   bool qkv_projection_checked = false;
+  bool attention_checked = false;
   bool o_projection_checked = false;
   bool swiglu_checked = false;
   bool outputs_finite = false;

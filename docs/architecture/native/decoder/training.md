@@ -104,8 +104,8 @@ The current forward-substrate batch keeps acceptance unchanged while reporting
 `mlp_backend=cuda_swiglu_partial`, and
 `decoder_backward_backend=not_implemented`.
 
-The first CUDA attention parity hook reports
-`attention_backend=cuda_causal_gqa_bf16_reference` in its own CTest evidence,
-but training reports remain partial until full forward, backward, optimizer
-coverage, and KV-cache decode are wired into the trainer. P0 server contract and
-embedding/head CUDA training are not accepted full decoder training.
+The substrate now runs `cuda_causal_gqa_bf16_reference` attention before the O
+projection, but training reports remain partial until full forward, backward,
+optimizer coverage, and KV-cache decode are wired into the trainer. P0 server
+contract and embedding/head CUDA training are not accepted full decoder
+training.
