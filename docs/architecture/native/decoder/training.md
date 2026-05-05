@@ -16,13 +16,11 @@ Accepted full decoder CUDA training requires:
 - FP32 master weights and Adam moments are the optimizer state.
 - BF16 shadows are refreshed after optimizer updates and exported for serving.
 
-The current partial decoder slice only uses the dense CUDA embedding/LM-head
-substrate. It must not be described as accepted full decoder CUDA training.
-
-The next CUDA slice adds a standalone BF16 RMSNorm kernel with FP32
-sum-of-squares reduction, FP32 weights, and one row per CUDA block. It is
-verified by parity tests only. It is not wired into full decoder training and
-does not change decoder acceptance status.
+The current partial decoder slice trains only embeddings and the LM head. A
+decoder forward-substrate probe now runs first and covers RMSNorm, RoPE,
+Q/K/V/O projections, and SwiGLU glue on deterministic tensors. It must not be
+described as accepted full decoder CUDA training because attention, block
+backward, block optimizer state, and KV-cache decode are still absent.
 
 ## Public Invocation
 
@@ -59,9 +57,14 @@ Decoder reports use schema version `3` with additive fields:
 - `decoder_cuda_path`
 - `decoder_cuda_slice`
 - `decoder_block_backend`
+- `rmsnorm_backend`
+- `rope_backend`
+- `qkv_projection_backend`
 - `forward_backend`
 - `backward_backend`
 - `attention_backend`
+- `mlp_backend`
+- `decoder_backward_backend`
 - `matmul_backend`
 - `optimizer_backend`
 - `decode_supported`
@@ -69,6 +72,7 @@ Decoder reports use schema version `3` with additive fields:
 - `deadline_hit`
 - `stop_reason`
 - `kv_cache_backend`
+- `decode_backend`
 
 Reports are accepted only when `accepted_cuda_training=true`,
 `implementation_status=accepted`, `decoder_cuda_slice=full_decoder`, CUDA
@@ -89,12 +93,14 @@ Commit `01dac62` adds the first partial CUDA-backed decoder training slice:
 byte-level BPE tokenizer into decoder artifacts, sets `decode_supported=true`,
 and serves decoder chat through native prompt serialization and tokenization.
 
-Current hardening keeps that status unchanged while tightening the contract:
-ordered `messages[]` parsing, sampler rejection instead of clamping,
-tokenizer checksum and atomic-tag inspection, and standalone RMSNorm CUDA
-parity coverage.
+The current forward-substrate batch keeps acceptance unchanged while reporting
+`decoder_block_backend=cuda_forward_partial`,
+`rmsnorm_backend=cuda_bf16_fp32_reduce`, `rope_backend=cuda_bf16`,
+`qkv_projection_backend=cuda_bf16_cublaslt`,
+`mlp_backend=cuda_swiglu_partial`, and
+`decoder_backward_backend=not_implemented`.
 
-The decoder blocks remain `decoder_block_backend=static_reference`, attention
-remains `attention_backend=not_implemented`, and `accepted_cuda_training=false`.
-P0 server contract is not the accepted CUDA decoder trainer, and partial CUDA
-embedding/head training is also not accepted full decoder training.
+Attention remains `attention_backend=not_implemented`, KV cache remains
+`kv_cache_backend=none`, and `accepted_cuda_training=false`. P0 server contract
+is not the accepted CUDA decoder trainer, and partial CUDA embedding/head
+training is also not accepted full decoder training.

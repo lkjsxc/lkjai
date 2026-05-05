@@ -14,6 +14,9 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/capability_json.cpp
   src/decoder_chat_request.cpp
   src/decoder_decode.cpp
+  src/decoder_cuda_block.cu
+  src/decoder_cuda_block_probe.cpp
+  src/decoder_cuda_block_project.cu
   src/decoder_cuda_norm.cu
   src/decoder_cuda_slice.cpp
   src/decoder_cuda_slice_util.cpp

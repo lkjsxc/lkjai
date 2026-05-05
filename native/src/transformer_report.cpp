@@ -72,10 +72,12 @@ void append_transformer(std::ostringstream* out,
   limitations.push_back("experimental_not_accepted_cuda_training");
   limitations.push_back(report.decoder_cuda_path ? "partial_cuda_decoder_slice"
                                                  : "host_reference_forward");
-  limitations.push_back(report.decoder_cuda_path ? "decoder_blocks_static_reference"
+  limitations.push_back(report.decoder_cuda_path ? "decoder_forward_partial"
                                                  : "host_surrogate_backward");
-  if (!report.decode_supported)
-    limitations.push_back("autoregressive_decode_unsupported");
+  if (report.attention_backend == "not_implemented") limitations.push_back("attention_not_implemented");
+  if (report.decoder_backward_backend == "not_implemented") limitations.push_back("decoder_backward_not_implemented");
+  if (report.kv_cache_backend == "none") limitations.push_back("kv_cache_not_implemented");
+  if (!report.decode_supported) limitations.push_back("autoregressive_decode_unsupported");
   *out << "{\"schema_version\":3"
        << ",\"trainer_mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"mode\":\"" << json_escape(trainer_mode) << "\""
@@ -111,14 +113,17 @@ void append_transformer(std::ostringstream* out,
        << json_escape(report.decoder_cuda_slice) << "\""
        << ",\"decoder_block_backend\":\""
        << json_escape(report.decoder_block_backend) << "\""
-       << ",\"attention_backend\":\""
-       << json_escape(report.attention_backend) << "\""
+       << ",\"rmsnorm_backend\":\"" << json_escape(report.rmsnorm_backend)
+       << "\",\"rope_backend\":\"" << json_escape(report.rope_backend)
+       << "\",\"qkv_projection_backend\":\"" << json_escape(report.qkv_projection_backend) << "\""
+       << ",\"attention_backend\":\"" << json_escape(report.attention_backend) << "\""
+       << ",\"mlp_backend\":\"" << json_escape(report.mlp_backend)
+       << "\",\"decoder_backward_backend\":\"" << json_escape(report.decoder_backward_backend) << "\""
        << ",\"matmul_backend\":\"" << json_escape(report.matmul_backend)
        << "\",\"kv_cache_backend\":\"" << json_escape(report.kv_cache_backend)
-       << "\",\"cublaslt_workspace_bytes\":"
-       << static_cast<unsigned long long>(report.cublaslt_workspace_bytes)
-       << ",\"workspace_high_water_bytes\":"
-       << static_cast<unsigned long long>(report.workspace_high_water_bytes)
+       << "\",\"decode_backend\":\"" << json_escape(report.decode_backend)
+       << "\",\"cublaslt_workspace_bytes\":" << static_cast<unsigned long long>(report.cublaslt_workspace_bytes)
+       << ",\"workspace_high_water_bytes\":" << static_cast<unsigned long long>(report.workspace_high_water_bytes)
        << ",\"workspace_reallocations\":" << report.workspace_reallocations
        << ",\"transformer_cuda_probe\":true"
        << ",\"cuda_available\":" << (cuda.available ? "true" : "false")
@@ -130,14 +135,11 @@ void append_transformer(std::ostringstream* out,
        << ",\"cuda_sm_count\":" << cuda.sm_count << ",\"cuda_arch_flags\":\"" << json_escape(LKJAI_CUDA_ARCH_FLAGS)
        << "\",\"git_commit\":\"" << json_escape(LKJAI_GIT_COMMIT) << "\""
        << ",\"build_type\":\"" << json_escape(LKJAI_BUILD_TYPE) << "\""
-       << ",\"config_path\":\"" << json_escape(report.config_path.string())
-       << "\",\"config_digest\":\"" << file_digest(report.config_path) << "\""
+       << ",\"config_path\":\"" << json_escape(report.config_path.string()) << "\",\"config_digest\":\"" << file_digest(report.config_path) << "\""
        << ",\"dataset_path\":\"" << json_escape(report.packed_cache.string())
-       << "\",\"packed_cache_path\":\""
-       << json_escape(report.packed_cache.string()) << "\""
+       << "\",\"packed_cache_path\":\"" << json_escape(report.packed_cache.string()) << "\""
        << ",\"dataset_digest\":\"" << packed_cache_digest(report.packed_cache)
-       << "\",\"train_config_path\":\""
-       << json_escape(report.train_config_path.string()) << "\""
+       << "\",\"train_config_path\":\"" << json_escape(report.train_config_path.string()) << "\""
        << ",\"seed\":" << json_int_value(read_text(report.config_path), "seed", 0)
        << ",\"batch_size\":" << report.batch_size
        << ",\"seq_len\":" << report.seq_len
@@ -150,8 +152,7 @@ void append_transformer(std::ostringstream* out,
        << ",\"context\":" << report.context
        << ",\"parameter_count\":" << report.parameter_count
        << ",\"target_seconds\":" << report.target_seconds
-       << ",\"deadline_hit\":"
-       << (report.deadline_hit ? "true" : "false")
+       << ",\"deadline_hit\":" << (report.deadline_hit ? "true" : "false")
        << ",\"stop_reason\":\"" << json_escape(report.stop_reason) << "\""
        << ",\"tokens_seen\":" << report.input_tokens
        << ",\"input_tokens\":" << report.input_tokens
@@ -162,10 +163,8 @@ void append_transformer(std::ostringstream* out,
        << ",\"microsteps\":" << report.microsteps
        << ",\"initial_loss\":" << report.initial_loss
        << ",\"loss\":" << report.loss << ",\"loss_finite\":true"
-       << ",\"weight_changed\":"
-       << (report.trainable_weight_changed ? "true" : "false")
-       << ",\"non_embedding_weight_changed\":"
-       << (report.non_embedding_weight_changed ? "true" : "false")
+       << ",\"weight_changed\":" << (report.trainable_weight_changed ? "true" : "false")
+       << ",\"non_embedding_weight_changed\":" << (report.non_embedding_weight_changed ? "true" : "false")
        << ",\"elapsed_ms\":" << report.elapsed_seconds * 1000.0
        << ",\"elapsed_seconds\":" << report.elapsed_seconds
        << ",\"tokens_per_second\":" << tokens_per_second

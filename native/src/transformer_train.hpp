@@ -100,7 +100,13 @@ struct TransformerTrainReport {
   std::string optimizer_backend = "host_adamw_fp32";
   std::string attention_backend = "host_reference";
   std::string matmul_backend = "host_reference";
+  std::string rmsnorm_backend = "host_reference";
+  std::string rope_backend = "host_reference";
+  std::string qkv_projection_backend = "host_reference";
+  std::string mlp_backend = "host_reference";
+  std::string decoder_backward_backend = "not_applicable";
   std::string kv_cache_backend = "none";
+  std::string decode_backend = "unsupported";
   std::string decoder_cuda_slice = "none";
   std::string decoder_block_backend = "host_reference";
   bool decode_supported = false;

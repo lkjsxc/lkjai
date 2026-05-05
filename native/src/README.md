@@ -22,6 +22,13 @@ artifact inspection, and CUDA capability probing.
 - [decoder_decode.cpp](decoder_decode.cpp) and
   [decoder_decode.hpp](decoder_decode.hpp): decoder artifact autoregressive
   HTTP chat response helper.
+- [decoder_cuda_block.cu](decoder_cuda_block.cu),
+  [decoder_cuda_block_probe.cpp](decoder_cuda_block_probe.cpp),
+  [decoder_cuda_block_project.cu](decoder_cuda_block_project.cu),
+  [decoder_cuda_block.hpp](decoder_cuda_block.hpp), and
+  [decoder_cuda_block_internal.hpp](decoder_cuda_block_internal.hpp): partial
+  decoder block forward substrate probe covering RMSNorm, RoPE, BF16
+  cuBLASLt projections, and SwiGLU glue.
 - [decoder_cuda_slice.cpp](decoder_cuda_slice.cpp),
   [decoder_cuda_slice_internal.hpp](decoder_cuda_slice_internal.hpp), and
   [decoder_cuda_slice_util.cpp](decoder_cuda_slice_util.cpp): partial decoder

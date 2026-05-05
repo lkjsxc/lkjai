@@ -126,6 +126,13 @@ target_link_libraries(lkjai-native-decoder-cuda-norm-check
   PRIVATE lkjai_native_core
 )
 
+add_executable(lkjai-native-decoder-cuda-block-check
+  src/decoder_cuda_block_check.cpp
+)
+target_link_libraries(lkjai-native-decoder-cuda-block-check
+  PRIVATE lkjai_native_core
+)
+
 add_executable(lkjai-native-decoder-tokenizer-contract
   tests/decoder_tokenizer_contract.cpp
 )
@@ -172,6 +179,10 @@ add_test(
   COMMAND lkjai-native-decoder-cuda-norm-check
 )
 add_test(
+  NAME native_decoder_cuda_block_forward_substrate
+  COMMAND lkjai-native-decoder-cuda-block-check
+)
+add_test(
   NAME native_decoder_tokenizer_contract
   COMMAND lkjai-native-decoder-tokenizer-contract
 )
@@ -180,6 +191,9 @@ add_test(
   COMMAND lkjai-native-runtime-contract
 )
 set_tests_properties(native_decoder_tokenizer_contract PROPERTIES
+  ENVIRONMENT "LKJAI_REPO_ROOT=${CMAKE_CURRENT_SOURCE_DIR}/.."
+)
+set_tests_properties(native_decoder_cuda_block_forward_substrate PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${CMAKE_CURRENT_SOURCE_DIR}/.."
 )
 add_test(

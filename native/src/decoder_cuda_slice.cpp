@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "cuda_probe.hpp"
+#include "decoder_cuda_block.hpp"
 #include "decoder_cuda_slice_internal.hpp"
 #include "dense_cuda_internal.hpp"
 #include "json_min.hpp"
@@ -50,6 +51,11 @@ bool run_decoder_cuda_slice_training(const TransformerTrainOptions& opt,
   if (!cuda_required_ok(status)) {
     *error = "CUDA BF16/cuBLASLt capability unavailable: " +
              (status.error.empty() ? status.warning : status.error);
+    return false;
+  }
+  DecoderCudaForwardSubstrateReport substrate;
+  if (!decoder_cuda_forward_substrate_probe(cfg, &substrate, error)) {
+    *error = "decoder CUDA forward substrate probe failed: " + *error;
     return false;
   }
   if (opt.seed >= 0) cfg.seed = opt.seed;

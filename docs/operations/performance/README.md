@@ -23,6 +23,8 @@ This subtree is the canonical performance contract for `lkjai`.
 - [dense-substrate-20260504.md](dense-substrate-20260504.md): RTX 3070
   evidence for dense autotune, async allocation, deferred timing, and cache
   reporting.
+- [decoder-cuda-forward-substrate-20260505.md](decoder-cuda-forward-substrate-20260505.md):
+  decoder forward-only CUDA primitive substrate evidence and non-claims.
 - [hardware-profiles.md](hardware-profiles.md): RTX 3070 acceptance gate and
   RTX 5090 benchmark profile.
 - [profiling.md](profiling.md): Nsight and NVTX protocol for native work.

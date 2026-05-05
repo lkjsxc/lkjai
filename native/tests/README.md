@@ -15,6 +15,9 @@ This directory contains test helpers for native CTest cases.
   XML-like tags, ordered prompt serialization, and tokenizer round trip.
 - [decoder_cuda_norm_check.cpp](decoder_cuda_norm_check.cpp): BF16 CUDA
   RMSNorm parity against a CPU reference.
+- [../src/decoder_cuda_block_check.cpp](../src/decoder_cuda_block_check.cpp):
+  decoder forward-substrate CTest for RMSNorm, RoPE, projection metadata,
+  finite BF16 projection outputs, and truthful partial report fields.
 - [runtime_contract_check.cpp](runtime_contract_check.cpp): native runtime
   event filtering, transcript persistence, and model-status JSON contract.
 

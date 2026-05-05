@@ -19,6 +19,8 @@ Every performance run records:
 - dense P0 runtime fields: loss kernel backend, readback modes, stream count,
   pinned batch slot count, overlap flag, staging backend, and logits readback
   bytes.
+- decoder partial reports must include RMSNorm, RoPE, QKV projection, MLP,
+  decoder backward, decode, attention, and KV-cache backend fields.
 
 ## Required Artifacts
 
@@ -44,6 +46,11 @@ The current bounded matrix uses supported native trainer modes only:
 - Bounded `lkjai-native-train --train --mode transformer` cases may be kept as
   experimental diagnostics only. They must emit `accepted_cuda_training=false`
   and are excluded from accepted CUDA promotion aggregates.
+- Bounded `lkjai-native-train --train --mode decoder` cases are diagnostics
+  until full decoder block training lands. The current forward substrate may
+  emit `decoder_block_backend=cuda_forward_partial`, but accepted promotion
+  still requires `decoder_cuda_slice=full_decoder` and
+  `accepted_cuda_training=true`.
 - Batch size and gradient accumulation values that the native trainer reports.
 
 Benchmark tooling consumes `DATA_DIR/runs/train-report.json` or the stdout JSON

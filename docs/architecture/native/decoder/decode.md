@@ -25,6 +25,9 @@ decode with no `choices`.
 Current decoder artifacts return `lkjai_decode_backend=host_reference_recompute`
 and `lkjai_kv_cache_backend=none`. Those fields are deliberately visible so
 partial decoder serving is not confused with accepted KV-cache decode.
+Training reports mirror this with `decode_backend=host_reference_recompute` and
+`kv_cache_backend=none`; the new CUDA forward-substrate probe does not change
+decode behavior.
 
 ## Prompt And Tokenizer
 

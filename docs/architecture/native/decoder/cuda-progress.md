@@ -21,6 +21,9 @@ First CUDA progress after P0:
 - Current hardening: ordered `messages[]` parsing, strict sampler validation,
   tokenizer checksum and atomic-tag inspection, decoder acceptance-gate
   hardening, and standalone BF16 RMSNorm CUDA parity.
+- Current forward substrate: decoder block metadata validation plus a CUDA
+  probe for BF16 RMSNorm, BF16 RoPE, row-major BF16 cuBLASLt Q/K/V/O
+  projections, and BF16 SwiGLU glue.
 
 ## What Is CUDA-Backed
 
@@ -35,9 +38,11 @@ existing dense CUDA substrate:
   gradients, and AdamW updates.
 - Reusable CUDA workspace and report fields for workspace usage.
 
-The RMSNorm CUDA slice is standalone: BF16 input/output, FP32 weight, FP32
-sum-of-squares reduction, and one row per CUDA block. It has parity coverage
-against a CPU reference but is not wired into decoder block training.
+The decoder block forward substrate is standalone and probed before the
+existing decoder CUDA slice runs. It validates decoder metadata, launches the
+RMSNorm primitive, applies RoPE to Q/K tensors, probes Q/K/V/O projection
+GEMMs through cuBLASLt, and runs `silu(gate) * up`. It is forward-only evidence
+and does not train block tensors.
 
 The exported artifact remains `manifest.json.kind=decoder`, so inspect,
 logits-check, and native server P0 chat contracts continue to operate on the
@@ -53,18 +58,25 @@ must say:
 - `implementation_status=partial_cuda`
 - `accepted_cuda_training=false`
 - `decoder_cuda_slice=embedding_lm_head`
-- `decoder_block_backend=static_reference`
+- `decoder_block_backend=cuda_forward_partial`
+- `rmsnorm_backend=cuda_bf16_fp32_reduce`
+- `rope_backend=cuda_bf16`
+- `qkv_projection_backend=cuda_bf16_cublaslt`
 - `attention_backend=not_implemented`
+- `mlp_backend=cuda_swiglu_partial`
+- `decoder_backward_backend=not_implemented`
+- `kv_cache_backend=none`
+- `decode_backend=host_reference_recompute`
 
 Decoder chat serving is also partial. Successful decoder `choices` responses
 must disclose `lkjai_decode_backend=host_reference_recompute` and
 `lkjai_kv_cache_backend=none` until the accepted contiguous BF16 KV-cache path
 lands.
 
-Before acceptance, the repo still needs CUDA decoder block forward/backward,
-RMSNorm integration and backward coverage, RoPE, attention or GQA, SwiGLU MLP,
-full optimizer coverage for block tensors, contiguous BF16 KV-cache decode, no
-per-token device allocations, and a real two-hour RTX acceptance run.
+Before acceptance, the repo still needs CUDA attention or GQA, full decoder
+block backward, down projection and optimizer coverage for block tensors,
+contiguous BF16 KV-cache decode, no per-token device allocations, and a real
+two-hour RTX acceptance run.
 
 ## Hardware Implications
 
