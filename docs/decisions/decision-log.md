@@ -6,7 +6,8 @@
 - Target serving shape: one native process owns `/v1/*` model routes and
   `/api/*` agent-runtime routes; loopback HTTP between native product
   components is transitional only.
-- Inference runtime: separate native C++/CUDA OpenAI-compatible service.
+- Inference runtime: merged native C++/CUDA service for `/api/*` and `/v1/*`;
+  the direct inference profile is diagnostics-only.
 - Serving model family: local scratch decoder-only transformer.
 - Training scale: `scratch-40m` by default for the current corpus;
   `scratch-60m` remains a later target.
@@ -16,7 +17,7 @@
 - Memory backend: SQLite plus FTS lexical retrieval.
 - Agent loop limit: `AGENT_MAX_STEPS=6`.
 - Active context default: `1024` tokens.
-- Runtime default requires a real model API endpoint.
+- Runtime default requires a real native model artifact.
 - Policy-file model mode is removed from the default product path.
 
 ## New Decisions

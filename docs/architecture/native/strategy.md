@@ -29,7 +29,7 @@ Replace:
 - Python or PyTorch scratch model execution.
 - Rust packed-cache builder and reader utilities.
 - Cookie/session `kjxlkj` resource access.
-- Loopback HTTP between native runtime and native inference code.
+- Required loopback HTTP between native runtime and native inference code.
 
 ## First Optimization Target
 

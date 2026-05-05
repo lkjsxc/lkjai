@@ -2,12 +2,12 @@
 
 ## Stack
 
-- Native binary named `lkjai-native-runtime`.
-- Minimal native HTTP server for routing.
-- Blocking native model-client calls are acceptable until batching exists.
+- Native binary named `lkjai-native-server`.
+- Merged native HTTP server for `/api/*` and `/v1/*` routing.
+- Direct native model-engine calls are the product path.
 - `GET /` returns a compact native service descriptor.
 - JSON APIs for chat and transcripts.
-- OpenAI-compatible model endpoint for generation.
+- OpenAI-compatible model routes for generation.
 - Implemented transcripts label user, assistant, and error events.
 - Target transcripts also label reasoning, plan, tool call, tool result,
   observation, memory, finish, and confirmation events.

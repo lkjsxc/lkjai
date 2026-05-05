@@ -3,7 +3,8 @@
 ## Profiles
 
 - `inference`: current native OpenAI-compatible scratch inference service.
-- `web`: current native C++ agent API runtime plus its inference dependency.
+- `web`: merged native server with `/api/*` runtime routes and `/v1/*`
+  inference routes.
 - `train`: native scratch training container.
 - `verify`: repository verification container.
 
@@ -12,10 +13,9 @@
 - All runtime profiles mount `./data:/app/data`.
 - Inference mounts `./data/models` to `/models`.
 - Inference loads `/models/${MODEL_NAME}`.
-- The `web` profile also activates `inference`.
-- Web waits for inference process health before serving traffic.
-- The target architecture collapses `web` and `inference` into one native
-  server process with both `/api/*` and `/v1/*` routes.
+- The `web` profile does not start a second model service.
+- The `inference` profile remains as a direct `/v1/*` diagnostic service.
+- The merged server process owns both `/api/*` and `/v1/*` routes.
 - Model readiness is reported separately through `/api/model` and
   `GET /v1/models`.
 - Inference loads exported native artifacts. Dense and transformer artifacts
@@ -29,7 +29,7 @@
 - Web writes transcripts and memory under `/app/data/agent`.
 - Web uses `/app/data/workspace` as the only filesystem root for tools.
 - Web must not mount the host root.
-- Web uses `KJXLKJ_USER` and `KJXLKJ_BEARER_TOKEN` for typed
+- The merged server uses `KJXLKJ_USER` and `KJXLKJ_BEARER_TOKEN` for typed
   `/api/users/{user}/resources/...` calls.
 
 ## GPU
@@ -40,7 +40,7 @@
 - `/api/model` and the web UI must show CUDA availability and active device.
 - CPU fallback is acceptable for development but is not an acceptable quality or
   latency baseline.
-- `web` does not load model weights and does not require CUDA.
+- `web` loads model weights through the merged native server and requests CUDA.
 
 ## Commands
 

@@ -6,19 +6,18 @@ Observe runtime health without adding heavy telemetry dependencies.
 
 ## Contract
 
-- The web runtime must verify inference is reachable before claiming a model is
-  loaded.
-- Compose inference health uses `/healthz` so the web UI can start even before
-  a model export exists.
+- The merged server must verify the loaded artifact before claiming a model is
+  ready.
+- Compose health uses `/healthz` so clients can see missing model exports.
 - Model readiness failures must be exposed through `GET /api/model` and the
   web UI.
-- The runtime must never silently fall back to canned or fake responses when
-  inference is unreachable.
+- The runtime must never silently fall back to canned or fake responses when the
+  model is unavailable.
 
 ## Health Probe
 
 ```
-GET ${MODEL_API_URL%/v1/chat/completions}/models
+GET /v1/models
 ```
 
 - Success: HTTP 200 with a JSON body containing at least one model id.
@@ -30,15 +29,15 @@ GET ${MODEL_API_URL%/v1/chat/completions}/models
 ```json
 {
   "model": "lkjai-scratch-40m",
-  "api_url": "http://127.0.0.1:8081/v1/chat/completions",
+  "api_url": "local-native-engine",
   "loaded": true,
   "reachable": true,
-  "message": "model server responding"
+  "message": "model loaded"
 }
 ```
 
-- `loaded`: the client is configured with a model name and URL.
-- `reachable`: the last health probe succeeded.
+- `loaded`: the artifact loaded successfully.
+- `reachable`: the local model engine is usable.
 - `message`: human-readable state.
 
 ## UI Behavior
@@ -53,4 +52,4 @@ GET ${MODEL_API_URL%/v1/chat/completions}/models
 curl -sf http://127.0.0.1:8080/api/model | jq .
 ```
 
-Expected: `reachable` matches the actual inference server state.
+Expected: `reachable` matches the loaded artifact state.

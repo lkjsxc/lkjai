@@ -18,23 +18,22 @@ curl -v http://127.0.0.1:8081/v1/models
 Fix:
 - Ensure `MODEL_NAME=lkjai-scratch-40m` unless testing another artifact.
 - Ensure `data/models/${MODEL_NAME}` exists or run training/export first.
-- Run `docker compose --profile web up --build web` for the browser app.
-- Run `docker compose --profile inference up --build inference` only for
-  model-server-only checks.
+- Run `docker compose --profile web up --build web` for the merged runtime and
+  model server.
+- Run `docker compose --profile inference up --build inference` only for direct
+  `/v1/*` checks.
 
-## Web Runtime Cannot Reach Inference
+## Chat Returns Model Errors
 
 Symptom: Chat returns `model_error` events.
 
 Check:
-- `MODEL_API_URL` in the web container matches the inference container address.
-- Inside the web container: `curl http://inference:8081/v1/models`.
+- `curl http://127.0.0.1:8080/api/model`.
+- `curl http://127.0.0.1:8080/v1/models`.
 
 Fix:
-- If using Docker Compose, start with `--profile web`; it starts inference too.
-- Use
-  `http://inference:8081/v1/chat/completions`.
-- If using host networking outside Compose, use the host IP instead.
+- Ensure `data/models/${MODEL_NAME}` exists.
+- Use a decoder artifact for successful chat choices.
 
 ## Training Finishes Instantly
 

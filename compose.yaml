@@ -2,7 +2,7 @@ name: lkjai
 
 services:
   inference:
-    profiles: ["inference", "web"]
+    profiles: ["inference"]
     build:
       context: .
       dockerfile: ops/docker/Dockerfile.native
@@ -48,15 +48,17 @@ services:
       args:
         LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
         LKJAI_GIT_COMMIT: ${LKJAI_GIT_COMMIT:-unknown}
-    command: ["lkjai-native-runtime"]
+    command: ["lkjai-native-server"]
     entrypoint: []
     ports:
       - "127.0.0.1:${APP_PORT:-8080}:8080"
     environment:
       APP_HOST: 0.0.0.0
       APP_PORT: 8080
+      INFERENCE_HOST: 0.0.0.0
+      INFERENCE_PORT: 8080
       DATA_DIR: ${DATA_DIR:-/app/data}
-      MODEL_API_URL: ${MODEL_API_URL:-http://inference:8081/v1/chat/completions}
+      MODEL_ROOT: /models
       MODEL_NAME: ${MODEL_NAME:-lkjai-scratch-40m}
       AGENT_TOOL_PROFILE: ${AGENT_TOOL_PROFILE:-readonly}
       TOOL_WORKSPACE_DIR: ${TOOL_WORKSPACE_DIR:-/app/data/workspace}
@@ -64,6 +66,7 @@ services:
       KJXLKJ_USER: ${KJXLKJ_USER:-default}
       KJXLKJ_BEARER_TOKEN: ${KJXLKJ_BEARER_TOKEN:-}
     volumes:
+      - ./data/models:/models
       - ./data:/app/data
       - ./docs:/app/data/workspace/docs:ro
       - ./training:/app/data/workspace/training:ro
@@ -71,10 +74,13 @@ services:
       - ./configs:/app/data/workspace/configs:ro
       - ./README.md:/app/data/workspace/README.md:ro
       - ./compose.yaml:/app/data/workspace/compose.yaml:ro
-    depends_on:
-      inference:
-        condition: service_healthy
-
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
   train:
     profiles: ["train"]
     build:

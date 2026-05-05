@@ -1,17 +1,16 @@
-# Model Client Runtime
+# Inference Runtime
 
 ## Goal
 
-Call one real native OpenAI-compatible inference endpoint and surface its health
-honestly.
+Use one real native model engine and surface its health honestly.
 
 ## Contract
 
-- The native API runtime must call a separate inference endpoint.
-- The runtime must verify model readiness before reporting chat readiness.
-- Model readiness uses `GET /v1/models` with a `5` second timeout.
-- Compose process health uses `GET /healthz` so the web UI can report missing
-  model artifacts instead of being blocked by dependency startup.
+- The merged native server owns `/api/*` and `/v1/*` routes.
+- The server verifies model readiness before reporting chat readiness.
+- Model readiness uses the loaded artifact state and `GET /v1/models`.
+- Compose process health uses `GET /healthz` so clients can see missing model
+  artifacts without a second service dependency.
 - `GET /api/model` reports the last known probe result.
 - The inference server reports its active device, CUDA availability, GPU name,
   and degradation warning.
@@ -20,8 +19,7 @@ honestly.
 ## Request And Response
 
 - Request fields: `model`, `messages`, `max_tokens`, `temperature`.
-- The C++ model client consumes `choices[0].message.content` from decoder
-  artifacts.
+- The runtime consumes `choices[0].message.content` from decoder artifacts.
 - Dense and transformer artifacts return unsupported decode, so product chat
   quality gates require decoder exports with the real tokenizer.
 - Every accepted future model step must return one XML action.
@@ -52,7 +50,8 @@ honestly.
 
 ## Defaults
 
-- `MODEL_API_URL=http://127.0.0.1:8081/v1/chat/completions`
+- Direct inference profile:
+  `http://127.0.0.1:8081/v1/chat/completions`
 - `MODEL_NAME=lkjai-scratch-40m`
 - `MODEL_MAX_NEW_TOKENS=512`
 - `MODEL_TEMPERATURE=0.2`

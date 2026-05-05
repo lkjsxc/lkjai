@@ -1,12 +1,12 @@
 # Runtime Architecture
 
-Use this subtree for the native C++ agent API runtime, inference path, and
-persistent runtime state.
+Use this subtree for the native C++ server that owns the agent API runtime,
+inference path, and persistent runtime state.
 
 ## Read This Section When
 
 - You need native API route ownership.
-- You need model-client behavior.
+- You need direct model-engine or transitional model-client behavior.
 - You need runtime data paths.
 
 ## Child Index
