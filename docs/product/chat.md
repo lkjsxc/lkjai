@@ -2,7 +2,7 @@
 
 ## Surface
 
-- `GET /` serves a compact native service descriptor.
+- `GET /` serves the static no-build native browser status/chat page.
 - `POST /api/chat` is the primary product chat surface.
 - API clients receive transcript run id, model state, and tool results.
 - The implemented foundation persists user, assistant, and error events.

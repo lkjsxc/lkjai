@@ -42,6 +42,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/json_min.cpp
   src/native_chat_prompt.cpp
   src/native_chat_prompt_serialize.cpp
+  src/native_status_page.cpp
   src/native_tokenizer.cpp
   src/native_tokenizer_codec.cpp
   src/native_tokenizer_json.cpp

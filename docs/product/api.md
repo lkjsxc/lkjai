@@ -2,8 +2,8 @@
 
 ## Routes
 
-- `GET /`: native service descriptor. A browser chat UI is target work.
-- `GET /healthz`: returns `200` with body `ok`.
+- `GET /`: static no-build native browser status/chat page.
+- `GET /healthz`: returns JSON process, artifact, and CUDA capability state.
 - `POST /api/chat`: runs one bounded agent turn.
 - `GET /api/runs/{id}`: returns one run transcript.
 - `GET /api/model`: returns model client status including reachability.

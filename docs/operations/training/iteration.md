@@ -19,8 +19,8 @@ behavioral reports.
 - New baseline target: `500000000` public English pretraining tokens plus
   `60000000` first-party XML-action SFT tokens.
 
-Materialize the ignored corpus after downloading Cosmopedia to
-`data/raw/cosmopedia/`:
+Public-pretrain materialization is target work until native CLI entrypoints
+exist. The intended future commands are:
 
 ```bash
 docker compose --profile train run --rm train download-public-pretrain

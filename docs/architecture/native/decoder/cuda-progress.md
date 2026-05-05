@@ -24,6 +24,8 @@ First CUDA progress after P0:
 - Current forward substrate: decoder block metadata validation plus a CUDA
   probe for BF16 RMSNorm, BF16 RoPE, row-major BF16 cuBLASLt Q/K/V/O
   projections, and BF16 SwiGLU glue.
+- Current attention hook: deterministic BF16 causal GQA CUDA parity plus
+  reusable cuBLASLt projection plan-cache coverage.
 
 ## What Is CUDA-Backed
 
@@ -62,7 +64,7 @@ must say:
 - `rmsnorm_backend=cuda_bf16_fp32_reduce`
 - `rope_backend=cuda_bf16`
 - `qkv_projection_backend=cuda_bf16_cublaslt`
-- `attention_backend=not_implemented`
+- `attention_backend=not_implemented` in trainer reports
 - `mlp_backend=cuda_swiglu_partial`
 - `decoder_backward_backend=not_implemented`
 - `kv_cache_backend=none`
@@ -73,10 +75,10 @@ must disclose `lkjai_decode_backend=host_reference_recompute` and
 `lkjai_kv_cache_backend=none` until the accepted contiguous BF16 KV-cache path
 lands.
 
-Before acceptance, the repo still needs CUDA attention or GQA, full decoder
-block backward, down projection and optimizer coverage for block tensors,
-contiguous BF16 KV-cache decode, no per-token device allocations, and a real
-two-hour RTX acceptance run.
+Before acceptance, the repo still needs the CUDA attention hook wired into full
+decoder forward, full block backward, down projection and optimizer coverage for
+block tensors, contiguous BF16 KV-cache decode, no per-token device allocations,
+and a real two-hour RTX acceptance run.
 
 ## Hardware Implications
 

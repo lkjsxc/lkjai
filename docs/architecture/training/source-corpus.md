@@ -57,10 +57,10 @@ metadata, or validated generated corpus shards with explicit provenance.
 ## Public-Import Note
 
 Public pretraining sources tagged `public_pretrain_dataset` are active recipes.
-Raw data is downloaded or staged locally under `TRAIN_PUBLIC_DATA_DIR`;
-generated large shards stay ignored under `data/public-corpus/`.
-`prepare-public-pretrain` writes a validation report and fails unless staged
-rows meet the requested token target.
+Raw data is staged locally under `TRAIN_PUBLIC_DATA_DIR`; generated large shards
+stay ignored under `data/public-corpus/`. Native download and prepare CLI
+entrypoints are target work, so public-pretrain preparation is not a current
+verification gate.
 
 Cosmopedia download page:
 `https://huggingface.co/datasets/HuggingFaceTB/cosmopedia`
@@ -72,8 +72,7 @@ data/raw/cosmopedia/          # user-downloaded Hugging Face snapshot
 data/public-corpus/           # generated ignored train/val/holdout shards
 ```
 
-Materialize the active 500M-token public pretraining corpus through native
-training tooling:
+The intended future materialization path is native training tooling:
 
 ```bash
 docker compose --profile train up --build train

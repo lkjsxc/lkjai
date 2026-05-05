@@ -146,6 +146,25 @@ int main() {
                         "\"decode_backend\":\"host_reference_recompute\"")) {
     return 1;
   }
+  report.implementation_status = "accepted";
+  report.decoder_status = "accepted";
+  report.decoder_cuda_slice = "full_decoder";
+  report.decoder_block_backend = "cuda_full_decoder";
+  report.forward_backend = "cuda_full_decoder";
+  report.backward_backend = "cuda_full_decoder";
+  report.attention_backend = "cuda_causal_gqa_bf16_reference";
+  report.mlp_backend = "cuda_full_swiglu";
+  report.decoder_backward_backend = "cuda_full_decoder";
+  report.kv_cache_backend = "cuda_contiguous_bf16";
+  report.decode_backend = "cuda_kv_cache";
+  json = lkjai::transformer_train_report_json(report, lkjai::cuda_status(),
+                                              "decoder", "success", "");
+  if (!require_contains(json, "\"accepted_cuda_training\":true") ||
+      !require_contains(json, "\"implementation_status\":\"accepted\"") ||
+      !require_contains(json, "\"decoder_cuda_slice\":\"full_decoder\"") ||
+      !require_contains(json, "\"kv_cache_backend\":\"cuda_contiguous_bf16\"")) {
+    return 1;
+  }
 
   std::cout << "{\"status\":\"pass\",\"decoder_block_backend\":"
             << "\"cuda_forward_partial\"}\n";

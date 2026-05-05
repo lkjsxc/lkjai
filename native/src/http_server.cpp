@@ -62,7 +62,7 @@ std::string reason(int status) {
 void write_response(int client, const HttpResponse& response) {
   std::string head = "HTTP/1.1 " + std::to_string(response.status) + " " +
                      reason(response.status) + "\r\n";
-  head += "content-type: application/json\r\n";
+  head += "content-type: " + response.content_type + "\r\n";
   head += "content-length: " + std::to_string(response.body.size()) + "\r\n";
   head += "connection: close\r\n\r\n";
   auto wire = head + response.body;

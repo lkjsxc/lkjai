@@ -40,10 +40,10 @@ autoregressive decode in the accepted product path yet.
 - QKV/O projections, MLP projections, and norms are target transformer tensors.
 - QKV, output, and FFN projections are target transformer work and will use
   cuBLASLt first when that path becomes accepted CUDA training.
-- Attention uses cuDNN SDPA when the frontend headers, runtime, dtype, compute
-  capability, head dimension, and mask mode are eligible.
-- A correctness-first causal GQA fallback is allowed only until cuDNN SDPA is
-  wired for the active shape.
+- First full decoder acceptance may use the correctness-first
+  `cuda_causal_gqa_bf16_reference` backend.
+- cuDNN SDPA is the later performance backend when frontend integration, dtype,
+  capability, head dimension, and mask-mode parity are complete.
 - The active `head_dim=72` is BF16 SDPA-eligible because it is a multiple of `8`.
 
 ## Current Training State

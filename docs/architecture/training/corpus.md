@@ -138,7 +138,10 @@ data/raw/cosmopedia/
 The active public source is the Apache-2.0 Cosmopedia Hugging Face dataset:
 `https://huggingface.co/datasets/HuggingFaceTB/cosmopedia`
 
-Materialize ignored shards with:
+Native support for these public-pretrain commands is target work. Until the
+train image exposes real `download-public-pretrain` and
+`prepare-public-pretrain` entrypoints, treat the commands below as the intended
+operator contract, not an implemented verification gate:
 
 ```bash
 HF_TOKEN=<hugging-face-token-if-needed> \
@@ -149,11 +152,9 @@ TRAIN_CORPUS_DIR=/app/data/public-corpus \
 docker compose --profile train run --rm train prepare-public-pretrain
 ```
 
-`manifest.json` records schema, row counts, split counts, token counts, selected
-fields, source budgets, checksums, and source/license distribution.
-
-The current Compose file does not expose a `corpus` profile. Until that service
-exists, public pretraining preparation is part of the `train` profile tooling.
+The future `manifest.json` records schema, row counts, split counts, token
+counts, selected fields, source budgets, checksums, and source/license
+distribution.
 
 ## Rejection Patterns
 

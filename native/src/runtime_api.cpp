@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include "json_min.hpp"
+#include "native_status_page.hpp"
 
 namespace lkjai {
 namespace {
@@ -165,7 +166,7 @@ HttpResponse runtime_chat_with_model_response(const RuntimeConfig& cfg,
 HttpResponse runtime_route(const RuntimeConfig& cfg, const HttpRequest& request) {
   if (request.method == "GET" && request.path == "/healthz") return {200, "ok"};
   if (request.method == "GET" && request.path == "/") {
-    return {200, "{\"service\":\"lkjai-native-runtime\",\"ui\":\"target\"}"};
+    return {200, std::string(native_status_page_html()), "text/html; charset=utf-8"};
   }
   if (request.method == "GET" && request.path == "/api/model") {
     auto probe = native_http_get(model_url_to_models_url(cfg.model_url));

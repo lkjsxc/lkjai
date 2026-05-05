@@ -10,9 +10,12 @@ embeddings and the LM head.
 - Backward covers attention projections, output projection, MLP projections,
   RMSNorm weights, token embeddings, and LM head.
 - FP32 master weights and AdamW moments exist for every trainable tensor.
+- BF16 shadows are refreshed from FP32 masters after AdamW updates.
 - Checkpoint optimizer indexes include `master.NAME`, `adam_m.NAME`, and
   `adam_v.NAME` for every tensor.
 - Resume restores counters, optimizer state, and tensor checksums.
+- Acceptance tests must prove a non-embedding block weight changes on a tiny
+  deterministic batch.
 
 ## Current Status
 

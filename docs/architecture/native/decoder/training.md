@@ -10,7 +10,11 @@ or PyTorch in the product path.
 Accepted full decoder CUDA training requires:
 
 - cuBLASLt owns QKV, output, MLP, and LM-head GEMMs.
-- cuDNN SDPA owns BF16 causal/GQA attention when capability checks pass.
+- First acceptance may use `attention_backend=cuda_causal_gqa_bf16_reference`,
+  a correctness-first CUDA causal GQA path with FP32 score and softmax
+  accumulation.
+- cuDNN SDPA remains the later performance backend when frontend integration and
+  parity are complete for the active shape.
 - Custom kernels own RMSNorm/residual fusion, RoPE, SwiGLU glue, CE loss,
   BF16/FP32 casts, AdamW helpers, KV writes, logits filtering, and sampling.
 - FP32 master weights and Adam moments are the optimizer state.
@@ -76,9 +80,9 @@ Decoder reports use schema version `3` with additive fields:
 
 Reports are accepted only when `accepted_cuda_training=true`,
 `implementation_status=accepted`, `decoder_cuda_slice=full_decoder`, CUDA
-forward/backward/attention backends are present, finite loss and nonzero weight
-change are proven, checkpoint/export/logits/server checks pass, and the
-documented benchmark gate passes.
+forward/backward/attention backends are present, finite loss and nonzero
+non-embedding weight change are proven, checkpoint/export/logits/server checks
+pass, and the documented benchmark gate passes.
 
 ## Current Status
 
@@ -100,7 +104,8 @@ The current forward-substrate batch keeps acceptance unchanged while reporting
 `mlp_backend=cuda_swiglu_partial`, and
 `decoder_backward_backend=not_implemented`.
 
-Attention remains `attention_backend=not_implemented`, KV cache remains
-`kv_cache_backend=none`, and `accepted_cuda_training=false`. P0 server contract
-is not the accepted CUDA decoder trainer, and partial CUDA embedding/head
-training is also not accepted full decoder training.
+The first CUDA attention parity hook reports
+`attention_backend=cuda_causal_gqa_bf16_reference` in its own CTest evidence,
+but training reports remain partial until full forward, backward, optimizer
+coverage, and KV-cache decode are wired into the trainer. P0 server contract and
+embedding/head CUDA training are not accepted full decoder training.

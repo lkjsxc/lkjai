@@ -45,6 +45,10 @@ add_test(NAME native_decoder_tokenizer_contract
 add_test(NAME native_decoder_artifact_contract
   COMMAND lkjai-native-decoder-artifact-contract)
 add_test(NAME native_runtime_contract COMMAND lkjai-native-runtime-contract)
+add_test(NAME native_status_page_contract
+  COMMAND lkjai-native-status-page-contract)
+add_test(NAME native_decoder_cuda_attention_plan
+  COMMAND lkjai-native-decoder-cuda-attention-plan-check)
 
 set_tests_properties(native_decoder_tokenizer_contract PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")

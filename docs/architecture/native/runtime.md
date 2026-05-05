@@ -8,6 +8,7 @@ process.
 ## HTTP Contract
 
 - `GET /healthz` reports process and artifact load status.
+- `GET /` serves the static no-build browser status/chat page.
 - `GET /v1/models` reports model readiness, device, CUDA availability, GPU
   name, hardware/build capability fields, and warning.
 - `POST /v1/chat/completions` accepts `model`, `messages`, `max_tokens`, and
@@ -17,6 +18,8 @@ process.
 - Successful decoder chat responses keep `choices[0].message.content`.
 - Non-success responses include a JSON `error` string.
 - Capability fields follow [capability.md](capability.md).
+- The merged server keeps JSON APIs on `/healthz`, `/api/*`, and `/v1/*` while
+  returning `text/html` only for `GET /`.
 
 ## Inference Contract
 

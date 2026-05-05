@@ -53,37 +53,40 @@ std::string manifest_checksum(const std::filesystem::path& dir) {
   auto checksum = json_first_string(manifest, "weights_checksum");
   return checksum.empty() ? file_digest(dir / "weights.lkjw") : checksum;
 }
-void append_transformer(std::ostringstream* out,
-                        const TransformerTrainReport& report,
-                        const CudaStatus& cuda,
-                        const std::string& trainer_mode, const std::string& status,
-                        const std::string& failure_reason) {
+void append_transformer(std::ostringstream* out, const TransformerTrainReport& report,
+                        const CudaStatus& cuda, const std::string& trainer_mode,
+                        const std::string& status, const std::string& failure_reason) {
   auto kind = report.model_kind.empty() ? std::string("transformer") : report.model_kind;
   auto impl = report.implementation_status.empty()
                   ? std::string("experimental")
                   : report.implementation_status;
-  auto decoder_status = report.decoder_status.empty() ? std::string(
-      kind == "decoder" ? "experimental" : "not_applicable") : report.decoder_status;
+  auto decoder_status = report.decoder_status.empty()
+      ? std::string(kind == "decoder" ? "experimental" : "not_applicable")
+      : report.decoder_status;
+  bool accepted_attention = report.attention_backend == "cuda_causal_gqa_bf16_reference" || report.attention_backend == "cudnn_sdpa";
+  bool accepted_decoder = kind == "decoder" && impl == "accepted" && accepted_attention && report.decoder_cuda_path && report.decoder_cuda_slice == "full_decoder" && report.decoder_backward_backend == "cuda_full_decoder" &&
+      report.kv_cache_backend == "cuda_contiguous_bf16" && report.decode_backend == "cuda_kv_cache";
   double tokens_per_second = report.elapsed_seconds > 0.0
       ? static_cast<double>(report.input_tokens) / report.elapsed_seconds : 0.0;
   std::vector<std::string> limitations;
   if (report.run_purpose == "bounded_compatibility_start_check")
     limitations.push_back("bounded_compatibility_start_check");
-  limitations.push_back("experimental_not_accepted_cuda_training");
-  limitations.push_back(report.decoder_cuda_path ? "partial_cuda_decoder_slice"
-                                                 : "host_reference_forward");
-  limitations.push_back(report.decoder_cuda_path ? "decoder_forward_partial"
-                                                 : "host_surrogate_backward");
-  if (report.attention_backend == "not_implemented") limitations.push_back("attention_not_implemented");
-  if (report.decoder_backward_backend == "not_implemented") limitations.push_back("decoder_backward_not_implemented");
-  if (report.kv_cache_backend == "none") limitations.push_back("kv_cache_not_implemented");
-  if (!report.decode_supported) limitations.push_back("autoregressive_decode_unsupported");
+  if (!accepted_decoder) {
+    limitations.push_back("experimental_not_accepted_cuda_training");
+    limitations.push_back(report.decoder_cuda_path ? "partial_cuda_decoder_slice" : "host_reference_forward");
+    limitations.push_back(report.decoder_cuda_path ? "decoder_forward_partial" : "host_surrogate_backward");
+    if (report.attention_backend == "not_implemented") limitations.push_back("attention_not_implemented");
+    if (report.decoder_backward_backend == "not_implemented") limitations.push_back("decoder_backward_not_implemented");
+    if (report.kv_cache_backend == "none") limitations.push_back("kv_cache_not_implemented");
+    if (!report.decode_supported) limitations.push_back("autoregressive_decode_unsupported");
+  }
   *out << "{\"schema_version\":3"
        << ",\"trainer_mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"run_purpose\":\"" << json_escape(report.run_purpose) << "\""
        << ",\"model_kind\":\"" << json_escape(kind) << "\""
-       << ",\"accepted_cuda_training\":false"
+       << ",\"accepted_cuda_training\":"
+       << (accepted_decoder ? "true" : "false")
        << ",\"implementation_status\":\"" << json_escape(impl) << "\""
        << ",\"transformer_status\":\""
        << json_escape(report.transformer_status) << "\""
@@ -191,9 +194,7 @@ void append_transformer(std::ostringstream* out,
        << ",\"export\":" << report.export_seconds << "}"
        << ",\"capability\":{" << capability_json_fields(cuda) << "}";
 } }  // namespace
-std::string transformer_train_report_json(
-    const TransformerTrainReport& report, const CudaStatus& cuda,
-    const std::string& trainer_mode, const std::string& status,
-    const std::string& failure_reason) {
+std::string transformer_train_report_json(const TransformerTrainReport& report, const CudaStatus& cuda, const std::string& trainer_mode,
+    const std::string& status, const std::string& failure_reason) {
   std::ostringstream out; append_transformer(&out, report, cuda, trainer_mode, status, failure_reason); out << "}"; return out.str(); }
 }  // namespace lkjai

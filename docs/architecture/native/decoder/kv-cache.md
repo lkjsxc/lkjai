@@ -12,6 +12,8 @@ autoregressive generation.
   prompt.
 - Steady-state decode does not allocate device memory per token.
 - Reports and responses name the backend, cache dtype, and unsupported modes.
+- Accepted reports use `kv_cache_backend=cuda_contiguous_bf16` and
+  `decode_backend=cuda_kv_cache`.
 
 ## Current Status
 

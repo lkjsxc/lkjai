@@ -41,7 +41,7 @@
 
 - Rejected for active serving.
 - Native C++/CUDA tensor decoding is the implementation direction.
-- The web app and inference runtime must remain separate containers.
+- The product path is one merged native server for `/`, `/api/*`, and `/v1/*`.
 
 ## Deterministic Inference Stub
 

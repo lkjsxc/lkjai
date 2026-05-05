@@ -51,5 +51,9 @@ void decoder_launch_rope_bf16(void* tensor_bf16, int batch, int seq, int heads,
 void decoder_launch_swiglu_bf16(const void* gate_bf16, const void* up_bf16,
                                 void* out_bf16, int elements,
                                 cudaStream_t stream);
+void decoder_launch_causal_gqa_attention_bf16(
+    const void* q_bf16, const void* k_bf16, const void* v_bf16, void* out_bf16,
+    int batch, int seq, int heads, int kv_heads, int head_dim,
+    cudaStream_t stream);
 
 }  // namespace lkjai

@@ -14,6 +14,7 @@ struct HttpRequest {
 struct HttpResponse {
   int status = 200;
   std::string body;
+  std::string content_type = "application/json";
 };
 
 using Handler = std::function<HttpResponse(const HttpRequest&)>;

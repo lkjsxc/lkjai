@@ -54,6 +54,14 @@ Record under ignored `artifacts/benchmarks/<run-id>/`:
 - cuBLASLt and cuDNN backend selections,
 - checkpoint/export/logits checksums,
 - `/v1/chat/completions` transcript smoke.
+- report fields:
+  `implementation_status=accepted`,
+  `accepted_cuda_training=true`,
+  `decoder_cuda_slice=full_decoder`,
+  `attention_backend=cuda_causal_gqa_bf16_reference`,
+  `decoder_backward_backend=cuda_full_decoder`,
+  `kv_cache_backend=cuda_contiguous_bf16`, and
+  `decode_backend=cuda_kv_cache`.
 
 Tracked docs may summarize curated accepted results after the generated
 artifacts exist.

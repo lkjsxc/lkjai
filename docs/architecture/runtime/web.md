@@ -5,7 +5,8 @@
 - Native binary named `lkjai-native-server`.
 - Merged native HTTP server for `/api/*` and `/v1/*` routing.
 - Direct native model-engine calls are the product path.
-- `GET /` returns a compact native service descriptor.
+- `GET /` serves a no-build HTML/CSS/browser-JS status and chat page.
+- The same process serves `/healthz`, `/api/*`, and `/v1/*`.
 - JSON APIs for chat and transcripts.
 - OpenAI-compatible model routes for generation.
 - Implemented transcripts label user, assistant, and error events.
@@ -25,6 +26,8 @@
 - The header reports model reachability.
 - The header reports inference device status.
 - CPU fallback is visible as degraded, not hidden behind a healthy label.
+- `/healthz` returns JSON process, artifact, and CUDA capability state from the
+  merged server.
 
 ## No Node Rule
 

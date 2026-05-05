@@ -7,6 +7,7 @@
 #include "env.hpp"
 #include "http_server.hpp"
 #include "json_min.hpp"
+#include "native_status_page.hpp"
 #include "runtime_api.hpp"
 
 using lkjai::HttpRequest;
@@ -108,7 +109,8 @@ HttpResponse route(const HttpRequest& request,
                    const lkjai::CudaStatus& cuda,
                    const lkjai::RuntimeConfig& runtime) {
   if (request.method == "GET" && request.path == "/") {
-    return {200, "{\"service\":\"lkjai-native-server\",\"runtime\":\"merged\"}"};
+    return {200, std::string(lkjai::native_status_page_html()),
+            "text/html; charset=utf-8"};
   }
   if (request.method == "GET" && request.path == "/healthz") {
     return {200, health_json(artifact, cuda)};

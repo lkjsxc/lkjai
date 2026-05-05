@@ -79,3 +79,17 @@ target_link_libraries(lkjai-native-decoder-artifact-contract
 
 add_executable(lkjai-native-runtime-contract tests/runtime_contract_check.cpp)
 target_link_libraries(lkjai-native-runtime-contract PRIVATE lkjai_native_core)
+
+add_executable(lkjai-native-status-page-contract
+  tests/status_page_contract.cpp
+)
+target_link_libraries(lkjai-native-status-page-contract PRIVATE
+  lkjai_native_core
+)
+
+add_executable(lkjai-native-decoder-cuda-attention-plan-check
+  tests/decoder_cuda_attention_plan_check.cpp
+)
+target_link_libraries(lkjai-native-decoder-cuda-attention-plan-check PRIVATE
+  lkjai_native_core
+)
