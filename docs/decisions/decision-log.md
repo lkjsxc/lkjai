@@ -3,6 +3,9 @@
 ## Accepted Defaults
 
 - Runtime orchestrator: native C++ HTTP service.
+- Target serving shape: one native process owns `/v1/*` model routes and
+  `/api/*` agent-runtime routes; loopback HTTP between native product
+  components is transitional only.
 - Inference runtime: separate native C++/CUDA OpenAI-compatible service.
 - Serving model family: local scratch decoder-only transformer.
 - Training scale: `scratch-40m` by default for the current corpus;

@@ -7,29 +7,26 @@ TARGET_SECONDS="${TARGET_SECONDS:-7200}"
 SEQ_LEN="${SEQ_LEN:-1024}"
 
 echo "[1/5] Build native and runtime images"
-docker compose build inference web train
+docker compose --profile inference --profile web --profile train build
 
 echo "[2/5] Run decoder benchmark"
-RUNNER_MODE=(--smoke-steps "${SMOKE_STEPS:-2}")
-if [[ "${REQUIRE_ACCEPTED_CUDA:-0}" == "1" ]]; then
-  RUNNER_MODE=(--full --require-accepted-cuda)
-fi
-python3 tools/benchmarks/run_decoder_2h.py \
-  --run-id "$RUN_ID" \
-  --native-config configs/native/decoder_18m_bf16_3070.json \
-  --source data/train/datasets/train.jsonl \
-  --tokenizer data/train/tokenizer/tokenizer.json \
-  --cache data/train/datasets/packed/train-causal_lm_full-seq1024 \
-  --seq-len "$SEQ_LEN" \
-  --target-seconds "$TARGET_SECONDS" \
-  --model-name "$MODEL_NAME" \
-  "${RUNNER_MODE[@]}"
-
-echo "[3/5] Publish model artifact"
 PHASE="smoke"
+TRAIN_ARGS=(--train --mode decoder --max-steps "${SMOKE_STEPS:-2}")
 if [[ "${REQUIRE_ACCEPTED_CUDA:-0}" == "1" ]]; then
   PHASE="full"
+  TRAIN_ARGS=(--train --mode decoder --target-seconds "$TARGET_SECONDS")
 fi
+TRAIN_DATA_DIR="/app/data/perf-runs/$RUN_ID/decoder_2h_bf16_cuda/$PHASE" \
+MODEL_NAME="$MODEL_NAME" \
+docker compose --profile train run --rm train \
+  "${TRAIN_ARGS[@]}" \
+  --config /workspace/configs/native/decoder_18m_bf16_3070.json \
+  --tokenizer /app/data/train/tokenizer/tokenizer.json \
+  --packed-cache /app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  --seq-len "$SEQ_LEN" \
+  --run-purpose decoder_2h_demo
+
+echo "[3/5] Publish model artifact"
 SRC="data/perf-runs/$RUN_ID/decoder_2h_bf16_cuda/$PHASE/exports/$MODEL_NAME"
 test -d "$SRC"
 rm -rf "data/models/$MODEL_NAME"

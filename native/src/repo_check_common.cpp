@@ -1,5 +1,6 @@
 #include "repo_check.hpp"
 
+#include <cstdio>
 #include <iostream>
 
 namespace lkjai {
@@ -33,6 +34,23 @@ PathList collect_files(const std::filesystem::path& root) {
     if (it->is_regular_file()) files.push_back(it->path());
   }
   return files;
+}
+
+PathList collect_tracked_files(const std::filesystem::path& repo) {
+  PathList files;
+  auto command = "git -C " + repo.string() + " ls-files";
+  FILE* pipe = popen(command.c_str(), "r");
+  if (!pipe) return collect_files(repo);
+  char buffer[4096];
+  while (fgets(buffer, sizeof(buffer), pipe)) {
+    std::string line(buffer);
+    while (!line.empty() && (line.back() == '\n' || line.back() == '\r')) {
+      line.pop_back();
+    }
+    if (!line.empty()) files.push_back(repo / line);
+  }
+  int status = pclose(pipe);
+  return status == 0 ? files : collect_files(repo);
 }
 
 }  // namespace lkjai

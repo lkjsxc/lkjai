@@ -8,6 +8,7 @@ services:
       dockerfile: ops/docker/Dockerfile.native
       args:
         LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
+        LKJAI_GIT_COMMIT: ${LKJAI_GIT_COMMIT:-unknown}
     ports:
       - "127.0.0.1:${MODEL_PORT:-8081}:8081"
     environment:
@@ -46,6 +47,7 @@ services:
       dockerfile: ops/docker/Dockerfile.native
       args:
         LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
+        LKJAI_GIT_COMMIT: ${LKJAI_GIT_COMMIT:-unknown}
     command: ["lkjai-native-runtime"]
     entrypoint: []
     ports:
@@ -80,6 +82,7 @@ services:
       dockerfile: ops/docker/Dockerfile.native
       args:
         LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
+        LKJAI_GIT_COMMIT: ${LKJAI_GIT_COMMIT:-unknown}
     environment:
       DATA_DIR: ${TRAIN_DATA_DIR:-/app/data/train}
       LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}

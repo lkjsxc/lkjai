@@ -4,12 +4,14 @@ This directory is reserved for generated diagnostics, benchmark logs, plots, raw
 telemetry, and patch snapshots produced by the performance tooling.
 
 Generated files under this directory are intentionally ignored by Git. Recreate
-them with:
+them with native Compose workflows:
 
 ```bash
-python3 diagnostics/collect.py --run-id final --timeout 15
-python3 benchmarks/run_matrix.py --run-id smoke --cases real_legacy,real_mapped,synthetic_gpu --repeats 1
-python3 reports/generate_report.py --diagnostics-run-id final
+docker compose --progress quiet --profile verify run --build --rm verify
+docker compose --profile train run --rm train --smoke --steps 2
+docker compose --profile train run --rm train --train --mode dense
 ```
 
-Keep durable summaries in `reports/`; keep raw run outputs here.
+Native benchmark and report CLIs should write machine-readable run directories
+here. Keep curated summaries in `docs/operations/performance/`; keep raw run
+outputs here.

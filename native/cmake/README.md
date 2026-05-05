@@ -8,3 +8,5 @@ This directory holds small CMake fragments used by the native CUDA build.
 
 - [NativeSources.cmake](NativeSources.cmake): source-file lists for native
   static libraries.
+- [NativeTargets.cmake](NativeTargets.cmake): native executable targets.
+- [NativeTests.cmake](NativeTests.cmake): CTest gates.

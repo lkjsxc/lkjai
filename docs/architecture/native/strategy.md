@@ -3,9 +3,10 @@
 ## Target State
 
 - Product training and serving run through native C++/CUDA binaries.
-- The model API remains a separate local HTTP service.
+- One native server process is the target owner for `/v1/*` inference and
+  `/api/*` agent-runtime routes.
 - The native C++ runtime owns agent orchestration, tools, transcripts, memory,
-  model-client calls, and `kjxlkj` integration.
+  direct model-engine calls, and optional `kjxlkj` integration.
 - Rust and Python are not product, verification, benchmark, or tooling
   dependencies.
 - Existing `.pt` checkpoints are not protected.
@@ -28,6 +29,7 @@ Replace:
 - Python or PyTorch scratch model execution.
 - Rust packed-cache builder and reader utilities.
 - Cookie/session `kjxlkj` resource access.
+- Loopback HTTP between native runtime and native inference code.
 
 ## First Optimization Target
 

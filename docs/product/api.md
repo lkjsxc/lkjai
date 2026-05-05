@@ -41,7 +41,8 @@ This is the implemented foundation response shape. `assistant` is populated
 only when the model endpoint returns OpenAI-compatible `choices` content.
 Current native dense and transformer artifacts return unsupported decode from
 `/v1/chat/completions`, so real product chat quality gates remain blocked until
-accepted decoder decode lands.
+accepted decoder decode lands. The target implementation serves this route and
+the `/api/*` runtime routes from one native process.
 
 ## `GET /api/model` Response
 

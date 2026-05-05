@@ -2,8 +2,8 @@
 
 ## Profiles
 
-- `inference`: native OpenAI-compatible scratch inference service.
-- `web`: native C++ agent API runtime plus its inference dependency.
+- `inference`: current native OpenAI-compatible scratch inference service.
+- `web`: current native C++ agent API runtime plus its inference dependency.
 - `train`: native scratch training container.
 - `verify`: repository verification container.
 
@@ -14,6 +14,8 @@
 - Inference loads `/models/${MODEL_NAME}`.
 - The `web` profile also activates `inference`.
 - Web waits for inference process health before serving traffic.
+- The target architecture collapses `web` and `inference` into one native
+  server process with both `/api/*` and `/v1/*` routes.
 - Model readiness is reported separately through `/api/model` and
   `GET /v1/models`.
 - Inference loads exported native artifacts. Dense and transformer artifacts

@@ -2,7 +2,8 @@
 
 ## Goal
 
-Serve the scratch model through one native C++/CUDA HTTP process.
+Serve the scratch model and local agent API through one native C++/CUDA HTTP
+process.
 
 ## HTTP Contract
 
@@ -11,6 +12,8 @@ Serve the scratch model through one native C++/CUDA HTTP process.
   name, hardware/build capability fields, and warning.
 - `POST /v1/chat/completions` accepts `model`, `messages`, `max_tokens`, and
   `temperature`.
+- `POST /api/chat`, `GET /api/model`, and `GET /api/runs/{id}` are target
+  runtime routes in the same process.
 - Successful decoder chat responses keep `choices[0].message.content`.
 - Non-success responses include a JSON `error` string.
 - Capability fields follow [capability.md](capability.md).
@@ -23,6 +26,8 @@ Serve the scratch model through one native C++/CUDA HTTP process.
   `choices` field for those kinds.
 - Decoder artifacts are the only artifacts that may return successful
   `/v1/chat/completions` choices.
+- The target runtime path calls the loaded model engine directly instead of
+  posting to another native service over loopback HTTP.
 - `lkjai-native-logits-check` is the accepted inference proof for this slice.
 - Do not use supervised lookup, canned responses, or prompt lookup tables.
 - CPU execution is allowed only as a visible degraded mode outside dense CUDA

@@ -1,6 +1,7 @@
 FROM nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04 AS build
 
 ARG LKJAI_CUDA_ARCHS
+ARG LKJAI_GIT_COMMIT=unknown
 ENV LKJAI_CUDA_ARCHS=${LKJAI_CUDA_ARCHS}
 
 WORKDIR /workspace
@@ -14,11 +15,13 @@ COPY native ./native
 COPY configs ./configs
 
 RUN cmake -S native -B /build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+      -DLKJAI_GIT_COMMIT_OVERRIDE=${LKJAI_GIT_COMMIT} \
     && cmake --build /build --parallel
 
 FROM nvidia/cuda:12.8.1-cudnn-runtime-ubuntu24.04
 
 ARG LKJAI_CUDA_ARCHS
+ARG LKJAI_GIT_COMMIT=unknown
 ENV LKJAI_CUDA_ARCHS=${LKJAI_CUDA_ARCHS}
 
 WORKDIR /workspace
