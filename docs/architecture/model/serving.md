@@ -29,7 +29,9 @@ artifacts prove load and logits, while raw generation belongs to the native
 
 - Required files: `manifest.json`, `config.json`, `tokenizer.json`,
   `weights.index.json`, and `weights.lkjw`.
-- Serving currently loads dense exports and exposes readiness.
+- Serving currently loads native exports and exposes readiness. Dense and
+  transformer artifacts are diagnostics; decoder artifacts may return partial
+  host-reference chat choices until accepted KV-cache decode lands.
 - `lkjai-native-logits-check` is the accepted current inference proof.
 - Target decode must reuse preallocated KV cache storage across generated
   tokens.

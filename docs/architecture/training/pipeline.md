@@ -22,7 +22,8 @@ Train and export the current dense BF16 CUDA foundation while preserving the
 6. Train the causal-LM dense foundation through native C++/CUDA.
 7. Save native dense checkpoints and `lkjai-native-artifact-v2` exports.
 8. Run artifact inspect and dense logits checks.
-9. Confirm native server chat returns unsupported decode for dense exports.
+9. Confirm native server chat rejects dense/transformer decode and labels
+   decoder partial decode honestly when a decoder artifact is present.
 10. Add XML-action SFT and behavioral eval only after decode lands.
 
 ## Defaults
@@ -57,8 +58,9 @@ Recommended stages:
 2. `assistant_masked_sft` on first-party XML action traces.
 3. Optional later preference training after both objective gates pass.
 
-No current artifact is accepted for chat because autoregressive decode is
-unsupported.
+No current artifact is accepted for product chat. Decoder artifacts may serve
+host-reference recompute choices, but accepted autoregressive KV-cache decode is
+still a native milestone.
 
 ## Artifacts
 

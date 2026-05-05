@@ -22,10 +22,12 @@ small tensors through:
 - BF16 RoPE for Q and K layouts `[B,S,heads,D]`.
 - row-major BF16 cuBLASLt projections for Q, K, V, and O.
 - BF16 correctness-first causal GQA attention.
-- BF16 SwiGLU glue for `silu(gate) * up`.
+- BF16 residual adds around attention and MLP paths.
+- MLP RMSNorm, BF16 SwiGLU glue, and down projection.
 
 Measured checks are finite BF16 outputs, CPU-comparable RMSNorm and RoPE CTest
-coverage, Q/K/V/O metadata validation, and serialized report-field coverage.
+coverage, Q/K/V/O/down metadata validation, and serialized report-field
+coverage.
 
 ## Non-Claims
 

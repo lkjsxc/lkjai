@@ -22,9 +22,10 @@ Accepted full decoder CUDA training requires:
 
 The current partial decoder slice trains only embeddings and the LM head. A
 decoder forward-substrate probe now runs first and covers RMSNorm, RoPE,
-Q/K/V/O projections, and SwiGLU glue on deterministic tensors. It must not be
-described as accepted full decoder CUDA training because attention, block
-backward, block optimizer state, and KV-cache decode are still absent.
+Q/K/V/O projections, causal GQA attention, attention residual, MLP RMSNorm,
+SwiGLU, down projection, and final residual on deterministic tensors. It must
+not be described as accepted full decoder CUDA training because block backward,
+block optimizer state, and KV-cache decode are still absent.
 
 ## Public Invocation
 
@@ -107,8 +108,8 @@ The current forward-substrate batch keeps acceptance unchanged while reporting
 `mlp_backend=cuda_swiglu_partial`, and
 `decoder_backward_backend=not_implemented`.
 
-The substrate now runs `cuda_causal_gqa_bf16_reference` attention before the O
-projection, but training reports remain partial until full forward, backward,
-optimizer coverage, and KV-cache decode are wired into the trainer. P0 server
-contract and embedding/head CUDA training are not accepted full decoder
-training.
+The substrate now runs the complete decoder block forward shape through the O
+projection, residual path, MLP path, down projection, and final residual, but
+training reports remain partial until full forward, backward, optimizer
+coverage, and KV-cache decode are wired into the trainer. P0 server contract
+and embedding/head CUDA training are not accepted full decoder training.

@@ -19,3 +19,5 @@ future baselines.
 - [small-model-training.md](small-model-training.md): data-centric training and optimizer notes
 - [scaling-laws.md](scaling-laws.md): Chinchilla-style token accounting and practical gap
 - [reasoning-models.md](reasoning-models.md): reasoning-budget and RL lessons for scratch models
+- [native-decoder-roadmap.md](native-decoder-roadmap.md): latest native BF16
+  decoder research synthesis and implementation order

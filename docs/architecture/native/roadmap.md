@@ -15,7 +15,7 @@ code.
 | 3 | Typed artifacts | explicit tensor metadata, config checksum, optimizer checkpoint state |
 | 4 | Dense foundation | BF16 embedding plus LM-head train/export/logits smoke |
 | 5 | Fused kernels | RMSNorm, RoPE, SwiGLU, CE loss, and cast kernels with tolerance tests |
-| 6 | Attention | cuDNN SDPA train/prefill path plus GQA/mask parity tests |
+| 6 | Attention | correctness-first CUDA causal GQA plus GQA/mask parity tests |
 | 7 | Real backward | projection, attention, norm, MLP, loss, and embedding gradients |
 | 8 | Optimizer | AdamW with FP32 state and BF16 refresh; FP16 scaler fallback |
 | 9 | Resume/export | atomic snapshots, exact restart metadata, stripped serving export |
@@ -52,9 +52,10 @@ That slice is useful for contracts, but it is not the final trainer.
 
 The next implementation target is accepted `decoder` CUDA training for the
 40M RTX 3070 preset: device-resident cuBLASLt projections, fused pointwise
-kernels, cuDNN SDPA, decoder backward, contiguous BF16 KV-cache decode, native
-runtime chat, accepted report fields, and two-hour RTX 3070 evidence. NCCL
-stays after single-GPU correctness and profiling.
+kernels, correctness-first CUDA causal GQA attention, decoder backward,
+contiguous BF16 KV-cache decode, native runtime chat, accepted report fields,
+and two-hour RTX 3070 evidence. cuDNN SDPA and NCCL stay after single-GPU
+correctness and profiling.
 
 See [decoder/README.md](decoder/README.md) for the same-model chat path. See
 [transformer-cuda-roadmap.md](transformer-cuda-roadmap.md) for the retained

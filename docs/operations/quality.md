@@ -12,6 +12,7 @@
 8. `lkjai-native-repo-check cuda-arch-contract --repo /workspace`
 9. `lkjai-native-repo-check line-limits --repo /workspace`
 10. `lkjai-native-repo-check no-node --repo /workspace`
+11. `lkjai-native-repo-check native-only --repo /workspace`
 
 ## Compose Gate
 

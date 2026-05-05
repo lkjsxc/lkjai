@@ -21,8 +21,9 @@ architecture, operations, and repository policy.
 
 - Compose profiles: `inference`, `web`, `train`, `verify`.
 - `web` runs the native C++ agent API runtime.
-- `inference` loads native artifacts and currently returns explicit unsupported
-  chat decode for dense exports.
+- `inference` loads native artifacts. Dense and transformer exports return
+  explicit unsupported chat decode; decoder exports may return choices through
+  the current host-reference recompute bridge.
 - `train` runs native dense CUDA smoke or packed-cache training from scratch.
 - Competency acceptance is behavioral eval pass rate `>= 80%`.
 - Runtime data is mounted at `./data` for models, checkpoints, memory, runs, and

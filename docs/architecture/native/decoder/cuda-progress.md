@@ -22,8 +22,8 @@ First CUDA progress after P0:
   tokenizer checksum and atomic-tag inspection, decoder acceptance-gate
   hardening, and standalone BF16 RMSNorm CUDA parity.
 - Current forward substrate: decoder block metadata validation plus CUDA BF16
-  RMSNorm, row-major cuBLASLt Q/K/V, RoPE, causal GQA attention, O projection
-  from attention output, and BF16 SwiGLU glue.
+  RMSNorm, row-major cuBLASLt Q/K/V, RoPE, causal GQA attention, O projection,
+  residual adds, MLP RMSNorm, BF16 SwiGLU glue, and down projection.
 - Current attention hook: deterministic BF16 causal MHA/GQA CUDA parity plus
   reusable cuBLASLt projection plan-cache coverage.
 
@@ -43,8 +43,9 @@ existing dense CUDA substrate:
 The decoder block forward substrate is standalone and probed before the
 existing decoder CUDA slice runs. It validates decoder metadata, launches
 RMSNorm, projects Q/K/V, applies RoPE, runs causal GQA attention, projects the
-attention output through O, and runs `silu(gate) * up`. It is forward-only
-evidence and does not train block tensors.
+attention output through O, adds the attention residual, runs MLP RMSNorm,
+applies `silu(gate) * up`, projects through the down matrix, and adds the final
+residual. It is forward-only evidence and does not train block tensors.
 
 The exported artifact remains `manifest.json.kind=decoder`, so inspect,
 logits-check, and native server P0 chat contracts continue to operate on the
@@ -76,9 +77,9 @@ must disclose `lkjai_decode_backend=host_reference_recompute` and
 lands.
 
 Before acceptance, the repo still needs this forward substrate wired into the
-trainer as full decoder forward, full block backward, down projection and
-optimizer coverage for block tensors, contiguous BF16 KV-cache decode, no
-per-token device allocations, and a real two-hour RTX acceptance run.
+trainer as full decoder forward, full block backward, optimizer coverage for
+block tensors, contiguous BF16 KV-cache decode, no per-token device
+allocations, and a real two-hour RTX acceptance run.
 
 ## Hardware Implications
 
