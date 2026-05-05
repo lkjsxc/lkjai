@@ -22,6 +22,9 @@ artifact inspection, and CUDA capability probing.
 - [decoder_decode.cpp](decoder_decode.cpp) and
   [decoder_decode.hpp](decoder_decode.hpp): decoder artifact autoregressive
   HTTP chat response helper.
+- [decoder_kv_cache.cpp](decoder_kv_cache.cpp) and
+  [decoder_kv_cache.hpp](decoder_kv_cache.hpp): contiguous BF16 K/V cache
+  layout contract for accepted incremental decoder serving.
 - [decoder_cuda_block.cu](decoder_cuda_block.cu),
   [decoder_cuda_block_probe.cpp](decoder_cuda_block_probe.cpp),
   [decoder_cuda_block_project.cu](decoder_cuda_block_project.cu),

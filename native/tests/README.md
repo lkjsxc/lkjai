@@ -13,6 +13,8 @@ This directory contains test helpers for native CTest cases.
   packed-cache build and validation metadata rejection checks.
 - [decoder_tokenizer_contract.cpp](decoder_tokenizer_contract.cpp): atomic
   XML-like tags, ordered prompt serialization, and tokenizer round trip.
+- [decoder_kv_cache_contract.cpp](decoder_kv_cache_contract.cpp): contiguous
+  BF16 K/V cache offset and size contract for the tied 40M decoder.
 - [decoder_cuda_norm_check.cpp](decoder_cuda_norm_check.cpp): BF16 CUDA
   RMSNorm parity against a CPU reference.
 - [../src/decoder_cuda_block_check.cpp](../src/decoder_cuda_block_check.cpp):

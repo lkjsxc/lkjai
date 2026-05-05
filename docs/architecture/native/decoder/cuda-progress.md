@@ -64,7 +64,7 @@ must say:
 - `rmsnorm_backend=cuda_bf16_fp32_reduce`
 - `rope_backend=cuda_bf16`
 - `qkv_projection_backend=cuda_bf16_cublaslt`
-- `attention_backend=not_implemented` in trainer reports
+- `attention_backend=cuda_causal_gqa_bf16_reference`
 - `mlp_backend=cuda_swiglu_partial`
 - `decoder_backward_backend=not_implemented`
 - `kv_cache_backend=none`

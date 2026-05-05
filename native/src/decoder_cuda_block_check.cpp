@@ -123,7 +123,7 @@ int main() {
   report.rmsnorm_backend = "cuda_bf16_fp32_reduce";
   report.rope_backend = "cuda_bf16";
   report.qkv_projection_backend = "cuda_bf16_cublaslt";
-  report.attention_backend = "not_implemented";
+  report.attention_backend = "cuda_causal_gqa_bf16_reference";
   report.mlp_backend = "cuda_swiglu_partial";
   report.decoder_backward_backend = "not_implemented";
   report.kv_cache_backend = "none";
@@ -140,7 +140,7 @@ int main() {
       !require_contains(json, "\"rope_backend\":\"cuda_bf16\"") ||
       !require_contains(json,
                         "\"qkv_projection_backend\":\"cuda_bf16_cublaslt\"") ||
-      !require_contains(json, "\"attention_backend\":\"not_implemented\"") ||
+      !require_contains(json, "\"attention_backend\":\"cuda_causal_gqa_bf16_reference\"") ||
       !require_contains(json, "\"mlp_backend\":\"cuda_swiglu_partial\"") ||
       !require_contains(json,
                         "\"decoder_backward_backend\":\"not_implemented\"") ||

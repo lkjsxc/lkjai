@@ -20,3 +20,7 @@ autoregressive generation.
 The current decoder bridge recomputes the host reference each token and reports
 `host_reference_recompute` plus `kv_cache_backend=none`. That is valid partial
 serving evidence, not accepted KV-cache decode.
+
+The native implementation now has a tested layout helper for the accepted
+contiguous BF16 K/V memory contract. It does not change serving reports until
+decode writes and reads the cache on the CUDA path.

@@ -77,6 +77,13 @@ target_link_libraries(lkjai-native-decoder-artifact-contract
   PRIVATE lkjai_native_core
 )
 
+add_executable(lkjai-native-decoder-kv-cache-contract
+  tests/decoder_kv_cache_contract.cpp
+)
+target_link_libraries(lkjai-native-decoder-kv-cache-contract
+  PRIVATE lkjai_native_core
+)
+
 add_executable(lkjai-native-runtime-contract tests/runtime_contract_check.cpp)
 target_link_libraries(lkjai-native-runtime-contract PRIVATE lkjai_native_core)
 

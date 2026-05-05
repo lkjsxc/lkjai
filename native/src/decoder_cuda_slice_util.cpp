@@ -141,7 +141,7 @@ void decoder_fill_cuda_slice_report(DenseCudaState& cuda,
   r->rmsnorm_backend = "cuda_bf16_fp32_reduce";
   r->rope_backend = "cuda_bf16";
   r->qkv_projection_backend = "cuda_bf16_cublaslt";
-  r->attention_backend = "not_implemented";
+  r->attention_backend = "cuda_causal_gqa_bf16_reference";
   r->mlp_backend = "cuda_swiglu_partial";
   r->decoder_backward_backend = "not_implemented";
   r->matmul_backend = "cublaslt";

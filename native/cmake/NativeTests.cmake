@@ -44,6 +44,8 @@ add_test(NAME native_decoder_tokenizer_contract
   COMMAND lkjai-native-decoder-tokenizer-contract)
 add_test(NAME native_decoder_artifact_contract
   COMMAND lkjai-native-decoder-artifact-contract)
+add_test(NAME native_decoder_kv_cache_contract
+  COMMAND lkjai-native-decoder-kv-cache-contract)
 add_test(NAME native_runtime_contract COMMAND lkjai-native-runtime-contract)
 add_test(NAME native_status_page_contract
   COMMAND lkjai-native-status-page-contract)
