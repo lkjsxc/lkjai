@@ -4,6 +4,19 @@
 #include <iostream>
 
 namespace lkjai {
+namespace {
+
+std::string shell_quote(const std::string& value) {
+  std::string out = "'";
+  for (char ch : value) {
+    if (ch == '\'') out += "'\\''";
+    else out += ch;
+  }
+  out += "'";
+  return out;
+}
+
+}  // namespace
 
 void RepoCheckResult::fail(const std::string& message) {
   ++errors;
@@ -16,7 +29,7 @@ bool is_ignored_path(const std::filesystem::path& path) {
     if (name == ".git" || name == "target" || name == "build" ||
         name == ".pytest_cache" || name == "__pycache__" ||
         name == "artifacts" || name == "runs" || name == "reports" ||
-        name == "data") {
+        name == "data" || name == "tmp") {
       return true;
     }
   }
@@ -38,7 +51,9 @@ PathList collect_files(const std::filesystem::path& root) {
 
 PathList collect_tracked_files(const std::filesystem::path& repo) {
   PathList files;
-  auto command = "git -C " + repo.string() + " ls-files";
+  auto safe_repo = shell_quote(repo.string());
+  auto command = "git -c safe.directory=" + safe_repo + " -C " + safe_repo +
+                 " ls-files";
   FILE* pipe = popen(command.c_str(), "r");
   if (!pipe) return collect_files(repo);
   char buffer[4096];
