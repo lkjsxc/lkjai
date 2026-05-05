@@ -112,6 +112,13 @@ target_link_libraries(lkjai-native-packed-cache-reader-check
   PRIVATE lkjai_native_core
 )
 
+add_executable(lkjai-native-packed-cache-strict-check
+  tests/packed_cache_strict_check.cpp
+)
+target_link_libraries(lkjai-native-packed-cache-strict-check
+  PRIVATE lkjai_native_core
+)
+
 add_executable(lkjai-native-decoder-cuda-norm-check
   tests/decoder_cuda_norm_check.cpp
 )
@@ -155,6 +162,10 @@ add_test(NAME native_device_tensor_check COMMAND lkjai-native-device-check)
 add_test(
   NAME native_packed_cache_reader_check
   COMMAND lkjai-native-packed-cache-reader-check
+)
+add_test(
+  NAME native_packed_cache_strict_check
+  COMMAND lkjai-native-packed-cache-strict-check
 )
 add_test(
   NAME native_decoder_cuda_rmsnorm_parity

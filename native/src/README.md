@@ -81,6 +81,9 @@ artifact inspection, and CUDA capability probing.
 - [packed_cache_build.cpp](packed_cache_build.cpp) and
   [packed_cache_build.hpp](packed_cache_build.hpp): native packed-cache build
   and validate CLI support.
+- [packed_cache_digest.cpp](packed_cache_digest.cpp) and
+  [packed_cache_digest.hpp](packed_cache_digest.hpp): packed-cache checksum and
+  digest helpers.
 - [packed_cache_reader.cpp](packed_cache_reader.cpp): persistent packed-cache
   reader for dense training batches.
 - [packed_cache_validate.cpp](packed_cache_validate.cpp): packed-cache metadata,

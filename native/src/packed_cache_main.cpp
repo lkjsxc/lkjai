@@ -54,10 +54,14 @@ int main(int argc, char** argv) {
   }
   if (command == "validate") {
     auto cache = value(argc, argv, "--cache");
+    auto source = value(argc, argv, "--source");
+    auto tokenizer = value(argc, argv, "--tokenizer");
     auto config = value(argc, argv, "--config");
     std::string error;
     if (cache.empty() || config.empty() ||
-        !lkjai::validate_packed_cache_command(cache, config, &error)) {
+        !lkjai::validate_packed_cache_command(
+            cache, source, tokenizer, config,
+            flag(argc, argv, "--allow-smoke-fixture"), &error)) {
       std::cerr << "packed cache validation failed: " << error << "\n";
       return 2;
     }
@@ -67,7 +71,8 @@ int main(int argc, char** argv) {
   if (!flag(argc, argv, "--migrate-v1-to-v2")) {
     std::cerr << "usage: lkjai-native-packed-cache build|validate OR "
                  "--migrate-v1-to-v2 "
-                 "--in DIR --out DIR --config FILE [--link-mode hardlink]\n";
+                 "--in DIR --out DIR --config FILE [--link-mode hardlink]; "
+                 "validate accepts [--allow-smoke-fixture]\n";
     return 2;
   }
   auto in = value(argc, argv, "--in");

@@ -31,7 +31,8 @@ std::filesystem::path make_cache(const std::string& name,
   std::filesystem::create_directories(dir);
   std::ofstream(dir / "metadata.json")
       << "{\"format\":\"lkjai-packed-cache-v2\",\"sequence_len\":4,"
-      << "\"vocab_size\":16,\"token_dtype\":\"uint16\",\"token_count\":8,"
+      << "\"vocab_size\":16,\"smoke_fixture\":true,"
+      << "\"token_dtype\":\"uint16\",\"token_count\":8,"
       << "\"row_count\":" << starts.size() << "}\n";
   write_u16(dir / "tokens.bin", {0, 1, 2, 3, 4, 5, 6, 7});
   write_bytes(dir / "loss_mask.bin", "\1\1\1\1\1\1\1\1", 8);

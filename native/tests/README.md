@@ -9,6 +9,8 @@ This directory contains test helpers for native CTest cases.
 - [packed_cache_reader_check.cpp](packed_cache_reader_check.cpp): persistent
   packed-cache reader, wraparound, mismatch, corrupt starts, and truncated file
   rejection.
+- [packed_cache_strict_check.cpp](packed_cache_strict_check.cpp): strict
+  packed-cache build and validation metadata rejection checks.
 - [decoder_tokenizer_contract.cpp](decoder_tokenizer_contract.cpp): atomic
   XML-like tags, ordered prompt serialization, and tokenizer round trip.
 - [decoder_cuda_norm_check.cpp](decoder_cuda_norm_check.cpp): BF16 CUDA

@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include "json_min.hpp"
+#include "packed_cache_digest.hpp"
 
 namespace lkjai {
 namespace {
@@ -114,11 +115,20 @@ bool migrate_packed_cache_v1_to_v2(const std::filesystem::path& in,
   }
   std::ofstream(out / "metadata.json")
       << "{\"format\":\"lkjai-packed-cache-v2\",\"migrated_from\":\"v1\","
+      << "\"smoke_fixture\":true,"
       << "\"sequence_len\":" << sequence_len << ",\"vocab_size\":"
       << vocab_size << ",\"token_dtype\":\"uint16\",\"token_count\":"
       << (token_bytes / 2) << ",\"row_count\":" << (start_bytes / 8)
       << "}\n";
   return true;
+}
+
+bool packed_cache_allowed_for_run(const PackedCacheStatus& status,
+                                  const std::string& run_purpose,
+                                  std::string* error) {
+  if (!status.smoke_fixture || run_purpose == "smoke") return true;
+  *error = "smoke packed cache fixture cannot be used for real training";
+  return false;
 }
 
 }  // namespace lkjai

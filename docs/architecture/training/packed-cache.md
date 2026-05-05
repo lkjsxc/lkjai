@@ -79,6 +79,8 @@ validation reports those fields, rebuild it with the command below.
   and `packed_data_checksum`.
 - Explicit tiny smoke fixtures may set `smoke_fixture=true`; they are valid only
   for smoke gates and are rejected by real train runbooks.
+- `lkjai-native-packed-cache validate --allow-smoke-fixture` exists only for
+  explicit smoke checks. Do not use it before accepted or long training runs.
 
 ## Dense Seq1024 Rebuild
 

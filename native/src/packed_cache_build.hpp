@@ -20,7 +20,10 @@ struct PackedCacheBuildOptions {
 
 bool build_packed_cache(const PackedCacheBuildOptions& opt, std::string* error);
 bool validate_packed_cache_command(const std::filesystem::path& cache,
+                                   const std::filesystem::path& source,
+                                   const std::filesystem::path& tokenizer,
                                    const std::filesystem::path& config,
+                                   bool allow_smoke_fixture,
                                    std::string* error);
 
 }  // namespace lkjai

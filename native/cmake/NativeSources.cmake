@@ -45,6 +45,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/native_http_client.cpp
   src/packed_cache.cpp
   src/packed_cache_build.cpp
+  src/packed_cache_digest.cpp
   src/packed_cache_reader.cpp
   src/packed_cache_validate.cpp
   src/runtime_api.cpp

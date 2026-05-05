@@ -54,7 +54,8 @@ void prepare_smoke_fixture(const std::filesystem::path& root,
   std::ofstream(*cache / "metadata.json")
       << "{\"format\":\"lkjai-packed-cache-v2\",\"split\":\"train\","
          "\"objective\":\"causal_lm_full\",\"sequence_len\":16,"
-         "\"vocab_size\":256,\"token_dtype\":\"uint16\",\"row_count\":2,"
+         "\"vocab_size\":256,\"smoke_fixture\":true,"
+         "\"token_dtype\":\"uint16\",\"row_count\":2,"
          "\"token_count\":32}\n";
   std::ofstream tokens(*cache / "tokens.bin", std::ios::binary);
   std::ofstream mask(*cache / "loss_mask.bin", std::ios::binary);

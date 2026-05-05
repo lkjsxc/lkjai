@@ -73,6 +73,7 @@ bool run_decoder_cuda_slice_training(const TransformerTrainOptions& opt,
   }
   PackedCacheReader reader;
   if (!reader.open(opt.packed_cache, seq_len, cfg.vocab_size, error)) return false;
+  if (!packed_cache_allowed_for_run(reader.status(), opt.run_purpose, error)) return false;
   TransformerState state;
   init_transformer_state(cfg, &state);
   auto before_emb = state.tok_embeddings.w;

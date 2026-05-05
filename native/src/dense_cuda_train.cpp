@@ -8,8 +8,7 @@
 #include "dense_weight_change.hpp"
 #include "json_min.hpp"
 namespace lkjai {
-bool run_dense_cuda_training(const DenseTrainOptions& opt,
-                             DenseTrainReport* report, std::string* error) {
+bool run_dense_cuda_training(const DenseTrainOptions& opt, DenseTrainReport* report, std::string* error) {
   auto status = cuda_status();
   if (!cuda_required_ok(status)) {
     *error = "CUDA BF16/cuBLASLt capability unavailable: " +
@@ -30,6 +29,7 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt,
   }
   PackedCacheReader reader;
   if (!reader.open(opt.packed_cache, seq_len, cfg.vocab_size, error)) return false;
+  if (!packed_cache_allowed_for_run(reader.status(), opt.run_purpose, error)) return false;
   try {
     report->train_config_path = opt.train_config_path;
     report->run_purpose = opt.run_purpose;

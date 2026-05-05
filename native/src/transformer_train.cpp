@@ -7,7 +7,6 @@
 #include "json_min.hpp"
 #include "packed_cache.hpp"
 #include "transformer_state.hpp"
-
 namespace lkjai {
 namespace {
 
@@ -53,6 +52,7 @@ bool run_transformer_training(const TransformerTrainOptions& opt,
     *error = cache.error;
     return false;
   }
+  if (!packed_cache_allowed_for_run(cache, opt.run_purpose, error)) return false;
   if (cache.vocab_size > cfg.vocab_size) {
     *error = "packed cache vocab_size exceeds transformer config vocab_size";
     return false;
