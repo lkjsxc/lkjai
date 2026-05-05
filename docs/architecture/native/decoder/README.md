@@ -15,6 +15,9 @@ Use this subtree for the chat-capable native `decoder` model kind.
 - [artifact.md](artifact.md): decoder artifact tensors and manifest behavior
 - [training.md](training.md): CUDA training ownership, wall-clock stop, and reports
 - [decode.md](decode.md): native autoregressive decode, sampler, KV cache, and API
+- [attention.md](attention.md): full attention acceptance requirements
+- [backward.md](backward.md): decoder backward and optimizer acceptance
+- [kv-cache.md](kv-cache.md): accepted contiguous BF16 KV-cache decode contract
 - [benchmark.md](benchmark.md): smoke, two-hour, and evidence requirements
 - [cuda-progress.md](cuda-progress.md): P0 commits, partial CUDA slice evidence,
   and remaining acceptance gap
@@ -29,6 +32,7 @@ Use this subtree for the chat-capable native `decoder` model kind.
 
 The current decoder implementation exports real decoder artifacts with the
 repo byte-level BPE tokenizer and can serve decoder chat choices through the
-native tokenizer bridge. It now has standalone RMSNorm CUDA parity coverage,
-but still reports partial CUDA training because attention, MLP, norm
-integration, RoPE, and full backward kernels are not complete.
+native tokenizer bridge. Host-reference decode applies RoPE and omits learned
+position embeddings. It still reports partial CUDA training because attention,
+full block backward, block optimizer coverage, and KV-cache decode are not
+complete.

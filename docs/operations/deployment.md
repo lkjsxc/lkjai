@@ -22,6 +22,8 @@ docker compose --profile web up --build web
 - Compose web serves `/api/*` and `/v1/*` from one native process on
   `http://127.0.0.1:8080`.
 - Host checks model readiness on `http://127.0.0.1:8080/v1/models`.
+- Runtime configuration and `kjxlkj` adapter status are visible at
+  `http://127.0.0.1:8080/api/config`.
 - Chat reports explicit model errors instead of dummy web-runtime responses.
 - Default inference is the native C++/CUDA server.
 

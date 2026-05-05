@@ -29,6 +29,10 @@ Training reports mirror this with `decode_backend=host_reference_recompute` and
 `kv_cache_backend=none`; the new CUDA forward-substrate probe does not change
 decode behavior.
 
+Host-reference decode recomputes the full prompt each token. It uses decoder
+token embeddings, RMSNorm, RoPE on Q/K, causal GQA attention, SwiGLU, final
+norm, and LM head. It must not add learned `pos_embeddings`.
+
 ## Prompt And Tokenizer
 
 The server loads artifact `tokenizer.json`, parses ordered OpenAI-style

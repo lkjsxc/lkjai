@@ -22,9 +22,10 @@ so the C++ trainer can parse them without a third-party JSON dependency.
 - [decoder_debug_bf16.json](decoder_debug_bf16.json): tiny verification shape
   for explicit native decoder plumbing.
 - [decoder_18m_bf16_3070.json](decoder_18m_bf16_3070.json): first RTX 3070
-  same-model decoder demo target.
+  accepted full-decoder target once attention, backward, optimizer coverage,
+  and KV-cache decode gates land.
 - [decoder_40m_bf16_3070.json](decoder_40m_bf16_3070.json): RTX 3070 decoder
-  profile target after the 18M path is accepted.
+  next scale target after the 18M path is accepted.
 - [decoder_140m_bf16_5090.json](decoder_140m_bf16_5090.json): RTX
   5090/Blackwell decoder profile target.
 - [native_20m_bf16_3070.json](native_20m_bf16_3070.json): RTX 3070

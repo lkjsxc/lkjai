@@ -7,6 +7,8 @@
 - `POST /api/chat`: runs one bounded agent turn.
 - `GET /api/runs/{id}`: returns one run transcript.
 - `GET /api/model`: returns model client status including reachability.
+- `GET /api/config`: returns local runtime, workspace, and future `kjxlkj`
+  adapter status.
 
 ## `POST /api/chat` Request
 
@@ -67,6 +69,30 @@ the `/api/*` runtime routes from one native process.
 - `gpu_name`: CUDA device name when available.
 - `warning`: non-empty when serving is degraded, such as CPU fallback.
 - `probe_status`: HTTP status from the last `/v1/models` probe.
+
+## `GET /api/config` Response
+
+```json
+{
+  "service": "lkjai-native-runtime",
+  "status": "degraded",
+  "degraded": true,
+  "degraded_reason": "KJXLKJ_BEARER_TOKEN not configured",
+  "bind": {"host": "127.0.0.1", "port": 8080, "local_only": true},
+  "workspace_dir": "/app/data/workspace",
+  "tool_profile": "readonly",
+  "kjxlkj": {
+    "api_url": "http://127.0.0.1:8080",
+    "user": "default",
+    "bearer_token_configured": false,
+    "resource_base": "http://127.0.0.1:8080/api/users/default/resources",
+    "mutable_tools_enabled": false
+  }
+}
+```
+
+This route is informational. It exposes the API-only `kjxlkj` boundary without
+executing resource mutations.
 
 ## Event Shape
 

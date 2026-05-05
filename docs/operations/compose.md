@@ -31,6 +31,8 @@
 - Web must not mount the host root.
 - The merged server uses `KJXLKJ_USER` and `KJXLKJ_BEARER_TOKEN` for typed
   `/api/users/{user}/resources/...` calls.
+- `GET /api/config` reports those settings and keeps mutable resource tools
+  disabled until confirmation-gated tool execution is implemented.
 
 ## GPU
 

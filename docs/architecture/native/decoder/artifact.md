@@ -44,8 +44,8 @@ including `<tool_name>` and `</tool_name>`.
 `N` is zero-based and must match `config.json.layers`.
 
 Accepted decoder exports use RoPE and do not require learned
-`pos_embeddings`. Older artifacts may still contain `pos_embeddings` while
-reference loader compatibility is being retired.
+`pos_embeddings`. New decoder exports and checkpoints must not write
+`pos_embeddings`; the loader's temporary tolerance is for old diagnostics only.
 
 ## Checkpoints
 

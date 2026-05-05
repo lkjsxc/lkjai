@@ -28,6 +28,9 @@ typed resource APIs.
   user turn explicitly confirms the pending operation.
 - The mainline integration is API and contract work only. No end-user chat UI
   is required in this phase.
+- `GET /api/config` must expose the configured `KJXLKJ_API_URL`, `KJXLKJ_USER`,
+  bearer-token presence, and `/api/users/{user}/resources` base URL. It must
+  report degraded status when the bearer token is absent.
 
 ## Route Mapping
 

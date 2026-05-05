@@ -13,9 +13,10 @@ future transformer CUDA work measurable.
   `starts.bin`.
 - Artifact format: `lkjai-native-artifact-v2`.
 - Artifact kinds: `export` and `checkpoint`.
-- Artifact model kinds: `dense` and `transformer`.
+- Artifact model kinds: `dense`, `decoder`, and `transformer`.
 - Train report schema: `schema_version=3`.
-- Native runtime HTTP boundary: `/api/chat`, `/api/model`, and `/api/runs/{id}`.
+- Native runtime HTTP boundary: `/api/chat`, `/api/model`, `/api/config`, and
+  `/api/runs/{id}`.
 - Native HTTP boundary: `/v1/models` and `/v1/chat/completions`.
 - Native health boundary: `/healthz`.
 
@@ -32,6 +33,8 @@ future transformer CUDA work measurable.
 - Decoder artifacts may return `choices` through the host/reference decode
   bridge, but accepted decoder CUDA training and accepted KV-cache decode are
   still future gates.
+- Decoder exports and checkpoints use RoPE and must not write learned
+  `pos_embeddings`.
 - The 40M shape is compatibility and profiling only until a long run satisfies
   the documented promotion criteria.
 
@@ -44,8 +47,9 @@ future transformer CUDA work measurable.
   architecture flags, and async allocation support.
 - Train reports may embed the same additive capability fields while remaining
   schema version `3`.
-- Profile configs may be added for RTX 3070 and RTX 5090/Blackwell targets, but
-  they do not promote transformer CUDA training.
+- Profile configs may be added for RTX 3070 and RTX 5090/Blackwell targets.
+  `decoder_18m_bf16_3070` is the first accepted full-decoder target;
+  `decoder_40m_bf16_3070` is the next scale target after full kernels land.
 
 ## Diagnostic Surfaces
 

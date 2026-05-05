@@ -12,8 +12,8 @@ process.
   name, hardware/build capability fields, and warning.
 - `POST /v1/chat/completions` accepts `model`, `messages`, `max_tokens`, and
   `temperature`.
-- `POST /api/chat`, `GET /api/model`, and `GET /api/runs/{id}` are target
-  runtime routes in the same process.
+- `POST /api/chat`, `GET /api/model`, `GET /api/config`, and
+  `GET /api/runs/{id}` are target runtime routes in the same process.
 - Successful decoder chat responses keep `choices[0].message.content`.
 - Non-success responses include a JSON `error` string.
 - Capability fields follow [capability.md](capability.md).
@@ -52,3 +52,6 @@ The accepted decoder decode slice must provide:
 - `INFERENCE_PORT=8081`
 - `MODEL_ROOT=/models`
 - `MODEL_NAME=lkjai-scratch-40m`
+- `KJXLKJ_API_URL=http://127.0.0.1:8080`
+- `KJXLKJ_USER=default`
+- `KJXLKJ_BEARER_TOKEN=` leaves `/api/config` visibly degraded.
