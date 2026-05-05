@@ -8,8 +8,9 @@
 - `GET /` returns a compact native service descriptor.
 - JSON APIs for chat and transcripts.
 - OpenAI-compatible model endpoint for generation.
-- API transcripts label reasoning, plan, tool call, tool result, memory,
-  finish, assistant, and error events.
+- Implemented transcripts label user, assistant, and error events.
+- Target transcripts also label reasoning, plan, tool call, tool result,
+  observation, memory, finish, and confirmation events.
 - Client visibility controls are API fields and never alter persisted run
   transcripts.
 
@@ -30,3 +31,11 @@
 - Runtime Docker image does not install Node.
 - Browser verification does not use Node.
 - Frontend behavior is plain HTML, CSS, and browser JavaScript.
+
+## Current Runtime Boundary
+
+- `/api/chat` validates `message`, optional `run_id`, `max_steps`, and
+  `visible_event_kinds`.
+- The runtime persists all events before response filtering.
+- Full XML action parsing, tool execution, memory writes, and confirmation
+  resume are target work.

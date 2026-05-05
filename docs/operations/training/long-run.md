@@ -109,8 +109,9 @@ docker compose --profile train run --rm \
 
 ## Deadline Run
 
-Wall-clock deadline stopping is not implemented in the native trainer. Use an
-external timeout around a bounded optimizer-step run:
+Wall-clock deadline stopping is implemented for `--mode decoder` partial CUDA
+and target accepted decoder runs. Dense long runs should still use bounded
+optimizer steps or an external timeout:
 
 ```bash
 docker compose --profile train run -d \

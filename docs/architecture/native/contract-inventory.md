@@ -27,8 +27,11 @@ future transformer CUDA work measurable.
 - Transformer training is experimental host/reference plumbing. Reports must
   say `accepted_cuda_training=false`, `implementation_status=experimental`, and
   `transformer_cuda_path=false`.
-- Native chat decode is unsupported. `/v1/chat/completions` returns HTTP `422`
-  with no `choices` for dense and transformer artifacts.
+- Native chat decode is unsupported for dense and transformer artifacts.
+  `/v1/chat/completions` returns HTTP `422` with no `choices` for those kinds.
+- Decoder artifacts may return `choices` through the host/reference decode
+  bridge, but accepted decoder CUDA training and accepted KV-cache decode are
+  still future gates.
 - The 40M shape is compatibility and profiling only until a long run satisfies
   the documented promotion criteria.
 
@@ -57,6 +60,6 @@ future transformer CUDA work measurable.
 - Accepted transformer CUDA training may require new report fields, but schema
   `3` remains stable until a concrete transformer-forward/backward gate proves a
   schema break is necessary.
-- Autoregressive decode, KV cache layout, CUDA Graph capture, NCCL, and
-  activation checkpointing are future milestones and are not current product
-  capabilities.
+- Accepted autoregressive decode, KV cache layout, CUDA Graph capture, NCCL,
+  and activation checkpointing are future milestones and are not current
+  accepted capabilities.

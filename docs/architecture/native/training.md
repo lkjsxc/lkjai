@@ -125,10 +125,11 @@ variables, environment variables override `TRAIN_CONFIG`, and the JSON config
 overrides native defaults. Invalid model kinds and unsupported model/config
 combinations fail before training starts.
 
-Wall-clock stop is target decoder behavior and not yet implemented for the
-current dense trainer. Fixed eval, behavioral eval, automatic tokenizer/corpus
-preparation, transformer performance kernels, and larger transformer shapes
-remain target operations work.
+Wall-clock stop is implemented for the current partial decoder slice and is
+target behavior for accepted decoder runs. It is not an accepted dense training
+gate. Fixed eval, behavioral eval, automatic tokenizer/corpus preparation,
+transformer performance kernels, and larger transformer shapes remain target
+operations work.
 
 ## Artifact Layout
 

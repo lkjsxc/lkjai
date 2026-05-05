@@ -2,7 +2,7 @@
 
 ## Routes
 
-- `GET /`: chat UI.
+- `GET /`: native service descriptor. A browser chat UI is target work.
 - `GET /healthz`: returns `200` with body `ok`.
 - `POST /api/chat`: runs one bounded agent turn.
 - `GET /api/runs/{id}`: returns one run transcript.
@@ -23,6 +23,8 @@
 - When omitted, the server returns all events for API clients.
 - When present, the response `events` array contains only matching event kinds.
 - Filtering never changes what is persisted to the run transcript.
+- Current foundation parity performs one model call. `max_steps` is validated
+  and recorded as the future loop bound; full tool-loop stepping is target work.
 
 ## `POST /api/chat` Response
 
@@ -35,10 +37,11 @@
 }
 ```
 
-This is the target product response shape after the model endpoint produces a
-valid assistant action. Current native dense artifacts return unsupported
-decode from `/v1/chat/completions`, so real product chat quality gates remain
-blocked until decode lands.
+This is the implemented foundation response shape. `assistant` is populated
+only when the model endpoint returns OpenAI-compatible `choices` content.
+Current native dense and transformer artifacts return unsupported decode from
+`/v1/chat/completions`, so real product chat quality gates remain blocked until
+accepted decoder decode lands.
 
 ## `GET /api/model` Response
 
@@ -62,6 +65,7 @@ blocked until decode lands.
 - `cuda_available`: whether the inference server can use CUDA.
 - `gpu_name`: CUDA device name when available.
 - `warning`: non-empty when serving is degraded, such as CPU fallback.
+- `probe_status`: HTTP status from the last `/v1/models` probe.
 
 ## Event Shape
 
@@ -80,6 +84,8 @@ visible brief rationales and must not contain hidden chain-of-thought detail.
 
 - Invalid model responses must produce `error` events in `events`.
 - If the model server is unreachable, `stop_reason` is `model_error`.
+- If the model server responds without assistant content, `stop_reason` is
+  `invalid_model_response`.
 - If no final assistant action is produced, `stop_reason` must indicate failure.
 - If confirmation is required, `stop_reason` is `confirmation_required`.
 - `GET /api/model` reflects runtime model client configuration and reachability,

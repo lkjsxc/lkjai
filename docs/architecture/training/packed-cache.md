@@ -44,6 +44,7 @@ The deterministic builder is `lkjai-native-packed-cache build ...`. It loads
 the local byte-level BPE `tokenizer.json`, extracts JSONL string fields named
 `text` and `content` in document order, and writes fixed non-overlapping
 windows. The native tokenizer is the single active tokenizer implementation.
+Tokenizer-less byte or modulo mapping is forbidden for real caches.
 
 The long-run cache path
 `data/train/datasets/packed/train-causal_lm_full-seq1024` previously held a
@@ -73,6 +74,11 @@ validation reports those fields, rebuild it with the command below.
   sequence-length/config mismatches, stale checksums, corrupt binary sizes,
   invalid fixed-window starts, and token ids outside the tokenizer or native
   config vocabulary.
+- Non-smoke validation requires `tokenizer_digest`, `config_digest`,
+  `source_digest`, `tokens_checksum`, `loss_mask_checksum`, `starts_checksum`,
+  and `packed_data_checksum`.
+- Explicit tiny smoke fixtures may set `smoke_fixture=true`; they are valid only
+  for smoke gates and are rejected by real train runbooks.
 
 ## Dense Seq1024 Rebuild
 

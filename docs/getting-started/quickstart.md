@@ -101,5 +101,5 @@ See [troubleshooting.md](troubleshooting.md) for common failures.
 ## Required Verification Before Commit
 
 ```bash
-docker compose --profile verify up --build --abort-on-container-exit verify
+docker compose --progress quiet --profile verify run --build --rm verify
 ```
