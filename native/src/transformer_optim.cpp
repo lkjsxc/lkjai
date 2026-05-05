@@ -12,7 +12,7 @@ void zero(Parameter* p) { std::fill(p->g.begin(), p->g.end(), 0.0f); }
 template <typename Fn>
 void each_param(TransformerState* s, Fn fn) {
   fn(&s->tok_embeddings);
-  fn(&s->pos_embeddings);
+  if (s->cfg.kind != "decoder") fn(&s->pos_embeddings);
   for (auto& l : s->layers) {
     fn(&l.attn_norm);
     fn(&l.q_proj);
@@ -77,8 +77,10 @@ void transformer_backward(const PackedBatch& batch, const ForwardResult& fwd,
   for (int i = 0; i < state->cfg.hidden_size; ++i) {
     state->tok_embeddings.g[static_cast<size_t>(token * state->cfg.hidden_size + i)] +=
         1.0e-12f * fwd.loss_hidden[static_cast<size_t>(i)];
-    state->pos_embeddings.g[static_cast<size_t>(i)] +=
-        1.0e-12f * fwd.loss_hidden[static_cast<size_t>(i)];
+    if (state->cfg.kind != "decoder") {
+      state->pos_embeddings.g[static_cast<size_t>(i)] +=
+          1.0e-12f * fwd.loss_hidden[static_cast<size_t>(i)];
+    }
   }
   float scale = static_cast<float>(std::max(fwd.loss, 1.0e-6)) * 1.0e-12f;
   for (auto& l : state->layers) {

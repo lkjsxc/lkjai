@@ -76,7 +76,7 @@ void write_f32_tensor(std::ofstream& file, std::ostringstream* index,
 template <typename Fn>
 void params(const TransformerState& s, Fn fn) {
   fn(s.tok_embeddings);
-  fn(s.pos_embeddings);
+  if (s.cfg.kind != "decoder") fn(s.pos_embeddings);
   for (const auto& l : s.layers) {
     fn(l.attn_norm);
     fn(l.q_proj);

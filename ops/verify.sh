@@ -38,6 +38,8 @@ run_step "corpus actions" "$CHECK" corpus-actions -- \
   /workspace/corpus/generated/kimi-sft-60m-v2/train/train-000001.jsonl \
   /workspace/corpus/generated/kimi-sft-60m-v2/val/val-000001.jsonl \
   /workspace/corpus/generated/kimi-sft-60m-v2/holdout/holdout-000001.jsonl
+run_step "config contract" "$CHECK" config-contract --repo /workspace
+run_step "cuda arch contract" "$CHECK" cuda-arch-contract --repo /workspace
 run_step "line limits" "$CHECK" line-limits --repo /workspace
 run_step "forbidden js runtime check" "$CHECK" no-node --repo /workspace
 run_step "native-only workflow check" "$CHECK" native-only --repo /workspace

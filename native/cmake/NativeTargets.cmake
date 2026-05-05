@@ -30,6 +30,7 @@ add_executable(lkjai-native-repo-check
   src/repo_check_common.cpp
   src/repo_check_docs.cpp
   src/repo_check_quality.cpp
+  src/repo_check_contracts.cpp
   src/repo_check_corpus.cpp
 )
 target_link_libraries(lkjai-native-repo-check PRIVATE lkjai_native_core)
@@ -66,6 +67,13 @@ add_executable(lkjai-native-decoder-tokenizer-contract
   tests/decoder_tokenizer_contract.cpp
 )
 target_link_libraries(lkjai-native-decoder-tokenizer-contract
+  PRIVATE lkjai_native_core
+)
+
+add_executable(lkjai-native-decoder-artifact-contract
+  tests/decoder_artifact_contract.cpp
+)
+target_link_libraries(lkjai-native-decoder-artifact-contract
   PRIVATE lkjai_native_core
 )
 

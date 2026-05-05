@@ -124,6 +124,9 @@ HttpResponse route(const HttpRequest& request,
   if (request.method == "GET" && request.path == "/api/model") {
     return {200, runtime_model_json(runtime.model, artifact, cuda)};
   }
+  if (request.method == "GET" && request.path == "/api/config") {
+    return {200, lkjai::runtime_config_status_json(runtime)};
+  }
   if (request.method == "POST" && request.path == "/api/chat") {
     return runtime_chat_json(runtime, request, artifact);
   }
@@ -145,7 +148,12 @@ int main() {
   auto cuda = lkjai::cuda_status();
   lkjai::RuntimeConfig runtime{
       host, port, lkjai::env_string("DATA_DIR", "/app/data"),
-      "local-native-engine", model};
+      "local-native-engine", model,
+      lkjai::env_string("AGENT_TOOL_PROFILE", "readonly"),
+      lkjai::env_string("TOOL_WORKSPACE_DIR", "/app/data/workspace"),
+      lkjai::env_string("KJXLKJ_API_URL", "http://127.0.0.1:8080"),
+      lkjai::env_string("KJXLKJ_USER", "default"),
+      lkjai::env_string("KJXLKJ_BEARER_TOKEN", "")};
   return lkjai::serve_http(host, port, [&](const HttpRequest& request) {
     return route(request, artifact, cuda, runtime);
   });

@@ -10,6 +10,10 @@ add_test(NAME native_no_node
   COMMAND lkjai-native-repo-check no-node --repo ${LKJAI_REPO_ROOT})
 add_test(NAME native_native_only
   COMMAND lkjai-native-repo-check native-only --repo ${LKJAI_REPO_ROOT})
+add_test(NAME native_config_contract
+  COMMAND lkjai-native-repo-check config-contract --repo ${LKJAI_REPO_ROOT})
+add_test(NAME native_cuda_arch_contract
+  COMMAND lkjai-native-repo-check cuda-arch-contract --repo ${LKJAI_REPO_ROOT})
 
 add_test(
   NAME native_corpus_actions
@@ -38,6 +42,8 @@ add_test(NAME native_decoder_cuda_block_forward_substrate
   COMMAND lkjai-native-decoder-cuda-block-check)
 add_test(NAME native_decoder_tokenizer_contract
   COMMAND lkjai-native-decoder-tokenizer-contract)
+add_test(NAME native_decoder_artifact_contract
+  COMMAND lkjai-native-decoder-artifact-contract)
 add_test(NAME native_runtime_contract COMMAND lkjai-native-runtime-contract)
 
 set_tests_properties(native_decoder_tokenizer_contract PROPERTIES

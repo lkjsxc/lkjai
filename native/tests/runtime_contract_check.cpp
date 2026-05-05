@@ -77,11 +77,21 @@ bool model_status_contract() {
          expect(has(body, "\"probe_status\":200"), "probe status");
 }
 
+bool config_status_contract() {
+  auto c = cfg();
+  c.kjxlkj_api_url = "http://kjxlkj.local";
+  auto body = lkjai::runtime_config_status_json(c);
+  return expect(has(body, "\"status\":\"degraded\""), "degraded status") &&
+         expect(has(body, "\"local_only\":true"), "local bind") &&
+         expect(has(body, "/api/users/default/resources"), "resource base") &&
+         expect(has(body, "\"mutable_tools_enabled\":false"), "mutable tools");
+}
+
 }  // namespace
 
 int main() {
   return chat_filter_contract() && chat_error_contract() &&
-                 model_status_contract()
+                 model_status_contract() && config_status_contract()
              ? 0
              : 1;
 }

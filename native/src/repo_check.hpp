@@ -22,5 +22,7 @@ int check_line_limits(const std::filesystem::path& repo);
 int check_no_node(const std::filesystem::path& repo);
 int check_native_only(const std::filesystem::path& repo);
 int check_corpus_actions(const std::vector<std::filesystem::path>& paths);
+int check_config_contract(const std::filesystem::path& repo);
+int check_cuda_arch_contract(const std::filesystem::path& repo);
 
 }  // namespace lkjai

@@ -171,6 +171,9 @@ HttpResponse runtime_route(const RuntimeConfig& cfg, const HttpRequest& request)
     auto probe = native_http_get(model_url_to_models_url(cfg.model_url));
     return {200, runtime_model_status_json(cfg, probe)};
   }
+  if (request.method == "GET" && request.path == "/api/config") {
+    return {200, runtime_config_status_json(cfg)};
+  }
   if (request.method == "POST" && request.path == "/api/chat") {
     auto message = json_first_string(request.body, "message");
     if (message.empty()) return {400, error_json("message is required")};

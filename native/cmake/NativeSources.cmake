@@ -52,6 +52,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/packed_cache_reader.cpp
   src/packed_cache_validate.cpp
   src/runtime_api.cpp
+  src/runtime_config_status.cpp
   src/train_data.cpp
   src/train_real.cpp
   src/train_report.cpp

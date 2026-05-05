@@ -4,9 +4,10 @@ namespace lkjai {
 
 long long transformer_parameter_count(const TransformerState& state) {
   long long total = static_cast<long long>(state.tok_embeddings.w.size() +
-                                          state.pos_embeddings.w.size() +
                                           state.final_norm.w.size() +
                                           state.lm_head.w.size());
+  if (state.cfg.kind != "decoder")
+    total += static_cast<long long>(state.pos_embeddings.w.size());
   for (const auto& layer : state.layers) {
     total += static_cast<long long>(
         layer.attn_norm.w.size() + layer.q_proj.w.size() +

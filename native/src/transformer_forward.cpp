@@ -63,6 +63,23 @@ Vec attention(const std::vector<Vec>& q, const std::vector<Vec>& k,
   return out;
 }
 
+void apply_rope(Vec* x, int heads, int head_dim, int pos, float theta) {
+  for (int h = 0; h < heads; ++h) {
+    int base = h * head_dim;
+    for (int d = 0; d + 1 < head_dim; d += 2) {
+      double angle = static_cast<double>(pos) *
+                     std::pow(static_cast<double>(theta),
+                              -static_cast<double>(d) / head_dim);
+      float cs = static_cast<float>(std::cos(angle));
+      float sn = static_cast<float>(std::sin(angle));
+      float a = (*x)[static_cast<size_t>(base + d)];
+      float b = (*x)[static_cast<size_t>(base + d + 1)];
+      (*x)[static_cast<size_t>(base + d)] = a * cs - b * sn;
+      (*x)[static_cast<size_t>(base + d + 1)] = a * sn + b * cs;
+    }
+  }
+}
+
 void apply_layer(std::vector<Vec>* h, const TransformerLayer& l,
                  const TransformerConfig& c) {
   int seq = static_cast<int>(h->size());
@@ -73,6 +90,12 @@ void apply_layer(std::vector<Vec>* h, const TransformerLayer& l,
     matvec(norm[static_cast<size_t>(p)], l.q_proj, &q[static_cast<size_t>(p)]);
     matvec(norm[static_cast<size_t>(p)], l.k_proj, &k[static_cast<size_t>(p)]);
     matvec(norm[static_cast<size_t>(p)], l.v_proj, &v[static_cast<size_t>(p)]);
+    if (c.kind == "decoder") {
+      apply_rope(&q[static_cast<size_t>(p)], c.heads, c.head_dim, p,
+                 c.rope_theta);
+      apply_rope(&k[static_cast<size_t>(p)], c.kv_heads, c.head_dim, p,
+                 c.rope_theta);
+    }
   }
   Vec tmp;
   for (int p = 0; p < seq; ++p) {
@@ -122,9 +145,11 @@ ForwardResult transformer_forward(const PackedBatch& batch,
       int tok = batch.tokens[row * batch.sequence_len + p] % c.vocab_size;
       auto base = state.tok_embeddings.w.begin() + tok * c.hidden_size;
       h[static_cast<size_t>(p)] = Vec(base, base + c.hidden_size);
-      auto pos = state.pos_embeddings.w.begin() + p * c.hidden_size;
-      for (int i = 0; i < c.hidden_size; ++i) {
-        h[static_cast<size_t>(p)][static_cast<size_t>(i)] += pos[i];
+      if (c.kind != "decoder") {
+        auto pos = state.pos_embeddings.w.begin() + p * c.hidden_size;
+        for (int i = 0; i < c.hidden_size; ++i) {
+          h[static_cast<size_t>(p)][static_cast<size_t>(i)] += pos[i];
+        }
       }
     }
     for (const auto& layer : state.layers) apply_layer(&h, layer, c);

@@ -1,16 +1,57 @@
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "native_tokenizer.hpp"
 
+namespace {
+
+std::string escape(std::string_view value) {
+  std::string out;
+  for (char ch : value) {
+    if (ch == '"' || ch == '\\') out.push_back('\\');
+    out.push_back(ch);
+  }
+  return out;
+}
+
+std::filesystem::path tokenizer_fixture() {
+  auto dir = std::filesystem::temp_directory_path() / "lkjai-tokenizer-contract";
+  std::filesystem::create_directories(dir);
+  auto path = dir / "tokenizer.json";
+  std::ofstream out(path);
+  out << "{\"model\":{\"type\":\"BPE\",\"vocab\":{";
+  bool first = true;
+  for (int ch = 33; ch <= 126; ++ch) {
+    if (!first) out << ",";
+    first = false;
+    std::string token(1, static_cast<char>(ch));
+    out << "\"" << escape(token) << "\":" << ch;
+  }
+  out << "}},\"pre_tokenizer\":{\"type\":\"ByteLevel\"},";
+  out << "\"added_tokens\":[";
+  int id = 256;
+  for (const auto& tag : {"<pad>", "<unk>", "<bos>", "<eos>",
+                          "<assistant_action>", "<dialogue>", "</dialogue>",
+                          "<message>", "</message>", "<role>", "</role>",
+                          "<tool_name>", "</tool_name>", "<content>",
+                          "</content>", "<action>", "</action>"}) {
+    if (id != 256) out << ",";
+    out << "{\"id\":" << id++ << ",\"content\":\"" << tag
+        << "\",\"special\":true}";
+  }
+  out << "],\"merges\":[]}\n";
+  return path;
+}
+
+}  // namespace
+
 int main() {
-  auto repo = std::filesystem::path(std::getenv("LKJAI_REPO_ROOT")
-                                        ? std::getenv("LKJAI_REPO_ROOT")
-                                        : ".");
-  auto tokenizer_path = repo / "data" / "train" / "tokenizer" / "tokenizer.json";
+  auto tokenizer_path = tokenizer_fixture();
   lkjai::NativeTokenizer tokenizer;
   std::string error;
   if (!lkjai::load_native_tokenizer(tokenizer_path, &tokenizer, &error) ||
@@ -55,7 +96,7 @@ int main() {
     return 1;
   }
 
-  std::string round_trip = "ASCII\n<dialogue><message><content>x</content>";
+  std::string round_trip = "ASCII<dialogue><message><content>x</content>";
   auto ids = lkjai::tokenizer_encode(tokenizer, round_trip);
   auto decoded = lkjai::tokenizer_decode(tokenizer, ids, false);
   if (decoded != round_trip) {
