@@ -116,6 +116,19 @@ void require_contains(const std::filesystem::path& path, std::string_view needle
     result->fail(path.string() + " missing " + std::string(needle));
 }
 
+void check_decoder_acceptance_config(const std::filesystem::path& repo,
+                                     RepoCheckResult* result) {
+  auto native = repo / "configs/native/decoder_40m_bf16_3070.json";
+  auto train = repo / "configs/training/decoder_2h_40m_3070.json";
+  if (!std::filesystem::is_regular_file(native))
+    result->fail("missing tied 40M decoder native config");
+  if (!std::filesystem::is_regular_file(train))
+    result->fail("missing tied 40M decoder training config");
+  require_contains(native, "\"tie_embeddings\": true", result);
+  require_contains(train, "decoder_2h_40m_3070", result);
+  require_contains(train, "configs/native/decoder_40m_bf16_3070.json", result);
+}
+
 }  // namespace
 
 int check_config_contract(const std::filesystem::path& repo) {
@@ -127,6 +140,7 @@ int check_config_contract(const std::filesystem::path& repo) {
     if (entry.path().extension() == ".json")
       check_training_config(repo, entry.path(), &result);
   }
+  check_decoder_acceptance_config(repo, &result);
   return result.errors == 0 ? 0 : 1;
 }
 
