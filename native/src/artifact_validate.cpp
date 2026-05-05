@@ -120,8 +120,9 @@ bool validate_transformer_weight_index(std::string_view text,
       if (!require_tensor(text, name, error)) return false;
     }
   }
+  bool tied = config.find("\"tie_embeddings\":true") != std::string_view::npos;
   return require_tensor(text, "final_norm", error) &&
-         require_tensor(text, "lm_head", error);
+         (tied || require_tensor(text, "lm_head", error));
 }
 
 bool validate_dense_optimizer(const std::filesystem::path& model_dir,
@@ -146,6 +147,7 @@ bool validate_transformer_optimizer(const std::filesystem::path& model_dir,
            require_tensor(text, "adam_v." + name, error);
   };
   bool decoder = contains_json_string(config, "model_kind", "decoder");
+  bool tied = config.find("\"tie_embeddings\":true") != std::string_view::npos;
   if (!require_triplet("tok_embeddings")) {
     return false;
   }
@@ -161,7 +163,7 @@ bool validate_transformer_optimizer(const std::filesystem::path& model_dir,
       if (!require_triplet(name)) return false;
     }
   }
-  return require_triplet("final_norm") && require_triplet("lm_head");
+  return require_triplet("final_norm") && (tied || require_triplet("lm_head"));
 }
 
 }  // namespace lkjai

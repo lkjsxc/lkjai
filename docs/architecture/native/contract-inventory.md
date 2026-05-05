@@ -48,8 +48,8 @@ future transformer CUDA work measurable.
 - Train reports may embed the same additive capability fields while remaining
   schema version `3`.
 - Profile configs may be added for RTX 3070 and RTX 5090/Blackwell targets.
-  `decoder_18m_bf16_3070` is the first accepted full-decoder target;
-  `decoder_40m_bf16_3070` is the next scale target after full kernels land.
+  `decoder_40m_bf16_3070` is the first accepted tied full-decoder target after
+  full kernels land.
 
 ## Diagnostic Surfaces
 

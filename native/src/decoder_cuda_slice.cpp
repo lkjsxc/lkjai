@@ -21,6 +21,10 @@ double since(std::chrono::steady_clock::time_point start) {
       .count();
 }
 
+int decoder_trainable_tensor_count(const TransformerConfig& cfg) {
+  return 1 + cfg.layers * 9 + 1 + (cfg.tie_embeddings ? 0 : 1);
+}
+
 float lr_at(const TransformerTrainOptions& opt, int step) {
   if (opt.warmup_steps <= 0 || step > opt.warmup_steps) return opt.lr;
   return opt.lr * static_cast<float>(step) / static_cast<float>(opt.warmup_steps);
@@ -102,6 +106,9 @@ bool run_decoder_cuda_slice_training(const TransformerTrainOptions& opt,
   report->head_dim = cfg.head_dim;
   report->ffn_size = cfg.ffn_size;
   report->context = cfg.context;
+  report->embedding_tying =
+      cfg.tie_embeddings ? "tok_embeddings:lm_head" : "none";
+  report->trainable_tensor_count = decoder_trainable_tensor_count(cfg);
   report->target_seconds = opt.target_seconds;
   report->checkpoint_dir = opt.out_dir / "checkpoints" / "latest";
   report->export_dir = opt.out_dir / "exports" / opt.model_name;

@@ -82,6 +82,20 @@ DenseTrainState decoder_dense_state(const DenseConfig& cfg,
 
 void decoder_copy_dense_back(const DenseTrainState& dense,
                              TransformerState* state) {
+  if (state->cfg.tie_embeddings) {
+    state->tok_embeddings.w = dense.emb;
+    state->tok_embeddings.m = dense.m_emb;
+    state->tok_embeddings.v = dense.v_emb;
+    for (size_t i = 0; i < state->tok_embeddings.w.size(); ++i) {
+      state->tok_embeddings.w[i] = 0.5f * (dense.emb[i] + dense.head[i]);
+      state->tok_embeddings.m[i] = dense.m_emb[i] + dense.m_head[i];
+      state->tok_embeddings.v[i] = dense.v_emb[i] + dense.v_head[i];
+    }
+    state->lm_head.w = state->tok_embeddings.w;
+    state->lm_head.m = state->tok_embeddings.m;
+    state->lm_head.v = state->tok_embeddings.v;
+    return;
+  }
   state->tok_embeddings.w = dense.emb;
   state->tok_embeddings.m = dense.m_emb;
   state->tok_embeddings.v = dense.v_emb;

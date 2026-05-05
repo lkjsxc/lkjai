@@ -30,7 +30,7 @@ backward, block optimizer state, and KV-cache decode are still absent.
 
 ```bash
 lkjai-native-train --train --mode decoder \
-  --config configs/native/decoder_18m_bf16_3070.json \
+  --config configs/native/decoder_40m_bf16_3070.json \
   --tokenizer data/train/tokenizer/tokenizer.json \
   --packed-cache data/train/datasets/packed/train-causal_lm_full-seq1024
 ```
@@ -77,12 +77,15 @@ Decoder reports use schema version `3` with additive fields:
 - `stop_reason`
 - `kv_cache_backend`
 - `decode_backend`
+- `embedding_tying`
+- `trainable_tensor_count`
 
 Reports are accepted only when `accepted_cuda_training=true`,
 `implementation_status=accepted`, `decoder_cuda_slice=full_decoder`, CUDA
 forward/backward/attention backends are present, finite loss and nonzero
 non-embedding weight change are proven, checkpoint/export/logits/server checks
-pass, and the documented benchmark gate passes.
+pass, tied embedding alias metadata is present, and the documented benchmark
+gate passes.
 
 ## Current Status
 

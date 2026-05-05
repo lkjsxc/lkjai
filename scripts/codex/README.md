@@ -8,4 +8,4 @@ workflows.
 ## Contents
 
 - [run_e2e_decoder_demo.sh](run_e2e_decoder_demo.sh): build, train, validate,
-  publish, and launch the decoder demo path with native Compose commands.
+  publish, and launch the tied 40M decoder path with native Compose commands.

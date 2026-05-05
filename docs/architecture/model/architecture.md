@@ -11,7 +11,7 @@
 - Target feed-forward layers use SwiGLU or a close gated MLP variant.
 - Target norm layers use RMSNorm.
 - Dense continuity configs may tie embeddings; the first accepted decoder path
-  uses untied token embeddings and LM head.
+  uses tied token embeddings and LM head.
 - Weights are initialized locally; no pretrained tensors are loaded.
 
 ## RTX 3070 Constraint

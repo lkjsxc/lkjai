@@ -25,7 +25,15 @@ void each_param(TransformerState* s, Fn fn) {
     fn(&l.down_proj);
   }
   fn(&s->final_norm);
-  fn(&s->lm_head);
+  if (!s->cfg.tie_embeddings) fn(&s->lm_head);
+}
+
+void merge_tied_lm_head_grad(TransformerState* s) {
+  if (!s->cfg.tie_embeddings) return;
+  for (size_t i = 0; i < s->tok_embeddings.g.size(); ++i) {
+    s->tok_embeddings.g[i] += s->lm_head.g[i];
+  }
+  std::fill(s->lm_head.g.begin(), s->lm_head.g.end(), 0.0f);
 }
 
 void add_lm_head_grad(Parameter* p, const std::vector<float>& h, int vocab_row,
@@ -100,8 +108,13 @@ void transformer_backward(const PackedBatch& batch, const ForwardResult& fwd,
 }
 
 void transformer_adamw(TransformerState* state, float lr, int step) {
+  merge_tied_lm_head_grad(state);
   each_param(state, [=](Parameter* p) { adam(p, lr, step); });
-  if (state->cfg.tie_embeddings) state->lm_head.w = state->tok_embeddings.w;
+  if (state->cfg.tie_embeddings) {
+    state->lm_head.w = state->tok_embeddings.w;
+    state->lm_head.m = state->tok_embeddings.m;
+    state->lm_head.v = state->tok_embeddings.v;
+  }
 }
 
 std::string checksum_logits(const std::vector<float>& logits) {

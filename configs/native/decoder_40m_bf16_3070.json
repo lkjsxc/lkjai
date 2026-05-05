@@ -13,6 +13,6 @@
   "activation": "swiglu",
   "rope_theta": 10000,
   "rms_norm_eps": 0.00001,
-  "tie_embeddings": false,
+  "tie_embeddings": true,
   "seed": 20260504
 }

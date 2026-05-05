@@ -48,7 +48,7 @@ lkjai::TransformerConfig cfg() {
   out.kv_heads = 2;
   out.head_dim = 8;
   out.ffn_size = 64;
-  out.tie_embeddings = false;
+  out.tie_embeddings = true;
   return out;
 }
 
@@ -84,8 +84,15 @@ bool artifact_contract() {
                 "tokenizer checksum") &&
          expect(index.find("pos_embeddings") == std::string::npos,
                 "decoder export wrote pos_embeddings") &&
+         expect(index.find("\"name\":\"lm_head\"") == std::string::npos,
+                "tied decoder export wrote duplicate lm_head") &&
          expect(opt_index.find("pos_embeddings") == std::string::npos,
                 "decoder checkpoint wrote pos optimizer") &&
+         expect(opt_index.find("master.lm_head") == std::string::npos,
+                "tied decoder checkpoint wrote duplicate lm_head optimizer") &&
+         expect(lkjai::contains_json_string(
+                    manifest, "embedding_tying", "tok_embeddings:lm_head"),
+                "manifest embedding tying") &&
          expect(lkjai::inspect_artifact(export_dir, &error), error) &&
          expect(lkjai::transformer_logits_check(export_dir, "1,2,3",
                                                 &logits_json, &error),
@@ -107,6 +114,8 @@ bool report_contract() {
   r.kv_cache_backend = "none";
   r.decode_backend = "host_reference_recompute";
   r.decode_supported = true;
+  r.embedding_tying = "tok_embeddings:lm_head";
+  r.trainable_tensor_count = 11;
   r.config_path = root / "export" / "config.json";
   r.checkpoint_dir = root / "checkpoint";
   r.export_dir = root / "export";
@@ -120,7 +129,10 @@ bool report_contract() {
                 "attention limitation") &&
          expect(json.find("\"decode_backend\":\"host_reference_recompute\"") !=
                     std::string::npos,
-                "decode backend");
+                "decode backend") &&
+         expect(json.find("\"embedding_tying\":\"tok_embeddings:lm_head\"") !=
+                    std::string::npos,
+                "embedding tying report");
 }
 
 }  // namespace

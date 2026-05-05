@@ -64,7 +64,7 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
       ? std::string(kind == "decoder" ? "experimental" : "not_applicable")
       : report.decoder_status;
   bool accepted_attention = report.attention_backend == "cuda_causal_gqa_bf16_reference" || report.attention_backend == "cudnn_sdpa";
-  bool accepted_decoder = kind == "decoder" && impl == "accepted" && accepted_attention && report.decoder_cuda_path && report.decoder_cuda_slice == "full_decoder" && report.decoder_backward_backend == "cuda_full_decoder" &&
+  bool accepted_decoder = kind == "decoder" && impl == "accepted" && accepted_attention && report.decoder_cuda_path && report.decoder_cuda_slice == "full_decoder" && report.decoder_backward_backend == "cuda_full_decoder" && report.embedding_tying == "tok_embeddings:lm_head" &&
       report.kv_cache_backend == "cuda_contiguous_bf16" && report.decode_backend == "cuda_kv_cache";
   double tokens_per_second = report.elapsed_seconds > 0.0
       ? static_cast<double>(report.input_tokens) / report.elapsed_seconds : 0.0;
@@ -111,7 +111,8 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
        << ",\"decoder_cuda_path\":"
        << (report.decoder_cuda_path ? "true" : "false")
        << ",\"decode_supported\":"
-       << (report.decode_supported ? "true" : "false")
+       << (report.decode_supported ? "true" : "false") << ",\"embedding_tying\":\"" << json_escape(report.embedding_tying) << "\""
+       << ",\"trainable_tensor_count\":" << report.trainable_tensor_count
        << ",\"decoder_cuda_slice\":\""
        << json_escape(report.decoder_cuda_slice) << "\""
        << ",\"decoder_block_backend\":\""
@@ -194,7 +195,6 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
        << ",\"export\":" << report.export_seconds << "}"
        << ",\"capability\":{" << capability_json_fields(cuda) << "}";
 } }  // namespace
-std::string transformer_train_report_json(const TransformerTrainReport& report, const CudaStatus& cuda, const std::string& trainer_mode,
-    const std::string& status, const std::string& failure_reason) {
+std::string transformer_train_report_json(const TransformerTrainReport& report, const CudaStatus& cuda, const std::string& trainer_mode, const std::string& status, const std::string& failure_reason) {
   std::ostringstream out; append_transformer(&out, report, cuda, trainer_mode, status, failure_reason); out << "}"; return out.str(); }
 }  // namespace lkjai

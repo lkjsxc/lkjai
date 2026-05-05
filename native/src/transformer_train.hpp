@@ -110,6 +110,8 @@ struct TransformerTrainReport {
   std::string decoder_cuda_slice = "none";
   std::string decoder_block_backend = "host_reference";
   bool decode_supported = false;
+  std::string embedding_tying = "none";
+  int trainable_tensor_count = 0;
   uint64_t cublaslt_workspace_bytes = 0;
   uint64_t workspace_high_water_bytes = 0;
   int workspace_reallocations = 0;

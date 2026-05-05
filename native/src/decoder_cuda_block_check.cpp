@@ -23,7 +23,7 @@ int main() {
           repo / "configs" / "native" / "decoder_debug_bf16.json", &debug,
           &error) ||
       !lkjai::load_transformer_config(
-          repo / "configs" / "native" / "decoder_18m_bf16_3070.json", &mid,
+          repo / "configs" / "native" / "decoder_40m_bf16_3070.json", &mid,
           &error)) {
     std::cerr << error << "\n";
     return 1;
@@ -128,6 +128,8 @@ int main() {
   report.decoder_backward_backend = "not_implemented";
   report.kv_cache_backend = "none";
   report.decode_backend = "host_reference_recompute";
+  report.embedding_tying = "tok_embeddings:lm_head";
+  report.trainable_tensor_count = 11;
   auto json = lkjai::transformer_train_report_json(
       report, lkjai::cuda_status(), "decoder", "success", "");
   if (!require_contains(json, "\"accepted_cuda_training\":false") ||

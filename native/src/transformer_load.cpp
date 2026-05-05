@@ -54,7 +54,7 @@ bool read_f32_tensor(const std::filesystem::path& dir, const std::string& index,
 template <typename Fn>
 void params(TransformerState* s, Fn fn) {
   fn(&s->tok_embeddings);
-  fn(&s->pos_embeddings);
+  if (s->cfg.kind != "decoder") fn(&s->pos_embeddings);
   for (auto& l : s->layers) {
     fn(&l.attn_norm);
     fn(&l.q_proj);
@@ -67,7 +67,7 @@ void params(TransformerState* s, Fn fn) {
     fn(&l.down_proj);
   }
   fn(&s->final_norm);
-  fn(&s->lm_head);
+  if (!s->cfg.tie_embeddings) fn(&s->lm_head);
 }
 
 bool same_config(const TransformerConfig& a, const TransformerConfig& b,
@@ -84,6 +84,13 @@ bool same_config(const TransformerConfig& a, const TransformerConfig& b,
   return true;
 }
 
+void tie_lm_head(TransformerState* state) {
+  state->lm_head.w = state->tok_embeddings.w;
+  state->lm_head.g = state->tok_embeddings.g;
+  state->lm_head.m = state->tok_embeddings.m;
+  state->lm_head.v = state->tok_embeddings.v;
+}
+
 }  // namespace
 
 bool load_transformer_artifact(const std::filesystem::path& dir,
@@ -94,13 +101,10 @@ bool load_transformer_artifact(const std::filesystem::path& dir,
   auto index = read_text(dir / "weights.index.json");
   bool ok = true;
   params(state, [&](Parameter* p) {
-    if (cfg.kind == "decoder" && p->name == "pos_embeddings" &&
-        index.find("\"name\":\"pos_embeddings\"") == std::string::npos) {
-      return;
-    }
     ok = ok && read_param(dir, index, p);
   });
   if (!ok) *error = "failed to load transformer artifact tensors";
+  if (ok && cfg.tie_embeddings) tie_lm_head(state);
   return ok;
 }
 
@@ -136,15 +140,12 @@ bool load_transformer_checkpoint(const std::filesystem::path& dir,
   auto index = read_text(dir / "optimizer.index.json");
   bool ok = true;
   params(state, [&](Parameter* p) {
-    if (checkpoint_cfg.kind == "decoder" && p->name == "pos_embeddings" &&
-        index.find("\"name\":\"master.pos_embeddings\"") == std::string::npos) {
-      return;
-    }
     ok = ok && read_f32_tensor(dir, index, "master." + p->name, &p->w);
     ok = ok && read_f32_tensor(dir, index, "adam_m." + p->name, &p->m);
     ok = ok && read_f32_tensor(dir, index, "adam_v." + p->name, &p->v);
   });
   if (!ok) *error = "failed to load transformer checkpoint optimizer tensors";
+  if (ok && checkpoint_cfg.tie_embeddings) tie_lm_head(state);
   return ok;
 }
 

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 RUN_ID="${RUN_ID:-decoder-2h-$(date +%Y%m%d-%H%M%S)}"
-MODEL_NAME="${MODEL_NAME:-decoder-2h-18m-3070}"
+MODEL_NAME="${MODEL_NAME:-decoder-2h-40m-3070}"
 TARGET_SECONDS="${TARGET_SECONDS:-7200}"
 SEQ_LEN="${SEQ_LEN:-1024}"
 
@@ -20,7 +20,7 @@ TRAIN_DATA_DIR="/app/data/perf-runs/$RUN_ID/decoder_2h_bf16_cuda/$PHASE" \
 MODEL_NAME="$MODEL_NAME" \
 docker compose --profile train run --rm train \
   "${TRAIN_ARGS[@]}" \
-  --config /workspace/configs/native/decoder_18m_bf16_3070.json \
+  --config /workspace/configs/native/decoder_40m_bf16_3070.json \
   --tokenizer /app/data/train/tokenizer/tokenizer.json \
   --packed-cache /app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
   --seq-len "$SEQ_LEN" \

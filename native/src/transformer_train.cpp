@@ -22,9 +22,7 @@ double seconds_since(std::chrono::steady_clock::time_point start) {
 
 }  // namespace
 
-bool run_transformer_training(const TransformerTrainOptions& opt,
-                              TransformerTrainReport* report,
-                              std::string* error) {
+bool run_transformer_training(const TransformerTrainOptions& opt, TransformerTrainReport* report, std::string* error) {
   if (opt.model_kind == "decoder") {
     return run_decoder_cuda_slice_training(opt, report, error);
   }
@@ -80,15 +78,17 @@ bool run_transformer_training(const TransformerTrainOptions& opt,
   report->kv_heads = cfg.kv_heads; report->hidden_size = cfg.hidden_size;
   report->head_dim = cfg.head_dim; report->ffn_size = cfg.ffn_size;
   report->context = cfg.context; report->target_seconds = opt.target_seconds;
+  report->embedding_tying = cfg.tie_embeddings ? "tok_embeddings:lm_head" : "none";
+  report->trainable_tensor_count = 1 + cfg.layers * 9 + 1 +
+      (cfg.kind == "decoder" ? 0 : 1) + (cfg.tie_embeddings ? 0 : 1);
   report->checkpoint_dir = opt.out_dir / "checkpoints" / "latest";
   report->export_dir = opt.out_dir / "exports" / opt.model_name;
   report->served_dir = opt.out_dir.parent_path() / "models" / opt.model_name;
   int resume_microsteps = 0;
   if (!opt.resume_dir.empty()) {
-    if (!load_transformer_checkpoint(opt.resume_dir, cfg, opt.batch_size,
-                                     seq_len, opt.grad_accum, &state,
-                                     &report->start_step, &resume_microsteps,
-                                     error)) {
+    if (!load_transformer_checkpoint(opt.resume_dir, cfg, opt.batch_size, seq_len,
+                                     opt.grad_accum, &state, &report->start_step,
+                                     &resume_microsteps, error)) {
       return false;
     }
   } else {
@@ -141,11 +141,10 @@ bool run_transformer_training(const TransformerTrainOptions& opt,
     report->logits_checksum = checksum_logits(fwd.next_logits);
     if (opt.checkpoint_interval > 0 && step % opt.checkpoint_interval == 0) {
       phase = std::chrono::steady_clock::now();
-      if (!write_transformer_artifact(opt.out_dir / "checkpoints" / "latest",
-                                      state, step, report->microsteps,
-                                      opt.batch_size, seq_len, opt.grad_accum,
-                                      report->loss, true,
-                                      &report->logits_checksum)) {
+      if (!write_transformer_artifact(opt.out_dir / "checkpoints" / "latest", state,
+                                      step, report->microsteps, opt.batch_size,
+                                      seq_len, opt.grad_accum, report->loss,
+                                      true, &report->logits_checksum)) {
         *error = "failed to write latest checkpoint";
         return false;
       }

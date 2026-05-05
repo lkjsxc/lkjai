@@ -89,7 +89,7 @@ void params(const TransformerState& s, Fn fn) {
     fn(l.down_proj);
   }
   fn(s.final_norm);
-  fn(s.lm_head);
+  if (!s.cfg.tie_embeddings) fn(s.lm_head);
 }
 
 std::string config_json(const TransformerConfig& c) {
@@ -116,6 +116,8 @@ std::string manifest_json(const TransformerConfig& cfg,
   out << "{\"format\":\"lkjai-native-artifact-v2\",\"kind\":\""
       << json_escape(cfg.kind) << "\","
       << "\"artifact_kind\":\"" << artifact_kind << "\","
+      << "\"embedding_tying\":\""
+      << (cfg.tie_embeddings ? "tok_embeddings:lm_head" : "none") << "\","
       << "\"weights_checksum\":\"" << json_escape(weights_checksum) << "\","
       << "\"config_checksum\":\"" << artifact_text_checksum(config) << "\","
       << "\"tokenizer_checksum\":\"" << artifact_text_checksum(tokenizer)

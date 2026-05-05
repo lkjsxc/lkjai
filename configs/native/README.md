@@ -21,11 +21,9 @@ so the C++ trainer can parse them without a third-party JSON dependency.
   learned positional embeddings and untied embeddings.
 - [decoder_debug_bf16.json](decoder_debug_bf16.json): tiny verification shape
   for explicit native decoder plumbing.
-- [decoder_18m_bf16_3070.json](decoder_18m_bf16_3070.json): first RTX 3070
-  accepted full-decoder target once attention, backward, optimizer coverage,
-  and KV-cache decode gates land.
-- [decoder_40m_bf16_3070.json](decoder_40m_bf16_3070.json): RTX 3070 decoder
-  next scale target after the 18M path is accepted.
+- [decoder_40m_bf16_3070.json](decoder_40m_bf16_3070.json): tied-embedding
+  RTX 3070 decoder acceptance target once attention, backward, optimizer
+  coverage, and KV-cache decode gates land.
 - [decoder_140m_bf16_5090.json](decoder_140m_bf16_5090.json): RTX
   5090/Blackwell decoder profile target.
 - [native_20m_bf16_3070.json](native_20m_bf16_3070.json): RTX 3070
@@ -43,5 +41,7 @@ so the C++ trainer can parse them without a third-party JSON dependency.
 - Routine verification must use the debug config, not the 40M shape.
 - Dense configs size the implemented embedding-plus-LM-head path. Transformer
   profile configs do not imply dense parameter counts.
+- Decoder acceptance configs use tied token embeddings and LM head. Untied
+  decoder shapes are diagnostics only.
 - Profile configs must satisfy `heads * head_dim == hidden_size` and
   `heads % kv_heads == 0`, but they do not promote transformer training.
