@@ -13,6 +13,8 @@ This directory contains test helpers for native CTest cases.
   XML-like tags, ordered prompt serialization, and tokenizer round trip.
 - [decoder_cuda_norm_check.cpp](decoder_cuda_norm_check.cpp): BF16 CUDA
   RMSNorm parity against a CPU reference.
+- [runtime_contract_check.cpp](runtime_contract_check.cpp): native runtime
+  event filtering, transcript persistence, and model-status JSON contract.
 
 Repository, docs, corpus, and line-limit checks now live in
 `lkjai-native-repo-check` under `native/src/`.

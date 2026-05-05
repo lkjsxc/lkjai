@@ -87,9 +87,10 @@ artifact inspection, and CUDA capability probing.
   file size, and row-bound validation.
 - [packed_cache_main.cpp](packed_cache_main.cpp): packed-cache migration CLI.
 - [server_main.cpp](server_main.cpp): OpenAI-compatible inference entrypoint.
-- [runtime_main.cpp](runtime_main.cpp), [native_http_client.cpp](native_http_client.cpp),
+- [runtime_main.cpp](runtime_main.cpp), [runtime_api.cpp](runtime_api.cpp),
+  [runtime_api.hpp](runtime_api.hpp), [native_http_client.cpp](native_http_client.cpp),
   and [native_http_client.hpp](native_http_client.hpp): native agent API
-  runtime and blocking HTTP model client.
+  runtime, transcript/event contracts, and blocking HTTP model client.
 - [repo_check_main.cpp](repo_check_main.cpp) and `repo_check_*`: native docs,
   corpus, and repository quality checks.
 - [train_main.cpp](train_main.cpp): scratch training entrypoint.

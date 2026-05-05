@@ -15,5 +15,6 @@ std::vector<std::string> json_string_values(std::string_view text,
                                             std::string_view key);
 std::string json_first_string(std::string_view text, std::string_view key);
 int json_int_value(std::string_view text, std::string_view key, int fallback);
+bool json_bool_value(std::string_view text, std::string_view key, bool fallback);
 
 }  // namespace lkjai

@@ -118,4 +118,15 @@ int json_int_value(std::string_view text, std::string_view key, int fallback) {
   }
 }
 
+bool json_bool_value(std::string_view text, std::string_view key, bool fallback) {
+  const auto needle = quoted(key);
+  auto pos = text.find(needle);
+  if (pos == std::string_view::npos) return fallback;
+  pos = value_start(text, pos + needle.size());
+  if (pos == std::string_view::npos || pos >= text.size()) return fallback;
+  if (text.substr(pos, 4) == "true") return true;
+  if (text.substr(pos, 5) == "false") return false;
+  return fallback;
+}
+
 }  // namespace lkjai

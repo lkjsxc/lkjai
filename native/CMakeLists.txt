@@ -72,7 +72,6 @@ target_link_libraries(lkjai-native-server PRIVATE lkjai_native_core)
 add_executable(lkjai-native-runtime
   src/runtime_main.cpp
   src/http_server.cpp
-  src/native_http_client.cpp
 )
 target_link_libraries(lkjai-native-runtime PRIVATE lkjai_native_core)
 
@@ -127,6 +126,13 @@ target_link_libraries(lkjai-native-decoder-tokenizer-contract
   PRIVATE lkjai_native_core
 )
 
+add_executable(lkjai-native-runtime-contract
+  tests/runtime_contract_check.cpp
+)
+target_link_libraries(lkjai-native-runtime-contract
+  PRIVATE lkjai_native_core
+)
+
 enable_testing()
 add_test(NAME native_docs_topology COMMAND lkjai-native-repo-check docs-topology --repo ${CMAKE_CURRENT_SOURCE_DIR}/..)
 add_test(NAME native_docs_links COMMAND lkjai-native-repo-check docs-links --repo ${CMAKE_CURRENT_SOURCE_DIR}/..)
@@ -157,6 +163,10 @@ add_test(
 add_test(
   NAME native_decoder_tokenizer_contract
   COMMAND lkjai-native-decoder-tokenizer-contract
+)
+add_test(
+  NAME native_runtime_contract
+  COMMAND lkjai-native-runtime-contract
 )
 set_tests_properties(native_decoder_tokenizer_contract PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${CMAKE_CURRENT_SOURCE_DIR}/.."
