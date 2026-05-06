@@ -18,9 +18,9 @@ Train and export the current dense BF16 CUDA foundation while preserving the
 2. Read reviewed JSONL corpus rows.
 3. Serialize dialogue and assistant action targets.
 4. Train or load the byte-level BPE tokenizer.
-5. Write `lkjai-packed-cache-v2` train, val, and holdout caches.
+5. Write `lkjai-packed-cache` train, val, and holdout caches.
 6. Train the causal-LM dense foundation through native C++/CUDA.
-7. Save native dense checkpoints and `lkjai-native-artifact-v2` exports.
+7. Save native dense checkpoints and `lkjai-native-artifact` exports.
 8. Run artifact inspect and dense logits checks.
 9. Confirm native server chat rejects dense/transformer decode and labels
    decoder partial decode honestly when a decoder artifact is present.
@@ -66,9 +66,9 @@ still a native milestone.
 
 - Datasets: `data/train/datasets`
 - Active full corpus: `data/public-corpus`
-- Active first-party SFT corpus: `corpus/generated/kimi-sft-60m-v2` after it
-  reaches `60000000` validated tokens. A promoted 1M-token v2 pilot is the
-  required intermediate gate. No v1 Kimi corpus is active.
+- Active first-party SFT corpus: `corpus/generated/kimi-sft-60m` after it
+  reaches `60000000` validated tokens. A promoted 1M-token pilot is the
+  required intermediate gate. No deleted Kimi corpus is active.
 - Tokenizer: `data/train/tokenizer`
 - Checkpoints: `data/train/checkpoints`
 - Native exports: `data/models/lkjai-scratch-40m`

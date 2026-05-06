@@ -2,7 +2,7 @@
 
 ## Format
 
-The product artifact format is `lkjai-native-artifact-v2`.
+The product artifact format is `lkjai-native-artifact`.
 
 Each exported model directory contains:
 
@@ -29,7 +29,7 @@ Each exported model directory contains:
 
 `manifest.json` records:
 
-- `format`: always `lkjai-native-artifact-v2`.
+- `format`: always `lkjai-native-artifact`.
 - `kind`: model family, currently `dense` for active training exports or
   `transformer` for the retained transformer artifact path.
 - `artifact_kind`: `export` for serving or `checkpoint` for resume state.
@@ -107,6 +107,6 @@ serving.
 ## Compatibility
 
 - Native artifacts do not need to load Python `model.pt` checkpoints.
-- Product serving reads only `lkjai-native-artifact-v2`.
+- Product serving reads only `lkjai-native-artifact`.
 - The tokenizer remains `tokenizer.json` because that file is part of the model
   behavior contract.

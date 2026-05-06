@@ -107,12 +107,22 @@ int check_docs_contract_owners(const std::filesystem::path& repo) {
   for (auto relative : {
            "docs/architecture/native/contract-inventory.md",
            "docs/architecture/native/decoder/config.md",
-           "docs/architecture/native/decoder/training.md",
-           "docs/architecture/native/decoder/decode.md",
-           "docs/product/api.md",
-           "docs/operations/training/long-run.md",
-           "docs/operations/performance/benchmarking.md",
-       }) {
+	           "docs/architecture/native/decoder/training.md",
+	           "docs/architecture/native/decoder/decode.md",
+	           "docs/architecture/native/runtime.md",
+	           "docs/architecture/training/packed-cache.md",
+	           "docs/architecture/training/dataset.md",
+	           "docs/architecture/training/provenance.md",
+	           "docs/architecture/agent/schema.md",
+	           "docs/architecture/agent/loop.md",
+	           "docs/architecture/model/serving.md",
+	           "docs/product/api.md",
+	           "docs/product/agent-tools.md",
+	           "docs/product/chat.md",
+	           "docs/operations/compose.md",
+	           "docs/operations/training/long-run.md",
+	           "docs/operations/performance/benchmarking.md",
+	       }) {
     auto path = repo / relative;
     auto contract = text(path);
     if (contract.find("Owner:") == std::string::npos) {

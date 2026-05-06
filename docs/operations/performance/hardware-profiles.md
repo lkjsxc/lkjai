@@ -37,7 +37,7 @@ When publishing a 4090, 5090, or generic recent NVIDIA GPU result, record it as
 a profile with:
 
 - GPU name and compute capability,
-- driver, CUDA toolkit, and cuDNN versions,
+- driver, CUDA toolkit, and cuDNN builds,
 - exact train report fields and artifacts,
 - whether the run is dense accepted, transformer experimental, decode
   diagnostic, or compatibility-only.

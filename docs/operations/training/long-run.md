@@ -46,7 +46,7 @@ Run one measurable long training job for the 3070-first 40M scratch model.
 - `TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS`: checkpoint cadence;
   `--checkpoint-interval` overrides it.
 - `TRAIN_SEED`: overrides the native config seed.
-- `TRAIN_PACKED_CACHE_DIR`: packed-cache v2 directory, default
+- `TRAIN_PACKED_CACHE_DIR`: packed-cache directory, default
   `${DATA_DIR}/datasets/packed/train-causal_lm_full-seq1024`;
   `--packed-cache` overrides it.
 

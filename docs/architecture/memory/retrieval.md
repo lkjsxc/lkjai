@@ -5,7 +5,7 @@
 - Retrieve compact relevant context before each model action.
 - Avoid using huge native context as the memory mechanism.
 
-## V1 Retrieval
+## Retrieval
 
 - Use SQLite FTS lexical search.
 - Query with the latest user message and compact run summary.

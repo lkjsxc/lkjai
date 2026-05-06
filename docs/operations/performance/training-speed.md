@@ -36,7 +36,7 @@ marked as a separate preset.
 - Result: about `69910` median input tokens/sec on two profiled synthetic
   microsteps after auto-batch selected batch `8`.
 - Treat this as a model-path smoke benchmark; real packed-cache training still
-  requires a full `train-speed-v1` run.
+  requires a full `train-speed` run.
 
 ## Optimization Order
 
@@ -53,7 +53,7 @@ marked as a separate preset.
 
 ## Required Defaults
 
-- Packed cache format: `lkjai-packed-cache-v2`.
+- Packed cache format: `lkjai-packed-cache`.
 - Packed token dtype: `uint16`.
 - Default real loader candidate: batch-oriented mapped cache loading.
 - Default native launch mode: plain launches; CUDA Graph replay is roadmap

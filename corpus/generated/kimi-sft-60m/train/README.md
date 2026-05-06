@@ -1,4 +1,4 @@
-# Kimi SFT 60M V2 Train Split
+# Kimi SFT 60M Train Split
 
 ## Purpose
 
@@ -7,7 +7,7 @@ promotion.
 
 ## Contents
 
-- `train-*.jsonl`: train shards using schema `lkjai-agent-jsonl-v3`.
+- `train-*.jsonl`: train shards using schema `lkjai-agent-jsonl`.
 
 ## Current State
 

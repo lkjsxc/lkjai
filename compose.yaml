@@ -97,7 +97,7 @@ services:
       TRAIN_CONFIG: ${TRAIN_CONFIG:-/workspace/configs/training/scratch_40m_12h.json}
       TRAIN_NATIVE_CONFIG: ${TRAIN_NATIVE_CONFIG:-/workspace/configs/native/native_40m_bf16.json}
       TRAIN_BEHAVIORAL_CHECKPOINT: ${TRAIN_BEHAVIORAL_CHECKPOINT:-export}
-      TRAIN_COMMITTED_CORPUS_DIR: ${TRAIN_COMMITTED_CORPUS_DIR:-/workspace/corpus/generated/kimi-sft-60m-v2}
+      TRAIN_COMMITTED_CORPUS_DIR: ${TRAIN_COMMITTED_CORPUS_DIR:-/workspace/corpus/generated/kimi-sft-60m}
       TRAIN_CORPUS_DIR: ${TRAIN_CORPUS_DIR:-/app/data/public-corpus}
       TRAIN_PUBLIC_DATA_DIR: ${TRAIN_PUBLIC_DATA_DIR:-/app/data/raw/cosmopedia}
       TRAIN_PUBLIC_PRETRAIN_TOKENS: ${TRAIN_PUBLIC_PRETRAIN_TOKENS:-500000000}

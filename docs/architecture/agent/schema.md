@@ -1,5 +1,8 @@
 # Agent Schema
 
+Owner: `docs/architecture/agent/schema.md`.
+State: canonical XML action schema.
+
 ## XML Action
 
 The model must return exactly one `<action>` block.

@@ -10,7 +10,7 @@ Every performance run records:
 - commit SHA,
 - Docker image tag,
 - GPU name and compute capability,
-- driver, CUDA, cuDNN, and native build versions,
+- driver, CUDA, cuDNN, and native build identifiers,
 - training preset and JSON config path,
 - batch size, gradient accumulation, launch mode, current trainer mode,
   `model_kind`, `accepted_cuda_training`, and `implementation_status`,

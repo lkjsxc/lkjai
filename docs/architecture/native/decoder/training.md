@@ -57,7 +57,7 @@ hit it writes `latest`, `final`, export, served artifact, and a report with
 
 ## Report Fields
 
-Decoder reports use schema version `3` with additive fields:
+Decoder reports use stable schema with additive fields:
 
 - `model_kind=decoder`
 - `implementation_status`

@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
       std::cerr << "packed cache build failed: " << error << "\n";
       return 2;
     }
-    std::cout << "{\"status\":\"pass\",\"format\":\"lkjai-packed-cache-v2\","
+    std::cout << "{\"status\":\"pass\",\"format\":\"lkjai-packed-cache\","
               << "\"out\":\"" << lkjai::json_escape(opt.out.string()) << "\"}\n";
     return 0;
   }
@@ -65,28 +65,10 @@ int main(int argc, char** argv) {
       std::cerr << "packed cache validation failed: " << error << "\n";
       return 2;
     }
-    std::cout << "{\"status\":\"pass\",\"format\":\"lkjai-packed-cache-v2\"}\n";
+    std::cout << "{\"status\":\"pass\",\"format\":\"lkjai-packed-cache\"}\n";
     return 0;
   }
-  if (!flag(argc, argv, "--migrate-v1-to-v2")) {
-    std::cerr << "usage: lkjai-native-packed-cache build|validate OR "
-                 "--migrate-v1-to-v2 "
-                 "--in DIR --out DIR --config FILE [--link-mode hardlink]; "
-                 "validate accepts [--allow-smoke-fixture]\n";
-    return 2;
-  }
-  auto in = value(argc, argv, "--in");
-  auto out = value(argc, argv, "--out");
-  auto config = value(argc, argv, "--config");
-  auto link_mode = value(argc, argv, "--link-mode");
-  if (link_mode.empty()) link_mode = "hardlink";
-  std::string error;
-  if (in.empty() || out.empty() || config.empty() ||
-      !lkjai::migrate_packed_cache_v1_to_v2(in, out, config, link_mode, &error)) {
-    std::cerr << "packed cache migration failed: " << error << "\n";
-    return 2;
-  }
-  std::cout << "{\"status\":\"pass\",\"format\":\"lkjai-packed-cache-v2\","
-            << "\"out\":\"" << lkjai::json_escape(out) << "\"}\n";
-  return 0;
+  std::cerr << "usage: lkjai-native-packed-cache build|validate; "
+               "validate accepts [--allow-smoke-fixture]\n";
+  return 2;
 }

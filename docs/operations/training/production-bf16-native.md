@@ -3,7 +3,7 @@
 ## Architecture
 
 The active accepted native CUDA path is dense BF16 CUDA. It consumes
-`lkjai-packed-cache-v2` batches and exports `lkjai-native-artifact-v2`. Stable
+`lkjai-packed-cache` batches and exports `lkjai-native-artifact`. Stable
 layouts are:
 
 - Tokens: `[B,S]` as little-endian `uint16`.
@@ -30,7 +30,7 @@ attention, and SwiGLU MLP are target transformer work.
 ## Packed Cache
 
 Training requires `metadata.json`, `tokens.bin`, `loss_mask.bin`, and
-`starts.bin`. The metadata `format` must be `lkjai-packed-cache-v2`, token dtype
+`starts.bin`. The metadata `format` must be `lkjai-packed-cache`, token dtype
 must be `uint16`, metadata counts must match file sizes, starts must stay within
 the token file, and `loss_mask` marks next-token labels that contribute to cross
 entropy.
@@ -70,7 +70,7 @@ Use `--export-artifact DIR` to write an additional serving artifact outside the
 default `OUT/exports/${MODEL_NAME}` location.
 
 Every successful smoke or train run writes `OUT/runs/train-report.json` and
-prints compact JSON with schema version `3`. Dense reports identify the
+prints compact JSON with stable schema. Dense reports identify the
 precision mode as FP32 master, BF16 CUDA shadow, FP32 accumulation, and BF16
 export, include `run_purpose`, and must declare
 `accepted_cuda_training=true`. Transformer reports are experimental and must

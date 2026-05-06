@@ -59,11 +59,6 @@ class PackedCacheReader {
   std::ifstream mask_;
 };
 
-bool migrate_packed_cache_v1_to_v2(const std::filesystem::path& in,
-                                   const std::filesystem::path& out,
-                                   const std::filesystem::path& config,
-                                   const std::string& link_mode,
-                                   std::string* error);
 bool packed_cache_allowed_for_run(const PackedCacheStatus& status,
                                   const std::string& run_purpose,
                                   std::string* error);

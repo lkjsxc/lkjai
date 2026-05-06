@@ -7,7 +7,7 @@ using lkjai::HttpRequest;
 namespace {
 lkjai::RuntimeConfig config_from_env() {
   return {
-      lkjai::env_string("APP_HOST", "0.0.0.0"),
+      lkjai::env_string("APP_HOST", "127.0.0.1"),
       lkjai::env_int("APP_PORT", 8080),
       lkjai::env_string("DATA_DIR", "/app/data"),
       lkjai::env_string("MODEL_API_URL",

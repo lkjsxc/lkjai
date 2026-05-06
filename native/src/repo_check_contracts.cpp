@@ -92,8 +92,8 @@ void check_training_config(const std::filesystem::path& repo,
       "save_latest_every_optimizer_steps", "target_seconds", "seed"};
   auto body = read(path);
   if (!check_keys(path, allowed, result)) return;
-  if (!contains_json_string(body, "format", "lkjai-train-config-v1"))
-    result->fail(path.string() + " missing lkjai-train-config-v1 format");
+  if (!contains_json_string(body, "format", "lkjai-train-config"))
+    result->fail(path.string() + " missing lkjai-train-config format");
   auto native = json_first_string(body, "native_config");
   if (native.empty()) {
     result->fail(path.string() + " missing native_config");

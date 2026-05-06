@@ -7,7 +7,7 @@ preference rows.
 
 ## Contents
 
-- [repo-grounding-v1.json](repo-grounding-v1.json): first grounding set derived
+- [repo-grounding.json](repo-grounding.json): first grounding set derived
   from `lkjai`, `kjxlkj`, and `lkjmcsmp` docs.
 
 ## Rules

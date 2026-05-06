@@ -17,7 +17,7 @@ fallback, but raw model behavior is still poor:
 
 ## Repair Strategy
 
-Use a deterministic local repair corpus under `data/xml-action-repair-v1/`.
+Use a deterministic local repair corpus under `data/xml-action-repair/`.
 Rows are ordinary supervised conversations whose assistant targets are complete
 XML actions:
 
@@ -41,9 +41,9 @@ until raw XML and content quality pass.
 
 ```bash
 docker compose --profile train run --rm \
-  -e DATA_DIR=/app/data/train-xml-repair-v1 \
-  -e TRAIN_COMMITTED_CORPUS_DIR=/app/data/xml-action-repair-v1 \
-  -e TRAIN_INIT_CHECKPOINT=/app/data/train-full-500m-from-scratch-v2/checkpoints/best \
+  -e DATA_DIR=/app/data/train-xml-repair \
+  -e TRAIN_COMMITTED_CORPUS_DIR=/app/data/xml-action-repair \
+  -e TRAIN_INIT_CHECKPOINT=/app/data/train-full-500m-from-scratch/checkpoints/best \
   -e TRAIN_RESUME=never \
   -e TRAIN_MAX_OPTIMIZER_STEPS=120000 \
   train train-sft --preset agent

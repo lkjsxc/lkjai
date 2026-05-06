@@ -163,8 +163,14 @@ HttpResponse runtime_chat_with_model_response(const RuntimeConfig& cfg,
                    ",\"stop_reason\":\"finish\"}"};
 }
 
+std::string runtime_health_json(const RuntimeConfig& cfg) {
+  return "{\"status\":\"ok\",\"service\":\"lkjai-native-runtime\",\"bind\":"
+         "{\"host\":\"" + json_escape(cfg.host) + "\",\"port\":" +
+         std::to_string(cfg.port) + "}}";
+}
+
 HttpResponse runtime_route(const RuntimeConfig& cfg, const HttpRequest& request) {
-  if (request.method == "GET" && request.path == "/healthz") return {200, "ok"};
+  if (request.method == "GET" && request.path == "/healthz") return {200, runtime_health_json(cfg)};
   if (request.method == "GET" && request.path == "/") {
     return {200, std::string(native_status_page_html()), "text/html; charset=utf-8"};
   }

@@ -35,8 +35,8 @@ The repository currently has:
 
 - dense BF16 CUDA embedding plus LM-head training,
 - real gradient accumulation for the dense trainer,
-- strict packed-cache v2 metadata and bounds validation,
-- packed-cache v2 ingestion,
+- strict packed-cache metadata and bounds validation,
+- packed-cache ingestion,
 - AdamW parameter updates,
 - native artifact export and logits inspection,
 - a CUDA BF16/library capability smoke,

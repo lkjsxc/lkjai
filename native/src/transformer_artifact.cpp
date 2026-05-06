@@ -113,7 +113,7 @@ std::string manifest_json(const TransformerConfig& cfg,
                           std::string_view tokenizer,
                           const std::string& weights_checksum) {
   std::ostringstream out;
-  out << "{\"format\":\"lkjai-native-artifact-v2\",\"kind\":\""
+  out << "{\"format\":\"lkjai-native-artifact\",\"kind\":\""
       << json_escape(cfg.kind) << "\","
       << "\"artifact_kind\":\"" << artifact_kind << "\","
       << "\"embedding_tying\":\""

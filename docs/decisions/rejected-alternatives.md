@@ -2,14 +2,14 @@
 
 ## Pretrained Default Runtime
 
-- Rejected for v1.
+- Rejected.
 - Qwen, Gemma, Kimi, DeepSeek, and similar systems are not default runtime
   dependencies.
 - They may be future comparison baselines or sources of design lessons.
 
 ## QLoRA First
 
-- Rejected for v1.
+- Rejected.
 - Adapter training moves the research center back to pretrained behavior.
 - This project intentionally studies weak local scratch models plus agent
   scaffolding.
@@ -22,9 +22,9 @@
 
 ## MoE
 
-- Rejected for v1.
+- Rejected.
 - Dense small models are simpler to train and inspect locally.
-- MoE increases implementation and routing complexity without solving v1 needs.
+- MoE increases implementation and routing complexity without solving current needs.
 
 ## Huge Native Context
 
@@ -34,7 +34,7 @@
 
 ## Phase-1 Multimodality
 
-- Rejected for v1.
+- Rejected.
 - It dilutes the core agent loop, tool use, and memory work.
 
 ## Python Default Serving

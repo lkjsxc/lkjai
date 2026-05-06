@@ -42,7 +42,7 @@
   atomic tokens.
 - Product Rust and Python runtime/tooling paths are removed in favor of native
   C++/CUDA binaries and CTest gates.
-- Native model artifacts use `lkjai-native-artifact-v2` flat binary weights.
+- Native model artifacts use `lkjai-native-artifact` flat binary weights.
 - Native serving failures are surfaced as non-success responses, not valid
   fallback XML actions.
 - Transition-table train and serve code is removed from the product path.

@@ -1,9 +1,9 @@
 {
-  "schema": "lkjai-agent-jsonl-v3",
-  "corpus": "kimi-sft-60m-v2",
+  "schema": "lkjai-agent-jsonl",
+  "corpus": "kimi-sft-60m",
   "status": "seed",
   "rows": 5,
-  "path": "corpus/generated/kimi-sft-60m-v2",
+  "path": "corpus/generated/kimi-sft-60m",
   "split_rows": {
     "train": 3,
     "val": 1,

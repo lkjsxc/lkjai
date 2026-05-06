@@ -1,5 +1,8 @@
 # Agent Loop
 
+Owner: `docs/architecture/agent/loop.md`.
+State: canonical bounded turn loop contract.
+
 ## Goal
 
 Execute one user turn as a bounded multi-step loop.

@@ -40,7 +40,7 @@ The 256-step sweep was run in order:
 
 ## Dataset And Cache
 
-The accepted run built packed-cache v2 data from:
+The accepted run built packed-cache data from:
 
 - source: `data/train/datasets/train.jsonl`
 - tokenizer: `data/train/tokenizer/tokenizer.json`

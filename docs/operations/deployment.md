@@ -2,7 +2,7 @@
 
 ## Scope
 
-- v1 deployment is a local workstation deployment.
+- current deployment is a local workstation deployment.
 - Default bind is `127.0.0.1`.
 - Host-YOLO makes public deployment unsafe.
 

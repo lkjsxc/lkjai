@@ -1,5 +1,8 @@
 # Compose Contract
 
+Owner: `docs/operations/compose.md`.
+State: canonical Compose profile, mount, port, and verification contract.
+
 ## Profiles
 
 - `inference`: current native OpenAI-compatible scratch inference service.
@@ -71,7 +74,7 @@ docker compose --progress quiet --profile verify run --build --rm verify
 - The default Compose command is a two-step smoke run.
 - `TRAIN_CONFIG` selects the training-run JSON config.
 - `TRAIN_NATIVE_CONFIG` selects the native model-shape JSON config.
-- Long native training must save `lkjai-native-artifact-v2` under `data/models`.
+- Long native training must save `lkjai-native-artifact` under `data/models`.
 - The `verify` service requires NVIDIA GPU access and builds native code with
   the real CUDA compiler.
 

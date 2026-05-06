@@ -54,7 +54,7 @@ the `/api/*` runtime routes from one native process.
 ```json
 {
   "model": "lkjai-scratch-40m",
-  "api_url": "http://127.0.0.1:8081/v1/chat/completions",
+  "api_url": "local-native-engine",
   "loaded": true,
   "reachable": true,
   "message": "model server responding",
@@ -65,9 +65,9 @@ the `/api/*` runtime routes from one native process.
 }
 ```
 
-- `loaded`: client is configured.
-- `reachable`: last health probe succeeded.
-- `device`: inference device reported by the model server.
+- `loaded`: a native artifact is loaded.
+- `reachable`: the merged native engine is ready to serve model routes.
+- `device`: inference device reported by the model engine.
 - `cuda_available`: whether the inference server can use CUDA.
 - `gpu_name`: CUDA device name when available.
 - `warning`: non-empty when serving is degraded, such as CPU fallback.

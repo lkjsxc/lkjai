@@ -1,5 +1,8 @@
 # Training Data Provenance
 
+Owner: `docs/architecture/training/provenance.md`.
+State: canonical training data provenance contract.
+
 ## Goal
 
 Keep active training data traceable to project canon, runtime contracts, tests,

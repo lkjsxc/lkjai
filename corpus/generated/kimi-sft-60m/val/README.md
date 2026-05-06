@@ -1,4 +1,4 @@
-# Kimi SFT 60M V2 Validation Split
+# Kimi SFT 60M Validation Split
 
 ## Purpose
 
@@ -7,7 +7,7 @@ promotion.
 
 ## Contents
 
-- `val-*.jsonl`: validation shards using schema `lkjai-agent-jsonl-v3`.
+- `val-*.jsonl`: validation shards using schema `lkjai-agent-jsonl`.
 
 ## Current State
 

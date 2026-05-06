@@ -7,7 +7,7 @@ Compose.
 
 ## Prerequisites
 
-- Docker Engine + Compose v2.
+- Docker Engine + Compose plugin.
 - NVIDIA driver + NVIDIA container runtime for training runs.
 - RTX 3070 8GB target machine.
 - Free disk for model, tokenizer, checkpoint, memory, and transcript artifacts
@@ -26,21 +26,20 @@ mkdir -p data/models/lkjai-scratch-40m data/train data/agent data/workspace
 docker compose --profile web up --build web
 ```
 
-This starts both containers:
+This starts one merged native server:
 
-- `inference`: scratch OpenAI-compatible model server.
-- `web`: native C++ agent API runtime.
+- `web`: native C++ agent API runtime and OpenAI-compatible model routes.
 
 Web app endpoint:
 
 - `http://127.0.0.1:8080`
 
-Inference API endpoint:
+Merged model route checks:
 
-- `http://127.0.0.1:8081/v1/chat/completions`
-- `curl --fail http://127.0.0.1:8081/v1/models`
+- `curl --fail http://127.0.0.1:8080/v1/models`
+- `http://127.0.0.1:8080/v1/chat/completions`
 
-The inference implementation loads exported scratch artifacts and exposes
+The merged implementation loads exported scratch artifacts and exposes
 readiness plus logits-oriented native checks. Dense and transformer artifacts
 return HTTP `422` with no `choices` for `/v1/chat/completions`. Decoder
 artifacts can return chat choices only when the artifact includes the real local
@@ -52,7 +51,7 @@ byte-level BPE `tokenizer.json`.
 docker compose --profile inference up --build inference
 ```
 
-Use this only when probing the model server without the web UI.
+Use this only when probing model routes without the web UI.
 
 ## Run Scratch Training
 

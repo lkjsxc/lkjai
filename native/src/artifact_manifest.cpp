@@ -21,8 +21,8 @@ std::string artifact_text_checksum(std::string_view text) {
 bool validate_manifest(std::string_view text, std::string_view config,
                        std::string_view tokenizer, std::string* kind,
                        std::string* error) {
-  if (!contains_json_string(text, "format", "lkjai-native-artifact-v2")) {
-    *error = "manifest format must be lkjai-native-artifact-v2";
+  if (!contains_json_string(text, "format", "lkjai-native-artifact")) {
+    *error = "manifest format must be lkjai-native-artifact";
     return false;
   }
   *kind = json_first_string(text, "artifact_kind");

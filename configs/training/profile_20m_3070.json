@@ -1,5 +1,5 @@
 {
-  "format": "lkjai-train-config-v1",
+  "format": "lkjai-train-config",
   "name": "profile_20m_3070",
   "description": "RTX 3070 transformer profile target; not accepted transformer CUDA training.",
   "preset": "agent",

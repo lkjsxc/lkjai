@@ -1,12 +1,15 @@
 # Packed Cache Contract
 
+Owner: `docs/architecture/training/packed-cache.md`.
+State: canonical packed training cache contract.
+
 ## Goal
 
 Make training consume tokenizer output, not raw JSONL, during real runs.
 
 ## Format
 
-- Format id: `lkjai-packed-cache-v2`.
+- Format id: `lkjai-packed-cache`.
 - Directory layout:
   `data/train/datasets/packed/<split>-<objective>-seq1024/`.
 - Required files: `tokens.bin`, `loss_mask.bin`, `starts.bin`, and
@@ -48,9 +51,9 @@ Tokenizer-less byte or modulo mapping is forbidden for real caches.
 
 The long-run cache path
 `data/train/datasets/packed/train-causal_lm_full-seq1024` previously held a
-stale smoke fixture with `sequence_len=16`, `vocab_size=256`, and no
-`schema_version`. Validate this path before every seq1024 dense BF16 run; if
-validation reports those fields, rebuild it with the command below.
+stale smoke fixture with `sequence_len=16`, `vocab_size=256`, and incomplete
+digests. Validate this path before every seq1024 dense BF16 run; if validation
+reports those fields, rebuild it with the command below.
 
 ## Loader Rules
 
@@ -67,7 +70,7 @@ validation reports those fields, rebuild it with the command below.
 
 - Rebuild caches when tokenizer, sequence length, objective, split policy, or
   source corpus fingerprint changes.
-- Do not read v1 caches in product training.
+- Rebuild legacy caches instead of reading them in product training.
 - Validation fails when `vocab_size > 65536` or when any token id exceeds the
   active tokenizer vocabulary.
 - Builder validation also rejects tokenizer/config vocab mismatches,

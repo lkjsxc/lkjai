@@ -1,5 +1,8 @@
 # Chat Product Contract
 
+Owner: `docs/product/chat.md`.
+State: canonical product chat surface contract.
+
 ## Surface
 
 - `GET /` serves the static no-build native browser status/chat page.
@@ -10,7 +13,7 @@
   are the target agent-loop contract.
 - Visibility settings are client-side preferences sent with chat requests.
 - The app is local-only by default.
-- There is no login in v1.
+- There is no login in the current product.
 
 ## Behavior
 

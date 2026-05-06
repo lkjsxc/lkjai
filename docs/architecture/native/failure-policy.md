@@ -16,7 +16,7 @@ hidden scaffolds. Current examples:
 
 Artifact inspection fails before serving when:
 
-- `manifest.json.format` is not `lkjai-native-artifact-v2`.
+- `manifest.json.format` is not `lkjai-native-artifact`.
 - `manifest.json.artifact_kind` is neither `export` nor `checkpoint`.
 - required files are absent.
 - tensor metadata lacks name, dtype, shape, offset, or byte length.

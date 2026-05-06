@@ -4,7 +4,7 @@
 
 The accepted native CUDA trainer is dense BF16 only: token embedding plus
 LM-head, FP32 master weights and optimizer state, BF16 CUDA shadows,
-packed-cache v2 ingestion, checkpoint/export, inspect, logits probes, and
+packed-cache ingestion, checkpoint/export, inspect, logits probes, and
 report validation.
 
 Transformer mode is retained for reference plumbing and artifact compatibility.

@@ -14,7 +14,7 @@
 - Add GGUF export only as an optional compatibility experiment.
 - Add distillation only after teacher, dataset, and license policy are written.
 
-## Rejected For V1
+## Rejected
 
 - A hard 512 MiB production artifact target.
 - Extreme quantization before behavioral evals are meaningful.

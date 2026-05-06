@@ -23,7 +23,7 @@ Use this subtree for the native C++/CUDA train and serve contracts.
 - [artifact.md](artifact.md): native checkpoint and weight files
 - [capability.md](capability.md): reusable CUDA capability JSON shape
 - [contract-inventory.md](contract-inventory.md): stable native contracts,
-  additive fields, diagnostics, and future-versioned surfaces
+  additive fields, diagnostics, and future additive surfaces
 - [cuda-stack.md](cuda-stack.md): pinned CUDA, vendor library, and precision stack
 - [dense-bf16-optimization.md](dense-bf16-optimization.md): accepted dense
   BF16 speedup contract and non-goals

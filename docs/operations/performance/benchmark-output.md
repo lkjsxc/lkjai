@@ -11,7 +11,7 @@ Each benchmark repeat copies:
 
 The report includes:
 
-- `schema_version`
+- `schema`
 - `trainer_mode`
 - `run_purpose`
 - `status`
@@ -103,7 +103,7 @@ JSON shape, including additive hardware/build fields. Dense `logits_check`
 validates exported BF16 weights and, for train runs, records FP32 checkpoint
 reference tolerance fields.
 
-Successful schema v3 train reports use top-level `status=success`. Nested
+Successful train reports use top-level `status=success`. Nested
 checks, including `logits_check.status` and `reference_check`, continue to use
 `pass` or `fail`.
 
@@ -115,7 +115,7 @@ excluded from accepted CUDA promotion aggregates.
 
 Each summary includes:
 
-- `schema_version`
+- `schema`
 - `trainer_mode`
 - `run_purpose`
 - `status`

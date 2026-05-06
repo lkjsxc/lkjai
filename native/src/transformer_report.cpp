@@ -80,7 +80,7 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
     if (report.kv_cache_backend == "none") limitations.push_back("kv_cache_not_implemented");
     if (!report.decode_supported) limitations.push_back("autoregressive_decode_unsupported");
   }
-  *out << "{\"schema_version\":3"
+  *out << "{\"schema\":\"lkjai-train-report\""
        << ",\"trainer_mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"run_purpose\":\"" << json_escape(report.run_purpose) << "\""

@@ -93,7 +93,7 @@ std::string manifest_json(const std::string& artifact_kind,
                           std::string_view tokenizer,
                           const std::string& checksum) {
   std::ostringstream out;
-  out << "{\"format\":\"lkjai-native-artifact-v2\",\"kind\":\"dense\","
+  out << "{\"format\":\"lkjai-native-artifact\",\"kind\":\"dense\","
       << "\"artifact_kind\":\"" << artifact_kind << "\","
       << "\"weights_checksum\":\"" << json_escape(checksum) << "\","
       << "\"config_checksum\":\"" << artifact_text_checksum(config) << "\","

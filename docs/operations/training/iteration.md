@@ -33,7 +33,7 @@ Fresh 500M-target run, started from an empty data directory:
 
 ```bash
 docker compose --profile train run --rm \
-  -e DATA_DIR=/app/data/train-full-500m-from-scratch-v2 \
+  -e DATA_DIR=/app/data/train-full-500m-from-scratch \
   -e TRAIN_RESUME=never \
   -e TRAIN_INIT_CHECKPOINT= \
   -e TRAIN_CORPUS_DIR=/app/data/public-corpus \
@@ -52,7 +52,7 @@ Stopped first attempt, because it used the previous `440000000` public target:
 
 Corrected 500M public run:
 
-- Data directory: `data/train-full-500m-from-scratch-v2/`.
+- Data directory: `data/train-full-500m-from-scratch/`.
 - Public train tokenizer tokens: `463087933`.
 - Step `1`: loss `9.10818`, `8192` input tokens seen.
 - Step `3000`: loss `6.9528`, `24576000` input tokens seen.
@@ -69,7 +69,7 @@ Two-hour finish adjustment:
 - Resumed causal-LM pretrain to bounded final step `84000`.
 - Ran SFT from pretrain final checkpoint for bounded `12000` optimizer steps.
 - SFT final loss: `3.5202`; validation loss: `3.5870`.
-- Export: `data/train-full-500m-from-scratch-v2/exports/manifest.json`.
+- Export: `data/train-full-500m-from-scratch/exports/manifest.json`.
 - Fixed eval: `16/16`.
 - Generation sanity: `2/2` valid XML through structural-token suppression and
   invalid-generation fallback.
@@ -78,7 +78,7 @@ Two-hour finish adjustment:
 Overnight continuation:
 
 - Container: `lkjai-sft-overnight-270k`.
-- Resume source: latest SFT checkpoint from `data/train-full-500m-from-scratch-v2`.
+- Resume source: latest SFT checkpoint from `data/train-full-500m-from-scratch`.
 - Target: continue `assistant_masked_sft` to optimizer step `270000`.
 - Expected duration from step `30000`: about `11` hours at roughly `6`
   optimizer steps per second.
@@ -106,16 +106,16 @@ Overnight result:
 
 High-LR repair run:
 
-- Data root: `data/train-xml-repair-v1`.
-- Init checkpoint: `data/train-full-500m-from-scratch-v2/checkpoints/best`.
+- Data root: `data/train-xml-repair`.
+- Init checkpoint: `data/train-full-500m-from-scratch/checkpoints/best`.
 - Stopped at optimizer step `60000` after a clean latest save.
 - Best validation loss was at step `24000`: `2.0817`.
 - Step `60000` raw probes still failed to emit complete `<action>` XML.
 
 Low-LR repair run:
 
-- Data root: `data/train-xml-repair-lr-v2`.
-- Init checkpoint: `data/train-xml-repair-v1/checkpoints/best`.
+- Data root: `data/train-xml-repair-lr`.
+- Init checkpoint: `data/train-xml-repair/checkpoints/best`.
 - Learning rate: `0.00003` with `TRAIN_LR_MIN_FACTOR=0.2`.
 - At step `30000`, validation loss reached about `1.9337`; best observed was
   about `1.9198` at step `21000`.
@@ -161,7 +161,7 @@ Full retrain target:
 
 ```bash
 docker compose --profile train run --rm \
-  -e TRAIN_DATA_DIR=/app/data/train-speed-v1 \
+  -e TRAIN_DATA_DIR=/app/data/train-speed \
   -e TRAIN_RESUME=never \
   -e TRAIN_INIT_CHECKPOINT= \
   train train

@@ -8,7 +8,7 @@ modeling and XML-action supervision.
 ## Storage Schema
 
 Editable source entries live in JSON array files under `corpus/sources/`; see
-[source-corpus.md](source-corpus.md). SFT rows use `lkjai-agent-jsonl-v2`:
+[source-corpus.md](source-corpus.md). SFT rows use `lkjai-agent-jsonl`:
 
 ```json
 {

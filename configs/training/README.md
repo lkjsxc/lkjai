@@ -28,5 +28,5 @@ Training configs pin long-running scratch model settings.
   dense-size native configs when parameter count matters.
 - Decoder training configs must set `model_kind` to `decoder` and include
   `target_seconds` for wall-clock-bounded acceptance runs.
-- Profile training configs must use only `lkjai-train-config-v1` keys and must
+- Profile training configs must use only `lkjai-train-config` keys and must
   not claim accepted transformer CUDA training.

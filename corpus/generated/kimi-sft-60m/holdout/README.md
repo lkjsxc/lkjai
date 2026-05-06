@@ -1,4 +1,4 @@
-# Kimi SFT 60M V2 Holdout Split
+# Kimi SFT 60M Holdout Split
 
 ## Purpose
 
@@ -7,7 +7,7 @@ promotion.
 
 ## Contents
 
-- `holdout-*.jsonl`: holdout shards using schema `lkjai-agent-jsonl-v3`.
+- `holdout-*.jsonl`: holdout shards using schema `lkjai-agent-jsonl`.
 
 ## Current State
 

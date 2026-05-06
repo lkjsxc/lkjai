@@ -28,9 +28,9 @@ for reference plumbing, but it is experimental until it is replaced or retired.
 1. Read reviewed JSONL corpus rows.
 2. Serialize model-facing dialogue and assistant action targets.
 3. Tokenize through the native tokenizer.
-4. Write or reuse `lkjai-packed-cache-v2` files.
+4. Write or reuse `lkjai-packed-cache` files.
 5. Train using the selected native CUDA model kind.
-6. Save `lkjai-native-artifact-v2`.
+6. Save `lkjai-native-artifact`.
 7. Probe exported single-step logits with `lkjai-native-infer`.
 8. Use `lkjai-native-logits-check` only for validation/reference checks.
 
@@ -38,7 +38,7 @@ for reference plumbing, but it is experimental until it is replaced or retired.
 
 - GPU-required Compose verify must pass without product Python tests.
 - A native smoke run must complete at least two optimizer steps through the
-  dense CUDA trainer and export a valid `lkjai-native-artifact-v2` directory.
+  dense CUDA trainer and export a valid `lkjai-native-artifact` directory.
   `lkjai-native-train --smoke` is always dense unless a future milestone states
   otherwise.
 - `lkjai-native-train --train --mode transformer` must remain callable, but its
@@ -47,7 +47,7 @@ for reference plumbing, but it is experimental until it is replaced or retired.
   accepted CUDA training.
 - A native artifact inspect command must validate all index offsets and shapes.
 - Training persists `DATA_DIR/runs/train-report.json` and prints compact JSON
-  with schema version, `model_kind`, finite decreasing loss, precision mode,
+  with schema identifier, `model_kind`, finite decreasing loss, precision mode,
   dtype fields, phase timings, config and packed-cache digests, batch size,
   sequence length, gradient accumulation, optimizer steps, microsteps, token
   counts, BF16 export logits-check result, artifact paths/checksums, `status`,
@@ -66,7 +66,7 @@ for reference plumbing, but it is experimental until it is replaced or retired.
 
 ## Current Implementations
 
-- `lkjai-native-train --smoke --steps N` creates a tiny packed-cache v2 fixture,
+- `lkjai-native-train --smoke --steps N` creates a tiny packed-cache fixture,
   trains the dense BF16 CUDA embedding plus LM-head model, and exports dense
   tensors.
 - The smoke export is written under `DATA_DIR/exports/${MODEL_NAME}` and
@@ -74,7 +74,7 @@ for reference plumbing, but it is experimental until it is replaced or retired.
 - The smoke model proves artifact load and logits inference. It is not a
   behavioral competency artifact and does not enable autoregressive chat decode.
 - `lkjai-native-train --train` runs the corpus-backed native dense CUDA trainer.
-  It consumes packed-cache v2 data, runs forward/backward/optimizer steps,
+  It consumes packed-cache data, runs forward/backward/optimizer steps,
   checkpoints under `DATA_DIR/checkpoints`, exports under
   `DATA_DIR/exports/${MODEL_NAME}`, and mirrors the served model under
   `${DATA_DIR}/../models/${MODEL_NAME}`.
@@ -103,10 +103,9 @@ for reference plumbing, but it is experimental until it is replaced or retired.
   Tensor Core, cuDNN SDPA, cuBLASLt transformer projection, RoPE, and accepted
   transformer CUDA training remain roadmap work until real kernels replace the
   reference path.
-- `lkjai-native-packed-cache --migrate-v1-to-v2` wraps compatible v1 binary
-  cache files as v2 after validating metadata, token width, masks, starts, vocab,
-  token count, row count, file sizes, row bounds, vocab, and context
-  compatibility.
+- Legacy binary cache migration is removed from the product path. Rebuild caches
+  with `lkjai-native-packed-cache build` after tokenizer, source, objective, or
+  sequence-length changes.
 - The transformer implementation remains available in source, but routine
   native training and CTests exercise the dense CUDA milestone.
 
@@ -148,14 +147,14 @@ files and are the validation target for dense infer and logits checks.
 
 ## Report Schema
 
-All native train reports use schema version `3`. Common fields include
+All native train reports use stable schema. Common fields include
 `model_kind`, `accepted_cuda_training`, `implementation_status`,
 `forward_backend`, `backward_backend`, `optimizer_backend`,
 `cuda_probe_passed`, precision fields, `limitations`, artifact paths/checksums,
 losses, timings, and capability. `timings.h2d` is separate from
 `timings.forward`.
 
-Schema v3 capability fields are additive. Consumers must preserve existing
+Stable schema capability fields are additive. Consumers must preserve existing
 fields and tolerate the hardware/build fields listed in
 [capability.md](capability.md).
 
@@ -171,10 +170,10 @@ Dense reports declare `accepted_cuda_training=true`,
 `matmul_plan_cache_enabled=true`, `buffer_reuse_enabled=true`, and
 `timing_source=cuda_events_with_boundary_sync`. Dense reports include logits,
 grad-logits, hidden-gradient, and cuBLASLt workspace byte counts as additive
-schema-v3 fields. Dense logits checks compare BF16 exports against FP32
+stable-schema fields. Dense logits checks compare BF16 exports against FP32
 checkpoint masters when a reference checkpoint is available.
 
-Decoder reports declare `model_kind=decoder` and use additive schema-v3 fields
+Decoder reports declare `model_kind=decoder` and use additive stable-schema fields
 from [decoder/training.md](decoder/training.md).
 
 Transformer reports declare `accepted_cuda_training=false`,

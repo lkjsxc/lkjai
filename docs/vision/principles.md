@@ -18,7 +18,7 @@
 
 ## Model Principles
 
-- The v1 model is a small dense decoder-only model.
+- The current model is a small dense decoder-only model.
 - Prefer RMSNorm, RoPE, SwiGLU, pre-norm, and GQA-capable architectures.
 - The default model starts from random initialization.
 - Pretrained models are rejected alternatives or future comparison baselines,

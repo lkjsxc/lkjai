@@ -90,7 +90,7 @@ artifact inspection, and CUDA capability probing.
 - [logits_check_main.cpp](logits_check_main.cpp): dense and transformer artifact
   logits probe, including dense BF16 export parity against FP32 checkpoints.
 - [packed_cache.cpp](packed_cache.cpp) and [packed_cache.hpp](packed_cache.hpp):
-  packed-cache v2 validation and compatible v1 migration.
+  packed-cache validation.
 - [packed_cache_build.cpp](packed_cache_build.cpp) and
   [packed_cache_build.hpp](packed_cache_build.hpp): native packed-cache build
   and validate CLI support.
@@ -101,7 +101,8 @@ artifact inspection, and CUDA capability probing.
   reader for dense training batches.
 - [packed_cache_validate.cpp](packed_cache_validate.cpp): packed-cache metadata,
   file size, and row-bound validation.
-- [packed_cache_main.cpp](packed_cache_main.cpp): packed-cache migration CLI.
+- [packed_cache_main.cpp](packed_cache_main.cpp): packed-cache build and
+  validation CLI.
 - [server_main.cpp](server_main.cpp): merged native server entrypoint for
   OpenAI-compatible inference routes and local runtime API routes.
 - [runtime_main.cpp](runtime_main.cpp), [runtime_api.cpp](runtime_api.cpp),

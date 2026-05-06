@@ -2,7 +2,7 @@
 
 ## Format
 
-Decoder exports use `lkjai-native-artifact-v2` with `manifest.json.kind` set to
+Decoder exports use `lkjai-native-artifact` with `manifest.json.kind` set to
 `decoder`.
 
 ## Required Files

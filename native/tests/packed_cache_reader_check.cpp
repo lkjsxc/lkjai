@@ -30,7 +30,7 @@ std::filesystem::path make_cache(const std::string& name,
   std::filesystem::remove_all(dir);
   std::filesystem::create_directories(dir);
   std::ofstream(dir / "metadata.json")
-      << "{\"format\":\"lkjai-packed-cache-v2\",\"sequence_len\":4,"
+      << "{\"format\":\"lkjai-packed-cache\",\"sequence_len\":4,"
       << "\"vocab_size\":16,\"smoke_fixture\":true,"
       << "\"token_dtype\":\"uint16\",\"token_count\":8,"
       << "\"row_count\":" << starts.size() << "}\n";

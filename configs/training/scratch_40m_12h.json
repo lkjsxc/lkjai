@@ -1,5 +1,5 @@
 {
-  "format": "lkjai-train-config-v1",
+  "format": "lkjai-train-config",
   "name": "scratch_40m_12h",
   "description": "Default RTX 3070 8GB dense BF16 causal-LM run estimate.",
   "preset": "agent",

@@ -96,7 +96,7 @@ bool build_packed_cache(const PackedCacheBuildOptions& opt, std::string* error) 
     }
   }
   std::ofstream meta(opt.out / "metadata.json");
-  meta << "{\"format\":\"lkjai-packed-cache-v2\",\"split\":\""
+  meta << "{\"format\":\"lkjai-packed-cache\",\"split\":\""
        << json_escape(opt.split) << "\",\"objective\":\""
        << json_escape(opt.objective) << "\",\"sequence_len\":" << opt.seq_len
        << ",\"seq_len\":" << opt.seq_len << ",\"vocab_size\":" << vocab_size

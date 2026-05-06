@@ -25,7 +25,7 @@ token count, and applies the caller-provided gradient scale.
 
 ## Report Fields
 
-Schema version stays `3`. Accepted dense reports must include:
+Schema stays stable. Accepted dense reports must include:
 
 - `loss_kernel_backend="block_row_softmax_fp32"`
 - `loss_readback_mode="optimizer_step_deferred_pinned"`

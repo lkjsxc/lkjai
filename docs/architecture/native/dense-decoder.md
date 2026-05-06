@@ -81,7 +81,7 @@ autoregressive decode in the accepted product path yet.
 The current dense CUDA path is accepted only when all of these are true:
 
 - A fixed synthetic batch trains forward and backward without NaN loss.
-- Packed-cache training consumes `lkjai-packed-cache-v2`.
+- Packed-cache training consumes `lkjai-packed-cache`.
 - `lkjai-native-logits-check` validates finite `[1,V]` logits from an exported
   BF16 artifact. Repeated checks with the same seed/config/dataset must keep the
   exported logits checksum stable.

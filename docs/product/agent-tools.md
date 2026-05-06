@@ -1,5 +1,8 @@
 # Agent Tool Contract
 
+Owner: `docs/product/agent-tools.md`.
+State: canonical tool profile and confirmation contract.
+
 ## Default Tool Profile
 
 The default runtime profile is `readonly`. It exposes only tools that can run

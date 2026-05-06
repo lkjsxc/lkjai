@@ -26,7 +26,7 @@
 - Do not use Qwen, Gemma, Kimi, DeepSeek, or other recent pretrained models as
   runtime dependencies.
 - Do not preserve compatibility with older code or docs.
-- Do not add MoE in v1.
+- Do not add MoE in the current product.
 - Do not add phase-1 multimodality.
 - Do not rely on huge native context windows for memory.
 - Do not run Node for hosting, verification, or browser automation.

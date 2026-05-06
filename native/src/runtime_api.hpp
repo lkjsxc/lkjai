@@ -28,6 +28,7 @@ HttpResponse runtime_chat_with_model_response(const RuntimeConfig& cfg,
 std::string runtime_model_status_json(const RuntimeConfig& cfg,
                                       const NativeHttpResponse& probe);
 std::string runtime_config_status_json(const RuntimeConfig& cfg);
+std::string runtime_health_json(const RuntimeConfig& cfg);
 std::vector<std::string> runtime_visible_event_kinds(std::string_view body);
 
 }  // namespace lkjai

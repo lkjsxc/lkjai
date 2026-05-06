@@ -28,7 +28,7 @@
 
 ## Non-Defaults
 
-- MoE is rejected for v1.
+- MoE is rejected.
 - Phase-1 multimodality is rejected.
 - Pretrained serving models are rejected as defaults.
 - QLoRA and LoRA adapters are rejected as defaults.

@@ -1,5 +1,5 @@
 {
-  "format": "lkjai-train-config-v1",
+  "format": "lkjai-train-config",
   "name": "dense_12h_40m_3070",
   "description": "RTX 3070 12-hour dense BF16 40M-size run target.",
   "preset": "agent",

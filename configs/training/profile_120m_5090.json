@@ -1,5 +1,5 @@
 {
-  "format": "lkjai-train-config-v1",
+  "format": "lkjai-train-config",
   "name": "profile_120m_5090",
   "description": "RTX 5090/Blackwell transformer profile target; not accepted transformer CUDA training.",
   "preset": "agent",

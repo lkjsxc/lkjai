@@ -1,5 +1,8 @@
 # Scratch Serving Contract
 
+Owner: `docs/architecture/model/serving.md`.
+State: canonical model serving capability contract.
+
 ## Goal
 
 Load exported scratch artifacts through one native service. Current dense

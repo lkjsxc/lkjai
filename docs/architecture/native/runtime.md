@@ -1,5 +1,8 @@
 # Native Server Runtime
 
+Owner: `docs/architecture/native/runtime.md`.
+State: canonical native HTTP route and readiness contract.
+
 ## Goal
 
 Serve the scratch model and local agent API through one native C++/CUDA HTTP
@@ -7,7 +10,7 @@ process.
 
 ## HTTP Contract
 
-- `GET /healthz` reports process and artifact load status.
+- `GET /healthz` returns JSON process, artifact load, and CUDA capability state.
 - `GET /` serves the static no-build browser status/chat page.
 - `GET /v1/models` reports model readiness, device, CUDA availability, GPU
   name, hardware/build capability fields, and warning.

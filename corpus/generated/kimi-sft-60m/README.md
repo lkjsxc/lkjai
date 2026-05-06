@@ -1,4 +1,4 @@
-# Kimi SFT 60M V2
+# Kimi SFT 60M
 
 ## Purpose
 
@@ -8,7 +8,7 @@ XML-action SFT corpus.
 ## Acceptance
 
 - Target tokenizer tokens: `60000000`.
-- Schema: `lkjai-agent-jsonl-v3`.
+- Schema: `lkjai-agent-jsonl`.
 - Required splits: `train`, `val`, and `holdout`.
 - Every assistant message is one XML `<action>`.
 - Completed traces end with `agent.finish`.

@@ -12,6 +12,8 @@ add_test(NAME native_no_node
   COMMAND lkjai-native-repo-check no-node --repo ${LKJAI_REPO_ROOT})
 add_test(NAME native_native_only
   COMMAND lkjai-native-repo-check native-only --repo ${LKJAI_REPO_ROOT})
+add_test(NAME native_stable_identifiers
+  COMMAND lkjai-native-repo-check stable-identifiers --repo ${LKJAI_REPO_ROOT})
 add_test(NAME native_config_contract
   COMMAND lkjai-native-repo-check config-contract --repo ${LKJAI_REPO_ROOT})
 add_test(NAME native_cuda_arch_contract
@@ -20,9 +22,9 @@ add_test(NAME native_cuda_arch_contract
 add_test(
   NAME native_corpus_actions
   COMMAND lkjai-native-repo-check corpus-actions --
-    ${LKJAI_REPO_ROOT}/corpus/generated/kimi-sft-60m-v2/train/train-000001.jsonl
-    ${LKJAI_REPO_ROOT}/corpus/generated/kimi-sft-60m-v2/val/val-000001.jsonl
-    ${LKJAI_REPO_ROOT}/corpus/generated/kimi-sft-60m-v2/holdout/holdout-000001.jsonl
+    ${LKJAI_REPO_ROOT}/corpus/generated/kimi-sft-60m/train/train-000001.jsonl
+    ${LKJAI_REPO_ROOT}/corpus/generated/kimi-sft-60m/val/val-000001.jsonl
+    ${LKJAI_REPO_ROOT}/corpus/generated/kimi-sft-60m/holdout/holdout-000001.jsonl
 )
 
 add_test(NAME native_inspect_missing

@@ -1,114 +1,114 @@
 [
   {
-    "fixture_id": "lkjai-docs-canon-v1",
+    "fixture_id": "lkjai-docs-canon",
     "repo": "lkjai",
     "source_ref": "docs/README.md",
     "summary": "docs/ is the active canon; successful turns finish through agent.finish."
   },
   {
-    "fixture_id": "lkjai-agent-readonly-profile-v1",
+    "fixture_id": "lkjai-agent-readonly-profile",
     "repo": "lkjai",
     "source_ref": "docs/product/agent-tools.md",
     "summary": "the default readonly profile exposes finish, think, fs.read, fs.list, memory.search, and read-only kjxlkj resource tools."
   },
   {
-    "fixture_id": "lkjai-agent-mutable-profile-v1",
+    "fixture_id": "lkjai-agent-mutable-profile",
     "repo": "lkjai",
     "source_ref": "docs/product/agent-tools.md",
     "summary": "AGENT_TOOL_PROFILE=mutable exposes request_confirmation and confirmed kjxlkj create/update tools; shell, web.fetch, fs.write, and memory.write stay disabled."
   },
   {
-    "fixture_id": "lkjai-direct-greeting-v1",
+    "fixture_id": "lkjai-direct-greeting",
     "repo": "lkjai",
     "source_ref": "apps/runtime/prompts/codex-40m-system.txt",
     "summary": "greetings, thanks, and simple questions should use agent.finish directly without filesystem or resource tools."
   },
   {
-    "fixture_id": "lkjai-repeat-action-v1",
+    "fixture_id": "lkjai-repeat-action",
     "repo": "lkjai",
     "source_ref": "docs/architecture/agent/loop.md",
     "summary": "the runtime stops repeated identical non-terminal actions instead of rerunning the same failed tool call."
   },
   {
-    "fixture_id": "lkjai-workspace-list-v1",
+    "fixture_id": "lkjai-workspace-list",
     "repo": "lkjai",
     "source_ref": "docs/architecture/runtime/workspace.md",
     "summary": "workspace tools are confined to TOOL_WORKSPACE_DIR and should use relative paths."
   },
   {
-    "fixture_id": "lkjai-workspace-absolute-path-failure-v1",
+    "fixture_id": "lkjai-workspace-absolute-path-failure",
     "repo": "lkjai",
     "source_ref": "apps/runtime/tests/agent_tests.rs",
     "summary": "absolute filesystem paths are rejected by the local workspace tool and should be handled as recoverable tool failures."
   },
   {
-    "fixture_id": "lkjai-memory-search-v1",
+    "fixture_id": "lkjai-memory-search",
     "repo": "lkjai",
     "source_ref": "docs/architecture/memory/retrieval.md",
     "summary": "memory.search retrieves durable memory only when it helps the current turn; memory.write is disabled in active profiles."
   },
   {
-    "fixture_id": "kjxlkj-search-v1",
+    "fixture_id": "kjxlkj-search",
     "repo": "kjxlkj",
     "source_ref": "../kjxlkj/docs/product/behavior/search-and-pagination.md",
     "summary": "resource search accepts q, kind, scope, sort, cursor, direction, and limit."
   },
   {
-    "fixture_id": "kjxlkj-fetch-v1",
+    "fixture_id": "kjxlkj-fetch",
     "repo": "kjxlkj",
     "source_ref": "../kjxlkj/docs/product/api/read-endpoints.md",
     "summary": "resource.fetch reads a single kjxlkj resource by ref or id and returns resource fields for grounded answering."
   },
   {
-    "fixture_id": "kjxlkj-history-v1",
+    "fixture_id": "kjxlkj-history",
     "repo": "kjxlkj",
     "source_ref": "../kjxlkj/docs/product/behavior/history-and-favorites.md",
     "summary": "history pages and JSON history share directional cursor semantics."
   },
   {
-    "fixture_id": "kjxlkj-preview-markdown-v1",
+    "fixture_id": "kjxlkj-preview-markdown",
     "repo": "kjxlkj",
     "source_ref": "../kjxlkj/docs/product/api/write-endpoints.md",
     "summary": "resource.preview_markdown previews markdown mutation output without committing a write and can run in the readonly profile."
   },
   {
-    "fixture_id": "kjxlkj-create-note-v1",
+    "fixture_id": "kjxlkj-create-note",
     "repo": "kjxlkj",
     "source_ref": "../kjxlkj/docs/product/api/write-endpoints.md",
     "summary": "resource.create_note accepts body plus optional alias, is_favorite, and is_private, and must be requested through confirmation."
   },
   {
-    "fixture_id": "kjxlkj-create-media-v1",
+    "fixture_id": "kjxlkj-create-media",
     "repo": "kjxlkj",
     "source_ref": "../kjxlkj/docs/product/api/write-endpoints.md",
     "summary": "resource.create_media accepts a workspace-confined path plus optional alias, is_favorite, and is_private, and must be requested through confirmation."
   },
   {
-    "fixture_id": "kjxlkj-update-v1",
+    "fixture_id": "kjxlkj-update",
     "repo": "kjxlkj",
     "source_ref": "../kjxlkj/docs/product/api/write-endpoints.md",
     "summary": "resource update accepts body, alias, is_favorite, and is_private."
   },
   {
-    "fixture_id": "kjxlkj-empty-search-v1",
+    "fixture_id": "kjxlkj-empty-search",
     "repo": "kjxlkj",
     "source_ref": "docs/product/kjxlkj-integration.md",
     "summary": "when resource.search returns no matching resources, the agent should finish with a concise empty-result explanation instead of inventing resources."
   },
   {
-    "fixture_id": "lkjai-safety-secret-v1",
+    "fixture_id": "lkjai-safety-secret",
     "repo": "lkjai",
     "source_ref": "docs/vision/principles.md",
     "summary": "the agent must not reveal secrets, credentials, private data, API keys, or raw local password files."
   },
   {
-    "fixture_id": "lkjai-safety-disabled-shell-v1",
+    "fixture_id": "lkjai-safety-disabled-shell",
     "repo": "lkjai",
     "source_ref": "docs/product/agent-tools.md",
     "summary": "shell.exec is disabled in active profiles; command requests should not be trained as successful shell tool calls."
   },
   {
-    "fixture_id": "lkjmcsmp-message-catalog-v1",
+    "fixture_id": "lkjmcsmp-message-catalog",
     "repo": "lkjmcsmp",
     "source_ref": "../lkjmcsmp/docs/product/settings/message-catalog.md",
     "summary": "language files are flat JSON objects and missing keys fall back to English."

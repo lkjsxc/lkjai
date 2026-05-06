@@ -1,5 +1,5 @@
 {
-  "schema": "lkjai-corpus-validation-v2",
+  "schema": "lkjai-corpus-validation",
   "status": "seed-pass",
   "rows": 5,
   "xml_validity_rate": 1.0,

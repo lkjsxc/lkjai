@@ -1,5 +1,5 @@
 {
-  "format": "lkjai-train-config-v1",
+  "format": "lkjai-train-config",
   "name": "dense_2h_20m_3070",
   "description": "RTX 3070 two-hour dense BF16 real packed-cache run target.",
   "preset": "agent",

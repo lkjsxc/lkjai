@@ -52,7 +52,7 @@ void prepare_smoke_fixture(const std::filesystem::path& root,
   *cache = root / "datasets" / "packed" / "train-causal_lm_full-seq1024";
   std::filesystem::create_directories(*cache);
   std::ofstream(*cache / "metadata.json")
-      << "{\"format\":\"lkjai-packed-cache-v2\",\"split\":\"train\","
+      << "{\"format\":\"lkjai-packed-cache\",\"split\":\"train\","
          "\"objective\":\"causal_lm_full\",\"sequence_len\":16,"
          "\"vocab_size\":256,\"smoke_fixture\":true,"
          "\"token_dtype\":\"uint16\",\"row_count\":2,"

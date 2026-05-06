@@ -74,8 +74,8 @@ bool apply_training_config(const std::filesystem::path& path,
     return false;
   }
   if (!reject_unknown_keys(text, error)) return false;
-  if (!contains_json_string(text, "format", "lkjai-train-config-v1")) {
-    *error = "TRAIN_CONFIG format must be lkjai-train-config-v1";
+  if (!contains_json_string(text, "format", "lkjai-train-config")) {
+    *error = "TRAIN_CONFIG format must be lkjai-train-config";
     return false;
   }
   auto objective = json_first_string(text, "objective");

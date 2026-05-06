@@ -11,7 +11,7 @@ collectives, or alternate precision modes.
 The accepted CUDA path is dense embedding plus LM head training. It uses BF16
 shadow weights for embedding gather and LM-head logits, FP32 master weights and
 gradients, cuBLASLt for the forward logits GEMM, custom CUDA loss and optimizer
-kernels, packed-cache v2 input, artifact v2 output, and train-report schema v3.
+kernels, packed-cache input, artifact output, and train-report stable schema.
 
 Transformer reports remain experimental with
 `accepted_cuda_training=false`; dense reports remain accepted with
@@ -47,7 +47,7 @@ gradient accumulation semantics match the previous dense trainer contract.
 
 ## Report Contract
 
-Schema v3 remains current. Dense reports add:
+Stable schema remains current. Dense reports add:
 
 - `backward_backend="cuda_bf16_cublaslt_scatter"`
 - `backward_gemm_enabled=true`
@@ -65,7 +65,7 @@ Schema v3 remains current. Dense reports add:
 - `copy_compute_overlap_enabled=true`
 - `batch_staging_backend="triple_slot_pinned_direct_read"`
 
-Consumers must treat those fields as additive schema-v3 fields. A schema v4 is
+Consumers must treat those fields as additive stable-schema fields. A schema v4 is
 not required unless a future change removes or redefines existing fields.
 
 ## Acceptance

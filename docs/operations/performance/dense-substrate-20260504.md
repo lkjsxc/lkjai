@@ -11,7 +11,7 @@ tuning patch set. Raw artifacts are intentionally left under ignored
 - `native: move source lists to cmake fragment`
 - `docs: fix runtime tuning toc links`
 
-The implementation keeps train report `schema_version=3` and adds optional
+The implementation keeps train report `schema=lkjai-train-report` and adds optional
 fields for dense autotune, workspace, allocator, timing, and LM-head cache
 state.
 

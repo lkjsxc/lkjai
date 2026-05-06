@@ -26,7 +26,7 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
       report.elapsed_seconds > 0.0
           ? static_cast<double>(report.input_tokens) / report.elapsed_seconds
           : 0.0;
-  *out << "{\"schema_version\":3"
+  *out << "{\"schema\":\"lkjai-train-report\""
        << ",\"trainer_mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"run_purpose\":\"" << json_escape(report.run_purpose) << "\""

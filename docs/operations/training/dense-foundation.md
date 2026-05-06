@@ -15,7 +15,7 @@ decoder-only transformer training, autoregressive chat, or model competency.
 
 ## Build Cache
 
-Use an existing reviewed packed-cache v2 directory, or build one through the
+Use an existing reviewed packed-cache directory, or build one through the
 native cache builder:
 
 ```sh
@@ -104,7 +104,7 @@ docker compose --profile train run --rm train \
   --seq-len 16 --max-steps 1024 --loss-sample-interval 64
 ```
 
-It builds a deterministic packed-cache v2 target with `seq_len=16`,
+It builds a deterministic packed-cache target with `seq_len=16`,
 `vocab_size=256`, `row_count=128`, and cyclic token transitions over tokens
 `1..64`. The run uses `native_debug_bf16`, batch size `4`, gradient
 accumulation `1`, learning rate `0.001`, checkpoint interval `128`,
@@ -126,7 +126,7 @@ docker compose --profile train run --rm train \
   --seq-len 128 --max-steps 1024 --loss-sample-interval 64
 ```
 
-It builds a deterministic packed-cache v2 target from
+It builds a deterministic packed-cache target from
 `data/train/datasets/train.jsonl` with the repository tokenizer, `seq_len=128`,
 `sequence_count=256`, and `seed=20260503`. The model config is
 `configs/native/native_accepted_dense_bf16.json`, batch size is `4`, gradient

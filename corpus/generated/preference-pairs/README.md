@@ -1,4 +1,4 @@
-# Preference Pairs V1
+# Preference Pairs
 
 ## Purpose
 

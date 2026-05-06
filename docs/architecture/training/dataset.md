@@ -1,5 +1,8 @@
 # Training Dataset
 
+Owner: `docs/architecture/training/dataset.md`.
+State: canonical active dataset layout contract.
+
 ## Goal
 
 Describe the on-disk dataset artifacts used by training and evaluation.
@@ -9,17 +12,17 @@ Describe the on-disk dataset artifacts used by training and evaluation.
 - Editable source corpus: `corpus/sources/*.json`
 - Public pretraining corpus:
   `data/public-corpus/{train,val,holdout}/*.jsonl`
-- Accepted Kimi SFT v2 corpus:
-  `corpus/generated/kimi-sft-60m-v2/{train,val,holdout}/*.jsonl`
+- Accepted Kimi SFT corpus:
+  `corpus/generated/kimi-sft-60m/{train,val,holdout}/*.jsonl`
 - Preference pairs:
-  `corpus/generated/pref-v1/pairs/*.jsonl`
+  `corpus/generated/preference-pairs/pairs/*.jsonl`
 - Canonical combined corpus: `data/train/datasets/corpus.jsonl`
 - Canonical train split: `data/train/datasets/train.jsonl`
 - Canonical validation split: `data/train/datasets/val.jsonl`
 - Canonical holdout split: `data/train/datasets/holdout.jsonl`
 - Fixtures: `data/train/datasets/fixtures.jsonl`
 - Metadata: `data/train/datasets/metadata.json`
-- Packed cache v2: `data/train/datasets/packed/*/{tokens.bin,loss_mask.bin,starts.bin,metadata.json}`
+- Packed cache: `data/train/datasets/packed/*/{tokens.bin,loss_mask.bin,starts.bin,metadata.json}`
 
 ## Metadata
 
@@ -36,12 +39,12 @@ Describe the on-disk dataset artifacts used by training and evaluation.
 
 ## Packed Cache
 
-- Packed cache metadata uses `format=lkjai-packed-cache-v2`.
+- Packed cache metadata uses `format=lkjai-packed-cache`.
 - Token ids are stored as `uint16`; the active `8192` vocabulary fits in 13
   bits.
 - Loss masks remain byte masks.
 - Start offsets remain unsigned 64-bit integers.
-- Rebuild old packed caches instead of reading v1 files.
+- Rebuild legacy packed caches instead of reading legacy files.
 
 ## Validation
 

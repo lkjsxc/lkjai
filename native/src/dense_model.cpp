@@ -108,7 +108,7 @@ bool write_dense_smoke_artifact(const std::filesystem::path& dir, int steps,
   }
   weights.close();
   write_text(dir / "manifest.json",
-             "{\"format\":\"lkjai-native-artifact-v2\",\"kind\":\"dense-smoke\"}\n");
+             "{\"format\":\"lkjai-native-artifact\",\"kind\":\"dense-smoke\"}\n");
   write_text(dir / "config.json",
              "{\"model\":\"dense-smoke\",\"layers\":1,\"hidden_size\":16,"
              "\"vocab_size\":256,\"context\":1024,\"optimizer_steps\":" +

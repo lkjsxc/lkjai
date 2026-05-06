@@ -83,15 +83,24 @@ bool config_status_contract() {
   auto body = lkjai::runtime_config_status_json(c);
   return expect(has(body, "\"status\":\"degraded\""), "degraded status") &&
          expect(has(body, "\"local_only\":true"), "local bind") &&
-         expect(has(body, "/api/users/default/resources"), "resource base") &&
-         expect(has(body, "\"mutable_tools_enabled\":false"), "mutable tools");
+	         expect(has(body, "/api/users/default/resources"), "resource base") &&
+	         expect(has(body, "\"mutable_tools_enabled\":false"), "mutable tools");
+}
+
+bool health_contract() {
+  auto body = lkjai::runtime_health_json(cfg());
+  return expect(has(body, "\"status\":\"ok\""), "health status") &&
+         expect(has(body, "\"service\":\"lkjai-native-runtime\""),
+                "health service") &&
+         expect(has(body, "\"host\":\"127.0.0.1\""), "health bind");
 }
 
 }  // namespace
 
 int main() {
-  return chat_filter_contract() && chat_error_contract() &&
-                 model_status_contract() && config_status_contract()
-             ? 0
-             : 1;
+	  return chat_filter_contract() && chat_error_contract() &&
+	                 model_status_contract() && config_status_contract() &&
+	                 health_contract()
+	             ? 0
+	             : 1;
 }
