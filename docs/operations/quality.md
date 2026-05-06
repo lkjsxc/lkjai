@@ -7,12 +7,13 @@
 3. `ctest --test-dir /tmp/lkjai-native-build --output-on-failure`
 4. `lkjai-native-repo-check docs-topology --repo /workspace`
 5. `lkjai-native-repo-check docs-links --repo /workspace`
-6. `lkjai-native-repo-check corpus-actions -- FILE...`
-7. `lkjai-native-repo-check config-contract --repo /workspace`
-8. `lkjai-native-repo-check cuda-arch-contract --repo /workspace`
-9. `lkjai-native-repo-check line-limits --repo /workspace`
-10. `lkjai-native-repo-check no-node --repo /workspace`
-11. `lkjai-native-repo-check native-only --repo /workspace`
+6. `lkjai-native-repo-check docs-contract-owners --repo /workspace`
+7. `lkjai-native-repo-check corpus-actions -- FILE...`
+8. `lkjai-native-repo-check config-contract --repo /workspace`
+9. `lkjai-native-repo-check cuda-arch-contract --repo /workspace`
+10. `lkjai-native-repo-check line-limits --repo /workspace`
+11. `lkjai-native-repo-check no-node --repo /workspace`
+12. `lkjai-native-repo-check native-only --repo /workspace`
 
 ## Compose Gate
 
@@ -25,8 +26,10 @@ checks by default. Set `VERIFY_TAIL_LINES` to tune failure output size.
 
 ## Training Gate
 
-- `docker compose --profile train up --build train` is the full long training
-  gate and is not required for ordinary code verification.
+- `docker compose --profile train up --build train` runs the committed smoke
+  command and is not a full long-training gate.
+- Full training gates require an explicit `--train` command, matching config,
+  packed cache, report, and eval artifacts.
 - The bounded Docker start check in
   [training/long-run.md](training/long-run.md) must pass for training-config
   changes.

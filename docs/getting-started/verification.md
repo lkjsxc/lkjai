@@ -25,19 +25,21 @@ canonical pass/fail gate.
 3. `ctest --test-dir /tmp/lkjai-native-build --output-on-failure`
 4. `lkjai-native-repo-check docs-topology --repo /workspace`
 5. `lkjai-native-repo-check docs-links --repo /workspace`
-6. `lkjai-native-repo-check corpus-actions -- FILE...`
-7. `lkjai-native-repo-check config-contract --repo /workspace`
-8. `lkjai-native-repo-check cuda-arch-contract --repo /workspace`
-9. `lkjai-native-repo-check line-limits --repo /workspace`
-10. `lkjai-native-repo-check no-node --repo /workspace`
-11. `lkjai-native-repo-check native-only --repo /workspace`
+6. `lkjai-native-repo-check docs-contract-owners --repo /workspace`
+7. `lkjai-native-repo-check corpus-actions -- FILE...`
+8. `lkjai-native-repo-check config-contract --repo /workspace`
+9. `lkjai-native-repo-check cuda-arch-contract --repo /workspace`
+10. `lkjai-native-repo-check line-limits --repo /workspace`
+11. `lkjai-native-repo-check no-node --repo /workspace`
+12. `lkjai-native-repo-check native-only --repo /workspace`
 
 The native CTest set includes config-contract, CUDA architecture policy,
 native-only policy, root-page/content-type, capability-field,
 dense/transformer unsupported-decode, decoder chat, packed-cache,
 report-schema, decoder CUDA substrate, and artifact/logits gates. Any missing
-additive capability field, missing Blackwell `120` default arch flag, invalid
-profile config, or accepted transformer report fails the gate.
+additive capability field, missing contract owner marker, missing Blackwell
+`120` default arch flag, invalid profile config, or accepted transformer report
+fails the gate.
 
 ## Compact Logs
 
