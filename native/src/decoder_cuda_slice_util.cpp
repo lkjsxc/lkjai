@@ -2,6 +2,8 @@
 
 #include <sstream>
 
+#include "decoder_decode.hpp"
+
 namespace lkjai {
 
 bool decoder_validate_layer_shapes(const TransformerConfig& cfg,
@@ -145,8 +147,8 @@ void decoder_fill_cuda_slice_report(DenseCudaState& cuda,
   r->mlp_backend = "cuda_swiglu_partial";
   r->decoder_backward_backend = "not_implemented";
   r->matmul_backend = "cublaslt";
-  r->kv_cache_backend = "none";
-  r->decode_backend = "host_reference_recompute";
+  r->kv_cache_backend = kDecoderNoKvCacheBackend;
+  r->decode_backend = kDecoderPartialDecodeBackend;
   r->decode_supported = true;
   r->cublaslt_workspace_bytes = cuda.cublaslt_workspace_bytes();
   r->workspace_high_water_bytes = cuda.workspace_high_water_bytes();

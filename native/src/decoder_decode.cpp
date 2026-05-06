@@ -88,8 +88,9 @@ bool decoder_chat_json(const std::filesystem::path& model_dir,
           "\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"" +
           json_escape(content) + "\"},\"finish_reason\":\"" +
           finish_reason + "\",\"lkjai_stop_reason\":\"" +
-          stop_reason + "\",\"lkjai_decode_backend\":\"host_reference_recompute\","
-          "\"lkjai_kv_cache_backend\":\"none\"}],"
+          stop_reason + "\",\"lkjai_decode_backend\":\"" +
+          kDecoderPartialDecodeBackend + "\",\"lkjai_kv_cache_backend\":\"" +
+          kDecoderNoKvCacheBackend + "\"}],"
           "\"usage\":{\"prompt_tokens\":" + std::to_string(prompt_count) +
           ",\"completion_tokens\":" + std::to_string(generated.size()) +
           ",\"total_tokens\":" + std::to_string(total) + "}}";

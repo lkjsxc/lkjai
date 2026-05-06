@@ -5,6 +5,7 @@
 #include <vector>
 #include "artifact.hpp"
 #include "capability_json.hpp"
+#include "decoder_decode.hpp"
 #include "json_min.hpp"
 #ifndef LKJAI_GIT_COMMIT
 #define LKJAI_GIT_COMMIT "unknown"
@@ -64,8 +65,7 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
       ? std::string(kind == "decoder" ? "experimental" : "not_applicable")
       : report.decoder_status;
   bool accepted_attention = report.attention_backend == "cuda_causal_gqa_bf16_reference" || report.attention_backend == "cudnn_sdpa";
-  bool accepted_decoder = kind == "decoder" && impl == "accepted" && accepted_attention && report.decoder_cuda_path && report.decoder_cuda_slice == "full_decoder" && report.decoder_backward_backend == "cuda_full_decoder" && report.embedding_tying == "tok_embeddings:lm_head" &&
-      report.kv_cache_backend == "cuda_contiguous_bf16" && report.decode_backend == "cuda_kv_cache";
+  bool accepted_decoder = kind == "decoder" && impl == "accepted" && accepted_attention && report.decoder_cuda_path && report.decoder_cuda_slice == "full_decoder" && report.decoder_block_backend == "cuda_full_decoder" && report.forward_backend == "cuda_full_decoder" && report.backward_backend == "cuda_full_decoder" && report.decoder_backward_backend == "cuda_full_decoder" && report.embedding_tying == "tok_embeddings:lm_head" && report.kv_cache_backend == kDecoderAcceptedKvCacheBackend && report.decode_backend == kDecoderAcceptedDecodeBackend;
   double tokens_per_second = report.elapsed_seconds > 0.0
       ? static_cast<double>(report.input_tokens) / report.elapsed_seconds : 0.0;
   std::vector<std::string> limitations;
@@ -75,8 +75,8 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
     limitations.push_back("experimental_not_accepted_cuda_training");
     limitations.push_back(report.decoder_cuda_path ? "partial_cuda_decoder_slice" : "host_reference_forward");
     limitations.push_back(report.decoder_cuda_path ? "decoder_forward_partial" : "host_surrogate_backward");
-    if (report.attention_backend == "not_implemented") limitations.push_back("attention_not_implemented");
-    if (report.decoder_backward_backend == "not_implemented") limitations.push_back("decoder_backward_not_implemented");
+    if (report.forward_backend != "cuda_full_decoder") limitations.push_back("full_forward_not_accepted"); if (report.backward_backend != "cuda_full_decoder") limitations.push_back("full_backward_not_accepted");
+    if (report.attention_backend == "not_implemented") limitations.push_back("attention_not_implemented"); if (report.decoder_backward_backend == "not_implemented") limitations.push_back("decoder_backward_not_implemented");
     if (report.kv_cache_backend == "none") limitations.push_back("kv_cache_not_implemented");
     if (!report.decode_supported) limitations.push_back("autoregressive_decode_unsupported");
   }

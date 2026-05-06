@@ -5,6 +5,7 @@
 
 #include "artifact.hpp"
 #include "artifact_manifest.hpp"
+#include "decoder_decode.hpp"
 #include "json_min.hpp"
 #include "train_report.hpp"
 #include "transformer_state.hpp"
@@ -111,8 +112,8 @@ bool report_contract() {
   r.forward_backend = "cuda_bf16_embedding_lm_head";
   r.attention_backend = "not_implemented";
   r.decoder_backward_backend = "not_implemented";
-  r.kv_cache_backend = "none";
-  r.decode_backend = "host_reference_recompute";
+  r.kv_cache_backend = lkjai::kDecoderNoKvCacheBackend;
+  r.decode_backend = lkjai::kDecoderPartialDecodeBackend;
   r.decode_supported = true;
   r.embedding_tying = "tok_embeddings:lm_head";
   r.trainable_tensor_count = 11;

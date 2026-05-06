@@ -7,8 +7,9 @@
 
 #include "cuda_probe.hpp"
 #include "decoder_cuda_block.hpp"
-#include "decoder_cuda_norm.hpp"
 #include "decoder_cuda_block_check_ref.hpp"
+#include "decoder_cuda_norm.hpp"
+#include "decoder_decode.hpp"
 #include "runtime_device.hpp"
 #include "train_report.hpp"
 
@@ -128,8 +129,8 @@ int main() {
   report.attention_backend = "cuda_causal_gqa_bf16_reference";
   report.mlp_backend = "cuda_swiglu_partial";
   report.decoder_backward_backend = "not_implemented";
-  report.kv_cache_backend = "none";
-  report.decode_backend = "host_reference_recompute";
+  report.kv_cache_backend = lkjai::kDecoderNoKvCacheBackend;
+  report.decode_backend = lkjai::kDecoderPartialDecodeBackend;
   report.embedding_tying = "tok_embeddings:lm_head";
   report.trainable_tensor_count = 11;
   auto json = lkjai::transformer_train_report_json(
@@ -160,8 +161,8 @@ int main() {
   report.attention_backend = "cuda_causal_gqa_bf16_reference";
   report.mlp_backend = "cuda_full_swiglu";
   report.decoder_backward_backend = "cuda_full_decoder";
-  report.kv_cache_backend = "cuda_contiguous_bf16";
-  report.decode_backend = "cuda_kv_cache";
+  report.kv_cache_backend = lkjai::kDecoderAcceptedKvCacheBackend;
+  report.decode_backend = lkjai::kDecoderAcceptedDecodeBackend;
   json = lkjai::transformer_train_report_json(report, lkjai::cuda_status(),
                                               "decoder", "success", "");
   if (!require_contains(json, "\"accepted_cuda_training\":true") ||
