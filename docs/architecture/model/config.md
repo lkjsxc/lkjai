@@ -20,6 +20,15 @@ Keep one coherent contract for training, export, and serving on a local RTX
 - XML-action SFT is available as `assistant_masked_sft`; it masks non-assistant
   labels and preserves the message serialization used by the runtime.
 
+## Acceptance Pointer
+
+- Canonical first same-model acceptance target:
+  `configs/native/decoder_40m_bf16_3070.json`.
+- Canonical first acceptance training config:
+  `configs/training/decoder_2h_40m_3070.json`.
+- Dense 20M/40M configs remain foundation and regression evidence, not
+  decoder-product acceptance evidence.
+
 ## Context Contract
 
 - Active model context is `1024` tokens.

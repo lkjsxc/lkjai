@@ -1,5 +1,8 @@
 # Scratch Training Run Contract
 
+Owner: `docs/operations/training/long-run.md`.
+State: canonical operator run contract.
+
 ## Goal
 
 Run one measurable long training job for the 3070-first 40M scratch model.

@@ -1,5 +1,8 @@
 # Decoder Config
 
+Owner: `docs/architecture/native/decoder/config.md`.
+State: canonical.
+
 ## Model Kind
 
 - `model_kind`: `decoder`

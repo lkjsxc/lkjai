@@ -1,5 +1,8 @@
 # API Contract
 
+Owner: `docs/product/api.md`.
+State: canonical route and payload contract.
+
 ## Routes
 
 - `GET /`: static no-build native browser status/chat page.

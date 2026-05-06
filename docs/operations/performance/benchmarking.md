@@ -1,5 +1,8 @@
 # Benchmarking Contract
 
+Owner: `docs/operations/performance/benchmarking.md`.
+State: canonical benchmark evidence contract.
+
 ## Required Metrics
 
 Every performance run records:

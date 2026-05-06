@@ -1,5 +1,8 @@
 # Decoder Decode
 
+Owner: `docs/architecture/native/decoder/decode.md`.
+State: partial until `decode_backend=cuda_kv_cache`.
+
 ## API
 
 `POST /v1/chat/completions` returns OpenAI-compatible JSON for decoder

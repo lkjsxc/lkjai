@@ -1,5 +1,8 @@
 # Decoder Training
 
+Owner: `docs/architecture/native/decoder/training.md`.
+State: future acceptance contract.
+
 ## Goal
 
 Train a same-model chat-capable decoder through native C++/CUDA without Python

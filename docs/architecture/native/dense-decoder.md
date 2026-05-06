@@ -5,6 +5,20 @@
 Keep the current dense CUDA milestone honest while preserving the target
 decoder-only transformer roadmap.
 
+## Foundation, Reference, And Product
+
+- Dense foundation: accepted BF16 CUDA training for token embeddings and LM head
+  with FP32 AdamW state, packed-cache input, checkpoint/export, logits checks,
+  and explicit unsupported chat decode for dense artifacts.
+- Decoder reference backend:
+  `cuda_causal_gqa_bf16_reference` is a correctness-first CUDA attention path
+  that may satisfy first full-decoder acceptance; it is not the dense
+  foundation and not the preferred performance endpoint.
+- Product decoder target: `configs/native/decoder_40m_bf16_3070.json` with
+  `configs/training/decoder_2h_40m_3070.json`.
+- Host-reference recompute decode is partial serving evidence only; accepted
+  serving requires native contiguous BF16 KV-cache decode.
+
 ## Current Implemented Shape
 
 The implemented product path is intentionally minimal:
@@ -22,6 +36,10 @@ autoregressive decode in the accepted product path yet.
 ## Target Shape
 
 - Preset: `scratch-40m`.
+- Canonical first acceptance config:
+  `configs/native/decoder_40m_bf16_3070.json`.
+- Canonical first acceptance training config:
+  `configs/training/decoder_2h_40m_3070.json`.
 - Vocabulary: `8192`.
 - Context: `1024`.
 - Layers: `10`.
@@ -45,6 +63,8 @@ autoregressive decode in the accepted product path yet.
 - cuDNN SDPA is the later performance backend when frontend integration, dtype,
   capability, head dimension, and mask-mode parity are complete.
 - The active `head_dim=72` is BF16 SDPA-eligible because it is a multiple of `8`.
+- CUTLASS, CUDA Graphs, TensorRT, TensorRT-LLM, and NCCL are profiling,
+  serving, or later scale tracks after native single-GPU decoder acceptance.
 
 ## Current Training State
 
@@ -71,9 +91,9 @@ The current dense CUDA path is accepted only when all of these are true:
 - Capability JSON reports device CC, BF16 support, cuBLASLt, cuDNN, and SDPA
   eligibility.
 
-The transformer path remains experimental until device-resident projections,
-attention, MLP, norms, backward, optimizer state, and decode pass the same
-artifact and runtime checks.
+The decoder product path remains unaccepted until device-resident projections,
+attention, MLP, norms, backward, optimizer state, tied embedding aliasing, and
+KV-cache decode pass the same artifact and runtime checks.
 
 ## Non-Goals
 

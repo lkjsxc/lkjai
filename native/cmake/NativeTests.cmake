@@ -4,6 +4,8 @@ add_test(NAME native_docs_topology
   COMMAND lkjai-native-repo-check docs-topology --repo ${LKJAI_REPO_ROOT})
 add_test(NAME native_docs_links
   COMMAND lkjai-native-repo-check docs-links --repo ${LKJAI_REPO_ROOT})
+add_test(NAME native_docs_contract_owners
+  COMMAND lkjai-native-repo-check docs-contract-owners --repo ${LKJAI_REPO_ROOT})
 add_test(NAME native_line_limits
   COMMAND lkjai-native-repo-check line-limits --repo ${LKJAI_REPO_ROOT})
 add_test(NAME native_no_node

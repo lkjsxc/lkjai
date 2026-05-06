@@ -93,4 +93,36 @@ int check_docs_links(const std::filesystem::path& repo) {
   return result.errors == 0 ? 0 : 1;
 }
 
+int check_docs_contract_owners(const std::filesystem::path& repo) {
+  RepoCheckResult result;
+  auto inventory = repo / "docs/architecture/native/contract-inventory.md";
+  auto body = text(inventory);
+  for (auto required : {"contract_id", "owner", "state", "canonical_source",
+                        "supersedes"}) {
+    if (body.find(required) == std::string::npos) {
+      result.fail(inventory.string() + " missing " + required);
+    }
+  }
+
+  for (auto relative : {
+           "docs/architecture/native/contract-inventory.md",
+           "docs/architecture/native/decoder/config.md",
+           "docs/architecture/native/decoder/training.md",
+           "docs/architecture/native/decoder/decode.md",
+           "docs/product/api.md",
+           "docs/operations/training/long-run.md",
+           "docs/operations/performance/benchmarking.md",
+       }) {
+    auto path = repo / relative;
+    auto contract = text(path);
+    if (contract.find("Owner:") == std::string::npos) {
+      result.fail(path.string() + " missing Owner marker");
+    }
+    if (contract.find("State:") == std::string::npos) {
+      result.fail(path.string() + " missing State marker");
+    }
+  }
+  return result.errors == 0 ? 0 : 1;
+}
+
 }  // namespace lkjai

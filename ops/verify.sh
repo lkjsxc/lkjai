@@ -34,6 +34,7 @@ run_step "native tests" ctest --test-dir /tmp/lkjai-native-build --output-on-fai
 CHECK=/tmp/lkjai-native-build/lkjai-native-repo-check
 run_step "docs topology" "$CHECK" docs-topology --repo /workspace
 run_step "docs links" "$CHECK" docs-links --repo /workspace
+run_step "docs contract owners" "$CHECK" docs-contract-owners --repo /workspace
 run_step "corpus actions" "$CHECK" corpus-actions -- \
   /workspace/corpus/generated/kimi-sft-60m-v2/train/train-000001.jsonl \
   /workspace/corpus/generated/kimi-sft-60m-v2/val/val-000001.jsonl \
