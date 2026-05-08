@@ -19,7 +19,7 @@ Use this subtree for the chat-capable native `decoder` model kind.
 - [backward.md](backward.md): decoder backward and optimizer acceptance
 - [kv-cache.md](kv-cache.md): accepted contiguous BF16 KV-cache decode contract
 - [benchmark.md](benchmark.md): smoke, two-hour, and evidence requirements
-- [cuda-progress.md](cuda-progress.md): P0 commits, partial CUDA slice evidence,
+- [cuda-progress.md](cuda-progress.md): foundation commits, partial CUDA slice evidence,
   and remaining acceptance gap
 
 ## Boundary

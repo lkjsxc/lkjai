@@ -1,4 +1,4 @@
-# Dense P0 Runtime Contract
+# Dense Foundation Runtime Contract
 
 ## Scope
 
@@ -8,7 +8,7 @@ transformer CUDA path remains experimental and must keep
 
 ## Runtime Shape
 
-Dense P0 uses:
+Dense foundation uses:
 
 - BF16 embedding and LM-head shadows with FP32 master weights.
 - cuBLASLt forward, LM-head-gradient, and hidden-gradient GEMMs.
@@ -48,8 +48,8 @@ architecture flags. The post report is accepted when correctness gates pass and
 throughput is not more than five percent worse than the baseline, with visible
 improvement preferred in cross-entropy, backward, or H2D/compute timing.
 
-## Later Roadmap
+## Later Plan
 
 CUDA Graph capture, NCCL or ZeRO-style multi-GPU work, transformer CUDA
 promotion, data-prefetch-only experiments, and native autoregressive decode are
-outside this P0 runtime contract.
+outside this foundation runtime contract.

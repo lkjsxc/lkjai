@@ -7,7 +7,7 @@
 - Keep one requirement per bullet.
 - Keep canonical definitions in one file and link outward.
 - Prefer short declarative statements over narrative paragraphs.
-- Delete obsolete contracts instead of preserving conflicting versions.
+- Delete obsolete contracts instead of preserving conflicting copies.
 
 ## Topology Rules
 

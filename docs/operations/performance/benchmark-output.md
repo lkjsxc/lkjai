@@ -193,9 +193,9 @@ loss, throughput, elapsed time, H2D and phase timing fractions, artifact
 checksums, logits reference-check results, and resume-check results.
 
 Compatibility-only 40M start checks write
-`artifacts/benchmarks/<run-id>/dense_40m_compat_4/repeat-01/compatibility-summary.json`
-with `promotion_status=compatibility_only` and
-`run_purpose=bounded_compatibility_start_check`.
+`artifacts/benchmarks/<run-id>/dense_40m_diag_4/repeat-01/diagnostic-summary.json`
+with `promotion_status=diagnostic_only` and
+`run_purpose=bounded_diagnostic_start_check`.
 
 Controlled dense learning runs write
 `artifacts/benchmarks/<run-id>/dense_learning_control_1024/repeat-01/learning-summary.json`

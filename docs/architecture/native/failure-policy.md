@@ -8,7 +8,7 @@ Unsupported features return a specific error string instead of falling back to
 hidden scaffolds. Current examples:
 
 - Dense and transformer chat decode returns HTTP `422` until the decode
-  milestone lands.
+  target lands.
 - CPU execution is reported as degraded capability, not as CUDA acceptance.
 - Legacy Python `model.pt` checkpoints are not loaded by native serving.
 

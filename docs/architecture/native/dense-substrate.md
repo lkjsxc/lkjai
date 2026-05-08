@@ -63,7 +63,7 @@ the documented default and must be visible in additive report fields.
 
 - Docker Compose verify passes.
 - Dense learning-control remains promotable on RTX 3070.
-- Bounded 40M compatibility start check succeeds and remains
-  `run_purpose=bounded_compatibility_start_check`.
+- Bounded 40M diagnostic start check succeeds and remains
+  `run_purpose=bounded_diagnostic_start_check`.
 - Dense logits reference, resume equivalence, export checksums, and unsupported
   server decode behavior remain unchanged.

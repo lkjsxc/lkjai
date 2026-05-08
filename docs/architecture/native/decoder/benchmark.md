@@ -27,8 +27,8 @@ docker compose --profile train run --rm train \
 ```
 
 Commit `a806c88` makes `--full` and `--require-accepted-cuda` run an acceptance
-probe first. The runner must fail when the report is P0/reference or partial
-CUDA. A dry-run script, P0 server contract, or embedding/head-only CUDA slice is
+probe first. The runner must fail when the report is foundation/reference or partial
+CUDA. A dry-run script, foundation server contract, or embedding/head-only CUDA slice is
 not accepted evidence.
 
 Use smoke mode for current partial CUDA work:

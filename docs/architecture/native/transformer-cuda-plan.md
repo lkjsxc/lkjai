@@ -1,4 +1,4 @@
-# Transformer CUDA Roadmap
+# Transformer CUDA Plan
 
 ## Current State
 
@@ -7,7 +7,7 @@ LM-head, FP32 master weights and optimizer state, BF16 CUDA shadows,
 packed-cache ingestion, checkpoint/export, inspect, logits probes, and
 report validation.
 
-Transformer mode is retained for reference plumbing and artifact compatibility.
+Transformer mode is retained for reference plumbing and artifact matching.
 It is not accepted CUDA training. Reports must keep
 `accepted_cuda_training=false`, `implementation_status=experimental`,
 `transformer_status=experimental`, `forward_backend=host_reference`,
@@ -35,7 +35,7 @@ that path.
 9. NCCL only after the single-GPU transformer path passes correctness,
    profiling, and memory gates.
 
-## Non-Goals For The Dense Milestone
+## Non-Goals For The Dense Target
 
 - Do not promote host/reference transformer reports.
 - Do not claim chat competency from logits probes or artifact loading.

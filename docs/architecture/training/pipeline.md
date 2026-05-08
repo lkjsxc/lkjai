@@ -46,7 +46,7 @@ Train and export the current dense BF16 CUDA foundation while preserving the
 - `causal_lm_full`: full next-token causal LM training. Every non-padding next
   token contributes to loss.
 - `assistant_masked_sft`: target XML-action objective after tokenizer,
-  transformer, and decode milestones.
+  transformer, and decode targets.
 - A microstep is one forward/backward batch.
 - An optimizer step happens after `TRAIN_GRADIENT_ACCUMULATION` microsteps.
 - `TRAIN_MAX_STEPS` and `TRAIN_MAX_OPTIMIZER_STEPS` stop by optimizer steps.
@@ -60,7 +60,7 @@ Recommended stages:
 
 No current artifact is accepted for product chat. Decoder artifacts may serve
 host-reference recompute choices, but accepted autoregressive KV-cache decode is
-still a native milestone.
+still a native target.
 
 ## Artifacts
 

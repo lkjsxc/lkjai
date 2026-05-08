@@ -15,8 +15,8 @@ The gate means:
 - Accepted dense reports must come from the dense BF16 CUDA path with
   `accepted_cuda_training=true`.
 - Transformer reports, decode probes, CUDA Graph experiments, and NCCL tests are
-  roadmap or diagnostics until their own CTest and report gates land.
-- 40M start checks are compatibility diagnostics until a longer 40M run meets
+  backlog or diagnostics until their own CTest and report gates land.
+- 40M start checks are diagnostic runs until a longer 40M run meets
   the documented promotion criteria.
 
 ## Benchmark Profiles
@@ -40,7 +40,7 @@ a profile with:
 - driver, CUDA toolkit, and cuDNN builds,
 - exact train report fields and artifacts,
 - whether the run is dense accepted, transformer experimental, decode
-  diagnostic, or compatibility-only.
+  diagnostic, or diagnostic-only.
 
 ## Profile Table
 

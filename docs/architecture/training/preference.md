@@ -10,7 +10,7 @@ before attempting rollout-heavy reinforcement learning.
 - SimPO is the first preference optimization method because it avoids a
   reference model on 8 GiB hardware.
 - DPO remains a comparison baseline only.
-- GRPO/RLVR is a future phase after supervised and DPO evals are meaningful.
+- GRPO/RLVR is a later pass after supervised and DPO evals are meaningful.
 - Preference data is generated from behavioral eval cases and sampled model
   failures.
 - Each preference row contains prompt messages, chosen assistant action, rejected

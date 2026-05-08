@@ -24,7 +24,7 @@
 ## Optional Acceleration
 
 - `TRAIN_COMPILE`, `TRAIN_AMP`, `TRAIN_ATTENTION_BACKEND`, activation
-  checkpointing, auto-batch, and CUDA Graph switches are roadmap knobs until
+  checkpointing, auto-batch, and CUDA Graph switches are backlog knobs until
   the native trainer implements and reports them.
 - cuBLASLt transformer projections, cuDNN SDPA, fused pointwise kernels, and
   CUDA Graphs are target optimization work after the dense CUDA foundation is

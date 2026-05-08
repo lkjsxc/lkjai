@@ -28,7 +28,7 @@ This subtree is the canonical performance contract for `lkjai`.
 - [hardware-profiles.md](hardware-profiles.md): RTX 3070 acceptance gate and
   RTX 5090 benchmark profile.
 - [profiling.md](profiling.md): Nsight and NVTX protocol for native work.
-- [kernel-roadmap.md](kernel-roadmap.md): vendor-library and native CUDA
+- [kernel-plan.md](kernel-plan.md): vendor-library and native CUDA
   escalation order.
 - [validation.md](validation.md): numerical, resume, and server acceptance
   matrix for CUDA work.

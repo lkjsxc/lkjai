@@ -2,8 +2,8 @@
 
 ## Goal
 
-Keep the current dense CUDA milestone honest while preserving the target
-decoder-only transformer roadmap.
+Keep the current dense CUDA target honest while preserving the target
+decoder-only transformer backlog.
 
 ## Foundation, Reference, And Product
 
@@ -76,7 +76,7 @@ autoregressive decode in the accepted product path yet.
   shadows before forward/backward continues.
 - Exported serving artifacts omit optimizer tensors unless explicitly requested.
 
-## Acceptance Milestone
+## Acceptance Target
 
 The current dense CUDA path is accepted only when all of these are true:
 

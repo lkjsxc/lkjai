@@ -65,7 +65,7 @@ Stable schema remains current. Dense reports add:
 - `copy_compute_overlap_enabled=true`
 - `batch_staging_backend="triple_slot_pinned_direct_read"`
 
-Consumers must treat those fields as additive stable-schema fields. A schema v4 is
+Consumers must treat those fields as additive stable-schema fields. A new schema identifier is
 not required unless a future change removes or redefines existing fields.
 
 ## Acceptance
@@ -87,7 +87,7 @@ If cuBLASLt accumulation order creates small dense parity drift, dense
 gradient/update tolerances may be relaxed only up to `5e-3` and the reason must
 be documented here. Larger drift blocks the change.
 
-## Roadmap
+## Plan
 
 The next accepted dense-substrate work is cuBLASLt autotune, allocator and
 workspace reporting, deferred event timing, and safe operand reuse. Later

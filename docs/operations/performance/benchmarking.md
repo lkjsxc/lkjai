@@ -19,7 +19,7 @@ Every performance run records:
 - loader wait, H2D, forward, backward, and optimizer timing.
 - dense loader backend, row layout, matmul plan cache flag, buffer reuse flag,
   and timing source.
-- dense P0 runtime fields: loss kernel backend, readback modes, stream count,
+- dense foundation runtime fields: loss kernel backend, readback modes, stream count,
   pinned batch slot count, overlap flag, staging backend, and logits readback
   bytes.
 - decoder partial reports must include RMSNorm, RoPE, QKV projection, MLP,
@@ -62,14 +62,14 @@ with the same schema. Promotion aggregates use only reports with
 `status=success`, `loader_backend=persistent_packed_cache_reader`,
 `matmul_plan_cache_enabled=true`, `buffer_reuse_enabled=true`, decreasing loss,
 artifact checksums, positive throughput, non-negative CUDA-event timings, and
-passing logits/reference tolerance checks. Dense P0 promotion also requires
+passing logits/reference tolerance checks. Dense foundation promotion also requires
 `loss_kernel_backend=block_row_softmax_fp32`,
 `loss_readback_mode=optimizer_step_deferred_pinned`,
 `logits_readback_mode=single_row_capture`, `dense_stream_count=2`,
 `dense_batch_slot_count=3`, `copy_compute_overlap_enabled=true`, and
 `batch_staging_backend=triple_slot_pinned_direct_read`.
-Reports with `run_purpose=bounded_compatibility_start_check` are listed as
-compatibility diagnostics and are rejected by promotion aggregates even when
+Reports with `run_purpose=bounded_diagnostic_start_check` are listed as
+diagnostic runs and are rejected by promotion aggregates even when
 loss decreases.
 Diagnostic summaries may still list experimental transformer timings and
 checksums. The tooling does not require or parse `perf-steps.jsonl`.
@@ -103,9 +103,9 @@ optimizer steps. It is not a 40M or production-scale performance baseline.
 - resume check: `success`, start_step 128, optimizer_steps 129
 
 Attention backend, FP16/AMP, activation checkpoint, and CUDA Graph sweeps are
-roadmap benchmarks after those switches are implemented in the native trainer.
+backlog benchmarks after those switches are implemented in the native trainer.
 
-## Dense P0 Runtime Evidence
+## Dense foundation Runtime Evidence
 
 Matched dense learning-control run on RTX 3070:
 
@@ -139,8 +139,8 @@ The runner builds and validates a deterministic cache under
 `native_40m_bf16`, `seq_len=1024`, batch size 1, gradient accumulation 1,
 four optimizer steps, checkpoint interval 4, and learning rate `0.0003`.
 Outputs are written to
-`artifacts/benchmarks/<run-id>/dense_40m_compat_4/repeat-01/`. This is
-compatibility-only until a later 40M run satisfies the promotion criteria.
+`artifacts/benchmarks/<run-id>/dense_40m_diag_4/repeat-01/`. This is
+diagnostic-only until a later 40M run satisfies the promotion criteria.
 
 ## Full-Run Rule
 

@@ -49,14 +49,14 @@ marked as a separate preset.
    BF16 shadows.
 6. Promote only settings that preserve dense report acceptance, resume
    equivalence, artifact checksums, and logits parity.
-7. Run bounded 40M compatibility after debug-shape learning-control passes.
+7. Run bounded 40M diagnostic after debug-shape learning-control passes.
 
 ## Required Defaults
 
 - Packed cache format: `lkjai-packed-cache`.
 - Packed token dtype: `uint16`.
 - Default real loader candidate: batch-oriented mapped cache loading.
-- Default native launch mode: plain launches; CUDA Graph replay is roadmap
+- Default native launch mode: plain launches; CUDA Graph replay is backlog
   after dense and transformer launch order are stable.
 - BF16 remains preferred when CUDA reports support.
 - Dense serving decode remains unsupported in the accepted dense path; training

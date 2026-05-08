@@ -47,7 +47,7 @@
   fallback XML actions.
 - Transition-table train and serve code is removed from the product path.
 - Dense BF16 CUDA is the only accepted native CUDA training path today;
-  transformer CUDA training and autoregressive decode remain roadmap work.
+  transformer CUDA training and autoregressive decode remain backlog work.
 - RTX 3070 8GB is the hardware acceptance gate; RTX 5090/Blackwell is a
   higher-throughput benchmark profile only.
 

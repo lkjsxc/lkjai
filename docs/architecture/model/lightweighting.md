@@ -11,7 +11,7 @@
 
 - Add int8 or lower-precision inference after accepted native decoder CUDA
   decoding exists.
-- Add GGUF export only as an optional compatibility experiment.
+- Add GGUF export only as an optional export experiment.
 - Add distillation only after teacher, dataset, and license policy are written.
 
 ## Rejected

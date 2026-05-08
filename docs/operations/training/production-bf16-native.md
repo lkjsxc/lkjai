@@ -126,7 +126,7 @@ docker compose --profile train run --rm train \
   --seq-len 1024 --max-steps 4
 ```
 
-This uses `run_purpose=bounded_compatibility_start_check`, builds a true
+This uses `run_purpose=bounded_diagnostic_start_check`, builds a true
 tokenizer-derived 8-window `seq_len=1024` cache, and checks only that the
 larger dense configuration can start, checkpoint, export, and pass the logits
 reference path over four optimizer steps.

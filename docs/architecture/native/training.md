@@ -39,7 +39,7 @@ for reference plumbing, but it is experimental until it is replaced or retired.
 - GPU-required Compose verify must pass without product Python tests.
 - A native smoke run must complete at least two optimizer steps through the
   dense CUDA trainer and export a valid `lkjai-native-artifact` directory.
-  `lkjai-native-train --smoke` is always dense unless a future milestone states
+  `lkjai-native-train --smoke` is always dense unless a future target states
   otherwise.
 - `lkjai-native-train --train --mode transformer` must remain callable, but its
   report must declare `accepted_cuda_training=false`,
@@ -86,7 +86,7 @@ for reference plumbing, but it is experimental until it is replaced or retired.
   `TRAIN_CONFIG.model_kind=transformer` when the CLI flag is absent. Dense is
   still the default and the only accepted CUDA training mode.
 - `--resume DIR` is true dense checkpoint restore. It loads FP32 master weights
-  and Adam moments from `optimizer.lkjw`, validates checkpoint compatibility,
+  and Adam moments from `optimizer.lkjw`, validates checkpoint match,
   and rebuilds BF16 CUDA shadows before the next forward pass.
 - Experimental transformer `--resume DIR` requires a transformer checkpoint with
   `optimizer.index.json` and `optimizer.lkjw`. It restores `master.*`,
@@ -96,18 +96,18 @@ for reference plumbing, but it is experimental until it is replaced or retired.
 - Transformer exports write BF16 weights for every implemented trainable tensor:
   token embeddings, learned positional embeddings, per-layer RMSNorm, Q/K/V/O
   projections, SwiGLU gate/up/down projections, final norm, and LM head.
-- The first transformer milestone requires `tie_embeddings=false`. Transformer
+- The first transformer target requires `tie_embeddings=false`. Transformer
   mode fails loudly if a config requests tied embeddings. It currently reports
   `forward_backend=host_reference`, `backward_backend=host_surrogate`,
   `optimizer_backend=host_adamw_fp32`, and `transformer_cuda_probe=true`.
   Tensor Core, cuDNN SDPA, cuBLASLt transformer projection, RoPE, and accepted
-  transformer CUDA training remain roadmap work until real kernels replace the
+  transformer CUDA training remain backlog work until real kernels replace the
   reference path.
 - Legacy binary cache migration is removed from the product path. Rebuild caches
   with `lkjai-native-packed-cache build` after tokenizer, source, objective, or
   sequence-length changes.
 - The transformer implementation remains available in source, but routine
-  native training and CTests exercise the dense CUDA milestone.
+  native training and CTests exercise the dense CUDA target.
 
 ## Deadline Runs
 

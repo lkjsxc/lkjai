@@ -93,7 +93,7 @@ gate passes.
 
 ## Current Status
 
-P0 server-contract work reports `implementation_status=experimental`,
+Foundation server-contract work reports `implementation_status=experimental`,
 `decoder_cuda_path=false`, `attention_backend=host_reference`, and validates
 decoder config/artifact/logits/server `choices` contracts only.
 
@@ -114,5 +114,5 @@ The current forward-substrate batch keeps acceptance unchanged while reporting
 The substrate now runs the complete decoder block forward shape through the O
 projection, residual path, MLP path, down projection, and final residual, but
 training reports remain partial until full forward, backward, optimizer
-coverage, and KV-cache decode are wired into the trainer. P0 server contract
+coverage, and KV-cache decode are wired into the trainer. Foundation server contract
 and embedding/head CUDA training are not accepted full decoder training.

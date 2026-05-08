@@ -32,7 +32,7 @@
 - Long context is expensive on 8GB VRAM.
 - External memory, retrieval, and summaries are more realistic.
 
-## Phase-1 Multimodality
+## Initial Multimodality
 
 - Rejected.
 - It dilutes the core agent loop, tool use, and memory work.

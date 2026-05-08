@@ -38,6 +38,6 @@ Capability JSON includes:
 
 ## Policy
 
-CPU mode is diagnostic only for this native CUDA roadmap. It must be visible in
+CPU mode is diagnostic only for this native CUDA backlog. It must be visible in
 JSON and must not count as dense-forward, attention, backward, or decode
 acceptance.

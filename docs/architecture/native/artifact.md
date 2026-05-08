@@ -82,7 +82,7 @@ history, and best-metric promotion are target additions.
 
 ## Dense Slice
 
-`manifest.json.kind` is `dense` for the active native BF16 CUDA milestone. The
+`manifest.json.kind` is `dense` for the active native BF16 CUDA target. The
 exported weights are BF16 tensors for token embeddings and LM head. The config
 records `vocab_size`, `context`, `hidden_size`, `heads`, `kv_heads`, `head_dim`,
 `ffn_size`, and `seed`.
@@ -91,7 +91,7 @@ records `vocab_size`, `context`, `hidden_size`, `heads`, `kv_heads`, `head_dim`,
 dense weights, validates finite `[1,V]` next-token logits, and emits a JSON
 checksum. Its tolerance and checksum contract validate BF16 export behavior, not
 FP32-master parity. Transformer logits support is retained as source but is not
-the accepted training milestone.
+the accepted training target.
 
 ## Transformer Slice
 

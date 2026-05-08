@@ -30,7 +30,7 @@ digest, packed-cache digest, batch size, sequence length, gradient
 accumulation, optimizer-step count, CUDA architecture flags, and GPU profile.
 
 Promotion evidence must come from accepted dense reports. Transformer,
-unsupported-decode, and 40M compatibility-only records may be listed as
+unsupported-decode, and 40M diagnostic-only records may be listed as
 diagnostics, but they must not be described as accepted dense promotion.
 
 ## Blog Notes

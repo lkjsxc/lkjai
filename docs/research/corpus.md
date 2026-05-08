@@ -14,7 +14,7 @@ grounding.
 
 ## Active Public Source
 
-Use Cosmopedia v0.1 at pinned revision
+Use Cosmopedia pinned release at pinned revision
 `0ae6ec63f91742bd2d1eaef4f02232c55d719385`.
 
 Active subsets:

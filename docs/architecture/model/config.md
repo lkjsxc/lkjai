@@ -41,9 +41,9 @@ Keep one coherent contract for training, export, and serving on a local RTX
 
 - Training default: BF16 when the local CUDA stack supports it.
 - Current accepted training path requires CUDA BF16 capability.
-- FP16 fallback and AMP gradient scaling are roadmap items, not accepted dense
+- FP16 fallback and AMP gradient scaling are backlog items, not accepted dense
   trainer behavior.
-- Activation checkpointing and auto-batch are roadmap items.
+- Activation checkpointing and auto-batch are backlog items.
 - Serving default: native OpenAI-compatible runtime with artifact load,
   readiness, dense logits checks, and explicit unsupported chat decode.
 - Runtime quality must come from real generation. No supervised exact-match

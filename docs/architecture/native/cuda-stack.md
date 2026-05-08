@@ -2,7 +2,7 @@
 
 ## Baseline
 
-The phase-one native stack is deliberately narrow:
+The initial native stack is deliberately narrow:
 
 - OS: Ubuntu `24.04`.
 - Compiler: GCC `13` or Clang `18` for C++20 host code.
@@ -40,7 +40,7 @@ LKJAI_CUDA_ARCHS='120-real;120-virtual' cmake -S native -B /tmp/lkjai-native-120
 - RTX 3070 8GB is the acceptance gate; RTX 5090/Blackwell is a benchmark
   profile only. See
   [hardware-profiles.md](../../operations/performance/hardware-profiles.md).
-- Older devices may use CPU diagnostics only; FP16 loss scaling is roadmap work.
+- Older devices may use CPU diagnostics only; FP16 loss scaling is backlog work.
 - CPU fallback must be visible in health/model JSON and is not a performance
   acceptance path.
 

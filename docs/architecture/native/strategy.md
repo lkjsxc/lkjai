@@ -36,7 +36,7 @@ Replace:
 Optimize the RTX 3070 8GB path first:
 
 - compute capability `8.6`,
-- BF16-capable CUDA for accepted dense training; FP16 fallback is roadmap work,
+- BF16-capable CUDA for accepted dense training; FP16 fallback is backlog work,
 - sequence length `1024`,
 - `scratch-40m` decoder-only transformer shape.
 

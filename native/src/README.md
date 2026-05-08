@@ -57,7 +57,7 @@ artifact inspection, and CUDA capability probing.
   gradient kernel, runtime tuning, report fields, reusable step buffers, and
   state management.
 - [dense_checkpoint.cpp](dense_checkpoint.cpp): dense optimizer checkpoint
-  restore and compatibility checks.
+  restore and matching checks.
 - [dense_check_main.cpp](dense_check_main.cpp): dense CUDA check binary.
 - [dense_loss_trend.cpp](dense_loss_trend.cpp) and
   [dense_loss_trend.hpp](dense_loss_trend.hpp): dense sampled-loss trend

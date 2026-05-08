@@ -2,15 +2,15 @@
 
 ## Evidence Trail
 
-Decoder P0 landed in these commits:
+Decoder foundation landed in these commits:
 
 - `cea2e70`: repaired source topology and docs navigation.
 - `c47dd91`: defined the decoder native path and contracts.
-- `2885f2b`: added decoder P0 model-kind, artifact, report, inspect/logits,
+- `2885f2b`: added decoder foundation model-kind, artifact, report, inspect/logits,
   and server routing contracts.
 - `4d13332`: added the decoder end-to-end runner shell.
 
-First CUDA progress after P0:
+First CUDA progress after foundation:
 
 - `01dac62`: adds partial CUDA BF16 decoder smoke training.
 - `a806c88`: gates full two-hour decoder acceptance on a full accepted CUDA
@@ -48,12 +48,12 @@ applies `silu(gate) * up`, projects through the down matrix, and adds the final
 residual. It is forward-only evidence and does not train block tensors.
 
 The exported artifact remains `manifest.json.kind=decoder`, so inspect,
-logits-check, and native server P0 chat contracts continue to operate on the
+logits-check, and native server foundation chat contracts continue to operate on the
 same decoder artifact shape.
 
 ## What Is Not Accepted Yet
 
-P0 server contract is not the accepted CUDA decoder trainer.
+foundation server contract is not the accepted CUDA decoder trainer.
 
 The partial CUDA slice is also not the accepted CUDA decoder trainer. Reports
 must say:

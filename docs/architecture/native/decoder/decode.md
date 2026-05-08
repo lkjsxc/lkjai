@@ -45,7 +45,7 @@ encodes prompt tokens, and decodes generated tokens back to assistant text.
 The native tokenizer bridge implements the repo byte-level BPE subset needed by
 the local tokenizer: added atomic tags, byte-level prompt text, BPE merges, and
 special-token skipping on decode. Prompt serialization preserves raw message
-content for training compatibility, uses paired XML-like tags, and ends with
+content for training alignment, uses paired XML-like tags, and ends with
 `<assistant_action>\n`.
 
 Serialization order is deterministic:

@@ -1,4 +1,4 @@
-# Native Implementation Roadmap
+# Native Implementation Backlog
 
 ## Goal
 
@@ -6,9 +6,9 @@ Grow the current dense BF16 CUDA foundation into a device-resident decoder
 training, serving, and agent runtime system without Rust or Python product
 code.
 
-## Milestones
+## Acceptance Targets
 
-| Order | Milestone | Required output |
+| Order | Target | Required output |
 |---:|---|---|
 | 1 | Device substrate | dtype-aware tensors, stream/handle context, memory accounting, copy tests |
 | 2 | Capability probe | JSON reports CC, BF16, cuBLASLt, cuDNN, SDPA, and async allocation eligibility |
@@ -26,7 +26,7 @@ code.
 
 ## Acceptance Style
 
-Each milestone must add a small executable or CTest path. A milestone is not
+Each target must add a small executable or CTest path. A target is not
 accepted by comments, TODOs, or benchmark scripts alone.
 
 ## Current Slice
@@ -58,5 +58,5 @@ and two-hour RTX 3070 evidence. cuDNN SDPA and NCCL stay after single-GPU
 correctness and profiling.
 
 See [decoder/README.md](decoder/README.md) for the same-model chat path. See
-[transformer-cuda-roadmap.md](transformer-cuda-roadmap.md) for the retained
+[transformer-cuda-plan.md](transformer-cuda-plan.md) for the retained
 experimental transformer path and current unsupported decode contract.

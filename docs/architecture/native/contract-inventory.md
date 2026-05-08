@@ -99,7 +99,7 @@ Each contract record uses these fields:
   `decoder_backward_backend=cuda_full_decoder`,
   `kv_cache_backend=cuda_contiguous_bf16`, and
   `decode_backend=cuda_kv_cache`.
-- non_claims: `native_dense_40m_bf16_3070.json` remains dense compatibility and
+- non_claims: `native_dense_40m_bf16_3070.json` remains dense diagnostic and
   profile evidence, not same-model decoder acceptance.
 
 ### Decoder Decode
@@ -118,7 +118,7 @@ Each contract record uses these fields:
 ### Transformer Lane
 
 - contract_id: `transformer-reference-lane`.
-- owner: `docs/architecture/native/transformer-cuda-roadmap.md`.
+- owner: `docs/architecture/native/transformer-cuda-plan.md`.
 - canonical_source: retained transformer host/reference and probe paths.
 - state: `experimental`.
 - supersedes: none.
@@ -141,10 +141,10 @@ Each contract record uses these fields:
 - non_claims: `sdpa_eligible` is device/library-level until shape-specific
   parity and timing are proven.
 
-### Backend Roadmap
+### Backend Plan
 
-- contract_id: `native-decoder-backend-roadmap`.
-- owner: `docs/research/native-decoder-roadmap.md`.
+- contract_id: `native-decoder-backend-backlog`.
+- owner: `docs/research/native-decoder-plan.md`.
 - canonical_source: backend priority and later scale features.
 - state: `future`.
 - supersedes: none.

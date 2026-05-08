@@ -3,6 +3,9 @@
 Owner: `docs/product/api.md`.
 State: canonical route and payload contract.
 
+This file is the single owner for local product HTTP route shape. Other docs
+should link here instead of restating success and failure semantics.
+
 ## Routes
 
 - `GET /`: static no-build native browser status/chat page.
@@ -12,6 +15,11 @@ State: canonical route and payload contract.
 - `GET /api/model`: returns model client status including reachability.
 - `GET /api/config`: returns local runtime, workspace, and future `kjxlkj`
   adapter status.
+- `GET /v1/models`: OpenAI-compatible model readiness route.
+- `POST /v1/chat/completions`: OpenAI-compatible model generation route.
+
+`/v1/*` is preserved only for OpenAI-compatible clients. New local APIs should
+use unnumbered route names.
 
 ## `POST /api/chat` Request
 
@@ -48,6 +56,18 @@ Current native dense and transformer artifacts return unsupported decode from
 `/v1/chat/completions`, so real product chat quality gates remain blocked until
 accepted decoder decode lands. The target implementation serves this route and
 the `/api/*` runtime routes from one native process.
+
+## Decode Capability Matrix
+
+| Artifact kind | `/v1/chat/completions` result | Product role |
+|---|---|---|
+| `dense` | HTTP `422`, no `choices` | BF16 training and logits diagnostics. |
+| `decoder` | `choices` only when tokenizer and decode are available | Chat-capable product target. |
+| `transformer` | HTTP `422`, no `choices` | Reference plumbing only. |
+
+Accepted decoder chat requires `decode_backend=cuda_kv_cache` and
+`kv_cache_backend=cuda_contiguous_bf16`. Host-reference decoder choices remain
+diagnostic until those fields are present.
 
 ## `GET /api/model` Response
 

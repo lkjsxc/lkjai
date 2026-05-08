@@ -29,7 +29,7 @@
 ## Non-Defaults
 
 - MoE is rejected.
-- Phase-1 multimodality is rejected.
+- Initial multimodality is rejected.
 - Pretrained serving models are rejected as defaults.
 - QLoRA and LoRA adapters are rejected as defaults.
 - Recent pretrained systems may inspire architecture choices only.

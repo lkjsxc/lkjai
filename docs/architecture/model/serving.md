@@ -7,7 +7,7 @@ State: canonical model serving capability contract.
 
 Load exported scratch artifacts through one native service. Current dense
 artifacts prove load and logits, while raw generation belongs to the native
-`decoder` milestone.
+`decoder` target.
 
 ## Server
 

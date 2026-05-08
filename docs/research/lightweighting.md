@@ -2,7 +2,7 @@
 
 ## GGUF
 
-- GGUF export is optional future compatibility work.
+- GGUF export is optional optional export work.
 - It is not the default serving path for scratch artifacts.
 - Source: <https://github.com/ggml-org/llama.cpp>
 

@@ -95,7 +95,7 @@ docker compose --profile train run --rm train \
 Result:
 
 - status: `success`
-- promotion status: `compatibility_only`
+- promotion status: `diagnostic_only`
 - tokens/sec: `1449.45`
 - initial loss: `9.01055`
 - logits reference: `pass`
@@ -103,7 +103,7 @@ Result:
 - logits tolerance: `0.01`
 - checkpoint checksum: `6aed937ce45a60f5`
 
-The compatibility run intentionally is not promotable. It is a bounded start
+The diagnostic run intentionally is not promotable. It is a bounded start
 check for the 40M shape and does not require loss improvement.
 
 40M transient dense buffers were:
@@ -118,4 +118,4 @@ check for the 40M shape and does not require loss improvement.
 This record does not claim transformer CUDA training, native autoregressive
 decode, CUDA Graph replay, NCCL scaling, TensorRT integration, or FP16
 fallback support. The accepted implementation scope remains the dense BF16
-CUDA milestone.
+CUDA target.

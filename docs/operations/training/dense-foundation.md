@@ -1,6 +1,6 @@
 # Dense BF16 CUDA Foundation
 
-This is the canonical operator runbook for the accepted native milestone.
+This is the canonical operator runbook for the accepted native target.
 Dense means the BF16 CUDA token-embedding plus LM-head path. It is not
 decoder-only transformer training, autoregressive chat, or model competency.
 
@@ -11,7 +11,7 @@ decoder-only transformer training, autoregressive chat, or model competency.
 - Diagnostic: `--mode transformer`, transformer logits checks, and transformer
   artifacts.
 - Unsupported: `/v1/chat/completions` autoregressive decode. The server returns
-  HTTP `422` with no `choices` until the decode milestone lands.
+  HTTP `422` with no `choices` until the decode target lands.
 
 ## Build Cache
 
@@ -89,9 +89,9 @@ The dense benchmark tiers are intentionally separate:
 - `accepted_training`: real packed-cache proof from
   `data/train/datasets/train.jsonl` and
   `data/train/tokenizer/tokenizer.json`.
-- 40M: compatibility and performance-only until a longer 40M run satisfies the
+- 40M: diagnostic and performance-only until a longer 40M run satisfies the
   accepted-training evidence.
-- Transformer train/decode: future work and not part of this dense milestone.
+- Transformer train/decode: future work and not part of this dense target.
 
 The controlled dense bigram run remains useful for debugging. Build a small
 native packed cache, run `lkjai-native-train`, then inspect the export:
@@ -143,7 +143,7 @@ BF16 reference tolerance `0.01`, passing inspect/logits checks, two matching
 dense infer checksums, positive throughput, and required dense timing/backend
 metadata.
 
-The 40M dense command remains compatibility-only:
+The 40M dense command remains diagnostic-only:
 
 ```sh
 docker compose --profile train run --rm train \
@@ -153,8 +153,8 @@ docker compose --profile train run --rm train \
   --seq-len 1024 --max-steps 4
 ```
 
-The 40M command is a bounded compatibility start-check. Promotion summaries
-must reject `run_purpose=bounded_compatibility_start_check`; it is never
+The 40M command is a bounded diagnostic start check. Promotion summaries
+must reject `run_purpose=bounded_diagnostic_start_check`; it is never
 promotable as accepted training.
 
 The reproducible two-hour dense BF16 run is native-only. Build/validate the

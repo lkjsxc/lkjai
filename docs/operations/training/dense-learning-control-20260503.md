@@ -53,7 +53,7 @@ passing learning runs at `0.001` and `0.003`; `0.005` and `0.01` failed the
 same BF16 tolerance. The full accepted rerun used the first passing sweep LR,
 `0.001`.
 
-The 40M dense path remains compatibility-only until a longer
+The 40M dense path remains diagnostic-only until a longer
 `accepted_training` or `dense_learning_control` run passes the same promotion
 criteria. Transformer CUDA forward/backward and autoregressive decode remain
 future work.
