@@ -8,12 +8,13 @@
 4. `lkjai-native-repo-check docs-topology --repo /workspace`
 5. `lkjai-native-repo-check docs-links --repo /workspace`
 6. `lkjai-native-repo-check docs-contract-owners --repo /workspace`
-7. `lkjai-native-repo-check corpus-actions -- FILE...`
-8. `lkjai-native-repo-check config-contract --repo /workspace`
-9. `lkjai-native-repo-check cuda-arch-contract --repo /workspace`
-10. `lkjai-native-repo-check line-limits --repo /workspace`
-11. `lkjai-native-repo-check no-node --repo /workspace`
-12. `lkjai-native-repo-check native-only --repo /workspace`
+7. `lkjai-native-repo-check docs-wording --repo /workspace`
+8. `lkjai-native-repo-check corpus-actions -- FILE...`
+9. `lkjai-native-repo-check config-contract --repo /workspace`
+10. `lkjai-native-repo-check cuda-arch-contract --repo /workspace`
+11. `lkjai-native-repo-check line-limits --repo /workspace`
+12. `lkjai-native-repo-check no-node --repo /workspace`
+13. `lkjai-native-repo-check native-only --repo /workspace`
 
 ## Compose Gate
 

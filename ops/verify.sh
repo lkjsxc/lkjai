@@ -35,6 +35,7 @@ CHECK=/tmp/lkjai-native-build/lkjai-native-repo-check
 run_step "docs topology" "$CHECK" docs-topology --repo /workspace
 run_step "docs links" "$CHECK" docs-links --repo /workspace
 run_step "docs contract owners" "$CHECK" docs-contract-owners --repo /workspace
+run_step "docs wording" "$CHECK" docs-wording --repo /workspace
 run_step "corpus actions" "$CHECK" corpus-actions -- \
   /workspace/corpus/generated/kimi-sft-60m/train/train-000001.jsonl \
   /workspace/corpus/generated/kimi-sft-60m/val/val-000001.jsonl \

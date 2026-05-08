@@ -12,8 +12,8 @@ Capability JSON includes:
 - `gpu_name`: CUDA device name when available.
 - `compute_capability`: `[major, minor]`.
 - `cuda_driver_version`: integer CUDA driver build number.
-- `cuda_runtime_version`: integer CUDA runtime version.
-- `cudnn_version`: integer cuDNN runtime version.
+- `cuda_runtime_version`: integer CUDA runtime build.
+- `cudnn_version`: integer cuDNN runtime build.
 - `cuda_device_count`: visible CUDA device count.
 - `cuda_device_index`: selected CUDA device index.
 - `cuda_total_global_memory`: selected device memory in bytes.

@@ -7,7 +7,7 @@ contain only curated evidence.
 ## Required Fields
 
 - Commit range and short summary.
-- GPU name, compute capability, memory, driver, CUDA runtime, and cuDNN version.
+- GPU name, compute capability, memory, driver, CUDA runtime, and cuDNN build.
 - Native config path, training config path, batch size, sequence length,
   gradient accumulation, optimizer steps, and run purpose.
 - Exact command used to build or run.

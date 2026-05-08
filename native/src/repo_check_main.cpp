@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
   if (argc < 2 || std::string(argv[1]) == "--help") {
     std::cerr << "usage: lkjai-native-repo-check COMMAND [--repo DIR]\n"
 	              << "commands: docs-topology docs-links docs-contract-owners "
-	                 "line-limits no-node native-only config-contract "
+	                 "docs-wording line-limits no-node native-only config-contract "
 	                 "stable-identifiers cuda-arch-contract corpus-actions -- FILE...\n";
     return argc < 2 ? 2 : 0;
   }
@@ -44,6 +44,7 @@ int main(int argc, char** argv) {
   if (command == "docs-links") return lkjai::check_docs_links(repo);
   if (command == "docs-contract-owners")
     return lkjai::check_docs_contract_owners(repo);
+  if (command == "docs-wording") return lkjai::check_docs_wording(repo);
   if (command == "line-limits") return lkjai::check_line_limits(repo);
   if (command == "no-node") return lkjai::check_no_node(repo);
 	  if (command == "native-only") return lkjai::check_native_only(repo);
