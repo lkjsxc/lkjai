@@ -69,7 +69,7 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
   double tokens_per_second = report.elapsed_seconds > 0.0
       ? static_cast<double>(report.input_tokens) / report.elapsed_seconds : 0.0;
   std::vector<std::string> limitations;
-  if (report.run_purpose == "bounded_compatibility_start_check") limitations.push_back("bounded_compatibility_start_check");
+  if (report.run_purpose == "bounded_diagnostic_start_check") limitations.push_back("bounded_diagnostic_start_check");
   if (!accepted_decoder) {
     limitations.push_back("experimental_not_accepted_cuda_training");
     limitations.push_back(report.decoder_cuda_path ? "partial_cuda_decoder_slice" : "host_reference_forward");

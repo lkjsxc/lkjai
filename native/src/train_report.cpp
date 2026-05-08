@@ -50,8 +50,8 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << ",\"status\":\"" << json_escape(status) << "\""
        << ",\"failure_reason\":\"" << json_escape(failure_reason) << "\""
        << ",\"limitations\":["
-       << (report.run_purpose == "bounded_compatibility_start_check"
-               ? "\"bounded_compatibility_start_check\","
+       << (report.run_purpose == "bounded_diagnostic_start_check"
+               ? "\"bounded_diagnostic_start_check\","
                : "")
        << "\"single_gpu_only\","
           "\"dense_embedding_lm_head_only\","
