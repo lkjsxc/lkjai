@@ -51,7 +51,8 @@ PathList collect_files(const std::filesystem::path& root) {
 
 PathList collect_tracked_files(const std::filesystem::path& repo) {
   PathList files;
-  auto safe_repo = shell_quote(repo.string());
+  auto root = std::filesystem::weakly_canonical(repo);
+  auto safe_repo = shell_quote(root.string());
   auto command = "git -c safe.directory=" + safe_repo + " -C " + safe_repo +
                  " ls-files";
   FILE* pipe = popen(command.c_str(), "r");
@@ -62,10 +63,10 @@ PathList collect_tracked_files(const std::filesystem::path& repo) {
     while (!line.empty() && (line.back() == '\n' || line.back() == '\r')) {
       line.pop_back();
     }
-    if (!line.empty()) files.push_back(repo / line);
+    if (!line.empty()) files.push_back(root / line);
   }
   int status = pclose(pipe);
-  return status == 0 ? files : collect_files(repo);
+  return status == 0 ? files : collect_files(root);
 }
 
 }  // namespace lkjai

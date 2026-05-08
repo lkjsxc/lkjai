@@ -1,6 +1,7 @@
 #include "repo_check.hpp"
 
 #include <algorithm>
+#include <cctype>
 #include <fstream>
 #include <iterator>
 #include <string>
@@ -37,6 +38,17 @@ bool allowed_route_context(const std::string& body, size_t pos) {
          around.find("api.moonshot.ai/v1") != std::string::npos;
 }
 
+bool bounded_word(const std::string& body, size_t pos,
+                  const std::string& term) {
+  auto word = [](char ch) {
+    return std::isalnum(static_cast<unsigned char>(ch)) || ch == '_';
+  };
+  bool left = pos == 0 || !word(body[pos - 1]);
+  auto end = pos + term.size();
+  bool right = end >= body.size() || !word(body[end]);
+  return left && right;
+}
+
 }  // namespace
 
 int check_docs_wording(const std::filesystem::path& repo) {
@@ -49,6 +61,11 @@ int check_docs_wording(const std::filesystem::path& repo) {
     for (const auto& term : blocked) {
       size_t pos = 0;
       while ((pos = body.find(term, pos)) != std::string::npos) {
+        if ((term == "version" || term == "Version") &&
+            !bounded_word(body, pos, term)) {
+          pos += term.size();
+          continue;
+        }
         if (!allowed_route_context(body, pos)) {
           result.fail(relative + " contains discouraged wording: " + term);
           break;
