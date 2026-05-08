@@ -65,6 +65,8 @@ Decoder reports use stable schema with additive fields:
 - `decoder_cuda_path`
 - `decoder_cuda_slice`
 - `decoder_block_backend`
+- `decoder_block_forward_in_training`
+- `decoder_block_forward_steps`
 - `rmsnorm_backend`
 - `rope_backend`
 - `qkv_projection_backend`
@@ -111,8 +113,9 @@ The current forward-substrate batch keeps acceptance unchanged while reporting
 `mlp_backend=cuda_swiglu_partial`, and
 `decoder_backward_backend=not_implemented`.
 
-The substrate now runs the complete decoder block forward shape through the O
-projection, residual path, MLP path, down projection, and final residual, but
-training reports remain partial until full forward, backward, optimizer
-coverage, and KV-cache decode are wired into the trainer. Foundation server contract
-and embedding/head CUDA training are not accepted full decoder training.
+The slice now also executes one real decoder block forward on the first training
+batch and reports `decoder_block_forward_in_training=true` with the executed
+step count. Training reports remain partial until full forward, backward,
+optimizer coverage, and KV-cache decode are wired into the trainer. Foundation
+server contract and embedding/head CUDA training are not accepted full decoder
+training.

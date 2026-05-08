@@ -69,8 +69,7 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
   double tokens_per_second = report.elapsed_seconds > 0.0
       ? static_cast<double>(report.input_tokens) / report.elapsed_seconds : 0.0;
   std::vector<std::string> limitations;
-  if (report.run_purpose == "bounded_compatibility_start_check")
-    limitations.push_back("bounded_compatibility_start_check");
+  if (report.run_purpose == "bounded_compatibility_start_check") limitations.push_back("bounded_compatibility_start_check");
   if (!accepted_decoder) {
     limitations.push_back("experimental_not_accepted_cuda_training");
     limitations.push_back(report.decoder_cuda_path ? "partial_cuda_decoder_slice" : "host_reference_forward");
@@ -117,6 +116,7 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
        << json_escape(report.decoder_cuda_slice) << "\""
        << ",\"decoder_block_backend\":\""
        << json_escape(report.decoder_block_backend) << "\""
+       << ",\"decoder_block_forward_in_training\":" << (report.decoder_block_forward_in_training ? "true" : "false") << ",\"decoder_block_forward_steps\":" << report.decoder_block_forward_steps
        << ",\"rmsnorm_backend\":\"" << json_escape(report.rmsnorm_backend)
        << "\",\"rope_backend\":\"" << json_escape(report.rope_backend)
        << "\",\"qkv_projection_backend\":\"" << json_escape(report.qkv_projection_backend) << "\""

@@ -6,6 +6,8 @@ add_test(NAME native_docs_links
   COMMAND lkjai-native-repo-check docs-links --repo ${LKJAI_REPO_ROOT})
 add_test(NAME native_docs_contract_owners
   COMMAND lkjai-native-repo-check docs-contract-owners --repo ${LKJAI_REPO_ROOT})
+add_test(NAME native_docs_wording
+  COMMAND lkjai-native-repo-check docs-wording --repo ${LKJAI_REPO_ROOT})
 add_test(NAME native_line_limits
   COMMAND lkjai-native-repo-check line-limits --repo ${LKJAI_REPO_ROOT})
 add_test(NAME native_no_node
@@ -44,6 +46,8 @@ add_test(NAME native_decoder_cuda_rmsnorm_parity
   COMMAND lkjai-native-decoder-cuda-norm-check)
 add_test(NAME native_decoder_cuda_block_forward_substrate
   COMMAND lkjai-native-decoder-cuda-block-check)
+add_test(NAME native_decoder_slice_block_forward
+  COMMAND lkjai-native-decoder-slice-block-check)
 add_test(NAME native_decoder_tokenizer_contract
   COMMAND lkjai-native-decoder-tokenizer-contract)
 add_test(NAME native_decoder_artifact_contract

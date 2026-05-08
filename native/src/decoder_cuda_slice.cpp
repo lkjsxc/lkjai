@@ -1,5 +1,6 @@
 #include "transformer_train.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 
@@ -130,6 +131,18 @@ bool run_decoder_cuda_slice_training(const TransformerTrainOptions& opt,
       auto phase = std::chrono::steady_clock::now();
       if (!reader.load_batch(first, opt.batch_size, &batch, error)) return false;
       report->batch_load_seconds += since(phase);
+      if (local == 1 && micro == 0) {
+        DecoderCudaForwardSubstrateReport block;
+        if (!decoder_cuda_slice_run_block_forward(state, batch, &block, error)) {
+          *error = "decoder training block forward failed: " + *error;
+          return false;
+        }
+        report->decoder_block_forward_in_training = true;
+        report->decoder_block_forward_steps = 1;
+        report->workspace_high_water_bytes =
+            std::max<uint64_t>(report->workspace_high_water_bytes,
+                               block.projection_workspace_bytes);
+      }
       bool capture = local == opt.max_steps && micro == opt.grad_accum - 1;
       loss_sum += cuda.forward_backward(batch, capture ? &logits : nullptr,
                                         &report->h2d_seconds,

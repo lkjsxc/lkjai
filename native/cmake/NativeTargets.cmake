@@ -64,6 +64,13 @@ target_link_libraries(lkjai-native-decoder-cuda-block-check
   PRIVATE lkjai_native_core
 )
 
+add_executable(lkjai-native-decoder-slice-block-check
+  tests/decoder_slice_block_check.cpp
+)
+target_link_libraries(lkjai-native-decoder-slice-block-check
+  PRIVATE lkjai_native_core
+)
+
 add_executable(lkjai-native-decoder-tokenizer-contract
   tests/decoder_tokenizer_contract.cpp
 )

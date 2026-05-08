@@ -109,6 +109,8 @@ struct TransformerTrainReport {
   std::string decode_backend = "unsupported";
   std::string decoder_cuda_slice = "none";
   std::string decoder_block_backend = "host_reference";
+  bool decoder_block_forward_in_training = false;
+  int decoder_block_forward_steps = 0;
   bool decode_supported = false;
   std::string embedding_tying = "none";
   int trainable_tensor_count = 0;

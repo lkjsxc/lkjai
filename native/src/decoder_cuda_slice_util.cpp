@@ -1,5 +1,6 @@
 #include "decoder_cuda_slice_internal.hpp"
 
+#include <algorithm>
 #include <sstream>
 
 #include "decoder_decode.hpp"
@@ -151,7 +152,9 @@ void decoder_fill_cuda_slice_report(DenseCudaState& cuda,
   r->decode_backend = kDecoderPartialDecodeBackend;
   r->decode_supported = true;
   r->cublaslt_workspace_bytes = cuda.cublaslt_workspace_bytes();
-  r->workspace_high_water_bytes = cuda.workspace_high_water_bytes();
+  r->workspace_high_water_bytes =
+      std::max<uint64_t>(r->workspace_high_water_bytes,
+                         cuda.workspace_high_water_bytes());
   r->workspace_reallocations = cuda.workspace_reallocations();
 }
 
