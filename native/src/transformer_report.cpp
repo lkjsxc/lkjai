@@ -1,4 +1,5 @@
 #include "train_report.hpp"
+#include <cmath>
 #include <sstream>
 #include <vector>
 #include "capability_json.hpp"
@@ -30,6 +31,7 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
   double tokens_per_second = report.elapsed_seconds > 0.0
       ? static_cast<double>(report.input_tokens) / report.elapsed_seconds : 0.0;
   auto limitations = transformer_report_limitations(report, accepted_decoder);
+  const auto& p = report.decoder_forward_probe;
   *out << "{\"schema\":\"lkjai-train-report\""
        << ",\"trainer_mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"mode\":\"" << json_escape(trainer_mode) << "\""
@@ -68,6 +70,24 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
        << ",\"decoder_block_backend\":\""
        << json_escape(report.decoder_block_backend) << "\""
        << ",\"decoder_block_forward_in_training\":" << (report.decoder_block_forward_in_training ? "true" : "false") << ",\"decoder_block_forward_steps\":" << report.decoder_block_forward_steps
+       << ",\"decoder_forward_probe\":{\"status\":\"" << json_escape(p.status)
+       << "\",\"recorded\":" << (p.recorded ? "true" : "false")
+       << ",\"rmsnorm\":" << (p.rmsnorm ? "true" : "false")
+       << ",\"rope\":" << (p.rope ? "true" : "false")
+       << ",\"qkv_projection\":" << (p.qkv_projection ? "true" : "false")
+       << ",\"attention\":" << (p.attention ? "true" : "false")
+       << ",\"output_projection\":" << (p.output_projection ? "true" : "false")
+       << ",\"attention_residual\":" << (p.attention_residual ? "true" : "false")
+       << ",\"mlp_norm\":" << (p.mlp_norm ? "true" : "false")
+       << ",\"swiglu\":" << (p.swiglu ? "true" : "false")
+       << ",\"down_projection\":" << (p.down_projection ? "true" : "false")
+       << ",\"block_residual\":" << (p.block_residual ? "true" : "false")
+       << ",\"output_finite\":" << (p.output_finite ? "true" : "false")
+       << ",\"batch\":" << p.batch << ",\"sequence\":" << p.sequence
+       << ",\"output_rows\":" << p.output_rows
+       << ",\"output_hidden_size\":" << p.output_hidden_size
+       << ",\"workspace_bytes\":" << static_cast<unsigned long long>(p.workspace_bytes)
+       << "}"
        << ",\"rmsnorm_backend\":\"" << json_escape(report.rmsnorm_backend)
        << "\",\"rope_backend\":\"" << json_escape(report.rope_backend)
        << "\",\"qkv_projection_backend\":\"" << json_escape(report.qkv_projection_backend) << "\""
@@ -117,8 +137,11 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
        << ",\"start_step\":" << report.start_step
        << ",\"microsteps\":" << report.microsteps
        << ",\"initial_loss\":" << report.initial_loss
-       << ",\"loss\":" << report.loss << ",\"loss_finite\":true"
+       << ",\"loss\":" << report.loss << ",\"loss_finite\":" << (std::isfinite(report.loss) ? "true" : "false")
        << ",\"weight_changed\":" << (report.trainable_weight_changed ? "true" : "false")
+       << ",\"trainable_weight_changed\":" << (report.trainable_weight_changed ? "true" : "false")
+       << ",\"embedding_weight_changed\":" << (report.embedding_weight_changed ? "true" : "false")
+       << ",\"lm_head_weight_changed\":" << (report.lm_head_weight_changed ? "true" : "false")
        << ",\"non_embedding_weight_changed\":" << (report.non_embedding_weight_changed ? "true" : "false")
        << ",\"decoder_block_weight_changed\":" << (report.decoder_block_weight_changed ? "true" : "false")
        << ",\"elapsed_ms\":" << report.elapsed_seconds * 1000.0
@@ -133,6 +156,7 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
        << "\",\"served_path\":\"" << json_escape(report.served_dir.string())
        << "\",\"logits_checksum\":\""
        << json_escape(report.logits_check_checksum) << "\""
+       << ",\"logits_check_passed\":" << (report.logits_check_passed ? "true" : "false")
        << ",\"logits_check\":"
        << (report.logits_check_json.empty()
                ? "{\"status\":\"fail\",\"validation_target\":"

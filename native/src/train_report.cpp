@@ -1,4 +1,5 @@
 #include "train_report.hpp"
+#include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -130,7 +131,7 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << ",\"last_quarter_loss_mean\":" << report.last_quarter_loss_mean
        << ",\"learning_status\":\""
        << json_escape(report.learning_status) << "\""
-       << ",\"loss_finite\":true"
+       << ",\"loss_finite\":" << (std::isfinite(report.loss) ? "true" : "false")
        << ",\"weight_changed\":"
        << (report.weight_changed ? "true" : "false") << ",\"weight_change\":";
   append_dense_weight_change_json(*out, report.weight_change);
@@ -150,6 +151,7 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << "\""
        << ",\"logits_checksum\":\""
        << json_escape(report.logits_check_checksum) << "\""
+       << ",\"logits_check_passed\":" << (report.logits_check_passed ? "true" : "false")
        << ",\"logits_check\":"
        << (report.logits_check_json.empty()
                ? "{\"status\":\"fail\",\"validation_target\":"

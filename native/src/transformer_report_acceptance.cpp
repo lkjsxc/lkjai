@@ -1,5 +1,7 @@
 #include "transformer_report_acceptance.hpp"
 
+#include <cmath>
+
 #include "decoder_decode.hpp"
 
 namespace lkjai {
@@ -14,7 +16,10 @@ bool transformer_report_accepted_decoder(const TransformerTrainReport& r) {
          r.forward_backend == "cuda_full_decoder" &&
          r.backward_backend == "cuda_full_decoder" &&
          r.decoder_backward_backend == "cuda_full_decoder" &&
-         r.non_embedding_weight_changed && r.decoder_block_weight_changed &&
+         r.decode_supported && r.logits_check_passed &&
+         std::isfinite(r.loss) && r.steps > 0 && r.loss_tokens > 0 &&
+         r.trainable_weight_changed && r.non_embedding_weight_changed &&
+         r.decoder_block_weight_changed &&
          r.embedding_tying == "tok_embeddings:lm_head" &&
          r.kv_cache_backend == kDecoderAcceptedKvCacheBackend &&
          r.decode_backend == kDecoderAcceptedDecodeBackend;

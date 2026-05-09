@@ -104,6 +104,29 @@ void check_training_config(const std::filesystem::path& repo,
   auto objective = json_first_string(body, "objective");
   if (objective != "causal_lm_full")
     result->fail(path.string() + " unsupported objective " + objective);
+  auto model_kind = json_first_string(body, "model_kind");
+  auto name = json_first_string(body, "name");
+  bool profile = path.filename().string().find("profile") != std::string::npos ||
+                 name.find("profile") != std::string::npos;
+  if (profile && native == "configs/native/decoder_40m_bf16_3070.json")
+    result->fail(path.string() + " profile config uses acceptance decoder native config");
+  if (model_kind == "decoder" && !native.empty() && native[0] != '/') {
+    TransformerConfig cfg;
+    std::string error;
+    if (!load_transformer_config(repo / native, &cfg, &error)) {
+      result->fail(path.string() + " invalid decoder native config: " + error);
+    } else {
+      if (cfg.kind != "decoder")
+        result->fail(path.string() + " decoder training must point to decoder native config");
+      if (!cfg.tie_embeddings)
+        result->fail(path.string() + " decoder acceptance config must stay tied");
+      int seq = json_int_value(body, "sequence_len", 0);
+      if (seq <= 0 || seq > cfg.context)
+        result->fail(path.string() + " sequence_len exceeds decoder context");
+    }
+    if (json_int_value(body, "target_seconds", 0) <= 0)
+      result->fail(path.string() + " decoder training target_seconds must be positive");
+  }
 }
 
 bool contains(const std::filesystem::path& path, std::string_view needle) {
@@ -126,6 +149,8 @@ void check_decoder_acceptance_config(const std::filesystem::path& repo,
     result->fail("missing tied 40M decoder training config");
   require_contains(native, "\"tie_embeddings\": true", result);
   require_contains(train, "decoder_2h_40m_3070", result);
+  require_contains(train, "\"model_kind\": \"decoder\"", result);
+  require_contains(train, "\"target_seconds\": 7200", result);
   require_contains(train, "configs/native/decoder_40m_bf16_3070.json", result);
 }
 

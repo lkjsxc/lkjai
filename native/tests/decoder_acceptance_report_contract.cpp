@@ -1,5 +1,6 @@
 #include <string>
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 
 #include "decoder_decode.hpp"
@@ -26,6 +27,11 @@ lkjai::TransformerTrainReport accepted_report() {
   r.attention_backend = "cuda_causal_gqa_bf16_reference";
   r.non_embedding_weight_changed = true;
   r.decoder_block_weight_changed = true;
+  r.trainable_weight_changed = true;
+  r.logits_check_passed = true;
+  r.loss = 1.0;
+  r.steps = 1;
+  r.loss_tokens = 1;
   r.embedding_tying = "tok_embeddings:lm_head";
   r.kv_cache_backend = lkjai::kDecoderAcceptedKvCacheBackend;
   r.decode_backend = lkjai::kDecoderAcceptedDecodeBackend;
@@ -43,8 +49,21 @@ bool acceptance_contract() {
   partial.kv_cache_backend = "none";
   partial.decode_backend = lkjai::kDecoderPartialDecodeBackend;
   partial.decoder_block_weight_changed = false;
+  partial.non_embedding_weight_changed = false;
   auto head_only = r;
   head_only.decoder_block_weight_changed = false;
+  auto no_decode = r;
+  no_decode.decode_supported = false;
+  auto bad_logits = r;
+  bad_logits.logits_check_passed = false;
+  auto bad_loss = r;
+  bad_loss.loss = INFINITY;
+  auto no_steps = r;
+  no_steps.steps = 0;
+  auto no_tokens = r;
+  no_tokens.loss_tokens = 0;
+  auto no_weight = r;
+  no_weight.trainable_weight_changed = false;
   auto limits = lkjai::transformer_report_limitations(partial, false);
   return expect(lkjai::transformer_report_accepted_decoder(r),
                 "accepted decoder report") &&
@@ -54,6 +73,18 @@ bool acceptance_contract() {
                 "partial slice rejected") &&
          expect(!lkjai::transformer_report_accepted_decoder(head_only),
                 "lm-head-only update rejected") &&
+         expect(!lkjai::transformer_report_accepted_decoder(no_decode),
+                "missing decode support rejected") &&
+         expect(!lkjai::transformer_report_accepted_decoder(bad_logits),
+                "failed logits check rejected") &&
+         expect(!lkjai::transformer_report_accepted_decoder(bad_loss),
+                "non-finite loss rejected") &&
+         expect(!lkjai::transformer_report_accepted_decoder(no_steps),
+                "zero steps rejected") &&
+         expect(!lkjai::transformer_report_accepted_decoder(no_tokens),
+                "zero loss tokens rejected") &&
+         expect(!lkjai::transformer_report_accepted_decoder(no_weight),
+                "missing trainable weight change rejected") &&
          expect(std::find(limits.begin(), limits.end(),
                           "decoder_block_weights_not_updated") != limits.end(),
                 "block weight limitation") &&

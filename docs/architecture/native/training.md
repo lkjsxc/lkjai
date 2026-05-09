@@ -175,8 +175,10 @@ checkpoint masters when a reference checkpoint is available.
 
 Decoder reports declare `model_kind=decoder` and use additive fields from
 [decoder/training.md](decoder/training.md), including
-`decoder_block_weight_changed` so LM-head-only updates cannot satisfy decoder
-block-training acceptance.
+`decoder_forward_probe`, `embedding_weight_changed`,
+`lm_head_weight_changed`, `logits_check_passed`,
+`non_embedding_weight_changed`, and `decoder_block_weight_changed` so
+LM-head-only updates cannot satisfy decoder block-training acceptance.
 
 Transformer reports declare `accepted_cuda_training=false`,
 `implementation_status=experimental`, `transformer_status=experimental`,

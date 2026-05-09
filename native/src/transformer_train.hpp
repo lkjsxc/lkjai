@@ -47,6 +47,27 @@ struct TransformerTrainOptions {
   std::filesystem::path train_config_path;
 };
 
+struct DecoderForwardProbeReport {
+  bool recorded = false;
+  std::string status = "not_run";
+  bool rmsnorm = false;
+  bool rope = false;
+  bool qkv_projection = false;
+  bool attention = false;
+  bool output_projection = false;
+  bool attention_residual = false;
+  bool mlp_norm = false;
+  bool swiglu = false;
+  bool down_projection = false;
+  bool block_residual = false;
+  bool output_finite = false;
+  int batch = 0;
+  int sequence = 0;
+  int output_rows = 0;
+  int output_hidden_size = 0;
+  uint64_t workspace_bytes = 0;
+};
+
 struct TransformerTrainReport {
   int steps = 0;
   int start_step = 0;
@@ -69,6 +90,8 @@ struct TransformerTrainReport {
   std::string stop_reason = "max_steps";
   double initial_loss = 0.0;
   double loss = 0.0;
+  bool embedding_weight_changed = false;
+  bool lm_head_weight_changed = false;
   bool non_embedding_weight_changed = false;
   bool decoder_block_weight_changed = false;
   bool trainable_weight_changed = false;
@@ -112,6 +135,7 @@ struct TransformerTrainReport {
   std::string decoder_block_backend = "host_reference";
   bool decoder_block_forward_in_training = false;
   int decoder_block_forward_steps = 0;
+  DecoderForwardProbeReport decoder_forward_probe;
   bool decode_supported = false;
   std::string embedding_tying = "none";
   int trainable_tensor_count = 0;

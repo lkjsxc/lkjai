@@ -10,6 +10,7 @@
 #include "decoder_cuda_block_check_ref.hpp"
 #include "decoder_cuda_norm.hpp"
 #include "decoder_decode.hpp"
+#include "decoder_cuda_slice_internal.hpp"
 #include "runtime_device.hpp"
 #include "train_report.hpp"
 
@@ -131,8 +132,10 @@ int main() {
   report.decoder_backward_backend = "not_implemented";
   report.kv_cache_backend = lkjai::kDecoderNoKvCacheBackend;
   report.decode_backend = lkjai::kDecoderPartialDecodeBackend;
+  report.decode_supported = true;
   report.embedding_tying = "tok_embeddings:lm_head";
   report.trainable_tensor_count = 11;
+  lkjai::decoder_set_forward_probe(probe, &report);
   auto json = lkjai::transformer_train_report_json(
       report, lkjai::cuda_status(), "decoder", "success", "");
   if (!require_contains(json, "\"accepted_cuda_training\":false") ||
@@ -148,6 +151,10 @@ int main() {
       !require_contains(json,
                         "\"decoder_backward_backend\":\"not_implemented\"") ||
       !require_contains(json, "\"decoder_block_weight_changed\":false") ||
+      !require_contains(json, "\"decoder_forward_probe\"") ||
+      !require_contains(json, "\"status\":\"pass\"") ||
+      !require_contains(json, "\"output_finite\":true") ||
+      !require_contains(json, "\"workspace_bytes\":") ||
       !require_contains(json, "\"decoder_block_weights_not_updated\"") ||
       !require_contains(json,
                         "\"decoder_block_optimizer_not_implemented\"") ||
@@ -167,6 +174,12 @@ int main() {
   report.decoder_backward_backend = "cuda_full_decoder";
   report.non_embedding_weight_changed = true;
   report.decoder_block_weight_changed = true;
+  report.trainable_weight_changed = true;
+  report.logits_check_passed = true;
+  report.decode_supported = true;
+  report.loss = 1.0;
+  report.steps = 1;
+  report.loss_tokens = 1;
   report.kv_cache_backend = lkjai::kDecoderAcceptedKvCacheBackend;
   report.decode_backend = lkjai::kDecoderAcceptedDecodeBackend;
   json = lkjai::transformer_train_report_json(report, lkjai::cuda_status(),

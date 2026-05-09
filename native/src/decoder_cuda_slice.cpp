@@ -1,9 +1,7 @@
 #include "transformer_train.hpp"
-
 #include <algorithm>
 #include <chrono>
 #include <cmath>
-
 #include "cuda_probe.hpp"
 #include "decoder_cuda_block.hpp"
 #include "decoder_cuda_slice_internal.hpp"
@@ -115,6 +113,7 @@ bool run_decoder_cuda_slice_training(const TransformerTrainOptions& opt,
   report->export_dir = opt.out_dir / "exports" / opt.model_name;
   report->served_dir = opt.out_dir.parent_path() / "models" / opt.model_name;
   report->parameter_count = transformer_parameter_count(state);
+  decoder_set_forward_probe(substrate, report);
   auto started = std::chrono::steady_clock::now();
   std::vector<float> logits;
   for (int local = 1; local <= opt.max_steps; ++local) {
@@ -142,6 +141,7 @@ bool run_decoder_cuda_slice_training(const TransformerTrainOptions& opt,
         report->workspace_high_water_bytes =
             std::max<uint64_t>(report->workspace_high_water_bytes,
                                block.projection_workspace_bytes);
+        decoder_set_forward_probe(block, report);
       }
       bool capture = local == opt.max_steps && micro == opt.grad_accum - 1;
       loss_sum += cuda.forward_backward(batch, capture ? &logits : nullptr,
@@ -167,11 +167,11 @@ bool run_decoder_cuda_slice_training(const TransformerTrainOptions& opt,
   }
   if (!report->deadline_hit) report->stop_reason = "max_steps";
   auto host = cuda.copy_to_host();
+  report->embedding_weight_changed = dense_max_abs_diff(before_emb, host.emb) > 0.0;
+  report->lm_head_weight_changed = dense_max_abs_diff(before_head, host.head) > 0.0;
   report->trainable_weight_changed =
-      dense_max_abs_diff(before_emb, host.emb) > 0.0 ||
-      dense_max_abs_diff(before_head, host.head) > 0.0;
-  report->non_embedding_weight_changed =
-      dense_max_abs_diff(before_head, host.head) > 0.0;
+      report->embedding_weight_changed || report->lm_head_weight_changed;
+  report->non_embedding_weight_changed = false;
   decoder_copy_dense_back(host, &state);
   auto phase = std::chrono::steady_clock::now();
   if (!decoder_write_all(effective, state, report, seq_len)) {

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <sstream>
 
+#include "decoder_cuda_block.hpp"
 #include "decoder_decode.hpp"
 
 namespace lkjai {
@@ -128,6 +129,29 @@ bool decoder_write_all(const TransformerTrainOptions& opt,
                                            opt.grad_accum, report->loss, false,
                                            &report->logits_checksum,
                                            opt.tokenizer_path));
+}
+
+void decoder_set_forward_probe(const DecoderCudaForwardSubstrateReport& p,
+                               TransformerTrainReport* r) {
+  auto& o = r->decoder_forward_probe;
+  o.recorded = true;
+  o.status = p.outputs_finite ? "pass" : "fail";
+  o.rmsnorm = p.rmsnorm_checked;
+  o.rope = p.rope_checked;
+  o.qkv_projection = p.qkv_projection_checked;
+  o.attention = p.attention_checked;
+  o.output_projection = p.o_projection_checked;
+  o.attention_residual = p.attention_residual_checked;
+  o.mlp_norm = p.mlp_norm_checked;
+  o.swiglu = p.swiglu_checked;
+  o.down_projection = p.down_projection_checked;
+  o.block_residual = p.block_residual_checked;
+  o.output_finite = p.outputs_finite;
+  o.batch = p.probe_batch;
+  o.sequence = p.probe_seq;
+  o.output_rows = p.output_rows;
+  o.output_hidden_size = p.output_hidden_size;
+  o.workspace_bytes = p.projection_workspace_bytes;
 }
 
 void decoder_fill_cuda_slice_report(DenseCudaState& cuda,

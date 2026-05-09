@@ -81,6 +81,7 @@ The report includes:
 - `loss_tokens`
 - `initial_loss`
 - `loss`
+- `loss_finite`
 - `loss_samples`
 - `loss_sample_interval`
 - `best_loss`
@@ -95,7 +96,13 @@ The report includes:
 - `capability`
 - `checkpoint_checksum`
 - `export_checksum`
+- `logits_check_passed`
 - `logits_check`
+
+Decoder reports also include `decoder_forward_probe`,
+`embedding_weight_changed`, `lm_head_weight_changed`,
+`non_embedding_weight_changed`, `decoder_block_weight_changed`,
+`decode_supported`, `kv_cache_backend`, and `decode_backend`.
 
 `timings` includes `batch_load`, `h2d`, `forward`, `backward`, `optimizer`,
 `checkpoint`, and `export`. `capability` uses the reusable native capability

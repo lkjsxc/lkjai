@@ -21,6 +21,8 @@ bool decoder_write_all(const TransformerTrainOptions& opt,
 bool decoder_cuda_slice_run_block_forward(
     const TransformerState& state, const PackedBatch& batch,
     DecoderCudaForwardSubstrateReport* report, std::string* error);
+void decoder_set_forward_probe(const DecoderCudaForwardSubstrateReport& probe,
+                               TransformerTrainReport* report);
 void decoder_fill_cuda_slice_report(DenseCudaState& cuda,
                                     TransformerTrainReport* report);
 
