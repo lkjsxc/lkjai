@@ -39,6 +39,16 @@ std::vector<float> embedded_rows(const TransformerState& state,
   return out;
 }
 
+std::vector<float> projection_weight(const Parameter& p, int in, int out) {
+  std::vector<float> t(static_cast<size_t>(in) * out);
+  for (int i = 0; i < in; ++i) {
+    for (int o = 0; o < out; ++o) {
+      t[static_cast<size_t>(o) * in + i] = p.w[static_cast<size_t>(i) * out + o];
+    }
+  }
+  return t;
+}
+
 }  // namespace
 
 bool decoder_cuda_slice_run_block_forward(
@@ -87,10 +97,14 @@ bool decoder_cuda_slice_run_block_forward(
     DeviceTensor wk = bf16(ctx.stream(), kv_width, cfg.hidden_size);
     DeviceTensor wv = bf16(ctx.stream(), kv_width, cfg.hidden_size);
     DeviceTensor wo = bf16(ctx.stream(), cfg.hidden_size, cfg.hidden_size);
-    wq.copy_from_host_f32(layer.q_proj.w, ctx.stream());
-    wk.copy_from_host_f32(layer.k_proj.w, ctx.stream());
-    wv.copy_from_host_f32(layer.v_proj.w, ctx.stream());
-    wo.copy_from_host_f32(layer.o_proj.w, ctx.stream());
+    wq.copy_from_host_f32(projection_weight(layer.q_proj, cfg.hidden_size,
+                                            cfg.hidden_size), ctx.stream());
+    wk.copy_from_host_f32(projection_weight(layer.k_proj, cfg.hidden_size,
+                                            kv_width), ctx.stream());
+    wv.copy_from_host_f32(projection_weight(layer.v_proj, cfg.hidden_size,
+                                            kv_width), ctx.stream());
+    wo.copy_from_host_f32(projection_weight(layer.o_proj, cfg.hidden_size,
+                                            cfg.hidden_size), ctx.stream());
     DeviceWorkspace workspace(ctx.stream());
     void* ws = workspace.allocate(kWorkspaceBytes);
     decoder_cuda_project_bf16(ctx.cublaslt(), ctx.stream(), norm.data(),
@@ -129,9 +143,12 @@ bool decoder_cuda_slice_run_block_forward(
     DeviceTensor wg = bf16(ctx.stream(), cfg.ffn_size, cfg.hidden_size);
     DeviceTensor wu = bf16(ctx.stream(), cfg.ffn_size, cfg.hidden_size);
     DeviceTensor wd = bf16(ctx.stream(), cfg.hidden_size, cfg.ffn_size);
-    wg.copy_from_host_f32(layer.gate_proj.w, ctx.stream());
-    wu.copy_from_host_f32(layer.up_proj.w, ctx.stream());
-    wd.copy_from_host_f32(layer.down_proj.w, ctx.stream());
+    wg.copy_from_host_f32(projection_weight(layer.gate_proj, cfg.hidden_size,
+                                            cfg.ffn_size), ctx.stream());
+    wu.copy_from_host_f32(projection_weight(layer.up_proj, cfg.hidden_size,
+                                            cfg.ffn_size), ctx.stream());
+    wd.copy_from_host_f32(projection_weight(layer.down_proj, cfg.ffn_size,
+                                            cfg.hidden_size), ctx.stream());
     decoder_cuda_project_bf16(ctx.cublaslt(), ctx.stream(), mlp_norm.data(),
                               wg.data(), gate.data(), rows, cfg.hidden_size,
                               cfg.ffn_size, ws, kWorkspaceBytes);
@@ -150,6 +167,9 @@ bool decoder_cuda_slice_run_block_forward(
                                      ctx.stream());
     local.block_residual_checked = finite(out, ctx.stream());
     local.outputs_finite = local.block_residual_checked;
+    local.output_hidden = out.copy_to_host_f32(ctx.stream());
+    local.output_rows = rows;
+    local.output_hidden_size = cfg.hidden_size;
     local.projection_workspace_bytes = workspace.high_water_bytes();
     if (report) *report = local;
     if (local.outputs_finite) return true;

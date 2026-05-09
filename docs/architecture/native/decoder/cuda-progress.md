@@ -24,6 +24,9 @@ First CUDA progress after foundation:
 - Current forward substrate: decoder block metadata validation plus CUDA BF16
   RMSNorm, row-major cuBLASLt Q/K/V, RoPE, causal GQA attention, O projection,
   residual adds, MLP RMSNorm, BF16 SwiGLU glue, and down projection.
+- Current block parity: the training-slice block forward path returns the first
+  block hidden output and CTest compares it with a host reference under
+  BF16-aware tolerance.
 - Current attention hook: deterministic BF16 causal MHA/GQA CUDA parity plus
   reusable cuBLASLt projection plan-cache coverage.
 
@@ -46,6 +49,9 @@ RMSNorm, projects Q/K/V, applies RoPE, runs causal GQA attention, projects the
 attention output through O, adds the attention residual, runs MLP RMSNorm,
 applies `silu(gate) * up`, projects through the down matrix, and adds the final
 residual. It is forward-only evidence and does not train block tensors.
+The training-slice block test now verifies the composed first-block output
+against a host reference; that is still forward correctness evidence, not
+backward or optimizer acceptance.
 
 The exported artifact remains `manifest.json.kind=decoder`, so inspect,
 logits-check, and native server foundation chat contracts continue to operate on the

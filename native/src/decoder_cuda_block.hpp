@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 #include <cuda_runtime.h>
 
@@ -38,6 +39,9 @@ struct DecoderCudaForwardSubstrateReport {
   bool down_projection_checked = false;
   bool block_residual_checked = false;
   bool outputs_finite = false;
+  std::vector<float> output_hidden;
+  int output_rows = 0;
+  int output_hidden_size = 0;
   uint64_t projection_workspace_bytes = 0;
 };
 
