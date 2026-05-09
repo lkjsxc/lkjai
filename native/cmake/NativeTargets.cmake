@@ -95,6 +95,20 @@ target_link_libraries(lkjai-native-decoder-kv-cache-contract
 add_executable(lkjai-native-runtime-contract tests/runtime_contract_check.cpp)
 target_link_libraries(lkjai-native-runtime-contract PRIVATE lkjai_native_core)
 
+add_executable(lkjai-native-server-route-contract
+  tests/server_route_contract.cpp
+)
+target_link_libraries(lkjai-native-server-route-contract PRIVATE
+  lkjai_native_core
+)
+
+add_executable(lkjai-native-decoder-acceptance-report-contract
+  tests/decoder_acceptance_report_contract.cpp
+)
+target_link_libraries(lkjai-native-decoder-acceptance-report-contract PRIVATE
+  lkjai_native_core
+)
+
 add_executable(lkjai-native-status-page-contract
   tests/status_page_contract.cpp
 )

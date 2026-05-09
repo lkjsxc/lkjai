@@ -55,6 +55,10 @@ add_test(NAME native_decoder_artifact_contract
 add_test(NAME native_decoder_kv_cache_contract
   COMMAND lkjai-native-decoder-kv-cache-contract)
 add_test(NAME native_runtime_contract COMMAND lkjai-native-runtime-contract)
+add_test(NAME native_server_route_contract
+  COMMAND lkjai-native-server-route-contract)
+add_test(NAME native_decoder_acceptance_report_contract
+  COMMAND lkjai-native-decoder-acceptance-report-contract)
 add_test(NAME native_status_page_contract
   COMMAND lkjai-native-status-page-contract)
 add_test(NAME native_decoder_cuda_attention_plan

@@ -105,6 +105,9 @@ artifact inspection, and CUDA capability probing.
   validation CLI.
 - [server_main.cpp](server_main.cpp): merged native server entrypoint for
   OpenAI-compatible inference routes and local runtime API routes.
+- [native_server_routes.cpp](native_server_routes.cpp) and
+  [native_server_routes.hpp](native_server_routes.hpp): testable merged route
+  dispatcher for `/`, `/healthz`, `/api/*`, and `/v1/*`.
 - [runtime_main.cpp](runtime_main.cpp), [runtime_api.cpp](runtime_api.cpp),
   [runtime_api.hpp](runtime_api.hpp), [native_http_client.cpp](native_http_client.cpp),
   and [native_http_client.hpp](native_http_client.hpp): native agent API
@@ -120,6 +123,9 @@ artifact inspection, and CUDA capability probing.
   [transformer_report.cpp](transformer_report.cpp), and
   [transformer_report_io.cpp](transformer_report_io.cpp): stable train-report
   JSON writers.
+- [transformer_report_acceptance.cpp](transformer_report_acceptance.cpp) and
+  [transformer_report_acceptance.hpp](transformer_report_acceptance.hpp):
+  decoder acceptance and limitation helpers for report contracts.
 - [training_config.cpp](training_config.cpp) and
   [training_config.hpp](training_config.hpp): JSON training-run config loading
   and CLI/environment precedence.

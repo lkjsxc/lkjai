@@ -46,6 +46,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/json_min.cpp
   src/native_chat_prompt.cpp
   src/native_chat_prompt_serialize.cpp
+  src/native_server_routes.cpp
   src/native_status_page.cpp
   src/native_tokenizer.cpp
   src/native_tokenizer_codec.cpp
@@ -71,6 +72,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/transformer_logits.cpp
   src/transformer_optim.cpp
   src/transformer_report.cpp
+  src/transformer_report_acceptance.cpp
   src/transformer_report_io.cpp
   src/transformer_train.cpp
   src/transformer_util.cpp

@@ -5,8 +5,8 @@
 #include <vector>
 #include "artifact.hpp"
 #include "capability_json.hpp"
-#include "decoder_decode.hpp"
 #include "json_min.hpp"
+#include "transformer_report_acceptance.hpp"
 #ifndef LKJAI_GIT_COMMIT
 #define LKJAI_GIT_COMMIT "unknown"
 #endif
@@ -64,21 +64,10 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
   auto decoder_status = report.decoder_status.empty()
       ? std::string(kind == "decoder" ? "experimental" : "not_applicable")
       : report.decoder_status;
-  bool accepted_attention = report.attention_backend == "cuda_causal_gqa_bf16_reference" || report.attention_backend == "cudnn_sdpa";
-  bool accepted_decoder = kind == "decoder" && impl == "accepted" && accepted_attention && report.decoder_cuda_path && report.decoder_cuda_slice == "full_decoder" && report.decoder_block_backend == "cuda_full_decoder" && report.forward_backend == "cuda_full_decoder" && report.backward_backend == "cuda_full_decoder" && report.decoder_backward_backend == "cuda_full_decoder" && report.embedding_tying == "tok_embeddings:lm_head" && report.kv_cache_backend == kDecoderAcceptedKvCacheBackend && report.decode_backend == kDecoderAcceptedDecodeBackend;
+  bool accepted_decoder = transformer_report_accepted_decoder(report);
   double tokens_per_second = report.elapsed_seconds > 0.0
       ? static_cast<double>(report.input_tokens) / report.elapsed_seconds : 0.0;
-  std::vector<std::string> limitations;
-  if (report.run_purpose == "bounded_diagnostic_start_check") limitations.push_back("bounded_diagnostic_start_check");
-  if (!accepted_decoder) {
-    limitations.push_back("experimental_not_accepted_cuda_training");
-    limitations.push_back(report.decoder_cuda_path ? "partial_cuda_decoder_slice" : "host_reference_forward");
-    limitations.push_back(report.decoder_cuda_path ? "decoder_forward_partial" : "host_surrogate_backward");
-    if (report.forward_backend != "cuda_full_decoder") limitations.push_back("full_forward_not_accepted"); if (report.backward_backend != "cuda_full_decoder") limitations.push_back("full_backward_not_accepted");
-    if (report.attention_backend == "not_implemented") limitations.push_back("attention_not_implemented"); if (report.decoder_backward_backend == "not_implemented") limitations.push_back("decoder_backward_not_implemented");
-    if (report.kv_cache_backend == "none") limitations.push_back("kv_cache_not_implemented");
-    if (!report.decode_supported) limitations.push_back("autoregressive_decode_unsupported");
-  }
+  auto limitations = transformer_report_limitations(report, accepted_decoder);
   *out << "{\"schema\":\"lkjai-train-report\""
        << ",\"trainer_mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"mode\":\"" << json_escape(trainer_mode) << "\""
