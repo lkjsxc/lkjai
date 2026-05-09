@@ -20,15 +20,19 @@ For the active `scratch-40m` preset:
 For the long-term `scratch-60m` preset:
 
 - Parameters: `~58M`
-- Chinchilla target: `~1.1T tokens`
+- Chinchilla target: `~1.16B tokens`
 
 ## Practical Budget
 
-At the current committed Kimi corpus size:
+Current public pretrain materialization is much larger than the old Kimi SFT
+pack, but still short of compute-optimal scale:
 
-- Train tokens: about `26M`
-- Tokens per parameter at 40M: about `0.66`
-- Chinchilla gap: about `96.7% shortfall`
+- Public train tokenizer tokens: about `463M`
+- Tokens per parameter at 40M: about `11.7`
+- Chinchilla gap at 40M: about `41.5% shortfall`
+
+The older Kimi SFT pack was about `26M` train tokens. It is not the current
+public-pretrain budget and must not be used as the scale baseline.
 
 This gap is expected and acceptable for the default path:
 
@@ -36,8 +40,9 @@ This gap is expected and acceptable for the default path:
 - We optimize for trusted provenance, task diversity, and format alignment, not
   raw token volume.
 - The 40M preset is the active compromise between capacity and RTX 3070 memory.
-- Scaling toward 500M tokens remains necessary before `scratch-60m` becomes a
-  serious default candidate.
+- Scaling beyond the current public-pretrain pack and rebuilding reviewed SFT
+  data remain necessary before `scratch-60m` becomes a serious default
+  candidate.
 
 ## SmolLM2 Guidance
 
@@ -52,7 +57,7 @@ Key takeaways for lkjai:
 
 ## Token Budget Metadata
 
-`scratch_train.py` records these fields in `training-summary.json`:
+Native training reports record these fields:
 
 - `train_tokens`: total tokenizer tokens on the train split
 - `parameter_count`: model parameter count

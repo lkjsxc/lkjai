@@ -2,9 +2,10 @@
 
 ## Source
 
-This file distills ignored reports `tmp/deep-research-report (31).md` and the
-decoder-relevant conclusions from `tmp/deep-research-report (28).md` into
-durable canon. Reports under `tmp/` are source evidence, not canonical docs.
+This file distills ignored reports `tmp/deep-research-report (42).md`,
+`tmp/deep-research-report (31).md`, and decoder-relevant conclusions from
+`tmp/deep-research-report (28).md` into durable canon. Reports under `tmp/` are
+source evidence, not canonical docs.
 
 ## Canon Decision
 
@@ -16,6 +17,8 @@ durable canon. Reports under `tmp/` are source evidence, not canonical docs.
 - The target hardware gate is RTX 3070 8GB, compute capability 8.6.
 - Higher-memory or newer-GPU runs are profile evidence until the RTX 3070 gate
   also passes.
+- Large-model work is profile-only until the 40M RTX 3070 decoder gate is
+  accepted.
 
 ## Foundation Versus Product
 
@@ -40,8 +43,10 @@ durable canon. Reports under `tmp/` are source evidence, not canonical docs.
   causal GQA path.
 - cuDNN SDPA is the preferred performance attention backend after parity and
   timing are proven for the active GQA shape.
-- CUTLASS, CUDA Graphs, TensorRT, TensorRT-LLM, and NCCL are profile, serving,
-  or later scale work; none replaces first native decoder acceptance.
+- CUTLASS and CUDA Graphs are measured native optimizations after correctness.
+- TensorRT-family engines are optional inference accelerators only; they never
+  replace the canonical native BF16 artifact, trainer, or KV-cache decoder.
+- NCCL enters after single-GPU decoder correctness and profiling are stable.
 
 ## Implementation Order
 
@@ -53,6 +58,8 @@ durable canon. Reports under `tmp/` are source evidence, not canonical docs.
 6. Add contiguous BF16 KV-cache decode without per-token device allocation.
 7. Add streaming output after accepted native decode exists.
 8. Run the two-hour RTX 3070 decoder acceptance gate.
+9. Add 1.5B-3B profile configs only after accepted 40M decoder evidence.
+10. Add 7B profile work only after multi-GPU training contracts are verified.
 
 ## Acceptance Defaults
 
@@ -81,10 +88,11 @@ durable canon. Reports under `tmp/` are source evidence, not canonical docs.
   passes.
 - Quantized or TensorRT-family inference does not satisfy native BF16 training
   or native KV-cache decode acceptance.
+- 1.5B-3B, 7B, and 14B-20B profiles do not loosen the local acceptance gate.
 
 ## Open Questions
 
-- Larger 100M-150M decoder profiles remain recommendations, not audited current
-  repo contracts.
+- Larger decoder profiles remain recommendations, not accepted current repo
+  contracts.
 - Public deployment hardening remains out of scope until native BF16 decode is
   accepted.

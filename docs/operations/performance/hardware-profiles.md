@@ -21,10 +21,10 @@ The gate means:
 
 ## Benchmark Profiles
 
-RTX 4090/Ada and RTX 5090/Blackwell are higher-throughput profiling targets.
-Use them to measure headroom, memory pressure, cuBLASLt/cuDNN behavior, CUDA
-Graph readiness, and future transformer kernels. Do not use them as the
-acceptance baseline.
+RTX 4090/Ada, RTX 5090/Blackwell, A100, and H100-class systems are
+higher-throughput profiling targets. Use them to measure headroom, memory
+pressure, cuBLASLt/cuDNN behavior, CUDA Graph readiness, linked-GPU behavior,
+and future transformer kernels. Do not use them as the acceptance baseline.
 
 Focused Blackwell profile builds use
 `LKJAI_CUDA_ARCHS='120-real;120-virtual'`. The default native build also
@@ -49,6 +49,8 @@ a profile with:
 | RTX 3070 | Acceptance gate | CUDA table lists compute capability 8.6 | Must pass verify and dense acceptance |
 | RTX 4090/Ada | Benchmark target | CUDA table lists RTX 4090 and Ada GPUs under compute capability 8.9 | Profile only; cannot relax the 3070 gate |
 | RTX 5090/Blackwell | Benchmark target | CUDA table lists RTX 5090 under compute capability 12.0 | Profile only; cannot relax the 3070 gate |
+| A100 80GB | Large profile target | 80GB-class HBM and NVLink-capable profiles | Profile only for 1.5B-3B or 7B inference evidence |
+| H100-class | Large profile target | 80GB or larger HBM profiles with high BF16 throughput | Profile only for 1.5B-3B and linked-GPU scale work |
 | Recent NVIDIA GPU | Diagnostic target | Record the CUDA table compute capability and report fields | Profile only unless separately accepted |
 
 ## Capability Notes
@@ -57,6 +59,8 @@ a profile with:
   BF16 CUDA work.
 - RTX 4090/Ada compute capability 8.9 and RTX 5090/Blackwell compute
   capability 12.0 are profile targets for future transformer and decode work.
+- A100/H100-class reports are large-profile evidence. They are valuable for
+  memory and distributed planning, but they do not replace the local gate.
 - Blackwell tuning follows NVIDIA's Blackwell guide: start from general CUDA
   best practices, then tune architecture-specific occupancy, memory, and launch
   behavior after correctness gates pass.

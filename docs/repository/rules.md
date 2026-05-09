@@ -22,3 +22,11 @@
 - Do not add `package.json`.
 - Do not add Node-based verification.
 - Do not install Node in Dockerfiles.
+
+## Naming Rule
+
+- Avoid numbered stability labels for repo-owned concepts.
+- Literal external route names such as `/v1/models`, external API URLs, and
+  runtime fields like `cuda_driver_version` are allowed only where exact names
+  are required.
+- New local APIs use unnumbered route names.

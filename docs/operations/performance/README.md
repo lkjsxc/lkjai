@@ -14,8 +14,11 @@ This subtree is the canonical performance contract for `lkjai`.
   and optimization order.
 - [benchmarking.md](benchmarking.md): required measurements, artifacts, and
   acceptance workflow.
+- [benchmark-suite.md](benchmark-suite.md): substrate, train-step, bounded
+  training, and serving measurement layers.
 - [benchmark-output.md](benchmark-output.md): JSON and CSV output shape for
   native benchmark tools.
+- [evidence.md](evidence.md): required fields for accepted performance records.
 - [dense-evidence-record.md](dense-evidence-record.md): curated benchmark
   evidence format for dense CUDA throughput changes.
 - [dense-bf16-cuda-training-report.md](dense-bf16-cuda-training-report.md):
@@ -27,6 +30,8 @@ This subtree is the canonical performance contract for `lkjai`.
   decoder forward-only CUDA primitive substrate evidence and non-claims.
 - [hardware-profiles.md](hardware-profiles.md): RTX 3070 acceptance gate and
   RTX 5090 benchmark profile.
+- [scale-profiles.md](scale-profiles.md): 1.5B-3B, 7B, and 14B-20B profile
+  planning without weakening the 3070 gate.
 - [profiling.md](profiling.md): Nsight and NVTX protocol for native work.
 - [kernel-plan.md](kernel-plan.md): vendor-library and native CUDA
   escalation order.

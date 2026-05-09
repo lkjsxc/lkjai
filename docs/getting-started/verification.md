@@ -31,8 +31,9 @@ canonical pass/fail gate.
 9. `lkjai-native-repo-check config-contract --repo /workspace`
 10. `lkjai-native-repo-check cuda-arch-contract --repo /workspace`
 11. `lkjai-native-repo-check line-limits --repo /workspace`
-12. `lkjai-native-repo-check no-node --repo /workspace`
-13. `lkjai-native-repo-check native-only --repo /workspace`
+12. `lkjai-native-repo-check stable-identifiers --repo /workspace`
+13. `lkjai-native-repo-check no-node --repo /workspace`
+14. `lkjai-native-repo-check native-only --repo /workspace`
 
 The native CTest set includes config-contract, CUDA architecture policy,
 native-only policy, root-page/content-type, capability-field,
