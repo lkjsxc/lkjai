@@ -14,6 +14,7 @@ bool transformer_report_accepted_decoder(const TransformerTrainReport& r) {
          r.forward_backend == "cuda_full_decoder" &&
          r.backward_backend == "cuda_full_decoder" &&
          r.decoder_backward_backend == "cuda_full_decoder" &&
+         r.non_embedding_weight_changed && r.decoder_block_weight_changed &&
          r.embedding_tying == "tok_embeddings:lm_head" &&
          r.kv_cache_backend == kDecoderAcceptedKvCacheBackend &&
          r.decode_backend == kDecoderAcceptedDecodeBackend;
@@ -42,6 +43,12 @@ std::vector<std::string> transformer_report_limitations(
   }
   if (r.decoder_backward_backend == "not_implemented") {
     out.push_back("decoder_backward_not_implemented");
+  }
+  if (r.model_kind == "decoder" && !r.decoder_block_weight_changed) {
+    out.push_back("decoder_block_weights_not_updated");
+  }
+  if (r.model_kind == "decoder" && r.decoder_cuda_slice != "full_decoder") {
+    out.push_back("decoder_block_optimizer_not_implemented");
   }
   if (r.kv_cache_backend == "none") out.push_back("kv_cache_not_implemented");
   if (!r.decode_supported) out.push_back("autoregressive_decode_unsupported");

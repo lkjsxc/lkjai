@@ -119,11 +119,14 @@ artifact inspection, and CUDA capability probing.
 - [train_main.cpp](train_main.cpp): scratch training entrypoint.
 - [train_data.cpp](train_data.cpp) and [train_data.hpp](train_data.hpp):
   JSONL corpus cursor and row extraction helpers.
+- [train_report_digest.cpp](train_report_digest.cpp) and
+  [train_report_digest.hpp](train_report_digest.hpp): shared report digest and
+  artifact checksum helpers.
 - [train_real.cpp](train_real.cpp) and [train_real.hpp](train_real.hpp):
   corpus-backed native training loop used by non-smoke runs.
 - [train_report.cpp](train_report.cpp), [train_report.hpp](train_report.hpp),
   [transformer_report.cpp](transformer_report.cpp), and
-  [transformer_report_io.cpp](transformer_report_io.cpp): stable train-report
+  [transformer_report_io.cpp](transformer_report_io.cpp): train-report
   JSON writers.
 - [transformer_report_acceptance.cpp](transformer_report_acceptance.cpp) and
   [transformer_report_acceptance.hpp](transformer_report_acceptance.hpp):

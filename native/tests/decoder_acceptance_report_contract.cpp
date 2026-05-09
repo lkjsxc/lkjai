@@ -1,5 +1,6 @@
-#include <iostream>
 #include <string>
+#include <algorithm>
+#include <iostream>
 
 #include "decoder_decode.hpp"
 #include "transformer_report_acceptance.hpp"
@@ -23,6 +24,8 @@ lkjai::TransformerTrainReport accepted_report() {
   r.backward_backend = "cuda_full_decoder";
   r.decoder_backward_backend = "cuda_full_decoder";
   r.attention_backend = "cuda_causal_gqa_bf16_reference";
+  r.non_embedding_weight_changed = true;
+  r.decoder_block_weight_changed = true;
   r.embedding_tying = "tok_embeddings:lm_head";
   r.kv_cache_backend = lkjai::kDecoderAcceptedKvCacheBackend;
   r.decode_backend = lkjai::kDecoderAcceptedDecodeBackend;
@@ -39,6 +42,9 @@ bool acceptance_contract() {
   partial.decoder_backward_backend = "not_implemented";
   partial.kv_cache_backend = "none";
   partial.decode_backend = lkjai::kDecoderPartialDecodeBackend;
+  partial.decoder_block_weight_changed = false;
+  auto head_only = r;
+  head_only.decoder_block_weight_changed = false;
   auto limits = lkjai::transformer_report_limitations(partial, false);
   return expect(lkjai::transformer_report_accepted_decoder(r),
                 "accepted decoder report") &&
@@ -46,6 +52,14 @@ bool acceptance_contract() {
                 "untied profile rejected") &&
          expect(!lkjai::transformer_report_accepted_decoder(partial),
                 "partial slice rejected") &&
+         expect(!lkjai::transformer_report_accepted_decoder(head_only),
+                "lm-head-only update rejected") &&
+         expect(std::find(limits.begin(), limits.end(),
+                          "decoder_block_weights_not_updated") != limits.end(),
+                "block weight limitation") &&
+         expect(std::find(limits.begin(), limits.end(),
+                          "decoder_block_optimizer_not_implemented") != limits.end(),
+                "block optimizer limitation") &&
          expect(!limits.empty(), "partial limitations present");
 }
 

@@ -147,6 +147,10 @@ int main() {
       !require_contains(json, "\"mlp_backend\":\"cuda_swiglu_partial\"") ||
       !require_contains(json,
                         "\"decoder_backward_backend\":\"not_implemented\"") ||
+      !require_contains(json, "\"decoder_block_weight_changed\":false") ||
+      !require_contains(json, "\"decoder_block_weights_not_updated\"") ||
+      !require_contains(json,
+                        "\"decoder_block_optimizer_not_implemented\"") ||
       !require_contains(json, "\"kv_cache_backend\":\"none\"") ||
       !require_contains(json,
                         "\"decode_backend\":\"host_reference_recompute\"")) {
@@ -161,6 +165,8 @@ int main() {
   report.attention_backend = "cuda_causal_gqa_bf16_reference";
   report.mlp_backend = "cuda_full_swiglu";
   report.decoder_backward_backend = "cuda_full_decoder";
+  report.non_embedding_weight_changed = true;
+  report.decoder_block_weight_changed = true;
   report.kv_cache_backend = lkjai::kDecoderAcceptedKvCacheBackend;
   report.decode_backend = lkjai::kDecoderAcceptedDecodeBackend;
   json = lkjai::transformer_train_report_json(report, lkjai::cuda_status(),

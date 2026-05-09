@@ -126,6 +126,15 @@ bool report_contract() {
                                                    "");
   return expect(json.find("\"accepted_cuda_training\":false") != std::string::npos,
                 "accepted flag") &&
+         expect(json.find("\"decoder_block_weight_changed\":false") !=
+                    std::string::npos,
+                "decoder block weight field") &&
+         expect(json.find("\"decoder_block_weights_not_updated\"") !=
+                    std::string::npos,
+                "decoder block weight limitation") &&
+         expect(json.find("\"decoder_block_optimizer_not_implemented\"") !=
+                    std::string::npos,
+                "decoder block optimizer limitation") &&
          expect(json.find("\"attention_not_implemented\"") != std::string::npos,
                 "attention limitation") &&
          expect(json.find("\"decode_backend\":\"host_reference_recompute\"") !=

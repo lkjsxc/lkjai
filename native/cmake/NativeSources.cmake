@@ -61,6 +61,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/runtime_config_status.cpp
   src/runtime_events.cpp
   src/train_data.cpp
+  src/train_report_digest.cpp
   src/train_real.cpp
   src/train_report.cpp
   src/training_config.cpp

@@ -70,6 +70,7 @@ struct TransformerTrainReport {
   double initial_loss = 0.0;
   double loss = 0.0;
   bool non_embedding_weight_changed = false;
+  bool decoder_block_weight_changed = false;
   bool trainable_weight_changed = false;
   bool logits_check_passed = false;
   std::string logits_check_json;
