@@ -35,6 +35,8 @@ State: canonical product chat surface contract.
   They return HTTP `422` unsupported decode with no `choices` field.
 - Native decoder artifacts are the same-model product target for successful
   chat `choices` responses.
+- Current decoder choices may be served by host-reference recompute with no
+  KV-cache backend; those responses are not accepted CUDA KV-cache decode.
 
 ## Default Safety Boundary
 

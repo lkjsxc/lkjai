@@ -18,6 +18,12 @@ This subtree is the canonical performance contract for `lkjai`.
   training, and serving measurement layers.
 - [benchmark-output.md](benchmark-output.md): JSON and CSV output shape for
   native benchmark tools.
+- [train-report-fields.md](train-report-fields.md): stable train report and
+  decoder report fields.
+- [benchmark-artifacts.md](benchmark-artifacts.md): generated JSON and CSV
+  output shapes.
+- [promotion-criteria.md](promotion-criteria.md): dense diagnostic,
+  accepted-training, speed-comparison, and decoder acceptance gates.
 - [evidence.md](evidence.md): required fields for accepted performance records.
 - [dense-evidence-record.md](dense-evidence-record.md): curated benchmark
   evidence format for dense CUDA throughput changes.
@@ -42,3 +48,11 @@ This subtree is the canonical performance contract for `lkjai`.
 
 Training speed is the first priority. Inference improvements are accepted when
 they share the same model/cache foundations or remove obvious decode waste.
+
+## Route By Owner
+
+- Report field changes: [train-report-fields.md](train-report-fields.md).
+- Benchmark-generated files: [benchmark-artifacts.md](benchmark-artifacts.md).
+- Promotion and rejection logic: [promotion-criteria.md](promotion-criteria.md).
+- Measurement protocol: [benchmarking.md](benchmarking.md).
+- Accepted evidence records: [evidence.md](evidence.md).

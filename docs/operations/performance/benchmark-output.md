@@ -1,241 +1,32 @@
 # Benchmark Output
 
-Native benchmark tools consume the stable native training report and write
-JSON/CSV summaries for aggregate comparison.
+Owner: `docs/operations/performance/benchmark-output.md`.
+State: canonical index for benchmark output contracts.
 
-## Train Report
+Native benchmark tools consume stable train reports and write generated JSON or
+CSV summaries for aggregate comparison. This page routes readers to the smaller
+field-shape owners instead of duplicating long lists.
 
-Each benchmark repeat copies:
+## Route By Task
 
-- `DATA_DIR/runs/train-report.json`
+- Stable native train report fields:
+  [train-report-fields.md](train-report-fields.md).
+- Generated benchmark JSON and CSV artifact shapes:
+  [benchmark-artifacts.md](benchmark-artifacts.md).
+- Dense diagnostics, accepted-training, and speed-comparison promotion gates:
+  [promotion-criteria.md](promotion-criteria.md).
 
-The report includes:
+## Status Rules
 
-- `schema`
-- `trainer_mode`
-- `run_purpose`
-- `status`
-- `model_kind`
-- `accepted_cuda_training`
-- `implementation_status`
-- `forward_backend`
-- `backward_backend`
-- `backward_gemm_enabled`
-- `embedding_grad_backend`
-- `dense_step_logits_bytes`
-- `dense_step_grad_logits_bytes`
-- `dense_step_d_hidden_bytes`
-- `dense_logits_readback_bytes`
-- `cublaslt_workspace_bytes`
-- `dense_autotune_enabled`
-- `dense_autotune_mode`
-- `dense_workspace_sweep_bytes`
-- `dense_cublaslt_logits_algo_id`
-- `dense_cublaslt_head_grad_algo_id`
-- `dense_cublaslt_hidden_grad_algo_id`
-- `dense_cublaslt_logits_workspace_bytes`
-- `dense_cublaslt_head_grad_workspace_bytes`
-- `dense_cublaslt_hidden_grad_workspace_bytes`
-- `dense_allocator_backend`
-- `dense_async_alloc_supported`
-- `dense_mempool_release_threshold_bytes`
-- `dense_workspace_high_water_bytes`
-- `dense_workspace_reallocations`
-- `dense_timing_mode`
-- `dense_head_f32_cache_enabled`
-- `dense_head_f32_cache_refreshes`
-- `loss_kernel_backend`
-- `loss_readback_mode`
-- `logits_readback_mode`
-- `dense_stream_count`
-- `dense_batch_slot_count`
-- `copy_compute_overlap_enabled`
-- `batch_staging_backend`
-- `optimizer_backend`
-- `cuda_probe_passed`
-- `precision_mode`
-- `master_dtype`
-- `shadow_dtype`
-- `accumulation_dtype`
-- `export_dtype`
-- `cuda_available`
-- `cuda_device_name`
-- `cuda_arch_flags`
-- `cuda_driver_version`
-- `cuda_device_count`
-- `cuda_device_index`
-- `cuda_total_global_memory`
-- `cuda_sm_count`
-- `git_commit`
-- `build_type`
-- `config_path`
-- `config_digest`
-- `dataset_path`
-- `dataset_digest`
-- transformer shape fields when `model_kind=transformer`: `layers`, `heads`,
-  `kv_heads`, `hidden_size`, `head_dim`, `ffn_size`, and `context`
-- `parameter_count`
-- `optimizer_steps`
-- `microsteps`
-- `tokens_seen`
-- `loss_tokens`
-- `initial_loss`
-- `loss`
-- `loss_finite`
-- `loss_samples`
-- `loss_sample_interval`
-- `best_loss`
-- `best_loss_step`
-- `loss_delta`
-- `loss_decrease_fraction`
-- `first_quarter_loss_mean`
-- `last_quarter_loss_mean`
-- `learning_status`
-- `timings`
-- `limitations`
-- `capability`
-- `checkpoint_checksum`
-- `export_checksum`
-- `logits_check_passed`
-- `logits_check`
+Successful train reports use top-level `status=success`. Nested checks,
+including `logits_check.status` and `reference_check`, continue to use `pass`
+or `fail`.
 
-Decoder reports also include `decoder_forward_probe`,
-`embedding_weight_changed`, `lm_head_weight_changed`,
-`non_embedding_weight_changed`, `decoder_block_weight_changed`,
-`decode_supported`, `kv_cache_backend`, and `decode_backend`.
+Dense accepted reports set `accepted_cuda_training=true`. Transformer and
+partial decoder reports are retained as diagnostics with
+`accepted_cuda_training=false` and are excluded from accepted CUDA promotion
+aggregates.
 
-`timings` includes `batch_load`, `h2d`, `forward`, `backward`, `optimizer`,
-`checkpoint`, and `export`. `capability` uses the reusable native capability
-JSON shape, including additive hardware/build fields. Dense `logits_check`
-validates exported BF16 weights and, for train runs, records FP32 checkpoint
-reference tolerance fields.
-
-Successful train reports use top-level `status=success`. Nested
-checks, including `logits_check.status` and `reference_check`, continue to use
-`pass` or `fail`.
-
-Dense accepted reports set `accepted_cuda_training=true`. Transformer reports
-are retained as experimental records with `accepted_cuda_training=false` and are
-excluded from accepted CUDA promotion aggregates.
-
-## Summary JSON
-
-Each summary includes:
-
-- `schema`
-- `trainer_mode`
-- `run_purpose`
-- `status`
-- `model_kind`
-- `accepted_cuda_training`
-- `implementation_status`
-- `optimizer_steps`
-- `microsteps`
-- `tokens_seen`
-- `loss_tokens`
-- `batch_size`
-- `seq_len`
-- `grad_accum`
-- `parameter_count`
-- `forward_backend`
-- `backward_backend`
-- `backward_gemm_enabled`
-- `embedding_grad_backend`
-- `dense_step_logits_bytes`
-- `dense_step_grad_logits_bytes`
-- `dense_step_d_hidden_bytes`
-- `dense_logits_readback_bytes`
-- `cublaslt_workspace_bytes`
-- `dense_autotune_enabled`
-- `dense_autotune_mode`
-- `dense_workspace_sweep_bytes`
-- `dense_allocator_backend`
-- `dense_workspace_high_water_bytes`
-- `dense_workspace_reallocations`
-- `dense_timing_mode`
-- `dense_head_f32_cache_enabled`
-- `dense_head_f32_cache_refreshes`
-- `loss_kernel_backend`
-- `loss_readback_mode`
-- `logits_readback_mode`
-- `dense_stream_count`
-- `dense_batch_slot_count`
-- `copy_compute_overlap_enabled`
-- `batch_staging_backend`
-- `optimizer_backend`
-- `cuda_device_name`
-- `initial_loss`
-- `loss`
-- `loss_samples`
-- `loss_sample_interval`
-- `best_loss`
-- `best_loss_step`
-- `loss_delta`
-- `loss_decrease_fraction`
-- `first_quarter_loss_mean`
-- `last_quarter_loss_mean`
-- `learning_status`
-- `median_tokens_per_second`
-- `median_step_seconds`
-- `mean_h2d_seconds`
-- `mean_forward_seconds`
-- `mean_backward_seconds`
-- `mean_optimizer_seconds`
-- `mean_checkpoint_seconds`
-- `mean_export_seconds`
-- `logits_checksum`
-- `checkpoint_checksum`
-- `export_checksum`
-- `logits_check_status`
-- `logits_reference_check`
-- `logits_max_abs_diff`
-- `logits_tolerance`
-
-## Promotion Summary
-
-Dense debug promotions also write
-`artifacts/benchmarks/<run-id>/promotion-summary.json`. It records promotion
-status, device/backend, batch/sequence/hidden/vocab shape, parameter count,
-loss, throughput, elapsed time, H2D and phase timing fractions, artifact
-checksums, logits reference-check results, and resume-check results.
-
-Compatibility-only 40M start checks write
-`artifacts/benchmarks/<run-id>/dense_40m_diag_4/repeat-01/diagnostic-summary.json`
-with `promotion_status=diagnostic_only` and
-`run_purpose=bounded_diagnostic_start_check`.
-
-Controlled dense learning runs write
-`artifacts/benchmarks/<run-id>/dense_learning_control_1024/repeat-01/learning-summary.json`
-and `benchmark-summary.json`. They include the exact Docker train command,
-train report capability fields, loss trend evidence, tokens/loss-token counts,
-batch/sequence/gradient/checkpoint settings, throughput/timings, checkpoint,
-export, logits, inspect, and repeated inference checksums, plus exact learning
-or promotion rejection reasons when the run is not promotable.
-
-Accepted dense training runs write
-`artifacts/benchmarks/<run-id>/dense_accepted_training_1024/repeat-01/accepted-training-summary.json`
-and `benchmark-summary.json`, with matching copies in
-`data/perf-runs/<run-id>/dense_accepted_training_1024/repeat-01/`. They include
-`report_kind=accepted_training`, the selected learning rate, exact train
-command, Docker image, cache metadata, token accounting, loss samples, timings,
-throughput, checkpoint/export/logits/packed-cache checksums, inspect output,
-BF16 export/reference logits-check output, repeated inference outputs, promotion
-status, and exact rejection reasons.
-
-Dense speed comparisons use matched pre-change and post-change reports. Compare
-`timings.backward`, `tokens_per_second`, `config_digest`, `batch_size`,
-`seq_len`, `grad_accum`, and `cuda_arch_flags`; accept a dense speed slice only
-when correctness gates pass and backward time improves or throughput is not
-more than 5 percent worse.
-
-Accepted-training promotion requires `run_purpose=accepted_training`,
-`status=success`, at least 1024 optimizer steps, at least 8 finite loss samples,
-`learning_status=learning`, `loss_decrease_fraction >= 0.10`, last-quarter
-sampled mean below first-quarter sampled mean, valid `tokens_seen` and
-`loss_tokens`, cache row count at least 32, source/tokenizer/config digests,
-packed checksum, checkpoint/export/logits checksums, BF16 reference check pass
-at tolerance `0.01`, two passing dense inference checks with matching checksums,
-positive throughput, and required dense timing/backend metadata.
-
-CSV summaries use the same stable names for columns that fit flat tabular
-output. Nested capability fields are flattened with a `capability_` prefix.
+Decoder reports may show `decode_backend=host_reference_recompute` and
+`kv_cache_backend=none` while still producing route `choices`. That is partial
+serving usability, not accepted CUDA KV-cache decode evidence.

@@ -68,7 +68,7 @@
   [repository/workflow.md](repository/workflow.md).
 - Adding report fields: [architecture/native/training.md](architecture/native/training.md),
   [architecture/native/contract-inventory.md](architecture/native/contract-inventory.md),
-  [operations/performance/benchmark-output.md](operations/performance/benchmark-output.md),
+  [operations/performance/train-report-fields.md](operations/performance/train-report-fields.md),
   [operations/performance/benchmarking.md](operations/performance/benchmarking.md).
 
 ## Contract Owner Index
@@ -85,5 +85,10 @@
   [architecture/training/provenance.md](architecture/training/provenance.md).
 - Benchmark evidence: [operations/performance/benchmarking.md](operations/performance/benchmarking.md)
   and [operations/performance/evidence.md](operations/performance/evidence.md).
+- Benchmark output fields and artifacts:
+  [operations/performance/benchmark-output.md](operations/performance/benchmark-output.md),
+  [operations/performance/train-report-fields.md](operations/performance/train-report-fields.md),
+  [operations/performance/benchmark-artifacts.md](operations/performance/benchmark-artifacts.md),
+  [operations/performance/promotion-criteria.md](operations/performance/promotion-criteria.md).
 - Compose and verification: [operations/compose.md](operations/compose.md),
   [operations/quality.md](operations/quality.md).

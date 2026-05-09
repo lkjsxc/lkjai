@@ -62,12 +62,13 @@ the `/api/*` runtime routes from one native process.
 | Artifact kind | `/v1/chat/completions` result | Product role |
 |---|---|---|
 | `dense` | HTTP `422`, no `choices` | BF16 training and logits diagnostics. |
-| `decoder` | `choices` only when tokenizer and decode are available | Chat-capable product target. |
+| `decoder` | `choices` when tokenizer and host-reference decode are available | Chat-capable product target. |
 | `transformer` | HTTP `422`, no `choices` | Reference plumbing only. |
 
 Accepted decoder chat requires `decode_backend=cuda_kv_cache` and
-`kv_cache_backend=cuda_contiguous_bf16`. Host-reference decoder choices remain
-diagnostic until those fields are present.
+`kv_cache_backend=cuda_contiguous_bf16`. Host-reference decoder choices use
+`host_reference_recompute` with `kv_cache_backend=none`; they remain partial
+route behavior until the accepted fields are present.
 
 The exact `/v1/*` route names exist only for OpenAI-compatible clients. Local
 runtime routes stay under unnumbered `/api/*` names.

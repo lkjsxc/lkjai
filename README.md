@@ -6,16 +6,20 @@ OpenAI-compatible endpoint, and run the agent API, tools, memory, summaries,
 tokenizer, cache builder, benchmarks, and verification through native C++.
 
 Treat [docs/README.md](docs/README.md) as the only active canon for behavior,
-architecture, operations, and repository policy.
+architecture, operations, and repository policy. Route by contract owner and
+task instead of reading the tree linearly.
 
 ## Start Here
 
 - Canon root: [docs/README.md](docs/README.md)
+- Current state and claim limits: [docs/current-state.md](docs/current-state.md)
 - Quickstart: [docs/getting-started/quickstart.md](docs/getting-started/quickstart.md)
 - Verification: [docs/getting-started/verification.md](docs/getting-started/verification.md)
 - Compose contract: [docs/operations/compose.md](docs/operations/compose.md)
 - Scratch training contract: [docs/operations/training/long-run.md](docs/operations/training/long-run.md)
 - Competency gate: [docs/operations/training/competency-gate.md](docs/operations/training/competency-gate.md)
+- Decoder acceptance: [docs/architecture/native/decoder/training.md](docs/architecture/native/decoder/training.md)
+- Benchmark output: [docs/operations/performance/benchmark-output.md](docs/operations/performance/benchmark-output.md)
 
 ## Current Shape
 
