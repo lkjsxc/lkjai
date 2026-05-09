@@ -17,6 +17,19 @@ embeddings and the LM head.
 - Acceptance tests must prove a non-embedding block weight changes on a tiny
   deterministic batch.
 
+## Implementation Order
+
+1. Introduce a decoder CUDA state that owns FP32 master weights, gradients,
+   AdamW moments, BF16 shadows, activation buffers, and cuBLASLt workspace for
+   decoder-shaped tensors.
+2. Keep embedding and LM-head training on the proven dense substrate until the
+   decoder state can produce matching loss and logits checks.
+3. Add projection and MLP backward first because those tensors are already
+   present in the forward substrate and are easiest to verify with deterministic
+   tiny shapes.
+4. Add attention and RMSNorm backward after projection parity tests are stable.
+5. Promote reports only after all trainable tensors have update evidence.
+
 ## Current Status
 
 The partial CUDA slice trains embeddings and the LM head only. Reports must keep

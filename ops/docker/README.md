@@ -8,7 +8,8 @@ Dockerfiles define reproducible containers for each execution mode.
 
 - [Dockerfile.native](Dockerfile.native): native inference, runtime, train, and
   utility image.
-- [Dockerfile.native](Dockerfile.native): native train and inference image.
+- [Dockerfile.corpus](Dockerfile.corpus): isolated public corpus acquisition
+  image.
 - [Dockerfile.verify](Dockerfile.verify): combined verification image.
 
 ## Rules

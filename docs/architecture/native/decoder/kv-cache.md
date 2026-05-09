@@ -15,6 +15,16 @@ autoregressive generation.
 - Accepted reports use `kv_cache_backend=cuda_contiguous_bf16` and
   `decode_backend=cuda_kv_cache`.
 
+## Implementation Shape
+
+- The cache layout is layer-major, then batch, KV head, position, and head dim.
+- K and V tensors share one native allocation range with byte offsets derived
+  from the tested layout helper.
+- Prefill may reuse decoder forward buffers, but steady-state decode must reuse
+  cache and workspace allocations across output tokens.
+- The serving response may expose accepted backend names only after CUDA write,
+  append, and read behavior is covered by CTest and route contracts.
+
 ## Current Status
 
 The current decoder bridge recomputes the host reference each token and reports

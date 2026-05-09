@@ -69,6 +69,9 @@ Accepted decoder chat requires `decode_backend=cuda_kv_cache` and
 `kv_cache_backend=cuda_contiguous_bf16`. Host-reference decoder choices remain
 diagnostic until those fields are present.
 
+The exact `/v1/*` route names exist only for OpenAI-compatible clients. Local
+runtime routes stay under unnumbered `/api/*` names.
+
 ## `GET /api/model` Response
 
 ```json

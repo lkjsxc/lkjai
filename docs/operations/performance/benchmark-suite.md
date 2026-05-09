@@ -32,3 +32,21 @@ A faster result is not accepted unless it preserves:
 - CUTLASS and custom kernels need before/after evidence and retained tests.
 - TensorRT-family engines are inference-only comparisons after native decode is
   accepted.
+
+## Decoder Acceptance Measurements
+
+Accepted decoder evidence must include these fields in the train or serving
+report before any performance claim is treated as product evidence:
+
+- `implementation_status=accepted`
+- `accepted_cuda_training=true`
+- `decoder_backward_backend` naming the CUDA block backward path
+- `optimizer_backend` naming FP32 AdamW coverage for every trainable tensor
+- `kv_cache_backend=cuda_contiguous_bf16`
+- `decode_backend=cuda_kv_cache`
+- `workspace_high_water_bytes`
+- exact config path, packed-cache digest, artifact checksum, and command
+
+Partial paths must keep explicit diagnostic names. A report that trains only
+embeddings and the LM head is dense-substrate evidence, not accepted decoder
+training evidence.

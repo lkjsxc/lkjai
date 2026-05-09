@@ -24,6 +24,26 @@ gate.
 Profiles guide design and benchmarking. They do not become accepted defaults by
 size alone.
 
+## Research Synthesis
+
+The latest deep research pass reinforces the existing order: finish the local
+decoder contract before chasing larger profile sizes. The report's useful
+distinction is operational:
+
+- `40M` on RTX 3070 is the acceptance lane because it keeps correctness,
+  reports, export, and serving reproducible on the local gate.
+- `1.5B-3B` is the first practical large profile after acceptance because it
+  can fit a single 80GB-class card with careful activation and optimizer memory
+  discipline.
+- `7B` requires tensor parallelism or linked multi-GPU training before it is a
+  responsible training target.
+- `14B-20B` is profile-only until distributed execution, checkpointing, and
+  communication timing are already stable at smaller scale.
+
+Do not let a successful larger run weaken the local gate. Larger profile
+evidence adds confidence only when the same report fields and API contracts are
+preserved.
+
 ## Memory Rule
 
 Use this planning estimate for native BF16 training with FP32 optimizer state:

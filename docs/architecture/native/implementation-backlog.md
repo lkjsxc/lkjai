@@ -57,6 +57,22 @@ contiguous BF16 KV-cache decode, native runtime chat, accepted report fields,
 and two-hour RTX 3070 evidence. cuDNN SDPA and NCCL stay after single-GPU
 correctness and profiling.
 
+## Research-Informed Order
+
+The latest research report agrees with the repo canon: dense BF16 CUDA is the
+foundation, but chat-capable product value depends on completing decoder
+training and decode. Keep this order:
+
+1. Wire the existing decoder forward substrate into the actual training path
+   without changing acceptance fields.
+2. Add block-tensor backward and FP32 AdamW state until at least one
+   deterministic CTest proves a non-embedding block weight changes.
+3. Promote the report only after all decoder trainable tensors have optimizer
+   coverage and checkpoint/export/logits checks pass.
+4. Replace host-reference recompute serving with contiguous BF16 KV-cache
+   decode and disclose the accepted backend names in responses.
+5. Add large profiles only after the 40M RTX 3070 lane is accepted.
+
 See [decoder/README.md](decoder/README.md) for the same-model chat path. See
 [transformer-cuda-plan.md](transformer-cuda-plan.md) for the retained
 experimental transformer path and current unsupported decode contract.
