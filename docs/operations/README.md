@@ -15,6 +15,7 @@ performance, and quality gates.
 ## Child Index
 
 - [compose.md](compose.md): Docker Compose profile contract and defaults
+- [gpu-docker.md](gpu-docker.md): WSL2 NVIDIA Container Toolkit setup
 - [training/README.md](training/README.md): real training runbooks and competency gates
 - [performance/README.md](performance/README.md): benchmark and kernel rules
 - [quality.md](quality.md): verification gates and acceptance boundary

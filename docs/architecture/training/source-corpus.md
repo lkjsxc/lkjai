@@ -58,9 +58,8 @@ metadata, or validated generated corpus shards with explicit provenance.
 
 Public pretraining sources tagged `public_pretrain_dataset` are active recipes.
 Raw data is staged locally under `TRAIN_PUBLIC_DATA_DIR`; generated large shards
-stay ignored under `data/public-corpus/`. Native download and prepare CLI
-entrypoints are target work, so public-pretrain preparation is not a current
-verification gate.
+stay ignored under `data/public-corpus/`. Download and preparation run only in
+the dedicated `corpus` Compose profile.
 
 Cosmopedia download page:
 `https://huggingface.co/datasets/HuggingFaceTB/cosmopedia`
@@ -72,10 +71,12 @@ data/raw/cosmopedia/          # user-downloaded Hugging Face snapshot
 data/public-corpus/           # generated ignored train/val/holdout shards
 ```
 
-The intended future materialization path is native training tooling:
+Materialize the public pretraining corpus:
 
 ```bash
-docker compose --profile train up --build train
+docker compose --profile corpus run --build --rm corpus download-public-pretrain
+docker compose --profile corpus run --rm corpus prepare-public-pretrain
+docker compose --profile corpus run --rm corpus validate-public-pretrain
 ```
 
 To activate a public source:

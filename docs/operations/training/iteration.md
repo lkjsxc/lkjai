@@ -19,12 +19,12 @@ behavioral reports.
 - New baseline target: `500000000` public English pretraining tokens plus
   `60000000` first-party XML-action SFT tokens.
 
-Public-pretrain materialization is target work until native CLI entrypoints
-exist. The intended future commands are:
+Public-pretrain materialization is owned by the isolated `corpus` profile:
 
 ```bash
-docker compose --profile train run --rm train download-public-pretrain
-docker compose --profile train run --rm train prepare-public-pretrain
+docker compose --profile corpus run --build --rm corpus download-public-pretrain
+docker compose --profile corpus run --rm corpus prepare-public-pretrain
+docker compose --profile corpus run --rm corpus validate-public-pretrain
 ```
 
 ## Iteration Command

@@ -138,22 +138,20 @@ data/raw/cosmopedia/
 The active public source is the Apache-2.0 Cosmopedia Hugging Face dataset:
 `https://huggingface.co/datasets/HuggingFaceTB/cosmopedia`
 
-Native support for these public-pretrain commands is target work. Until the
-train image exposes real `download-public-pretrain` and
-`prepare-public-pretrain` entrypoints, treat the commands below as the intended
-operator contract, not an implemented verification gate:
+Public acquisition is isolated in the `corpus` Compose profile so Hugging Face
+CLI, Python, and Arrow dependencies stay out of native train, serving,
+verification, and benchmark images:
 
 ```bash
-HF_TOKEN=<hugging-face-token-if-needed> \
-docker compose --profile train run --rm train download-public-pretrain
-
-TRAIN_PUBLIC_DATA_DIR=/app/data/raw/cosmopedia \
-TRAIN_CORPUS_DIR=/app/data/public-corpus \
-docker compose --profile train run --rm train prepare-public-pretrain
+docker compose --profile corpus run --build --rm corpus download-public-pretrain
+docker compose --profile corpus run --rm corpus prepare-public-pretrain
+docker compose --profile corpus run --rm corpus validate-public-pretrain
 ```
 
-The future `manifest.json` records schema, row counts, split counts, token
-counts, selected fields, source budgets, checksums, and source/license
+`HF_TOKEN` or `HF_TOKEN_FILE` can override the default read-only private token
+mount. The acquisition code must not print token values or write them to
+manifests. `manifest.json` records schema, row counts, split counts, token
+estimates, selected fields, source budgets, checksums, and source/license
 distribution.
 
 ## Rejection Patterns

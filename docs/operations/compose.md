@@ -9,6 +9,7 @@ State: canonical Compose profile, mount, port, and verification contract.
 - `web`: merged native server with `/api/*` runtime routes and `/v1/*`
   inference routes.
 - `train`: native scratch training container.
+- `corpus`: isolated public corpus acquisition and JSONL preparation container.
 - `verify`: repository verification container.
 
 ## Data Mount
@@ -29,6 +30,13 @@ State: canonical Compose profile, mount, port, and verification contract.
 - Training writes datasets, tokenizer, checkpoints, exports, and logs under
   `/app/data/train`.
 - Training mounts committed configs at `/workspace/configs`.
+- Corpus acquisition writes raw public snapshots under
+  `/app/data/raw/cosmopedia` and prepared JSONL under
+  `/app/data/public-corpus`.
+- Corpus acquisition mounts the private Hugging Face secret markdown read-only
+  by default and may be overridden with `HF_TOKEN` or `HF_TOKEN_FILE`.
+- Hugging Face CLI, Python, and Arrow dependencies are allowed only in the
+  `corpus` image, not in `train`, `web`, `inference`, or `verify`.
 - Web writes transcripts and memory under `/app/data/agent`.
 - Web uses `/app/data/workspace` as the only filesystem root for tools.
 - Web must not mount the host root.
@@ -55,6 +63,7 @@ mkdir -p data/models/lkjai-scratch-40m data/train data/agent data/workspace
 docker compose --profile inference up --build inference
 docker compose --profile web up --build web
 docker compose --profile train up --build train
+docker compose --profile corpus run --build --rm corpus download-public-pretrain
 docker compose --progress quiet --profile verify run --build --rm verify
 ```
 
@@ -77,6 +86,22 @@ docker compose --progress quiet --profile verify run --build --rm verify
 - Long native training must save `lkjai-native-artifact` under `data/models`.
 - The `verify` service requires NVIDIA GPU access and builds native code with
   the real CUDA compiler.
+
+## Corpus Defaults
+
+- The `corpus` service owns Hugging Face acquisition and public-pretrain JSONL
+  materialization.
+- `download-public-pretrain` reads `corpus/sources/public-pretrain.json`, calls
+  the Hugging Face parquet API for active Cosmopedia train files, and downloads
+  them under `TRAIN_PUBLIC_DATA_DIR`.
+- `prepare-public-pretrain` emits text-only `train`, `val`, and `holdout` JSONL
+  shards under `TRAIN_CORPUS_DIR` until `TRAIN_PUBLIC_PRETRAIN_TOKENS`.
+- `validate-public-pretrain` checks manifests and generated rows for text-only
+  provenance, pinned source revisions, checksums, and split counts.
+- `build-public-pretrain-cache` runs the native `lkjai-native-packed-cache`
+  binary on `TRAIN_PACKED_CACHE_SOURCE`, defaulting to the first train shard.
+  It requires `TRAIN_TOKENIZER_JSON` to point at the local byte-level BPE
+  tokenizer; smoke/export tokenizers are not valid public cache inputs.
 
 ## Presets
 
