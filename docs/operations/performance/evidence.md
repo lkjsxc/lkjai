@@ -1,9 +1,16 @@
 # Evidence Records
 
+Owner: `docs/operations/performance/evidence.md`.
+State: evidence record pattern.
+
 ## Purpose
 
 Every accepted performance checkpoint needs enough context for another LLM
 agent to reproduce or challenge it.
+
+Evidence records are dated observations. Active contracts stay in
+[../../architecture/native/contract-inventory.md](../../architecture/native/contract-inventory.md),
+[benchmarking.md](benchmarking.md), and the relevant architecture docs.
 
 ## Required Fields
 
@@ -25,3 +32,10 @@ agent to reproduce or challenge it.
   changing the RTX 3070 gate.
 - Inference acceleration evidence records optional backend comparisons after
   native decode acceptance.
+
+## Package Pattern
+
+Tracked evidence pages summarize durable claims and link to the owning active
+contract. Generated benchmark manifests and repeated run outputs stay under
+ignored `artifacts/` paths with exact command, config, digest, hardware, and
+report fields.

@@ -96,6 +96,8 @@ Each contract record uses these fields:
 - acceptance: one RTX 3070 8GB run reports
   `implementation_status=accepted`, `accepted_cuda_training=true`,
   `decoder_cuda_slice=full_decoder`,
+  `decode_supported=true`, `logits_check_passed=true`, finite loss,
+  `steps > 0`, `loss_tokens > 0`, `trainable_weight_changed=true`,
   `decoder_block_weight_changed=true`,
   `decoder_backward_backend=cuda_full_decoder`,
   `kv_cache_backend=cuda_contiguous_bf16`, and

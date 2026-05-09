@@ -1,5 +1,8 @@
 # Scale Profiles
 
+Owner: `docs/operations/performance/scale-profiles.md`.
+State: profile evidence contract.
+
 ## Purpose
 
 Keep large-model planning explicit without weakening the RTX 3070 acceptance
@@ -68,7 +71,16 @@ BF16 inference weights are about `2` bytes per parameter plus KV cache.
 ## Ordering
 
 1. Finish accepted single-GPU 40M decoder.
-2. Add large-profile configs and benchmark output fields.
-3. Add tensor parallelism and activation checkpointing.
-4. Add NCCL collectives after single-GPU numerics are stable.
-5. Evaluate TensorRT-family inference only after native KV-cache decode works.
+2. Add memory-accounted large-profile configs and benchmark output fields.
+3. Add dataset lineage reports for every large-profile packed cache.
+4. Add tensor parallelism.
+5. Add activation checkpointing.
+6. Add pipeline staging.
+7. Add communication overlap.
+8. Add optimizer sharding after the prior distributed contracts are measurable.
+9. Evaluate TensorRT-family inference only after native KV-cache decode works.
+
+Large-profile evidence must keep `profile-only` status in the narrative until
+the active acceptance contract linked from
+[../../architecture/native/decoder/training.md](../../architecture/native/decoder/training.md)
+passes for the local lane.

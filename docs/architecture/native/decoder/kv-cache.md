@@ -1,5 +1,8 @@
 # Decoder KV Cache
 
+Owner: `docs/architecture/native/decoder/kv-cache.md`.
+State: future acceptance contract.
+
 ## Acceptance Target
 
 Accepted decode uses a native-owned contiguous BF16 KV cache for incremental
@@ -14,6 +17,10 @@ autoregressive generation.
 - Reports and responses name the backend, cache dtype, and unsupported modes.
 - Accepted reports use `kv_cache_backend=cuda_contiguous_bf16` and
   `decode_backend=cuda_kv_cache`.
+- Decode reports must include cache allocation accounting and prove zero
+  steady-state device allocations per generated token.
+- Stop-token behavior must be tested before host-reference recompute decode can
+  be replaced in route evidence.
 
 ## Implementation Shape
 

@@ -15,7 +15,15 @@ Product training, serving, runtime, verification, and benchmark paths remain
 native C++/CUDA. Python is limited to corpus acquisition and other non-product
 preparation work.
 
-## Decoder Status
+## Status Table
+
+| Lane | State | Accepted Evidence | Blocked Capability |
+|---|---|---|---|
+| `dense` | accepted foundation | BF16 CUDA train, checkpoint/export, logits checks, packed-cache IO | chat-capable decoder blocks and KV-cache decode |
+| `decoder` | product target, partial CUDA | tied artifacts, tokenizer copy, embedding/LM-head CUDA train, forward-substrate probe | full block backward, block optimizer state, accepted decode |
+| `transformer` | diagnostic lane | host/reference checks and probe reports | not an accepted training or serving target |
+
+## Decoder Limits
 
 The `decoder` model kind is the product target, but the current CUDA training
 slice is partial:
@@ -33,17 +41,17 @@ CUDA parity coverage, but their weights are not trained by the current slice.
 Host-reference recompute decode is partial usability only. It may produce
 decoder `choices`, but it is not accepted CUDA KV-cache serving evidence.
 
-## Quality Limits
+## Do Not Claim
 
-Current reports must not claim accepted decoder CUDA training. LM-head-only
-updates are insufficient for decoder acceptance. Accepted decoder reports must
-prove real block-weight updates, full block backward, FP32 optimizer coverage
-for every trainable decoder tensor, export/logits/server checks, and native
-KV-cache decode.
+- Partial decoder CUDA is not accepted decoder CUDA training.
+- Tied embedding or LM-head updates are not decoder block training.
+- `host_reference_recompute` decode is not accepted CUDA KV-cache serving.
+- Larger GPU profile results do not relax the RTX 3070 acceptance lane.
 
-Large-model profiles remain planning and benchmark evidence until the local
-decoder acceptance lane passes. A larger GPU result cannot relax the RTX 3070
-gate by itself.
+Accepted decoder reports must prove real block-weight updates, full block
+backward, FP32 optimizer coverage for every trainable decoder tensor,
+export/logits/server checks, finite loss, passing logits checks, positive
+steps and loss-token counts, native KV-cache decode, and supported decode.
 
 ## Next Target
 
@@ -58,7 +66,23 @@ The next product acceptance target is the tied 40M decoder on RTX 3070:
   `kv_cache_backend=cuda_contiguous_bf16`, and
   `decode_backend=cuda_kv_cache`
 
+The two-hour RTX 3070 target is the acceptance lane documented by the training
+config. Code should validate truth fields and config shape, not treat
+`target_seconds > 0` as a promotion shortcut.
+
+## Research Synthesis
+
 The latest deep research report under `tmp/deep-research-report (42).md`
 supports this order: keep the dense substrate accepted, tighten partial
 decoder reporting, finish the 40M RTX 3070 decoder gate first, then add
 1.5B-3B and larger profile evidence.
+
+Durable conclusions now owned by docs:
+
+- Distributed training order: tensor parallelism, activation checkpointing,
+  pipeline staging, communication overlap, then optimizer sharding.
+- Large-profile gates: memory accounting, dataset lineage, and profile-only
+  status until the local decoder lane passes.
+- KV-cache decode gates: allocation accounting and stop-token behavior.
+- Evidence package pattern: dated tracked evidence page plus generated
+  benchmark manifest under ignored `artifacts/`.

@@ -43,27 +43,47 @@
 - [research/README.md](research/README.md): external references that inform the canon.
 - [decisions/README.md](decisions/README.md): accepted and rejected choices.
 
-## Recommended Reading Order
+## Task Routes
 
-1. [vision/purpose.md](vision/purpose.md)
-2. [current-state.md](current-state.md)
-3. [repository/workflow.md](repository/workflow.md)
-4. [architecture/native/dense-substrate.md](architecture/native/dense-substrate.md)
-5. [architecture/native/decoder/README.md](architecture/native/decoder/README.md)
-6. [architecture/native/decoder/training.md](architecture/native/decoder/training.md)
-7. [research/native-decoder-plan.md](research/native-decoder-plan.md)
-8. [operations/performance/scale-profiles.md](operations/performance/scale-profiles.md)
-9. [operations/performance/benchmarking.md](operations/performance/benchmarking.md)
-10. [architecture/training/corpus.md](architecture/training/corpus.md)
-11. [architecture/training/pipeline.md](architecture/training/pipeline.md)
-12. [architecture/training/tokenizer.md](architecture/training/tokenizer.md)
-13. [operations/training/agent-assessment.md](operations/training/agent-assessment.md)
-14. [architecture/training/source-corpus.md](architecture/training/source-corpus.md)
-15. [architecture/model/config.md](architecture/model/config.md)
-16. [architecture/native/strategy.md](architecture/native/strategy.md)
-17. [architecture/native/cuda-stack.md](architecture/native/cuda-stack.md)
-18. [architecture/native/implementation-backlog.md](architecture/native/implementation-backlog.md)
-19. [operations/performance/hardware-profiles.md](operations/performance/hardware-profiles.md)
-20. [architecture/model/serving.md](architecture/model/serving.md)
-21. [product/kjxlkj-integration.md](product/kjxlkj-integration.md)
-22. [operations/training/competency-gate.md](operations/training/competency-gate.md)
+- Decoder training: [current-state.md](current-state.md),
+  [architecture/native/decoder/README.md](architecture/native/decoder/README.md),
+  [architecture/native/decoder/training.md](architecture/native/decoder/training.md),
+  [architecture/native/decoder/config.md](architecture/native/decoder/config.md),
+  [operations/performance/scale-profiles.md](operations/performance/scale-profiles.md).
+- Runtime and API: [architecture/native/runtime.md](architecture/native/runtime.md),
+  [architecture/runtime/inference.md](architecture/runtime/inference.md),
+  [product/api.md](product/api.md), [product/chat.md](product/chat.md),
+  [product/kjxlkj-integration.md](product/kjxlkj-integration.md).
+- Corpus and tokenizer: [architecture/training/corpus.md](architecture/training/corpus.md),
+  [architecture/training/source-corpus.md](architecture/training/source-corpus.md),
+  [architecture/training/pipeline.md](architecture/training/pipeline.md),
+  [architecture/training/tokenizer.md](architecture/training/tokenizer.md).
+- Performance evidence: [operations/performance/benchmarking.md](operations/performance/benchmarking.md),
+  [operations/performance/evidence.md](operations/performance/evidence.md),
+  [operations/performance/hardware-profiles.md](operations/performance/hardware-profiles.md),
+  [operations/performance/benchmark-output.md](operations/performance/benchmark-output.md).
+- Verification: [getting-started/verification.md](getting-started/verification.md),
+  [operations/quality.md](operations/quality.md),
+  [operations/compose.md](operations/compose.md),
+  [repository/workflow.md](repository/workflow.md).
+- Adding report fields: [architecture/native/training.md](architecture/native/training.md),
+  [architecture/native/contract-inventory.md](architecture/native/contract-inventory.md),
+  [operations/performance/benchmark-output.md](operations/performance/benchmark-output.md),
+  [operations/performance/benchmarking.md](operations/performance/benchmarking.md).
+
+## Contract Owner Index
+
+- Current state and claim limits: [current-state.md](current-state.md).
+- Native contract inventory: [architecture/native/contract-inventory.md](architecture/native/contract-inventory.md).
+- Decoder acceptance: [architecture/native/decoder/training.md](architecture/native/decoder/training.md).
+- Decoder config shape: [architecture/native/decoder/config.md](architecture/native/decoder/config.md).
+- Decoder KV-cache decode: [architecture/native/decoder/kv-cache.md](architecture/native/decoder/kv-cache.md).
+- Train reports: [architecture/native/training.md](architecture/native/training.md).
+- Packed cache and dataset lineage:
+  [architecture/training/packed-cache.md](architecture/training/packed-cache.md),
+  [architecture/training/dataset.md](architecture/training/dataset.md),
+  [architecture/training/provenance.md](architecture/training/provenance.md).
+- Benchmark evidence: [operations/performance/benchmarking.md](operations/performance/benchmarking.md)
+  and [operations/performance/evidence.md](operations/performance/evidence.md).
+- Compose and verification: [operations/compose.md](operations/compose.md),
+  [operations/quality.md](operations/quality.md).

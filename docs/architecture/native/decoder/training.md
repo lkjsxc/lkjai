@@ -68,7 +68,11 @@ Decoder reports use stable schema with additive fields:
 - `decoder_block_backend`
 - `decoder_block_forward_in_training`
 - `decoder_block_forward_steps`
+- `decoder_forward_probe`
+- `embedding_weight_changed`
+- `lm_head_weight_changed`
 - `decoder_block_weight_changed`
+- `non_embedding_weight_changed`
 - `rmsnorm_backend`
 - `rope_backend`
 - `qkv_projection_backend`
@@ -90,11 +94,16 @@ Decoder reports use stable schema with additive fields:
 
 Reports are accepted only when `accepted_cuda_training=true`,
 `implementation_status=accepted`, `decoder_cuda_slice=full_decoder`, CUDA
-forward/backward/attention backends are present, finite loss and nonzero
-non-embedding weight change are proven, `decoder_block_weight_changed=true`,
-checkpoint/export/logits/server checks pass, tied embedding alias metadata is
-present, and the documented benchmark gate passes. LM-head-only updates do not
-satisfy decoder block-training acceptance.
+forward/backward/attention backends are present, `decode_supported=true`,
+`logits_check_passed=true`, finite loss, `steps > 0`, `loss_tokens > 0`,
+`trainable_weight_changed=true`, nonzero non-embedding block/final-norm weight
+change, `decoder_block_weight_changed=true`, checkpoint/export/logits/server
+checks pass, tied embedding alias metadata is present, accepted KV-cache and
+decode backend names are reported, and the documented benchmark gate passes.
+LM-head-only updates do not satisfy decoder block-training acceptance.
+
+The two-hour RTX 3070 run is the acceptance lane. Code must not promote a
+report solely because `target_seconds > 0`.
 
 ## Current Status
 
@@ -118,7 +127,9 @@ The current forward-substrate batch keeps acceptance unchanged while reporting
 
 The slice now also executes one real decoder block forward on the first training
 batch and reports `decoder_block_forward_in_training=true` with the executed
-step count. Training reports remain partial until full forward, backward,
-optimizer coverage, block-weight updates, and KV-cache decode are wired into
-the trainer. Foundation server contract and embedding/head CUDA training are
-not accepted full decoder training.
+step count. Reports include a compact `decoder_forward_probe` object with
+coverage booleans, probe shape, finite-output status, and workspace bytes.
+Training reports remain partial until full forward, backward, optimizer
+coverage, block-weight updates, and KV-cache decode are wired into the trainer.
+Foundation server contract and embedding/head CUDA training are not accepted
+full decoder training.
