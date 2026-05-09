@@ -42,6 +42,7 @@ bool text_file(const std::filesystem::path& path) {
   auto ext = path.extension().string();
   return ext == ".md" || ext == ".sh" || ext == ".yml" || ext == ".yaml" ||
          ext == ".cmake" || ext == ".json" || ext == ".txt" ||
+         ext == ".cpp" || ext == ".hpp" || ext == ".cu" || ext == ".cuh" ||
          path.filename() == "CMakeLists.txt";
 }
 

@@ -17,6 +17,14 @@
 #endif
 namespace lkjai {
 namespace {
+void append_weight_part(std::ostringstream* out,
+                        const DecoderWeightChangePart& part) {
+  *out << "{\"max_abs_delta\":" << part.max_abs_delta
+       << ",\"changed_elements\":"
+       << static_cast<unsigned long long>(part.changed_elements)
+       << ",\"changed_tensors\":" << part.changed_tensors << "}";
+}
+
 void append_transformer(std::ostringstream* out, const TransformerTrainReport& report,
                         const CudaStatus& cuda, const std::string& trainer_mode,
                         const std::string& status, const std::string& failure_reason) {
@@ -144,6 +152,16 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
        << ",\"lm_head_weight_changed\":" << (report.lm_head_weight_changed ? "true" : "false")
        << ",\"non_embedding_weight_changed\":" << (report.non_embedding_weight_changed ? "true" : "false")
        << ",\"decoder_block_weight_changed\":" << (report.decoder_block_weight_changed ? "true" : "false")
+       << ",\"decoder_weight_change\":{\"embedding\":";
+  append_weight_part(out, report.decoder_weight_change.embedding);
+  *out << ",\"lm_head\":";
+  append_weight_part(out, report.decoder_weight_change.lm_head);
+  *out << ",\"non_embedding\":";
+  append_weight_part(out, report.decoder_weight_change.non_embedding);
+  *out << ",\"decoder_block\":";
+  append_weight_part(out, report.decoder_weight_change.decoder_block);
+  *out << ",\"changed_tensors\":"
+       << report.decoder_weight_change.changed_tensors << "}"
        << ",\"elapsed_ms\":" << report.elapsed_seconds * 1000.0
        << ",\"elapsed_seconds\":" << report.elapsed_seconds
        << ",\"tokens_per_second\":" << tokens_per_second

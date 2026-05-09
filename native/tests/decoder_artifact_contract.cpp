@@ -120,6 +120,9 @@ bool report_contract() {
   r.embedding_weight_changed = true;
   r.lm_head_weight_changed = true;
   r.trainable_weight_changed = true;
+  r.decoder_weight_change.embedding = {0.1, 2, 1};
+  r.decoder_weight_change.lm_head = {0.2, 2, 1};
+  r.decoder_weight_change.changed_tensors = 2;
   r.logits_check_passed = true;
   r.config_path = root / "export" / "config.json";
   r.checkpoint_dir = root / "checkpoint";
@@ -142,6 +145,14 @@ bool report_contract() {
          expect(json.find("\"non_embedding_weight_changed\":false") !=
                     std::string::npos,
                 "partial non embedding weight field") &&
+         expect(json.find("\"decoder_weight_change\"") != std::string::npos,
+                "decoder quantitative weight object") &&
+         expect(json.find("\"non_embedding\":{\"max_abs_delta\":0") !=
+                    std::string::npos,
+                "partial non embedding quantitative zero") &&
+         expect(json.find("\"decoder_block\":{\"max_abs_delta\":0") !=
+                    std::string::npos,
+                "partial decoder block quantitative zero") &&
          expect(json.find("\"logits_check_passed\":true") != std::string::npos,
                 "logits check passed field") &&
          expect(json.find("\"decoder_forward_probe\"") != std::string::npos,

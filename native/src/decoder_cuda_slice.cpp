@@ -167,11 +167,7 @@ bool run_decoder_cuda_slice_training(const TransformerTrainOptions& opt,
   }
   if (!report->deadline_hit) report->stop_reason = "max_steps";
   auto host = cuda.copy_to_host();
-  report->embedding_weight_changed = dense_max_abs_diff(before_emb, host.emb) > 0.0;
-  report->lm_head_weight_changed = dense_max_abs_diff(before_head, host.head) > 0.0;
-  report->trainable_weight_changed =
-      report->embedding_weight_changed || report->lm_head_weight_changed;
-  report->non_embedding_weight_changed = false;
+  decoder_record_partial_weight_change(before_emb, before_head, host, report);
   decoder_copy_dense_back(host, &state);
   auto phase = std::chrono::steady_clock::now();
   if (!decoder_write_all(effective, state, report, seq_len)) {

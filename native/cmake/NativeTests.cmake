@@ -14,10 +14,20 @@ add_test(NAME native_no_node
   COMMAND lkjai-native-repo-check no-node --repo ${LKJAI_REPO_ROOT})
 add_test(NAME native_native_only
   COMMAND lkjai-native-repo-check native-only --repo ${LKJAI_REPO_ROOT})
+add_test(
+  NAME native_native_only_source_scan
+  COMMAND sh ${LKJAI_REPO_ROOT}/native/tests/native_only_source_scan.sh
+    $<TARGET_FILE:lkjai-native-repo-check>
+)
 add_test(NAME native_stable_identifiers
   COMMAND lkjai-native-repo-check stable-identifiers --repo ${LKJAI_REPO_ROOT})
 add_test(NAME native_config_contract
   COMMAND lkjai-native-repo-check config-contract --repo ${LKJAI_REPO_ROOT})
+add_test(
+  NAME native_config_contract_negatives
+  COMMAND sh ${LKJAI_REPO_ROOT}/native/tests/config_contract_negatives.sh
+    $<TARGET_FILE:lkjai-native-repo-check>
+)
 add_test(NAME native_cuda_arch_contract
   COMMAND lkjai-native-repo-check cuda-arch-contract --repo ${LKJAI_REPO_ROOT})
 
@@ -57,6 +67,8 @@ add_test(NAME native_decoder_kv_cache_contract
 add_test(NAME native_runtime_contract COMMAND lkjai-native-runtime-contract)
 add_test(NAME native_server_route_contract
   COMMAND lkjai-native-server-route-contract)
+add_test(NAME native_decoder_route_contract
+  COMMAND lkjai-native-decoder-route-contract)
 add_test(NAME native_decoder_acceptance_report_contract
   COMMAND lkjai-native-decoder-acceptance-report-contract)
 add_test(NAME native_status_page_contract
@@ -72,4 +84,9 @@ set_tests_properties(native_decoder_cuda_block_forward_substrate PROPERTIES
 add_test(
   NAME native_smoke_export
   COMMAND sh -c "rm -rf /tmp/lkjai-native-ctest && DATA_DIR=/tmp/lkjai-native-ctest MODEL_NAME=smoke ./lkjai-native-train --smoke --steps 2 && ./lkjai-native-inspect --model-dir /tmp/lkjai-native-ctest/exports/smoke && ./lkjai-native-logits-check --model-dir /tmp/lkjai-native-ctest/exports/smoke --tokens 1,2,3"
+)
+add_test(
+  NAME native_decoder_cli_smoke
+  COMMAND sh ${LKJAI_REPO_ROOT}/native/tests/decoder_cli_smoke.sh
+    $<TARGET_FILE:lkjai-native-train>
 )

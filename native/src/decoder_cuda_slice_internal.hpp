@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "dense_cuda_internal.hpp"
 #include "transformer_state.hpp"
 
@@ -25,5 +27,9 @@ void decoder_set_forward_probe(const DecoderCudaForwardSubstrateReport& probe,
                                TransformerTrainReport* report);
 void decoder_fill_cuda_slice_report(DenseCudaState& cuda,
                                     TransformerTrainReport* report);
+void decoder_record_partial_weight_change(const std::vector<float>& before_emb,
+                                          const std::vector<float>& before_head,
+                                          const DenseTrainState& after,
+                                          TransformerTrainReport* report);
 
 }  // namespace lkjai

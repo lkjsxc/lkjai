@@ -102,6 +102,13 @@ target_link_libraries(lkjai-native-server-route-contract PRIVATE
   lkjai_native_core
 )
 
+add_executable(lkjai-native-decoder-route-contract
+  tests/decoder_route_contract.cpp
+)
+target_link_libraries(lkjai-native-decoder-route-contract PRIVATE
+  lkjai_native_core
+)
+
 add_executable(lkjai-native-decoder-acceptance-report-contract
   tests/decoder_acceptance_report_contract.cpp
 )

@@ -46,6 +46,10 @@ bool load_dense_config(const std::filesystem::path& path, DenseConfig* config,
     *error = "native dense config has invalid tensor dimensions";
     return false;
   }
+  if (config->head_dim % 8 != 0) {
+    *error = "head_dim must be a multiple of 8";
+    return false;
+  }
   if (config->heads * config->head_dim != config->hidden_size) {
     *error = "heads * head_dim must equal hidden_size";
     return false;

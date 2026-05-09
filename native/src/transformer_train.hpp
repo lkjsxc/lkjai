@@ -68,6 +68,20 @@ struct DecoderForwardProbeReport {
   uint64_t workspace_bytes = 0;
 };
 
+struct DecoderWeightChangePart {
+  double max_abs_delta = 0.0;
+  uint64_t changed_elements = 0;
+  int changed_tensors = 0;
+};
+
+struct DecoderWeightChangeReport {
+  DecoderWeightChangePart embedding;
+  DecoderWeightChangePart lm_head;
+  DecoderWeightChangePart non_embedding;
+  DecoderWeightChangePart decoder_block;
+  int changed_tensors = 0;
+};
+
 struct TransformerTrainReport {
   int steps = 0;
   int start_step = 0;
@@ -136,6 +150,7 @@ struct TransformerTrainReport {
   bool decoder_block_forward_in_training = false;
   int decoder_block_forward_steps = 0;
   DecoderForwardProbeReport decoder_forward_probe;
+  DecoderWeightChangeReport decoder_weight_change;
   bool decode_supported = false;
   std::string embedding_tying = "none";
   int trainable_tensor_count = 0;

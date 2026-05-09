@@ -24,6 +24,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/decoder_cuda_slice_block.cpp
   src/decoder_cuda_slice.cpp
   src/decoder_cuda_slice_util.cpp
+  src/decoder_weight_change.cpp
   src/dense_checkpoint.cpp
   src/dense_cuda.cu
   src/dense_cuda_common.cpp

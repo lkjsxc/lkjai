@@ -1,9 +1,12 @@
 #include <string>
 #include <algorithm>
 #include <cmath>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 
 #include "decoder_decode.hpp"
+#include "train_report.hpp"
 #include "transformer_report_acceptance.hpp"
 
 namespace {
@@ -28,7 +31,15 @@ lkjai::TransformerTrainReport accepted_report() {
   r.non_embedding_weight_changed = true;
   r.decoder_block_weight_changed = true;
   r.trainable_weight_changed = true;
+  r.decoder_weight_change.embedding = {0.1, 2, 1};
+  r.decoder_weight_change.lm_head = {0.1, 2, 1};
+  r.decoder_weight_change.non_embedding = {0.2, 2, 1};
+  r.decoder_weight_change.decoder_block = {0.3, 2, 1};
+  r.decoder_weight_change.changed_tensors = 4;
   r.logits_check_passed = true;
+  r.logits_check_json =
+      "{\"status\":\"pass\",\"validation_target\":\"exported_bf16_weights\","
+      "\"checksum\":\"abc\"}";
   r.loss = 1.0;
   r.steps = 1;
   r.loss_tokens = 1;
@@ -50,8 +61,10 @@ bool acceptance_contract() {
   partial.decode_backend = lkjai::kDecoderPartialDecodeBackend;
   partial.decoder_block_weight_changed = false;
   partial.non_embedding_weight_changed = false;
+  partial.target_seconds = 7200;
   auto head_only = r;
   head_only.decoder_block_weight_changed = false;
+  head_only.decoder_weight_change.decoder_block = {};
   auto no_decode = r;
   no_decode.decode_supported = false;
   auto bad_logits = r;
@@ -64,6 +77,8 @@ bool acceptance_contract() {
   no_tokens.loss_tokens = 0;
   auto no_weight = r;
   no_weight.trainable_weight_changed = false;
+  auto no_quant = r;
+  no_quant.decoder_weight_change.decoder_block = {};
   auto limits = lkjai::transformer_report_limitations(partial, false);
   return expect(lkjai::transformer_report_accepted_decoder(r),
                 "accepted decoder report") &&
@@ -85,6 +100,8 @@ bool acceptance_contract() {
                 "zero loss tokens rejected") &&
          expect(!lkjai::transformer_report_accepted_decoder(no_weight),
                 "missing trainable weight change rejected") &&
+         expect(!lkjai::transformer_report_accepted_decoder(no_quant),
+                "missing quantitative block delta rejected") &&
          expect(std::find(limits.begin(), limits.end(),
                           "decoder_block_weights_not_updated") != limits.end(),
                 "block weight limitation") &&
@@ -101,8 +118,48 @@ bool cudnn_attention_contract() {
                 "cudnn accepted attention");
 }
 
+bool emitted_evidence_contract() {
+  auto root = std::filesystem::temp_directory_path() / "lkjai-decoder-evidence";
+  std::filesystem::remove_all(root);
+  for (auto name : {"checkpoint", "export", "served"}) {
+    std::filesystem::create_directories(root / name);
+    std::ofstream(root / name / "manifest.json")
+        << "{\"format\":\"lkjai-native-artifact\",\"weights_checksum\":\"x\"}";
+  }
+  auto r = accepted_report();
+  r.checkpoint_dir = root / "checkpoint";
+  r.export_dir = root / "export";
+  r.served_dir = root / "served";
+  auto report = root / "train-report.json";
+  lkjai::CudaStatus cuda;
+  std::ofstream(report) << lkjai::transformer_train_report_json(
+      r, cuda, "train", "success", "");
+  std::string error;
+  bool ok = expect(lkjai::transformer_emitted_decoder_evidence_accepted(
+                       report, &error),
+                   error);
+  std::filesystem::remove(root / "served" / "manifest.json");
+  ok = ok && expect(!lkjai::transformer_emitted_decoder_evidence_accepted(
+                        report, &error),
+                    "missing served artifact evidence rejected");
+  auto no_logits = r;
+  no_logits.logits_check_passed = false;
+  no_logits.logits_check_json =
+      "{\"status\":\"fail\",\"validation_target\":\"exported_bf16_weights\","
+      "\"checksum\":\"\"}";
+  std::ofstream(report) << lkjai::transformer_train_report_json(
+      no_logits, cuda, "train", "success", "");
+  ok = ok && expect(!lkjai::transformer_emitted_decoder_evidence_accepted(
+                        report, &error),
+                    "missing logits pass rejected");
+  return ok;
+}
+
 }  // namespace
 
 int main() {
-  return acceptance_contract() && cudnn_attention_contract() ? 0 : 1;
+  return acceptance_contract() && cudnn_attention_contract() &&
+                 emitted_evidence_contract()
+             ? 0
+             : 1;
 }

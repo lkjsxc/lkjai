@@ -175,6 +175,9 @@ int main() {
   report.non_embedding_weight_changed = true;
   report.decoder_block_weight_changed = true;
   report.trainable_weight_changed = true;
+  report.decoder_weight_change.non_embedding = {0.1, 1, 1};
+  report.decoder_weight_change.decoder_block = {0.1, 1, 1};
+  report.decoder_weight_change.changed_tensors = 2;
   report.logits_check_passed = true;
   report.decode_supported = true;
   report.loss = 1.0;
