@@ -74,6 +74,7 @@ must say:
 - `attention_backend=cuda_causal_gqa_bf16_reference`
 - `mlp_backend=cuda_swiglu_partial`
 - `decoder_backward_backend=not_implemented`
+- `decoder_block_weight_changed=false`
 - `kv_cache_backend=none`
 - `decode_backend=host_reference_recompute`
 
@@ -84,8 +85,8 @@ lands.
 
 Before acceptance, the repo still needs this forward substrate wired into the
 trainer as full decoder forward, full block backward, optimizer coverage for
-block tensors, contiguous BF16 KV-cache decode, no per-token device
-allocations, and a real two-hour RTX acceptance run.
+block tensors, real block-weight updates, contiguous BF16 KV-cache decode, no
+per-token device allocations, and a real two-hour RTX acceptance run.
 
 ## Hardware Implications
 

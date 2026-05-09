@@ -71,12 +71,13 @@ source evidence, not canonical docs.
   RMSNorm, BF16, tied embeddings.
 - Accepted report fields must include `implementation_status=accepted`,
   `accepted_cuda_training=true`, `decoder_cuda_slice=full_decoder`,
+  `decoder_block_weight_changed=true`,
   `decoder_backward_backend=cuda_full_decoder`,
   `kv_cache_backend=cuda_contiguous_bf16`, and `decode_backend=cuda_kv_cache`.
-- Accepted evidence must prove finite loss, nonzero non-embedding weight
-  changes, checkpoint/resume/export/logits checks, native server chat `choices`,
-  exact command/config paths, git commit, GPU, driver, CUDA, cuDNN, attention
-  backend, GEMM backend, workspace sizes, and timing breakdowns.
+- Accepted evidence must prove finite loss, nonzero decoder block-weight
+  changes, checkpoint/resume/export/logits checks, native server chat
+  `choices`, exact command/config paths, git commit, GPU, driver, CUDA, cuDNN,
+  attention backend, GEMM backend, workspace sizes, and timing breakdowns.
 
 ## Non-Claims
 

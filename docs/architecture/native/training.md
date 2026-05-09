@@ -173,8 +173,10 @@ grad-logits, hidden-gradient, and cuBLASLt workspace byte counts as additive
 stable-schema fields. Dense logits checks compare BF16 exports against FP32
 checkpoint masters when a reference checkpoint is available.
 
-Decoder reports declare `model_kind=decoder` and use additive stable-schema fields
-from [decoder/training.md](decoder/training.md).
+Decoder reports declare `model_kind=decoder` and use additive fields from
+[decoder/training.md](decoder/training.md), including
+`decoder_block_weight_changed` so LM-head-only updates cannot satisfy decoder
+block-training acceptance.
 
 Transformer reports declare `accepted_cuda_training=false`,
 `implementation_status=experimental`, `transformer_status=experimental`,

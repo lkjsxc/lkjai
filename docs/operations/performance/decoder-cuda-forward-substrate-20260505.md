@@ -36,6 +36,7 @@ This is not accepted full decoder CUDA training. It does not provide:
 - cuDNN SDPA performance attention,
 - decoder block backward,
 - full optimizer coverage for block tensors,
+- block-weight updates,
 - KV-cache decode,
 - 40M decoder acceptance.
 
@@ -50,6 +51,7 @@ Decoder reports remain `accepted_cuda_training=false` and emit:
 - `attention_backend=cuda_causal_gqa_bf16_reference`
 - `mlp_backend=cuda_swiglu_partial`
 - `decoder_backward_backend=not_implemented`
+- `decoder_block_weight_changed=false`
 - `kv_cache_backend=none`
 - `decode_backend=host_reference_recompute`
 

@@ -32,7 +32,8 @@ Use this subtree for the chat-capable native `decoder` model kind.
 
 The current decoder implementation exports real decoder artifacts with the
 repo byte-level BPE tokenizer and can serve decoder chat choices through the
-native tokenizer bridge. Host-reference decode applies RoPE and omits learned
-position embeddings. It still reports partial CUDA training because attention,
-full block backward, block optimizer coverage, and KV-cache decode are not
-complete.
+native tokenizer bridge. Host-reference recompute decode is partial usability
+only: it applies RoPE and omits learned position embeddings, but it is not
+accepted CUDA KV-cache serving. Training still reports partial CUDA because
+block weights are not updated, full block backward is absent, block optimizer
+coverage is absent, and KV-cache decode is not complete.

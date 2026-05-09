@@ -32,6 +32,8 @@
 ## Top-Level Sections
 
 - [vision/README.md](vision/README.md): product intent and LLM-first rules.
+- [current-state.md](current-state.md): accepted dense substrate, partial
+  decoder limits, and the next decoder target.
 - [getting-started/README.md](getting-started/README.md): setup, run, verify.
 - [product/README.md](product/README.md): chat, tools, and API behavior.
 - [architecture/README.md](architecture/README.md): agent, runtime, model, training.
@@ -44,22 +46,24 @@
 ## Recommended Reading Order
 
 1. [vision/purpose.md](vision/purpose.md)
-2. [repository/workflow.md](repository/workflow.md)
-3. [architecture/training/corpus.md](architecture/training/corpus.md)
-4. [architecture/training/pipeline.md](architecture/training/pipeline.md)
-5. [architecture/training/tokenizer.md](architecture/training/tokenizer.md)
-6. [operations/training/agent-assessment.md](operations/training/agent-assessment.md)
-7. [architecture/training/source-corpus.md](architecture/training/source-corpus.md)
-8. [architecture/model/config.md](architecture/model/config.md)
-9. [architecture/native/strategy.md](architecture/native/strategy.md)
-10. [architecture/native/cuda-stack.md](architecture/native/cuda-stack.md)
-11. [architecture/native/implementation-backlog.md](architecture/native/implementation-backlog.md)
-12. [architecture/native/decoder/README.md](architecture/native/decoder/README.md)
-13. [research/native-decoder-plan.md](research/native-decoder-plan.md)
-14. [architecture/native/transformer-cuda-plan.md](architecture/native/transformer-cuda-plan.md)
-15. [operations/performance/hardware-profiles.md](operations/performance/hardware-profiles.md)
-16. [operations/performance/scale-profiles.md](operations/performance/scale-profiles.md)
-17. [operations/performance/benchmark-suite.md](operations/performance/benchmark-suite.md)
-18. [architecture/model/serving.md](architecture/model/serving.md)
-19. [product/kjxlkj-integration.md](product/kjxlkj-integration.md)
-20. [operations/training/competency-gate.md](operations/training/competency-gate.md)
+2. [current-state.md](current-state.md)
+3. [repository/workflow.md](repository/workflow.md)
+4. [architecture/native/dense-substrate.md](architecture/native/dense-substrate.md)
+5. [architecture/native/decoder/README.md](architecture/native/decoder/README.md)
+6. [architecture/native/decoder/training.md](architecture/native/decoder/training.md)
+7. [research/native-decoder-plan.md](research/native-decoder-plan.md)
+8. [operations/performance/scale-profiles.md](operations/performance/scale-profiles.md)
+9. [operations/performance/benchmarking.md](operations/performance/benchmarking.md)
+10. [architecture/training/corpus.md](architecture/training/corpus.md)
+11. [architecture/training/pipeline.md](architecture/training/pipeline.md)
+12. [architecture/training/tokenizer.md](architecture/training/tokenizer.md)
+13. [operations/training/agent-assessment.md](operations/training/agent-assessment.md)
+14. [architecture/training/source-corpus.md](architecture/training/source-corpus.md)
+15. [architecture/model/config.md](architecture/model/config.md)
+16. [architecture/native/strategy.md](architecture/native/strategy.md)
+17. [architecture/native/cuda-stack.md](architecture/native/cuda-stack.md)
+18. [architecture/native/implementation-backlog.md](architecture/native/implementation-backlog.md)
+19. [operations/performance/hardware-profiles.md](operations/performance/hardware-profiles.md)
+20. [architecture/model/serving.md](architecture/model/serving.md)
+21. [product/kjxlkj-integration.md](product/kjxlkj-integration.md)
+22. [operations/training/competency-gate.md](operations/training/competency-gate.md)

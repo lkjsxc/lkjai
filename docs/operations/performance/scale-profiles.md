@@ -19,7 +19,7 @@ gate.
 |---|---|---|---|
 | 1.5B-3B dense decoder | First practical large profile | Accepted 40M decoder | Train and serve reports on one 80GB-class GPU or equivalent |
 | 7B dense decoder | Multi-GPU profile | Tensor-parallel and checkpointing contracts | Scaling, loss, memory, and decode evidence on 2-4 linked GPUs |
-| 14B-20B dense decoder | Upper profile | Stable 7B evidence | Distributed training report, communication timing, and cost notes |
+| 14B-20B dense decoder | Upper profile | Verified 7B evidence | Distributed training report, communication timing, and cost notes |
 
 Profiles guide design and benchmarking. They do not become accepted defaults by
 size alone.

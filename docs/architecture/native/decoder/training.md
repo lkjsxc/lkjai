@@ -28,7 +28,8 @@ decoder forward-substrate probe now runs first and covers RMSNorm, RoPE,
 Q/K/V/O projections, causal GQA attention, attention residual, MLP RMSNorm,
 SwiGLU, down projection, and final residual on deterministic tensors. It must
 not be described as accepted full decoder CUDA training because block backward,
-block optimizer state, and KV-cache decode are still absent.
+block optimizer state, block-weight updates, and KV-cache decode are still
+absent.
 
 ## Public Invocation
 
@@ -67,6 +68,7 @@ Decoder reports use stable schema with additive fields:
 - `decoder_block_backend`
 - `decoder_block_forward_in_training`
 - `decoder_block_forward_steps`
+- `decoder_block_weight_changed`
 - `rmsnorm_backend`
 - `rope_backend`
 - `qkv_projection_backend`
@@ -89,9 +91,10 @@ Decoder reports use stable schema with additive fields:
 Reports are accepted only when `accepted_cuda_training=true`,
 `implementation_status=accepted`, `decoder_cuda_slice=full_decoder`, CUDA
 forward/backward/attention backends are present, finite loss and nonzero
-non-embedding weight change are proven, checkpoint/export/logits/server checks
-pass, tied embedding alias metadata is present, and the documented benchmark
-gate passes.
+non-embedding weight change are proven, `decoder_block_weight_changed=true`,
+checkpoint/export/logits/server checks pass, tied embedding alias metadata is
+present, and the documented benchmark gate passes. LM-head-only updates do not
+satisfy decoder block-training acceptance.
 
 ## Current Status
 
@@ -116,6 +119,6 @@ The current forward-substrate batch keeps acceptance unchanged while reporting
 The slice now also executes one real decoder block forward on the first training
 batch and reports `decoder_block_forward_in_training=true` with the executed
 step count. Training reports remain partial until full forward, backward,
-optimizer coverage, and KV-cache decode are wired into the trainer. Foundation
-server contract and embedding/head CUDA training are not accepted full decoder
-training.
+optimizer coverage, block-weight updates, and KV-cache decode are wired into
+the trainer. Foundation server contract and embedding/head CUDA training are
+not accepted full decoder training.
