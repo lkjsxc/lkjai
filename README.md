@@ -23,7 +23,7 @@ task instead of reading the tree linearly.
 
 ## Current Shape
 
-- Compose profiles: `inference`, `web`, `train`, `verify`.
+- Compose profiles: `inference`, `web`, `train`, `corpus`, `verify`.
 - `web` runs the native C++ agent API runtime.
 - `inference` loads native artifacts. Dense and transformer exports return
   explicit unsupported chat decode. Decoder exports may return choices through
@@ -45,8 +45,8 @@ task instead of reading the tree linearly.
 - Canonical XML-like prompt and action tags are single tokenizer tokens.
 - `TRAIN_MAX_STEPS` means optimizer steps; summaries separately report
   microsteps, optimizer steps, input tokens, and loss-bearing tokens.
-- Optional synthetic corpus artifacts remain under `corpus/`; generation tools
-  are not part of the active product train or serve path.
+- `corpus` is isolated for public corpus acquisition and validation; product
+  train, serve, and verify paths remain native.
 
 ## Rule
 

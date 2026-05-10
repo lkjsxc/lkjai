@@ -20,25 +20,20 @@ preparation work.
 | Lane | State | Accepted Evidence | Blocked Capability |
 |---|---|---|---|
 | `dense` | accepted foundation | BF16 CUDA train, checkpoint/export, logits checks, packed-cache IO | chat-capable decoder blocks and KV-cache decode |
-| `decoder` | product target, partial CUDA | tied artifacts, tokenizer copy, embedding/LM-head CUDA train, forward-substrate probe | full block backward, block optimizer state, accepted decode |
+| `decoder` | accepted CUDA target | tied artifacts, tokenizer copy, full-decoder CUDA report contract, contiguous BF16 KV-cache decode | two-hour RTX 3070 promoted-run evidence |
 | `transformer` | diagnostic lane | host/reference checks and probe reports | not an accepted training or serving target |
 
 ## Decoder Limits
 
-The `decoder` model kind is the product target, but the current CUDA training
-slice is partial:
+The `decoder` model kind is the product target. Accepted reports must use:
 
-- `implementation_status=partial_cuda`
-- `decoder_cuda_slice=embedding_lm_head`
-- `decoder_backward_backend=not_implemented`
-- `kv_cache_backend=none`
+- `implementation_status=accepted`
+- `decoder_cuda_slice=full_decoder`
+- `decoder_backward_backend=cuda_full_decoder`
+- `kv_cache_backend=cuda_contiguous_bf16`
+- `decode_backend=cuda_kv_cache`
 
-The slice trains embeddings and the LM head through the dense CUDA substrate.
-The decoder block path is forward-only evidence: RMSNorm, RoPE, Q/K/V/O
-projections, causal GQA attention, residuals, SwiGLU, and down projection have
-CUDA parity coverage, but their weights are not trained by the current slice.
-
-Host-reference recompute decode is partial usability only. It may produce
+Partial reports remain non-claims. Host-reference recompute decode may produce
 decoder `choices`, but it is not accepted CUDA KV-cache serving evidence.
 
 ## Do Not Claim
@@ -72,10 +67,10 @@ config. Code should validate truth fields and config shape, not treat
 
 ## Research Synthesis
 
-The latest deep research report under `tmp/deep-research-report (42).md`
-supports this order: keep the dense substrate accepted, tighten partial
-decoder reporting, finish the 40M RTX 3070 decoder gate first, then add
-1.5B-3B and larger profile evidence.
+The latest deep research report under `tmp/deep-research-report (48).md`
+supports this order: keep the dense substrate as a harness, ship the tied 40M
+RTX 3070 decoder target, finish contiguous BF16 KV-cache decode, and only then
+broaden performance, frontend, and multi-GPU work.
 
 Durable conclusions now owned by docs:
 
@@ -86,3 +81,7 @@ Durable conclusions now owned by docs:
 - KV-cache decode gates: allocation accounting and stop-token behavior.
 - Evidence package pattern: dated tracked evidence page plus generated
   benchmark manifest under ignored `artifacts/`.
+- Kimi SFT flow: generate into quarantine, validate schema/provenance/replay,
+  then promote only passing shards into `corpus/generated/kimi-sft-60m`.
+- Promoted-run bundle: include train report, metrics, plots, GPU capability,
+  Nsight reports, config, tokenizer digest, dataset manifest, and transcript.

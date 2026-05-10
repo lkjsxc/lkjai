@@ -53,22 +53,20 @@ use unnumbered route names.
 This is the implemented foundation response shape. `assistant` is populated
 only when the model endpoint returns OpenAI-compatible `choices` content.
 Current native dense and transformer artifacts return unsupported decode from
-`/v1/chat/completions`, so real product chat quality gates remain blocked until
-accepted decoder decode lands. The target implementation serves this route and
-the `/api/*` runtime routes from one native process.
+`/v1/chat/completions`. Decoder artifacts are the chat-capable product path and
+serve this route plus the `/api/*` runtime routes from one native process.
 
 ## Decode Capability Matrix
 
 | Artifact kind | `/v1/chat/completions` result | Product role |
 |---|---|---|
 | `dense` | HTTP `422`, no `choices` | BF16 training and logits diagnostics. |
-| `decoder` | `choices` when tokenizer and host-reference decode are available | Chat-capable product target. |
+| `decoder` | `choices` with accepted CUDA KV-cache backend names | Chat-capable product target. |
 | `transformer` | HTTP `422`, no `choices` | Reference plumbing only. |
 
-Accepted decoder chat requires `decode_backend=cuda_kv_cache` and
-`kv_cache_backend=cuda_contiguous_bf16`. Host-reference decoder choices use
-`host_reference_recompute` with `kv_cache_backend=none`; they remain partial
-route behavior until the accepted fields are present.
+Accepted decoder chat requires `decode_backend=cuda_kv_cache`,
+`kv_cache_backend=cuda_contiguous_bf16`, and KV allocation accounting in the
+response.
 
 The exact `/v1/*` route names exist only for OpenAI-compatible clients. Local
 runtime routes stay under unnumbered `/api/*` names.

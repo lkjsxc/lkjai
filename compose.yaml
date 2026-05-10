@@ -142,7 +142,7 @@ services:
       - ./data:/app/data
       - ./corpus:/workspace/corpus:ro
       - ./configs:/workspace/configs:ro
-      - ${HF_SECRET_FILE:-/home/lkjsxc/workspace/private/archived/security/secrets/passwords/legacy-passwords.md}:/run/secrets/hf_token_source:ro
+      - ${HF_SECRET_FILE:-./data/secrets/hf_token}:/run/secrets/hf_token_source:ro
 
   verify:
     profiles: ["verify"]

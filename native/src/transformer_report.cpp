@@ -108,6 +108,10 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
        << "\",\"cublaslt_workspace_bytes\":" << static_cast<unsigned long long>(report.cublaslt_workspace_bytes)
        << ",\"workspace_high_water_bytes\":" << static_cast<unsigned long long>(report.workspace_high_water_bytes)
        << ",\"workspace_reallocations\":" << report.workspace_reallocations
+       << ",\"kv_cache_prefill_allocated_bytes\":"
+       << static_cast<unsigned long long>(report.kv_cache_prefill_allocated_bytes)
+       << ",\"kv_cache_steady_state_token_allocations\":"
+       << report.kv_cache_steady_state_token_allocations
        << ",\"transformer_cuda_probe\":true"
        << ",\"cuda_available\":" << (cuda.available ? "true" : "false")
        << ",\"cuda_device_name\":\"" << json_escape(cuda.device) << "\""

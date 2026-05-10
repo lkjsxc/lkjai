@@ -1,7 +1,7 @@
 # Decoder Decode
 
 Owner: `docs/architecture/native/decoder/decode.md`.
-State: partial until `decode_backend=cuda_kv_cache`.
+State: accepted when `decode_backend=cuda_kv_cache`.
 
 ## API
 
@@ -18,6 +18,8 @@ artifacts:
 - `choices[0].lkjai_stop_reason`
 - `choices[0].lkjai_decode_backend`
 - `choices[0].lkjai_kv_cache_backend`
+- `choices[0].lkjai_kv_prefill_allocated_bytes`
+- `choices[0].lkjai_kv_steady_state_token_allocations`
 - `usage.prompt_tokens`
 - `usage.completion_tokens`
 - `usage.total_tokens`
@@ -25,16 +27,9 @@ artifacts:
 Dense and transformer artifacts continue to return HTTP `422` unsupported
 decode with no `choices`.
 
-Current decoder artifacts return `lkjai_decode_backend=host_reference_recompute`
-and `lkjai_kv_cache_backend=none`. Those fields are deliberately visible so
-partial decoder serving is not confused with accepted KV-cache decode.
-Training reports mirror this with `decode_backend=host_reference_recompute` and
-`kv_cache_backend=none`; the new CUDA forward-substrate probe does not change
-decode behavior.
-
-Host-reference decode recomputes the full prompt each token. It uses decoder
-token embeddings, RMSNorm, RoPE on Q/K, causal GQA attention, SwiGLU, final
-norm, and LM head. It must not add learned `pos_embeddings`.
+Accepted decoder artifacts return `lkjai_decode_backend=cuda_kv_cache` and
+`lkjai_kv_cache_backend=cuda_contiguous_bf16`. Reports and route responses also
+disclose positive prefill allocation and zero steady-state per-token allocation.
 
 ## Prompt And Tokenizer
 
@@ -70,8 +65,6 @@ HTTP `400` with no `choices`.
 - Prefill consumes the prompt up to the configured context.
 - Incremental decode appends one token at a time.
 - Accepted decode uses a native-owned contiguous BF16 KV cache.
-- The current decoder bridge recomputes the host/reference forward path and
-  reports `lkjai_kv_cache_backend=none`.
 - Paged KV cache is a later batching optimization.
 - Steady-state accepted decode must not allocate device memory per token.
 

@@ -35,7 +35,8 @@ int main(int argc, char** argv) {
     std::cerr << "usage: lkjai-native-repo-check COMMAND [--repo DIR]\n"
 	              << "commands: docs-topology docs-links docs-contract-owners "
 	                 "docs-wording line-limits no-node native-only config-contract "
-	                 "stable-identifiers cuda-arch-contract corpus-actions -- FILE...\n";
+	                 "stable-identifiers cuda-arch-contract secret-defaults "
+	                 "corpus-actions -- FILE...\n";
     return argc < 2 ? 2 : 0;
   }
   std::string command = argv[1];
@@ -53,6 +54,8 @@ int main(int argc, char** argv) {
   if (command == "config-contract") return lkjai::check_config_contract(repo);
   if (command == "cuda-arch-contract")
     return lkjai::check_cuda_arch_contract(repo);
+  if (command == "secret-defaults")
+    return lkjai::check_secret_defaults(repo);
   if (command == "corpus-actions") {
     auto paths = trailing_paths(argc, argv);
     if (paths.empty()) {

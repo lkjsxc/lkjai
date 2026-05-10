@@ -24,7 +24,7 @@ double seconds_since(std::chrono::steady_clock::time_point start) {
 
 bool run_transformer_training(const TransformerTrainOptions& opt, TransformerTrainReport* report, std::string* error) {
   if (opt.model_kind == "decoder") {
-    return run_decoder_cuda_slice_training(opt, report, error);
+    return run_decoder_cuda_training(opt, report, error);
   }
   TransformerConfig cfg;
   if (!load_transformer_config(opt.config_path, &cfg, error)) return false;

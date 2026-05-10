@@ -20,7 +20,7 @@ printf '\001\001\001\001\001\001\001\001' > "$cache/loss_mask.bin"
 printf '\000\000\000\000\000\000\000\000\004\000\000\000\000\000\000\000' > "$cache/starts.bin"
 
 cat > "$config" <<'JSON'
-{"model":"decoder-cli-smoke","model_kind":"decoder","dtype":"bf16","vocab_size":512,"context":8,"layers":1,"hidden_size":32,"heads":4,"kv_heads":4,"head_dim":8,"ffn_size":64,"activation":"swiglu","rope_theta":10000,"rms_norm_eps":0.00001,"tie_embeddings":false,"seed":1337}
+{"model":"decoder-cli-smoke","model_kind":"decoder","dtype":"bf16","vocab_size":512,"context":8,"layers":1,"hidden_size":32,"heads":4,"kv_heads":4,"head_dim":8,"ffn_size":64,"activation":"swiglu","rope_theta":10000,"rms_norm_eps":0.00001,"tie_embeddings":true,"seed":1337}
 JSON
 
 cat > "$tokenizer" <<'JSON'
@@ -33,10 +33,11 @@ JSON
   --run-purpose smoke > "$report"
 
 grep -q '"status":"success"' "$report"
-grep -q '"implementation_status":"partial_cuda"' "$report"
-grep -q '"accepted_cuda_training":false' "$report"
-grep -q '"decoder_cuda_slice":"embedding_lm_head"' "$report"
-grep -q '"decoder_block_weight_changed":false' "$report"
+grep -q '"implementation_status":"accepted"' "$report"
+grep -q '"accepted_cuda_training":true' "$report"
+grep -q '"decoder_cuda_slice":"full_decoder"' "$report"
+grep -q '"decoder_block_weight_changed":true' "$report"
 grep -q '"decoder_weight_change"' "$report"
-grep -q '"decode_backend":"host_reference_recompute"' "$report"
-grep -q '"kv_cache_backend":"none"' "$report"
+grep -q '"decode_backend":"cuda_kv_cache"' "$report"
+grep -q '"kv_cache_backend":"cuda_contiguous_bf16"' "$report"
+grep -q '"kv_cache_steady_state_token_allocations":0' "$report"

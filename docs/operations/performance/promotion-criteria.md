@@ -37,8 +37,7 @@ improves or throughput is not more than 5 percent worse.
 
 ## Decoder Acceptance
 
-Decoder promotion cannot use `target_seconds > 0` as a shortcut. Accepted
-decoder evidence must prove full decoder CUDA training, positive non-embedding
-and decoder-block quantitative weight deltas, checkpoint/export/served
-artifacts, passing logits checks, supported CUDA KV-cache decode fields, finite
-loss, positive optimizer steps, and positive loss-token counts.
+Decoder promotion is owned by
+[architecture/native/decoder/training.md](../../architecture/native/decoder/training.md).
+This page only adds benchmark-promotion context: `target_seconds > 0` is not a
+shortcut, and promoted reports must be bundled with reproducible run artifacts.

@@ -65,6 +65,10 @@ Public pretraining rows use standalone English `text` with metadata:
   policy, and `public-pretrain` provenance.
 - Public pretraining rows must not include `prompt` or `seed_data` values.
 - Quarantined source packs must not be consumed by `prepare-corpus`.
+- Kimi-generated rows must be written to quarantined shard directories first.
+- Promotion into `corpus/generated/kimi-sft-60m` requires XML action schema,
+  tool allowlist, metadata, provenance, de-duplication, and fixture-replay
+  validation.
 
 ## Model-Facing Serialization
 
@@ -153,6 +157,11 @@ mount. The acquisition code must not print token values or write them to
 manifests. `manifest.json` records schema, row counts, split counts, token
 estimates, selected fields, source budgets, checksums, and source/license
 distribution.
+
+Kimi SFT generation uses `configs/corpus/kimi_sft_60m.yaml` as the canonical
+lane. It must generate into quarantine, validate each shard, and promote only
+passing rows into `corpus/generated/kimi-sft-60m`; failed shards stay outside
+the active training corpus.
 
 ## Rejection Patterns
 

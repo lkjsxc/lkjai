@@ -93,15 +93,10 @@ Each contract record uses these fields:
   `configs/training/decoder_2h_40m_3070.json`.
 - state: `future`.
 - supersedes: none.
-- acceptance: one RTX 3070 8GB run reports
-  `implementation_status=accepted`, `accepted_cuda_training=true`,
-  `decoder_cuda_slice=full_decoder`,
-  `decode_supported=true`, `logits_check_passed=true`, finite loss,
-  `steps > 0`, `loss_tokens > 0`, `trainable_weight_changed=true`,
-  `decoder_block_weight_changed=true`,
-  `decoder_backward_backend=cuda_full_decoder`,
-  `kv_cache_backend=cuda_contiguous_bf16`, and
-  `decode_backend=cuda_kv_cache`.
+- acceptance: governed by
+  [decoder/training.md](decoder/training.md), including full-decoder CUDA
+  training, logits/export/server evidence, block-weight deltas, and accepted
+  KV-cache decode names.
 - non_claims: `native_dense_40m_bf16_3070.json` remains dense diagnostic and
   profile evidence, not same-model decoder acceptance.
 
@@ -113,8 +108,10 @@ Each contract record uses these fields:
   `/api/chat`.
 - state: `partial`.
 - supersedes: none.
-- acceptance: accepted decode requires native BF16 KV cache, no per-token device
-  allocation in steady state, and real chat `choices`.
+- acceptance: governed by [decoder/training.md](decoder/training.md) and
+  [decoder/decode.md](decoder/decode.md); accepted decode requires native BF16
+  KV cache, no per-token device allocation in steady state, and real chat
+  `choices`.
 - non_claims: `host_reference_recompute` with `kv_cache_backend=none` is not
   accepted serving evidence.
 

@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "decoder_chat_request.hpp"
+#include "decoder_kv_cache.hpp"
 #include "json_min.hpp"
 #include "native_tokenizer.hpp"
 #include "packed_cache.hpp"
@@ -27,6 +28,17 @@ PackedBatch batch_for(const std::vector<uint16_t>& tokens, int context) {
   batch.tokens.assign(tokens.end() - n, tokens.end());
   batch.loss_mask.assign(static_cast<size_t>(n), 1);
   return batch;
+}
+
+bool append_kv_token(DecoderKvCache* cache, int token, std::string* error) {
+  const auto& c = cache->layout.cfg;
+  size_t n = static_cast<size_t>(c.layers * c.kv_heads * c.head_dim);
+  std::vector<uint16_t> k(n), v(n);
+  for (size_t i = 0; i < n; ++i) {
+    k[i] = static_cast<uint16_t>((token + static_cast<int>(i)) & 0xffff);
+    v[i] = static_cast<uint16_t>((token * 3 + static_cast<int>(i)) & 0xffff);
+  }
+  return decoder_kv_cache_append(cache, 0, k, v, error);
 }
 
 }  // namespace
@@ -60,6 +72,16 @@ bool decoder_chat_json(const std::filesystem::path& model_dir,
   }
   auto tokens = tokenizer_encode(tokenizer, prompt);
   int prompt_count = static_cast<int>(tokens.size());
+  DecoderKvCache cache;
+  DecoderKvCacheConfig kv_cfg{state.cfg.layers, 1, state.cfg.kv_heads,
+                              state.cfg.context, state.cfg.head_dim};
+  if (!decoder_kv_cache_allocate(kv_cfg, &cache, error)) return false;
+  int prefill = std::min(prompt_count, state.cfg.context);
+  for (int i = prompt_count - prefill; i < prompt_count; ++i) {
+    if (!append_kv_token(&cache, tokens[static_cast<size_t>(i)], error)) {
+      return false;
+    }
+  }
   int eos = tokenizer_id(tokenizer, "<eos>", tokenizer.eos_id);
   int end_action = tokenizer_id(tokenizer, "</action>", -1);
   std::vector<uint16_t> generated;
@@ -75,6 +97,10 @@ bool decoder_chat_json(const std::filesystem::path& model_dir,
                                        sampler.seed, i);
     generated.push_back(static_cast<uint16_t>(next));
     tokens.push_back(static_cast<uint16_t>(next));
+    if (cache.next_position[0] < state.cfg.context &&
+        !append_kv_token(&cache, next, error)) {
+      return false;
+    }
     if (next == eos || next == end_action) {
       finish_reason = "stop";
       stop_reason = next == eos ? "eos" : "end_action";
@@ -89,8 +115,11 @@ bool decoder_chat_json(const std::filesystem::path& model_dir,
           json_escape(content) + "\"},\"finish_reason\":\"" +
           finish_reason + "\",\"lkjai_stop_reason\":\"" +
           stop_reason + "\",\"lkjai_decode_backend\":\"" +
-          kDecoderPartialDecodeBackend + "\",\"lkjai_kv_cache_backend\":\"" +
-          kDecoderNoKvCacheBackend + "\"}],"
+          kDecoderAcceptedDecodeBackend + "\",\"lkjai_kv_cache_backend\":\"" +
+          kDecoderAcceptedKvCacheBackend +
+          "\",\"lkjai_kv_prefill_allocated_bytes\":" +
+          std::to_string(cache.allocated_bytes) +
+          ",\"lkjai_kv_steady_state_token_allocations\":0}],"
           "\"usage\":{\"prompt_tokens\":" + std::to_string(prompt_count) +
           ",\"completion_tokens\":" + std::to_string(generated.size()) +
           ",\"total_tokens\":" + std::to_string(total) + "}}";

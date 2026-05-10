@@ -55,7 +55,9 @@ bool transformer_report_shape_accepted_decoder(const TransformerTrainReport& r) 
          r.decoder_block_weight_changed && positive_block_weight_evidence(r) &&
          r.embedding_tying == "tok_embeddings:lm_head" &&
          r.kv_cache_backend == kDecoderAcceptedKvCacheBackend &&
-         r.decode_backend == kDecoderAcceptedDecodeBackend;
+         r.decode_backend == kDecoderAcceptedDecodeBackend &&
+         r.kv_cache_prefill_allocated_bytes > 0 &&
+         r.kv_cache_steady_state_token_allocations == 0;
 }
 
 bool transformer_report_accepted_decoder(const TransformerTrainReport& r) {
@@ -102,6 +104,11 @@ bool transformer_emitted_decoder_evidence_accepted(
       !contains_json_string(body, "kv_cache_backend",
                             kDecoderAcceptedKvCacheBackend)) {
     *error = "train report missing accepted decode backends";
+    return false;
+  }
+  if (json_int_value(body, "kv_cache_prefill_allocated_bytes", 0) <= 0 ||
+      json_int_value(body, "kv_cache_steady_state_token_allocations", -1) != 0) {
+    *error = "train report missing KV allocation accounting";
     return false;
   }
   if (!contains_json_string(body, "status", "pass")) {

@@ -33,6 +33,7 @@ add_executable(lkjai-native-repo-check
   src/repo_check_quality.cpp
   src/repo_check_contracts.cpp
   src/repo_check_corpus.cpp
+  src/repo_check_secret_defaults.cpp
 )
 target_link_libraries(lkjai-native-repo-check PRIVATE lkjai_native_core)
 

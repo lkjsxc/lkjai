@@ -2,7 +2,7 @@
 
 ## Source
 
-This file distills ignored reports `tmp/deep-research-report (42).md`,
+This file distills ignored reports `tmp/deep-research-report (48).md`,
 `tmp/deep-research-report (31).md`, and decoder-relevant conclusions from
 `tmp/deep-research-report (28).md` into durable canon. Reports under `tmp/` are
 source evidence, not canonical docs.
@@ -28,9 +28,10 @@ source evidence, not canonical docs.
 - Dense substrate evidence does not prove decoder readiness because the product
   model needs RoPE, RMSNorm, GQA, SwiGLU, tied embeddings, block backward, and
   KV-cache decode.
-- The current decoder CUDA path is partial: embeddings and LM head train on the
-  dense substrate, while the block forward substrate is probe-only.
-- Host-reference recompute decode is partial serving evidence only.
+- The accepted decoder CUDA path must train tied embeddings, block tensors, and
+  final norm, then serve through contiguous BF16 KV-cache decode.
+- Host-reference recompute decode is partial serving evidence only and must not
+  be promoted.
 
 ## Backend Ownership
 
@@ -52,10 +53,10 @@ source evidence, not canonical docs.
 
 1. Keep Compose verify green and strict under Docker.
 2. Keep report fields explicit so partial CUDA cannot look accepted.
-3. Complete the decoder block forward substrate and wire it into training.
-4. Add full decoder backward and FP32 AdamW state for every trainable tensor.
-5. Add tied-embedding optimizer/export alias handling for the product config.
-6. Add contiguous BF16 KV-cache decode without per-token device allocation.
+3. Keep the decoder block forward substrate wired into training.
+4. Keep full decoder backward and FP32 AdamW state for every trainable tensor.
+5. Keep tied-embedding optimizer/export alias handling for the product config.
+6. Keep contiguous BF16 KV-cache decode without per-token device allocation.
 7. Add streaming output after accepted native decode exists.
 8. Run the two-hour RTX 3070 decoder acceptance gate.
 9. Add 1.5B-3B profile configs only after accepted 40M decoder evidence.
@@ -78,6 +79,8 @@ source evidence, not canonical docs.
   changes, checkpoint/resume/export/logits checks, native server chat
   `choices`, exact command/config paths, git commit, GPU, driver, CUDA, cuDNN,
   attention backend, GEMM backend, workspace sizes, and timing breakdowns.
+- Promoted reports must also disclose KV prefill allocation and zero
+  steady-state per-token device allocations.
 
 ## Non-Claims
 

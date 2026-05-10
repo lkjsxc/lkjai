@@ -42,6 +42,7 @@ run_step "corpus actions" "$CHECK" corpus-actions -- \
   /workspace/corpus/generated/kimi-sft-60m/holdout/holdout-000001.jsonl
 run_step "config contract" "$CHECK" config-contract --repo /workspace
 run_step "cuda arch contract" "$CHECK" cuda-arch-contract --repo /workspace
+run_step "secret defaults" "$CHECK" secret-defaults --repo /workspace
 run_step "line limits" "$CHECK" line-limits --repo /workspace
 run_step "stable identifiers" "$CHECK" stable-identifiers --repo /workspace
 run_step "forbidden js runtime check" "$CHECK" no-node --repo /workspace

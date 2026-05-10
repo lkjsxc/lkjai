@@ -47,6 +47,8 @@ lkjai::TransformerTrainReport accepted_report() {
   r.kv_cache_backend = lkjai::kDecoderAcceptedKvCacheBackend;
   r.decode_backend = lkjai::kDecoderAcceptedDecodeBackend;
   r.decode_supported = true;
+  r.kv_cache_prefill_allocated_bytes = 4096;
+  r.kv_cache_steady_state_token_allocations = 0;
   return r;
 }
 
@@ -69,6 +71,10 @@ bool acceptance_contract() {
   no_decode.decode_supported = false;
   auto bad_logits = r;
   bad_logits.logits_check_passed = false;
+  auto bad_kv_alloc = r;
+  bad_kv_alloc.kv_cache_prefill_allocated_bytes = 0;
+  auto bad_kv_steady = r;
+  bad_kv_steady.kv_cache_steady_state_token_allocations = 1;
   auto bad_loss = r;
   bad_loss.loss = INFINITY;
   auto no_steps = r;
@@ -92,6 +98,10 @@ bool acceptance_contract() {
                 "missing decode support rejected") &&
          expect(!lkjai::transformer_report_accepted_decoder(bad_logits),
                 "failed logits check rejected") &&
+         expect(!lkjai::transformer_report_accepted_decoder(bad_kv_alloc),
+                "missing KV allocation rejected") &&
+         expect(!lkjai::transformer_report_accepted_decoder(bad_kv_steady),
+                "steady-state allocation rejected") &&
          expect(!lkjai::transformer_report_accepted_decoder(bad_loss),
                 "non-finite loss rejected") &&
          expect(!lkjai::transformer_report_accepted_decoder(no_steps),

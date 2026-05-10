@@ -39,6 +39,12 @@ Each summary includes stable flat fields from the train report:
 
 ## Generated Files
 
+Promoted decoder and dense runs should also publish a reproducible bundle with
+`summary.md`, `train-report.json`, `metrics.csv`, loss and throughput plots,
+latency plot, `gpu-capability.json`, Nsight Compute and Systems reports,
+`config.json`, `tokenizer-digest.txt`, `dataset-manifest.json`, and
+`demo-transcript.json`.
+
 - Dense debug promotions write
   `artifacts/benchmarks/<run-id>/promotion-summary.json`.
 - Compatibility-only 40M start checks write

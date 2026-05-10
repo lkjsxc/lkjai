@@ -22,11 +22,11 @@ Successful train reports use top-level `status=success`. Nested checks,
 including `logits_check.status` and `reference_check`, continue to use `pass`
 or `fail`.
 
-Dense accepted reports set `accepted_cuda_training=true`. Transformer and
-partial decoder reports are retained as diagnostics with
-`accepted_cuda_training=false` and are excluded from accepted CUDA promotion
-aggregates.
+Dense and decoder accepted reports set `accepted_cuda_training=true` only when
+their owner contracts pass. Transformer and partial decoder reports are retained
+as diagnostics with `accepted_cuda_training=false` and are excluded from
+accepted CUDA promotion aggregates.
 
-Decoder reports may show `decode_backend=host_reference_recompute` and
-`kv_cache_backend=none` while still producing route `choices`. That is partial
-serving usability, not accepted CUDA KV-cache decode evidence.
+Accepted decoder benchmark output must include `decode_backend=cuda_kv_cache`,
+`kv_cache_backend=cuda_contiguous_bf16`, positive prefill allocation, and zero
+steady-state token allocation.

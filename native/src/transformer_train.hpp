@@ -157,6 +157,8 @@ struct TransformerTrainReport {
   uint64_t cublaslt_workspace_bytes = 0;
   uint64_t workspace_high_water_bytes = 0;
   int workspace_reallocations = 0;
+  uint64_t kv_cache_prefill_allocated_bytes = 0;
+  int kv_cache_steady_state_token_allocations = 0;
 };
 
 bool load_transformer_config(const std::filesystem::path& path,
@@ -164,9 +166,9 @@ bool load_transformer_config(const std::filesystem::path& path,
 bool run_transformer_training(const TransformerTrainOptions& opt,
                               TransformerTrainReport* report,
                               std::string* error);
-bool run_decoder_cuda_slice_training(const TransformerTrainOptions& opt,
-                                     TransformerTrainReport* report,
-                                     std::string* error);
+bool run_decoder_cuda_training(const TransformerTrainOptions& opt,
+                               TransformerTrainReport* report,
+                               std::string* error);
 bool transformer_logits_check(const std::filesystem::path& model_dir,
                               const std::string& token_csv,
                               std::string* json, std::string* error);

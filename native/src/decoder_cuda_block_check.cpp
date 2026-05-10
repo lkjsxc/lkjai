@@ -183,8 +183,8 @@ int main() {
   report.loss = 1.0;
   report.steps = 1;
   report.loss_tokens = 1;
-  report.kv_cache_backend = lkjai::kDecoderAcceptedKvCacheBackend;
-  report.decode_backend = lkjai::kDecoderAcceptedDecodeBackend;
+  report.kv_cache_backend = lkjai::kDecoderAcceptedKvCacheBackend; report.decode_backend = lkjai::kDecoderAcceptedDecodeBackend;
+  report.kv_cache_prefill_allocated_bytes = 4096; report.kv_cache_steady_state_token_allocations = 0;
   json = lkjai::transformer_train_report_json(report, lkjai::cuda_status(),
                                               "decoder", "success", "");
   if (!require_contains(json, "\"accepted_cuda_training\":true") ||

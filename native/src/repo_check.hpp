@@ -27,5 +27,6 @@ int check_stable_identifiers(const std::filesystem::path& repo);
 int check_corpus_actions(const std::vector<std::filesystem::path>& paths);
 int check_config_contract(const std::filesystem::path& repo);
 int check_cuda_arch_contract(const std::filesystem::path& repo);
+int check_secret_defaults(const std::filesystem::path& repo);
 
 }  // namespace lkjai

@@ -25,9 +25,8 @@ Use one real native model engine and surface its health honestly.
 - The runtime consumes `choices[0].message.content` from decoder artifacts.
 - Dense and transformer artifacts return unsupported decode, so product chat
   quality gates require decoder exports with the real tokenizer.
-- Current decoder choices may come from `host_reference_recompute` with
-  `kv_cache_backend=none`; that route behavior is partial and is not accepted
-  CUDA KV-cache serving evidence.
+- Accepted decoder choices report `cuda_kv_cache` and
+  `cuda_contiguous_bf16`, with zero steady-state token allocation.
 - Every accepted future model step must return one XML action.
 - The runtime system prompt is tracked in native runtime configuration and must
   use the same XML-like serialization as training data.
