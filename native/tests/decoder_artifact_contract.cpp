@@ -114,7 +114,7 @@ bool report_contract() {
   r.decoder_backward_backend = "not_implemented";
   r.kv_cache_backend = lkjai::kDecoderNoKvCacheBackend;
   r.decode_backend = lkjai::kDecoderPartialDecodeBackend;
-  r.decode_supported = true;
+  r.decode_supported = false;
   r.embedding_tying = "tok_embeddings:lm_head";
   r.trainable_tensor_count = 11;
   r.embedding_weight_changed = true;
@@ -168,6 +168,8 @@ bool report_contract() {
          expect(json.find("\"decode_backend\":\"host_reference_recompute\"") !=
                     std::string::npos,
                 "decode backend") &&
+         expect(json.find("\"decode_supported\":false") != std::string::npos,
+                "partial decode unsupported") &&
          expect(json.find("\"embedding_tying\":\"tok_embeddings:lm_head\"") !=
                     std::string::npos,
                 "embedding tying report");

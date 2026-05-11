@@ -61,6 +61,7 @@ bool acceptance_contract() {
   partial.decoder_backward_backend = "not_implemented";
   partial.kv_cache_backend = "none";
   partial.decode_backend = lkjai::kDecoderPartialDecodeBackend;
+  partial.decode_supported = false;
   partial.decoder_block_weight_changed = false;
   partial.non_embedding_weight_changed = false;
   partial.target_seconds = 7200;
@@ -75,6 +76,10 @@ bool acceptance_contract() {
   bad_kv_alloc.kv_cache_prefill_allocated_bytes = 0;
   auto bad_kv_steady = r;
   bad_kv_steady.kv_cache_steady_state_token_allocations = 1;
+  auto bad_partial_decode_claim = r;
+  bad_partial_decode_claim.decode_backend = lkjai::kDecoderPartialDecodeBackend;
+  bad_partial_decode_claim.kv_cache_backend = lkjai::kDecoderPartialKvCacheBackend;
+  bad_partial_decode_claim.decode_supported = true;
   auto bad_loss = r;
   bad_loss.loss = INFINITY;
   auto no_steps = r;
@@ -102,6 +107,9 @@ bool acceptance_contract() {
                 "missing KV allocation rejected") &&
          expect(!lkjai::transformer_report_accepted_decoder(bad_kv_steady),
                 "steady-state allocation rejected") &&
+         expect(!lkjai::transformer_report_accepted_decoder(
+                    bad_partial_decode_claim),
+                "partial decode support claim rejected") &&
          expect(!lkjai::transformer_report_accepted_decoder(bad_loss),
                 "non-finite loss rejected") &&
          expect(!lkjai::transformer_report_accepted_decoder(no_steps),
@@ -118,6 +126,9 @@ bool acceptance_contract() {
          expect(std::find(limits.begin(), limits.end(),
                           "decoder_block_optimizer_not_implemented") != limits.end(),
                 "block optimizer limitation") &&
+         expect(std::find(limits.begin(), limits.end(),
+                          "autoregressive_decode_unsupported") != limits.end(),
+                "partial decode limitation") &&
          expect(!limits.empty(), "partial limitations present");
 }
 

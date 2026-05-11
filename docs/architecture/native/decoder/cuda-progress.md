@@ -80,8 +80,8 @@ must say:
 
 Decoder chat serving is also partial. Successful decoder `choices` responses
 must disclose `lkjai_decode_backend=host_reference_recompute` and
-`lkjai_kv_cache_backend=none` until the accepted contiguous BF16 KV-cache path
-lands.
+`lkjai_kv_cache_backend=host_contiguous_bf16_diagnostic` until the accepted
+contiguous BF16 CUDA KV-cache path lands.
 
 Before acceptance, the repo still needs this forward substrate wired into the
 trainer as full decoder forward, full block backward, optimizer coverage for

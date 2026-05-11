@@ -115,11 +115,12 @@ bool decoder_chat_json(const std::filesystem::path& model_dir,
           json_escape(content) + "\"},\"finish_reason\":\"" +
           finish_reason + "\",\"lkjai_stop_reason\":\"" +
           stop_reason + "\",\"lkjai_decode_backend\":\"" +
-          kDecoderAcceptedDecodeBackend + "\",\"lkjai_kv_cache_backend\":\"" +
-          kDecoderAcceptedKvCacheBackend +
+          kDecoderPartialDecodeBackend + "\",\"lkjai_kv_cache_backend\":\"" +
+          kDecoderPartialKvCacheBackend +
           "\",\"lkjai_kv_prefill_allocated_bytes\":" +
           std::to_string(cache.allocated_bytes) +
-          ",\"lkjai_kv_steady_state_token_allocations\":0}],"
+          ",\"lkjai_kv_steady_state_token_allocations\":0,"
+          "\"lkjai_decode_supported\":false}],"
           "\"usage\":{\"prompt_tokens\":" + std::to_string(prompt_count) +
           ",\"completion_tokens\":" + std::to_string(generated.size()) +
           ",\"total_tokens\":" + std::to_string(total) + "}}";

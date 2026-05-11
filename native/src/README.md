@@ -36,10 +36,14 @@ artifact inspection, and CUDA capability probing.
   [decoder_cuda_residual.hpp](decoder_cuda_residual.hpp): BF16 residual-add
   helper for decoder block probes and later full forward wiring.
 - [decoder_cuda_slice.cpp](decoder_cuda_slice.cpp),
-  [decoder_cuda_full_accept.cpp](decoder_cuda_full_accept.cpp),
+  [decoder_cuda_state.hpp](decoder_cuda_state.hpp),
+  [decoder_cuda_state.cpp](decoder_cuda_state.cpp),
+  [decoder_cuda_forward.cpp](decoder_cuda_forward.cpp),
+  [decoder_cuda_backward.cpp](decoder_cuda_backward.cpp),
+  [decoder_cuda_optimizer.cpp](decoder_cuda_optimizer.cpp),
   [decoder_cuda_slice_internal.hpp](decoder_cuda_slice_internal.hpp), and
-  [decoder_cuda_slice_util.cpp](decoder_cuda_slice_util.cpp): decoder CUDA
-  training report path and full-decoder acceptance bookkeeping.
+  [decoder_cuda_slice_util.cpp](decoder_cuda_slice_util.cpp): persistent
+  decoder CUDA state skeleton and partial training report path.
 - [dense_cuda.cu](dense_cuda.cu) and [dense_cuda.hpp](dense_cuda.hpp):
   dense CUDA parity and public training/logits entrypoints.
 - [dense_cuda_common.cpp](dense_cuda_common.cpp),

@@ -5,6 +5,7 @@
 #include "cuda_probe.hpp"
 #include "decoder_cuda_block.hpp"
 #include "decoder_cuda_slice_internal.hpp"
+#include "decoder_cuda_state.hpp"
 #include "dense_cuda_internal.hpp"
 #include "json_min.hpp"
 #include "native_tokenizer.hpp"
@@ -83,12 +84,10 @@ bool run_decoder_cuda_training(const TransformerTrainOptions& opt,
   PackedCacheReader reader;
   if (!reader.open(opt.packed_cache, seq_len, cfg.vocab_size, error)) return false;
   if (!packed_cache_allowed_for_run(reader.status(), opt.run_purpose, error)) return false;
-  TransformerState state;
-  init_transformer_state(cfg, &state);
-  auto before_state = state;
-  auto dense = decoder_dense_state(decoder_dense_cfg(cfg), state);
-  CudaExecutionContext ctx;
-  DenseCudaState cuda(dense.cfg, dense, &ctx);
+  TransformerState host_state;
+  init_transformer_state(cfg, &host_state);
+  auto before_state = host_state;
+  DecoderCudaState cuda(host_state.cfg, host_state);
   report->train_config_path = opt.train_config_path;
   report->run_purpose = opt.run_purpose;
   report->config_path = opt.config_path;
@@ -111,7 +110,7 @@ bool run_decoder_cuda_training(const TransformerTrainOptions& opt,
   report->checkpoint_dir = opt.out_dir / "checkpoints" / "latest";
   report->export_dir = opt.out_dir / "exports" / opt.model_name;
   report->served_dir = opt.out_dir.parent_path() / "models" / opt.model_name;
-  report->parameter_count = transformer_parameter_count(state);
+  report->parameter_count = transformer_parameter_count(host_state);
   decoder_set_forward_probe(substrate, report);
   auto started = std::chrono::steady_clock::now();
   std::vector<float> logits;
@@ -131,7 +130,8 @@ bool run_decoder_cuda_training(const TransformerTrainOptions& opt,
       report->batch_load_seconds += since(phase);
       if (local == 1 && micro == 0) {
         DecoderCudaForwardSubstrateReport block;
-        if (!decoder_cuda_slice_run_block_forward(state, batch, &block, error)) {
+        if (!decoder_cuda_slice_run_block_forward(host_state, batch, &block,
+                                                  error)) {
           *error = "decoder training block forward failed: " + *error;
           return false;
         }
@@ -143,11 +143,10 @@ bool run_decoder_cuda_training(const TransformerTrainOptions& opt,
         decoder_set_forward_probe(block, report);
       }
       bool capture = local == opt.max_steps && micro == opt.grad_accum - 1;
-      loss_sum += cuda.forward_backward(batch, capture ? &logits : nullptr,
-                                        &report->h2d_seconds,
-                                        &report->forward_seconds,
-                                        &report->backward_seconds,
-                                        1.0f / opt.grad_accum, micro == 0);
+      loss_sum += cuda.forward_backward(
+          batch, capture ? &logits : nullptr, &report->h2d_seconds,
+          &report->forward_seconds, &report->backward_seconds,
+          1.0f / opt.grad_accum, micro == 0);
       report->microsteps += 1;
       report->input_tokens += opt.batch_size * seq_len;
       report->loss_tokens += dense_supervised_count(batch);
@@ -160,24 +159,21 @@ bool run_decoder_cuda_training(const TransformerTrainOptions& opt,
       return false;
     }
     auto phase = std::chrono::steady_clock::now();
-    cuda.adamw(lr_at(opt, local), local);
+    cuda.optimizer_step(lr_at(opt, local), local);
     report->optimizer_seconds += since(phase);
     if (!logits.empty()) report->logits_checksum = dense_checksum_floats(logits);
   }
   if (!report->deadline_hit) report->stop_reason = "max_steps";
-  auto host = cuda.copy_to_host();
-  decoder_copy_dense_back(host, &state);
-  decoder_apply_full_weight_update(&state, report->steps, opt.lr);
-  if (state.cfg.tie_embeddings) state.lm_head = state.tok_embeddings;
-  decoder_record_full_weight_change(before_state, state, report);
+  auto trained_state = cuda.copy_to_host();
+  cuda.record_weight_change(before_state, report);
   auto phase = std::chrono::steady_clock::now();
-  if (!decoder_write_all(effective, state, report, seq_len)) {
+  if (!decoder_write_all(effective, trained_state, report, seq_len)) {
     *error = "failed to write decoder CUDA slice artifact";
     return false;
   }
   report->checkpoint_export_seconds += since(phase);
   report->export_seconds = report->checkpoint_export_seconds;
-  decoder_fill_cuda_full_report(cuda, report);
+  cuda.fill_report(report);
   report->elapsed_seconds = since(started);
   std::string logits_json, logits_error;
   report->logits_check_passed =

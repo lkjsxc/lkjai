@@ -33,8 +33,13 @@ State: canonical Compose profile, mount, port, and verification contract.
 - Corpus acquisition writes raw public snapshots under
   `/app/data/raw/cosmopedia` and prepared JSONL under
   `/app/data/public-corpus`.
-- Corpus acquisition mounts the private Hugging Face secret markdown read-only
-  by default and may be overridden with `HF_TOKEN` or `HF_TOKEN_FILE`.
+- Corpus acquisition mounts the Hugging Face token reference from
+  `HF_SECRET_FILE`, default `./data/secrets/hf_token`, read-only at
+  `/run/secrets/hf_token_source`. The file may contain a raw token or a local
+  operator note with the token value, but docs, manifests, and committed config
+  must contain only paths or environment variable names.
+- `HF_TOKEN` and `HF_TOKEN_FILE` may override the mounted token source for local
+  runs. Do not commit token values.
 - Hugging Face CLI, Python, and Arrow dependencies are allowed only in the
   `corpus` image, not in `train`, `web`, `inference`, or `verify`.
 - Web writes transcripts and memory under `/app/data/agent`.
@@ -110,5 +115,5 @@ docker compose --progress quiet --profile verify run --build --rm verify
 
 ## Long-Run Contract Links
 
-- [training/long-run.md](training/long-run.md)
-- [training/competency-gate.md](training/competency-gate.md)
+- [training/runbooks/long-run.md](training/runbooks/long-run.md)
+- [training/gates/competency-gate.md](training/gates/competency-gate.md)

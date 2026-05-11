@@ -98,10 +98,16 @@ bool decoder_route_contract() {
       {"POST", "/v1/chat/completions", body}, artifact, cuda, runtime);
   return expect(resp.status == 200, "decoder route status") &&
          expect(has(resp.body, "\"choices\""), "decoder choices present") &&
-         expect(has(resp.body, "\"lkjai_decode_backend\":\"cuda_kv_cache\""),
-                "accepted decode backend") &&
-         expect(has(resp.body, "\"lkjai_kv_cache_backend\":\"cuda_contiguous_bf16\""),
-                "accepted kv backend") &&
+         expect(!has(resp.body, "\"lkjai_decode_backend\":\"cuda_kv_cache\""),
+                "host decode must not claim CUDA KV-cache") &&
+         expect(has(resp.body,
+                    "\"lkjai_decode_backend\":\"host_reference_recompute\""),
+                "partial decode backend") &&
+         expect(has(resp.body,
+                    "\"lkjai_kv_cache_backend\":\"host_contiguous_bf16_diagnostic\""),
+                "partial kv backend") &&
+         expect(has(resp.body, "\"lkjai_decode_supported\":false"),
+                "partial decode disclosure") &&
          expect(has(resp.body, "\"lkjai_kv_steady_state_token_allocations\":0"),
                 "zero steady-state allocations");
 }

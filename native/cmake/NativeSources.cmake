@@ -19,12 +19,15 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/decoder_cuda_block_probe.cpp
   src/decoder_cuda_block_project.cu
   src/decoder_cuda_block_shape.cpp
-  src/decoder_cuda_full_accept.cpp
+  src/decoder_cuda_backward.cpp
+  src/decoder_cuda_forward.cpp
   src/decoder_cuda_norm.cu
+  src/decoder_cuda_optimizer.cpp
   src/decoder_cuda_residual.cu
   src/decoder_cuda_slice_block.cpp
   src/decoder_cuda_slice.cpp
   src/decoder_cuda_slice_util.cpp
+  src/decoder_cuda_state.cpp
   src/decoder_weight_change.cpp
   src/dense_checkpoint.cpp
   src/dense_cuda.cu

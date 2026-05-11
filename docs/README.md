@@ -49,46 +49,46 @@
   [architecture/native/decoder/README.md](architecture/native/decoder/README.md),
   [architecture/native/decoder/training.md](architecture/native/decoder/training.md),
   [architecture/native/decoder/config.md](architecture/native/decoder/config.md),
-  [operations/performance/scale-profiles.md](operations/performance/scale-profiles.md).
-- Runtime and API: [architecture/native/runtime.md](architecture/native/runtime.md),
+  [operations/performance/profiles/scale-profiles.md](operations/performance/profiles/scale-profiles.md).
+- Runtime and API: [architecture/native/contracts/runtime.md](architecture/native/contracts/runtime.md),
   [architecture/runtime/inference.md](architecture/runtime/inference.md),
   [product/api.md](product/api.md), [product/chat.md](product/chat.md),
   [product/kjxlkj-integration.md](product/kjxlkj-integration.md).
-- Corpus and tokenizer: [architecture/training/corpus.md](architecture/training/corpus.md),
-  [architecture/training/source-corpus.md](architecture/training/source-corpus.md),
-  [architecture/training/pipeline.md](architecture/training/pipeline.md),
-  [architecture/training/tokenizer.md](architecture/training/tokenizer.md).
-- Performance evidence: [operations/performance/benchmarking.md](operations/performance/benchmarking.md),
-  [operations/performance/evidence.md](operations/performance/evidence.md),
-  [operations/performance/hardware-profiles.md](operations/performance/hardware-profiles.md),
-  [operations/performance/benchmark-output.md](operations/performance/benchmark-output.md).
+- Corpus and tokenizer: [architecture/training/data/corpus.md](architecture/training/data/corpus.md),
+  [architecture/training/data/source-corpus.md](architecture/training/data/source-corpus.md),
+  [architecture/training/pipeline/pipeline.md](architecture/training/pipeline/pipeline.md),
+  [architecture/training/data/tokenizer.md](architecture/training/data/tokenizer.md).
+- Performance evidence: [operations/performance/measurement/benchmarking.md](operations/performance/measurement/benchmarking.md),
+  [operations/performance/evidence/evidence.md](operations/performance/evidence/evidence.md),
+  [operations/performance/profiles/hardware-profiles.md](operations/performance/profiles/hardware-profiles.md),
+  [operations/performance/contracts/benchmark-output.md](operations/performance/contracts/benchmark-output.md).
 - Verification: [getting-started/verification.md](getting-started/verification.md),
   [operations/quality.md](operations/quality.md),
   [operations/compose.md](operations/compose.md),
   [repository/workflow.md](repository/workflow.md).
-- Adding report fields: [architecture/native/training.md](architecture/native/training.md),
-  [architecture/native/contract-inventory.md](architecture/native/contract-inventory.md),
-  [operations/performance/train-report-fields.md](operations/performance/train-report-fields.md),
-  [operations/performance/benchmarking.md](operations/performance/benchmarking.md).
+- Adding report fields: [architecture/native/contracts/training.md](architecture/native/contracts/training.md),
+  [architecture/native/contracts/contract-inventory.md](architecture/native/contracts/contract-inventory.md),
+  [operations/performance/contracts/train-report-fields.md](operations/performance/contracts/train-report-fields.md),
+  [operations/performance/measurement/benchmarking.md](operations/performance/measurement/benchmarking.md).
 
 ## Contract Owner Index
 
 - Current state and claim limits: [current-state.md](current-state.md).
-- Native contract inventory: [architecture/native/contract-inventory.md](architecture/native/contract-inventory.md).
+- Native contract inventory: [architecture/native/contracts/contract-inventory.md](architecture/native/contracts/contract-inventory.md).
 - Decoder acceptance: [architecture/native/decoder/training.md](architecture/native/decoder/training.md).
 - Decoder config shape: [architecture/native/decoder/config.md](architecture/native/decoder/config.md).
 - Decoder KV-cache decode: [architecture/native/decoder/kv-cache.md](architecture/native/decoder/kv-cache.md).
-- Train reports: [architecture/native/training.md](architecture/native/training.md).
+- Train reports: [architecture/native/contracts/training.md](architecture/native/contracts/training.md).
 - Packed cache and dataset lineage:
-  [architecture/training/packed-cache.md](architecture/training/packed-cache.md),
-  [architecture/training/dataset.md](architecture/training/dataset.md),
-  [architecture/training/provenance.md](architecture/training/provenance.md).
-- Benchmark evidence: [operations/performance/benchmarking.md](operations/performance/benchmarking.md)
-  and [operations/performance/evidence.md](operations/performance/evidence.md).
+  [architecture/training/data/packed-cache.md](architecture/training/data/packed-cache.md),
+  [architecture/training/data/dataset.md](architecture/training/data/dataset.md),
+  [architecture/training/data/provenance.md](architecture/training/data/provenance.md).
+- Benchmark evidence: [operations/performance/measurement/benchmarking.md](operations/performance/measurement/benchmarking.md)
+  and [operations/performance/evidence/evidence.md](operations/performance/evidence/evidence.md).
 - Benchmark output fields and artifacts:
-  [operations/performance/benchmark-output.md](operations/performance/benchmark-output.md),
-  [operations/performance/train-report-fields.md](operations/performance/train-report-fields.md),
-  [operations/performance/benchmark-artifacts.md](operations/performance/benchmark-artifacts.md),
-  [operations/performance/promotion-criteria.md](operations/performance/promotion-criteria.md).
+  [operations/performance/contracts/benchmark-output.md](operations/performance/contracts/benchmark-output.md),
+  [operations/performance/contracts/train-report-fields.md](operations/performance/contracts/train-report-fields.md),
+  [operations/performance/contracts/benchmark-artifacts.md](operations/performance/contracts/benchmark-artifacts.md),
+  [operations/performance/contracts/promotion-criteria.md](operations/performance/contracts/promotion-criteria.md).
 - Compose and verification: [operations/compose.md](operations/compose.md),
   [operations/quality.md](operations/quality.md).

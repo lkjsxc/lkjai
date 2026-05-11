@@ -1,0 +1,11 @@
+# Native Dense
+
+Use this subtree for the accepted dense CUDA substrate. Dense remains the CUDA
+regression harness; it is not the product chat lane.
+
+## Child Index
+
+- [substrate.md](substrate.md): accepted dense CUDA substrate and BF16
+  optimization contract.
+- [runtime.md](runtime.md): accepted dense runtime report fields and gates.
+- [decoder.md](decoder.md): dense foundation relationship to the decoder target.

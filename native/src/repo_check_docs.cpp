@@ -95,7 +95,7 @@ int check_docs_links(const std::filesystem::path& repo) {
 
 int check_docs_contract_owners(const std::filesystem::path& repo) {
   RepoCheckResult result;
-  auto inventory = repo / "docs/architecture/native/contract-inventory.md";
+  auto inventory = repo / "docs/architecture/native/contracts/contract-inventory.md";
   auto body = text(inventory);
   for (auto required : {"contract_id", "owner", "state", "canonical_source",
                         "supersedes"}) {
@@ -105,14 +105,14 @@ int check_docs_contract_owners(const std::filesystem::path& repo) {
   }
 
   for (auto relative : {
-           "docs/architecture/native/contract-inventory.md",
+           "docs/architecture/native/contracts/contract-inventory.md",
            "docs/architecture/native/decoder/config.md",
 	           "docs/architecture/native/decoder/training.md",
 	           "docs/architecture/native/decoder/decode.md",
-	           "docs/architecture/native/runtime.md",
-	           "docs/architecture/training/packed-cache.md",
-	           "docs/architecture/training/dataset.md",
-	           "docs/architecture/training/provenance.md",
+	           "docs/architecture/native/contracts/runtime.md",
+	           "docs/architecture/training/data/packed-cache.md",
+	           "docs/architecture/training/data/dataset.md",
+	           "docs/architecture/training/data/provenance.md",
 	           "docs/architecture/agent/schema.md",
 	           "docs/architecture/agent/loop.md",
 	           "docs/architecture/model/serving.md",
@@ -120,8 +120,8 @@ int check_docs_contract_owners(const std::filesystem::path& repo) {
 	           "docs/product/agent-tools.md",
 	           "docs/product/chat.md",
 	           "docs/operations/compose.md",
-	           "docs/operations/training/long-run.md",
-	           "docs/operations/performance/benchmarking.md",
+	           "docs/operations/training/runbooks/long-run.md",
+	           "docs/operations/performance/measurement/benchmarking.md",
 	       }) {
     auto path = repo / relative;
     auto contract = text(path);

@@ -20,6 +20,7 @@ artifacts:
 - `choices[0].lkjai_kv_cache_backend`
 - `choices[0].lkjai_kv_prefill_allocated_bytes`
 - `choices[0].lkjai_kv_steady_state_token_allocations`
+- `choices[0].lkjai_decode_supported`
 - `usage.prompt_tokens`
 - `usage.completion_tokens`
 - `usage.total_tokens`
@@ -30,6 +31,10 @@ decode with no `choices`.
 Accepted decoder artifacts return `lkjai_decode_backend=cuda_kv_cache` and
 `lkjai_kv_cache_backend=cuda_contiguous_bf16`. Reports and route responses also
 disclose positive prefill allocation and zero steady-state per-token allocation.
+The current host-reference bridge may return `choices`, but it must report
+`lkjai_decode_backend=host_reference_recompute`,
+`lkjai_kv_cache_backend=host_contiguous_bf16_diagnostic`, and
+`lkjai_decode_supported=false`.
 
 ## Prompt And Tokenizer
 

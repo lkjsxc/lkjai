@@ -132,7 +132,7 @@ int main() {
   report.decoder_backward_backend = "not_implemented";
   report.kv_cache_backend = lkjai::kDecoderNoKvCacheBackend;
   report.decode_backend = lkjai::kDecoderPartialDecodeBackend;
-  report.decode_supported = true;
+  report.decode_supported = false;
   report.embedding_tying = "tok_embeddings:lm_head";
   report.trainable_tensor_count = 11;
   lkjai::decoder_set_forward_probe(probe, &report);
@@ -160,7 +160,8 @@ int main() {
                         "\"decoder_block_optimizer_not_implemented\"") ||
       !require_contains(json, "\"kv_cache_backend\":\"none\"") ||
       !require_contains(json,
-                        "\"decode_backend\":\"host_reference_recompute\"")) {
+                        "\"decode_backend\":\"host_reference_recompute\"") ||
+      !require_contains(json, "\"decode_supported\":false")) {
     return 1;
   }
   report.implementation_status = "accepted";
@@ -193,7 +194,6 @@ int main() {
       !require_contains(json, "\"kv_cache_backend\":\"cuda_contiguous_bf16\"")) {
     return 1;
   }
-
   std::cout << "{\"status\":\"pass\",\"decoder_block_backend\":"
             << "\"cuda_forward_partial\"}\n";
   return 0;

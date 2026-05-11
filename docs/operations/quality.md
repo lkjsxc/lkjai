@@ -32,7 +32,7 @@ checks by default. Set `VERIFY_TAIL_LINES` to tune failure output size.
 - Full training gates require an explicit `--train` command, matching config,
   packed cache, report, and eval artifacts.
 - The bounded Docker start check in
-  [training/long-run.md](training/long-run.md) must pass for training-config
+  [training/runbooks/long-run.md](training/runbooks/long-run.md) must pass for training-config
   changes.
 - It produces `runs/fixed-eval.json` and `runs/behavioral-eval.json`.
 - Fixed eval acceptance requires XML-action artifacts to pass configured gates.

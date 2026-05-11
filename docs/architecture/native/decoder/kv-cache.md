@@ -35,8 +35,9 @@ autoregressive generation.
 ## Current Status
 
 The current decoder bridge recomputes the host reference each token and reports
-`host_reference_recompute` plus `kv_cache_backend=none`. That is valid partial
-serving evidence, not accepted KV-cache decode.
+`host_reference_recompute` plus
+`kv_cache_backend=host_contiguous_bf16_diagnostic`. That is valid partial
+serving disclosure, not accepted KV-cache decode.
 
 The native implementation now has a tested layout helper for the accepted
 contiguous BF16 K/V memory contract. It does not change serving reports until

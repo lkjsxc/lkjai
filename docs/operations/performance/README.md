@@ -10,39 +10,14 @@ This subtree is the canonical performance contract for `lkjai`.
 
 ## Contents
 
-- [training-speed.md](training-speed.md): current bottlenecks, target state,
-  and optimization order.
-- [benchmarking.md](benchmarking.md): required measurements, artifacts, and
-  acceptance workflow.
-- [benchmark-suite.md](benchmark-suite.md): substrate, train-step, bounded
-  training, and serving measurement layers.
-- [benchmark-output.md](benchmark-output.md): JSON and CSV output shape for
-  native benchmark tools.
-- [train-report-fields.md](train-report-fields.md): stable train report and
-  decoder report fields.
-- [benchmark-artifacts.md](benchmark-artifacts.md): generated JSON and CSV
-  output shapes.
-- [promotion-criteria.md](promotion-criteria.md): dense diagnostic,
-  accepted-training, speed-comparison, and decoder acceptance gates.
-- [evidence.md](evidence.md): required fields for accepted performance records.
-- [dense-evidence-record.md](dense-evidence-record.md): curated benchmark
-  evidence format for dense CUDA throughput changes.
-- [dense-bf16-cuda-training-report.md](dense-bf16-cuda-training-report.md):
-  two-hour dense BF16 CUDA workflow, commands, and current cache blocker.
-- [dense-substrate-20260504.md](dense-substrate-20260504.md): RTX 3070
-  evidence for dense autotune, async allocation, deferred timing, and cache
-  reporting.
-- [decoder-cuda-forward-substrate-20260505.md](decoder-cuda-forward-substrate-20260505.md):
-  decoder forward-only CUDA primitive substrate evidence and non-claims.
-- [hardware-profiles.md](hardware-profiles.md): RTX 3070 acceptance gate and
-  RTX 5090 benchmark profile.
-- [scale-profiles.md](scale-profiles.md): 1.5B-3B, 7B, and 14B-20B profile
-  planning without weakening the 3070 gate.
-- [profiling.md](profiling.md): Nsight and NVTX protocol for native work.
-- [kernel-plan.md](kernel-plan.md): vendor-library and native CUDA
-  escalation order.
-- [validation.md](validation.md): numerical, resume, and server acceptance
-  matrix for CUDA work.
+- [contracts/README.md](contracts/README.md): report fields, benchmark outputs,
+  artifacts, and promotion criteria.
+- [measurement/README.md](measurement/README.md): benchmark protocol,
+  profiling, validation, training speed, and kernel planning.
+- [profiles/README.md](profiles/README.md): RTX 3070 acceptance and larger
+  profile planning.
+- [evidence/README.md](evidence/README.md): dated dense and decoder evidence
+  records.
 
 ## Active Priority
 
@@ -51,8 +26,8 @@ they share the same model/cache foundations or remove obvious decode waste.
 
 ## Route By Owner
 
-- Report field changes: [train-report-fields.md](train-report-fields.md).
-- Benchmark-generated files: [benchmark-artifacts.md](benchmark-artifacts.md).
-- Promotion and rejection logic: [promotion-criteria.md](promotion-criteria.md).
-- Measurement protocol: [benchmarking.md](benchmarking.md).
-- Accepted evidence records: [evidence.md](evidence.md).
+- Report field changes: [contracts/train-report-fields.md](contracts/train-report-fields.md).
+- Benchmark-generated files: [contracts/benchmark-artifacts.md](contracts/benchmark-artifacts.md).
+- Promotion and rejection logic: [contracts/promotion-criteria.md](contracts/promotion-criteria.md).
+- Measurement protocol: [measurement/benchmarking.md](measurement/benchmarking.md).
+- Accepted evidence records: [evidence/evidence.md](evidence/evidence.md).

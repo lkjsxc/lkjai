@@ -16,10 +16,10 @@ task instead of reading the tree linearly.
 - Quickstart: [docs/getting-started/quickstart.md](docs/getting-started/quickstart.md)
 - Verification: [docs/getting-started/verification.md](docs/getting-started/verification.md)
 - Compose contract: [docs/operations/compose.md](docs/operations/compose.md)
-- Scratch training contract: [docs/operations/training/long-run.md](docs/operations/training/long-run.md)
-- Competency gate: [docs/operations/training/competency-gate.md](docs/operations/training/competency-gate.md)
+- Scratch training contract: [docs/operations/training/runbooks/long-run.md](docs/operations/training/runbooks/long-run.md)
+- Competency gate: [docs/operations/training/gates/competency-gate.md](docs/operations/training/gates/competency-gate.md)
 - Decoder acceptance: [docs/architecture/native/decoder/training.md](docs/architecture/native/decoder/training.md)
-- Benchmark output: [docs/operations/performance/benchmark-output.md](docs/operations/performance/benchmark-output.md)
+- Benchmark output: [docs/operations/performance/contracts/benchmark-output.md](docs/operations/performance/contracts/benchmark-output.md)
 
 ## Current Shape
 

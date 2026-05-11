@@ -21,6 +21,14 @@ bool accepted_attention_backend(const TransformerTrainReport& r) {
          r.attention_backend == "cudnn_sdpa";
 }
 
+bool accepted_decode_support(const TransformerTrainReport& r) {
+  return r.decode_supported &&
+         r.kv_cache_backend == kDecoderAcceptedKvCacheBackend &&
+         r.decode_backend == kDecoderAcceptedDecodeBackend &&
+         r.kv_cache_prefill_allocated_bytes > 0 &&
+         r.kv_cache_steady_state_token_allocations == 0;
+}
+
 double json_double_after(std::string_view text, std::string_view needle) {
   auto pos = text.find(needle);
   if (pos == std::string_view::npos) return 0.0;
@@ -49,15 +57,11 @@ bool transformer_report_shape_accepted_decoder(const TransformerTrainReport& r) 
          r.forward_backend == "cuda_full_decoder" &&
          r.backward_backend == "cuda_full_decoder" &&
          r.decoder_backward_backend == "cuda_full_decoder" &&
-         r.decode_supported && r.logits_check_passed &&
+         accepted_decode_support(r) && r.logits_check_passed &&
          std::isfinite(r.loss) && r.steps > 0 && r.loss_tokens > 0 &&
          r.trainable_weight_changed && r.non_embedding_weight_changed &&
          r.decoder_block_weight_changed && positive_block_weight_evidence(r) &&
-         r.embedding_tying == "tok_embeddings:lm_head" &&
-         r.kv_cache_backend == kDecoderAcceptedKvCacheBackend &&
-         r.decode_backend == kDecoderAcceptedDecodeBackend &&
-         r.kv_cache_prefill_allocated_bytes > 0 &&
-         r.kv_cache_steady_state_token_allocations == 0;
+         r.embedding_tying == "tok_embeddings:lm_head";
 }
 
 bool transformer_report_accepted_decoder(const TransformerTrainReport& r) {
@@ -154,7 +158,9 @@ std::vector<std::string> transformer_report_limitations(
     out.push_back("decoder_block_optimizer_not_implemented");
   }
   if (r.kv_cache_backend == "none") out.push_back("kv_cache_not_implemented");
-  if (!r.decode_supported) out.push_back("autoregressive_decode_unsupported");
+  if (!accepted_decode_support(r)) {
+    out.push_back("autoregressive_decode_unsupported");
+  }
   return out;
 }
 

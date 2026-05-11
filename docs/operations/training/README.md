@@ -11,22 +11,10 @@ gating, and operator-facing acceptance flow.
 
 ## Child Index
 
-- [long-run.md](long-run.md): real training runtime contract and environment knobs
-- [dense-foundation.md](dense-foundation.md): canonical dense BF16 CUDA
-  cache, train, inspect, logits inference, benchmark, and verify runbook
-- [dense-learning-control-20260503.md](dense-learning-control-20260503.md):
-  controlled dense BF16 CUDA learning proof run
-- [dense-accepted-training-20260503.md](dense-accepted-training-20260503.md):
-  real packed-cache dense BF16 CUDA accepted-training proof run
-- [production-bf16-native.md](production-bf16-native.md): native BF16 dense
-  trainer config, packed-cache, checkpoint, export, and verification guide
-- [competency-gate.md](competency-gate.md): fixed-eval threshold and acceptance policy
-- [iteration.md](iteration.md): baseline, pass-rate ladder, and accepted-run log
-- [agent-assessment.md](agent-assessment.md): current observed agent behavior and
-  improvement priorities
-- [full-corpus-status.md](full-corpus-status.md): generated chunk status and
-  remaining token gap
-- [model-pure-recovery.md](model-pure-recovery.md): no-fallback recovery path
-  for broken XML-action chat artifacts
-- [xml-action-repair.md](xml-action-repair.md): focused repair corpus and SFT
-  pass for broken XML action generation
+- [runbooks/README.md](runbooks/README.md): long-run, dense foundation, and
+  production BF16 native runbooks.
+- [gates/README.md](gates/README.md): competency and agent-assessment gates.
+- [status/README.md](status/README.md): corpus status and iteration log.
+- [recovery/README.md](recovery/README.md): model-pure and XML-action repair
+  recovery paths.
+- [evidence/README.md](evidence/README.md): dated dense training proof records.
