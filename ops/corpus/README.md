@@ -10,6 +10,7 @@ entrypoints used only by the `corpus` Compose profile.
 - [entrypoint.sh](entrypoint.sh): profile command dispatcher.
 - [public_pretrain_tool](public_pretrain_tool): corpus-only acquisition,
   preparation, packed-cache, and validation helper.
+- [public_pretrain/README.md](public_pretrain/README.md): helper module map.
 
 ## Rules
 

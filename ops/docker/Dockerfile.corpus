@@ -37,6 +37,7 @@ RUN apt-get update \
 
 COPY --from=native-build /build/lkjai-native-packed-cache /usr/local/bin/
 COPY ops/corpus/public_pretrain_tool /usr/local/bin/lkjai-public-pretrain
+COPY ops/corpus/public_pretrain /usr/local/lib/public_pretrain
 COPY ops/corpus/entrypoint.sh /usr/local/bin/lkjai-corpus-entrypoint
 
 RUN chmod +x /usr/local/bin/lkjai-public-pretrain \

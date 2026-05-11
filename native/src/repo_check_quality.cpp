@@ -26,7 +26,7 @@ bool limited_extension(const std::filesystem::path& path, int* limit) {
       {".md", 300},  {".cpp", 200}, {".hpp", 200}, {".cu", 200},
       {".cuh", 200}, {".sh", 200},  {".toml", 200}, {".yml", 200},
       {".yaml", 200}, {".css", 200}, {".js", 200}, {".json", 200},
-      {".cmake", 200}};
+      {".cmake", 200}, {".py", 200}};
   auto found = limits.find(path.extension().string());
   if (found == limits.end()) return false;
   *limit = found->second;
@@ -41,16 +41,24 @@ std::string read_file(const std::filesystem::path& path) {
 bool text_file(const std::filesystem::path& path) {
   auto ext = path.extension().string();
   return ext == ".md" || ext == ".sh" || ext == ".yml" || ext == ".yaml" ||
-         ext == ".cmake" || ext == ".json" || ext == ".txt" ||
+         ext == ".cmake" || ext == ".json" || ext == ".txt" || ext == ".py" ||
          ext == ".cpp" || ext == ".hpp" || ext == ".cu" || ext == ".cuh" ||
          path.filename() == "CMakeLists.txt";
 }
 
-void check_native_only_file(const std::filesystem::path& file,
+bool corpus_python_file(const std::filesystem::path& repo,
+                        const std::filesystem::path& file) {
+  auto rel = file.lexically_relative(repo).string();
+  return rel.rfind("ops/corpus/", 0) == 0;
+}
+
+void check_native_only_file(const std::filesystem::path& repo,
+                            const std::filesystem::path& file,
                             RepoCheckResult* result) {
   auto name = file.filename().string();
   auto ext = file.extension().string();
-  if (ext == ".py" || ext == ".rs" || name == "Cargo.toml" ||
+  if ((ext == ".py" && !corpus_python_file(repo, file)) || ext == ".rs" ||
+      name == "Cargo.toml" ||
       name == "pyproject.toml" || name.rfind("requirements", 0) == 0) {
     result->fail("tracked Python/Rust product artifact is forbidden: " +
                  file.string());
@@ -104,7 +112,7 @@ int check_no_node(const std::filesystem::path& repo) {
 int check_native_only(const std::filesystem::path& repo) {
   RepoCheckResult result;
   for (const auto& file : collect_tracked_files(repo)) {
-    check_native_only_file(file, &result);
+    check_native_only_file(repo, file, &result);
   }
   return result.errors == 0 ? 0 : 1;
 }
