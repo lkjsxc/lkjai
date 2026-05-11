@@ -32,3 +32,9 @@ Accepted decoder benchmark output must include `decode_backend=cuda_kv_cache`,
 steady-state token allocation. Partial decoder output must keep
 `accepted_cuda_training=false` when gradients are synthetic or decode uses host
 recompute.
+
+Serving benchmark output adds `ttft_ms`, `decode_tokens_per_second`,
+`queue_wait_ms`, `prefill_ms`, `decode_step_ms`, `sampler_ms`,
+`kv_cache_bytes`, `kv_cache_blocks_allocated`, `kv_cache_blocks_reused`, and
+`kv_cache_blocks_evicted` when those paths are exercised. Missing fields keep
+the run diagnostic until the owning measurement tool implements them.

@@ -44,10 +44,12 @@ docker compose --profile train run --rm \
   -e DATA_DIR=/app/data/train-xml-repair \
   -e TRAIN_COMMITTED_CORPUS_DIR=/app/data/xml-action-repair \
   -e TRAIN_INIT_CHECKPOINT=/app/data/train-full-500m-from-scratch/checkpoints/best \
-  -e TRAIN_RESUME=never \
   -e TRAIN_MAX_OPTIMIZER_STEPS=120000 \
   train train-sft --preset agent
 ```
+
+This is historical evidence. The active native CLI no longer supports this
+exact `train-sft --preset agent` command shape.
 
 ## Acceptance
 

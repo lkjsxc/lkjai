@@ -41,12 +41,10 @@ Fix:
 Symptom: checkpoint artifacts exist but metrics are missing or empty.
 
 Check:
-- `TRAIN_PRESET` is not accidentally set to a tiny custom run.
 - Dataset row count: `wc -l data/train/datasets/corpus.jsonl`.
 - Training logs for loss output.
 
 Fix:
-- Use `TRAIN_PRESET=agent`.
 - Run the native train profile first.
 - Verify `data/train/datasets/corpus.jsonl` has >= 100 rows.
 
@@ -72,4 +70,5 @@ Fix:
 - Reduce `TRAIN_HIDDEN_SIZE`.
 - Reduce `TRAIN_LAYERS`.
 - Increase `TRAIN_GRADIENT_ACCUMULATION` and reduce batch size.
-- Use `TRAIN_PRESET=quick` to verify the pipeline before a long run.
+- Use `docker compose --profile train up --build train` to verify the smoke
+  pipeline before a long run.

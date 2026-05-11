@@ -41,3 +41,39 @@ typed resource APIs.
 - `resource.create_note` -> `POST /api/users/{user}/resources/notes`
 - `resource.create_media` -> `POST /api/users/{user}/resources/media`
 - `resource.update_resource` -> `PUT /api/users/{user}/resources/{ref}`
+
+## Request Examples
+
+Read-only search:
+
+```http
+GET /api/users/default/resources/search?q=training%20report&limit=5
+Authorization: Bearer ${KJXLKJ_BEARER_TOKEN}
+```
+
+Fetch by resource reference:
+
+```http
+GET /api/users/default/resources/note_123
+Authorization: Bearer ${KJXLKJ_BEARER_TOKEN}
+```
+
+Preview a markdown update before confirmation:
+
+```http
+POST /api/users/default/resources/preview-markdown
+Authorization: Bearer ${KJXLKJ_BEARER_TOKEN}
+Content-Type: application/json
+
+{"body":"# Draft\n\nProposed content."}
+```
+
+## Degraded Behavior
+
+- If `KJXLKJ_BEARER_TOKEN` is empty, `GET /api/config` reports degraded status
+  and mutable resource tools remain disabled.
+- Read-only resource tools may return configuration errors, but the runtime
+  must not invent resource results.
+- Mutation tools remain disabled unless `AGENT_TOOL_PROFILE=mutable`, bearer
+  token presence is confirmed, and a previous turn produced a confirmation
+  request.

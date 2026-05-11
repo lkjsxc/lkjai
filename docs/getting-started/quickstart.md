@@ -59,12 +59,6 @@ Use this only when probing model routes without the web UI.
 docker compose --profile train up --build train
 ```
 
-For a quick smoke check:
-
-```bash
-TRAIN_PRESET=quick docker compose --profile train up --build train
-```
-
 For a 40M Docker start check without the full long run:
 
 ```bash
@@ -72,7 +66,6 @@ docker compose --profile train run --rm \
   -e TRAIN_DATA_DIR=/app/data/train-start-check \
   -e TRAIN_MAX_OPTIMIZER_STEPS=1 \
   -e TRAIN_MAX_STEPS=1 \
-  -e TRAIN_RESUME=never \
   train --train
 ```
 
@@ -89,7 +82,7 @@ exports remain training and diagnostics artifacts.
 ## Inspect Runtime Outputs
 
 - `data/agent/runs/`: chat run transcripts.
-- `data/agent/memory.sqlite3`: durable memory database.
+- `data/agent/runs/`: durable JSONL transcript and event history.
 - `data/workspace/`: only filesystem root used by agent file and shell tools.
 - `GET /api/model`: active model client status and reachability.
 

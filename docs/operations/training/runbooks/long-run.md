@@ -11,7 +11,6 @@ Run one measurable long training job for the 3070-first 40M scratch model.
 
 - `docker compose --profile train up --build train` runs the committed two-step
   dense smoke command.
-- `TRAIN_PRESET=agent` is the RTX 3070 long-run target.
 - `TRAIN_CONFIG=/workspace/configs/training/scratch_40m_12h.json` is the
   default training-run config.
 - `TRAIN_NATIVE_CONFIG=/workspace/configs/native/native_40m_bf16.json` is the

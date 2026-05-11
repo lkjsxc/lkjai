@@ -2,10 +2,10 @@
 
 ## Source
 
-This file distills ignored reports `tmp/deep-research-report (48).md`,
-`tmp/deep-research-report (31).md`, and decoder-relevant conclusions from
-`tmp/deep-research-report (28).md` into durable canon. Reports under `tmp/` are
-source evidence, not canonical docs.
+This file distills ignored reports `tmp/deep-research-report (52).md`,
+`tmp/deep-research-report (48).md`, and decoder-relevant conclusions from older
+research notes into durable canon. Reports under `tmp/` are source evidence,
+not canonical docs.
 
 ## Canon Decision
 
@@ -32,6 +32,9 @@ source evidence, not canonical docs.
   final norm, then serve through contiguous BF16 KV-cache decode.
 - Host-reference recompute decode is partial serving evidence only and must not
   be promoted.
+- The serving blocker is not route shape. It is the missing accepted decode
+  semantics: real CUDA K/V state, no full-prompt recompute per token, and
+  honest allocation accounting.
 
 ## Backend Ownership
 
@@ -47,17 +50,22 @@ source evidence, not canonical docs.
 - CUTLASS and CUDA Graphs are measured native optimizations after correctness.
 - TensorRT-family engines are optional inference accelerators only; they never
   replace the canonical native BF16 artifact, trainer, or KV-cache decoder.
-- NCCL enters after single-GPU decoder correctness and profiling are stable.
+- NCCL and optimizer sharding enter after single-GPU decoder correctness and
+  profiling are stable.
 
 ## Implementation Order
 
 1. Keep Compose verify green and strict under Docker.
 2. Keep report fields explicit so partial CUDA cannot look accepted.
 3. Keep the decoder block forward substrate wired into training.
-4. Keep full decoder backward and FP32 AdamW state for every trainable tensor.
-5. Keep tied-embedding optimizer/export alias handling for the product config.
-6. Keep contiguous BF16 KV-cache decode without per-token device allocation.
-7. Add streaming output after accepted native decode exists.
+4. Implement full decoder backward and FP32 AdamW state for every trainable
+   tensor.
+5. Preserve tied-embedding optimizer/export alias handling for the product
+   config.
+6. Implement contiguous BF16 KV-cache decode without per-token device
+   allocation.
+7. Add streaming output and continuous batching after accepted native decode
+   exists.
 8. Run the two-hour RTX 3070 decoder acceptance gate.
 9. Add 1.5B-3B profile configs only after accepted 40M decoder evidence.
 10. Add 7B profile work only after multi-GPU training contracts are verified.

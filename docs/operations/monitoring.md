@@ -39,6 +39,7 @@ GET /v1/models
 - `loaded`: the artifact loaded successfully.
 - `reachable`: the local model engine is usable.
 - `message`: human-readable state.
+- `probe_status`: `200` when the artifact is loaded, otherwise `503`.
 
 ## UI Behavior
 

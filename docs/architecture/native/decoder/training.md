@@ -30,6 +30,9 @@ decoder-block deltas before using accepted backend names.
 Current scaffolding may own registry tensors, BF16 shadows, AdamW moments, and
 diagnostic CUDA buffers, but it is not accepted evidence while block gradients
 are synthetic or detached from a real decoder backward pass.
+The implementation must prefer correctness evidence over kernel cleverness:
+cuBLASLt remains the GEMM owner, while custom CUDA covers pointwise kernels,
+attention glue, loss, optimizer helpers, sampling, and KV-cache operations.
 
 ## Public Invocation
 

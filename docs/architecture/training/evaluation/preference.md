@@ -19,11 +19,10 @@ before attempting rollout-heavy reinforcement learning.
 - Rejected actions may be invalid JSON, wrong tool selection, wrong final
   answer, or unsafe path usage.
 
-## Commands
+## Command Status
 
-- `lkjai-native-train --prepare-preferences`
-- `lkjai-native-train --train-simpo`
-- `lkjai-native-train --train-dpo`
+Preference optimization is a design target. The active native training CLI does
+not yet implement preference preparation, SimPO, or DPO commands.
 
 ## Artifacts
 

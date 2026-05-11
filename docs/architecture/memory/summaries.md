@@ -9,6 +9,7 @@
 
 - Summarize when recent transcript text exceeds `SUMMARY_TRIGGER_CHARS`.
 - Default trigger is `12000` characters.
+- The active runtime does not yet run this summarizer.
 
 ## Content
 

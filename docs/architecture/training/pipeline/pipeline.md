@@ -28,7 +28,6 @@ Train and export the current dense BF16 CUDA foundation while preserving the
 
 ## Defaults
 
-- `TRAIN_PRESET=agent`
 - `TRAIN_CONFIG=/workspace/configs/training/scratch_40m_12h.json`
 - `TRAIN_NATIVE_CONFIG=/workspace/configs/native/native_40m_bf16.json`
 - `TRAIN_SEQUENCE_LEN=1024`
@@ -40,6 +39,9 @@ Train and export the current dense BF16 CUDA foundation while preserving the
 - `TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS=3000`
 - Native packed-cache reader for `--train`
 - `TRAIN_DATA_DIR=/app/data/train`
+
+`TRAIN_PRESET` is not an active native CLI input. Use `TRAIN_CONFIG` and
+`TRAIN_NATIVE_CONFIG` for run and model shape selection.
 
 ## Objectives And Accounting
 

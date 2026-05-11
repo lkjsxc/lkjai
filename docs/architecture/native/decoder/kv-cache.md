@@ -25,20 +25,22 @@ autoregressive generation.
 ## Implementation Shape
 
 - The cache layout is layer-major, then batch, KV head, position, and head dim.
-- K and V tensors share one native allocation range with byte offsets derived
-  from the tested layout helper.
+- K and V tensors are native BF16 device buffers with byte offsets derived from
+  the tested layout helper.
 - Prefill may reuse decoder forward buffers, but steady-state decode must reuse
   cache and workspace allocations across output tokens.
 - The serving response may expose accepted backend names only after CUDA write,
   append, read, and attention consumption behavior is covered by CTest and
   route contracts.
+- The first accepted cache may be one contiguous per-request allocation.
+  Block-pool reuse and eviction are later scheduler work, but their metrics
+  must be present before continuous batching is claimed.
 
 ## Current Status
 
 The current decoder bridge recomputes the host reference each token and reports
-`host_reference_recompute` plus
-`kv_cache_backend=host_contiguous_bf16_diagnostic`. That is valid partial
-serving disclosure, not accepted KV-cache decode.
+`host_reference_recompute` plus diagnostic KV-cache metadata. That is valid
+partial serving disclosure, not accepted KV-cache decode.
 
 The native implementation now has a tested layout helper for the accepted
 contiguous BF16 K/V memory contract. It does not change serving reports until

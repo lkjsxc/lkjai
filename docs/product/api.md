@@ -81,7 +81,7 @@ runtime routes stay under unnumbered `/api/*` names.
   "api_url": "local-native-engine",
   "loaded": true,
   "reachable": true,
-  "message": "model server responding",
+  "message": "model loaded",
   "device": "cuda",
   "cuda_available": true,
   "gpu_name": "NVIDIA GeForce RTX 3070",
@@ -95,7 +95,7 @@ runtime routes stay under unnumbered `/api/*` names.
 - `cuda_available`: whether the inference server can use CUDA.
 - `gpu_name`: CUDA device name when available.
 - `warning`: non-empty when serving is degraded, such as CPU fallback.
-- `probe_status`: HTTP status from the last `/v1/models` probe.
+- `probe_status`: `200` when the artifact is loaded, otherwise `503`.
 
 ## `GET /api/config` Response
 

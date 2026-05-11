@@ -27,8 +27,10 @@ embeddings and the LM head.
 3. Add projection and MLP backward first because those tensors are already
    present in the forward substrate and are easiest to verify with deterministic
    tiny shapes.
-4. Add attention and RMSNorm backward after projection parity tests are stable.
-5. Promote reports only after all trainable tensors have update evidence.
+4. Add attention, RMSNorm, and RoPE-adjacent backward after projection parity
+   tests are stable.
+5. Add checkpoint/resume coverage for every block tensor and optimizer slot.
+6. Promote reports only after all trainable tensors have update evidence.
 
 ## Current Status
 

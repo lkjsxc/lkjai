@@ -34,15 +34,16 @@ Fresh 500M-target run, started from an empty data directory:
 ```bash
 docker compose --profile train run --rm \
   -e DATA_DIR=/app/data/train-full-500m-from-scratch \
-  -e TRAIN_RESUME=never \
   -e TRAIN_INIT_CHECKPOINT= \
   -e TRAIN_CORPUS_DIR=/app/data/public-corpus \
   -e TRAIN_PUBLIC_DATA_DIR=/app/data/raw/cosmopedia \
   -e TRAIN_PUBLIC_PRETRAIN_TOKENS=500000000 \
   -e TRAIN_CONFIG=/workspace/configs/training/scratch_40m_12h.json \
-  -e TRAIN_PRESET=agent \
   train train
 ```
+
+This is historical evidence. The active native CLI uses `lkjai-native-train
+--train` rather than `train train`.
 
 Stopped first attempt, because it used the previous `440000000` public target:
 
@@ -162,7 +163,6 @@ Full retrain target:
 ```bash
 docker compose --profile train run --rm \
   -e TRAIN_DATA_DIR=/app/data/train-speed \
-  -e TRAIN_RESUME=never \
   -e TRAIN_INIT_CHECKPOINT= \
   train train
 ```

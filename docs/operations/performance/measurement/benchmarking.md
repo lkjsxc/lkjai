@@ -25,6 +25,10 @@ Every performance run records:
 - decoder partial reports must include RMSNorm, RoPE, QKV projection, MLP,
   decoder backward, block-weight-change, decode, attention, and KV-cache
   backend fields.
+- accepted decoder serving reports also record time to first token, decode
+  tokens/sec, queue wait, prefill time, decode-step time, sampler time,
+  KV-cache bytes, cache blocks allocated/reused/evicted, and steady-state token
+  allocation count.
 
 ## Required Artifacts
 

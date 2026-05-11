@@ -5,7 +5,12 @@
 - Retrieve compact relevant context before each model action.
 - Avoid using huge native context as the memory mechanism.
 
-## Retrieval
+## Current Status
+
+- The active runtime persists transcripts but does not implement memory search.
+- `memory.search` remains a tool contract target until a durable store exists.
+
+## Target Retrieval
 
 - Use SQLite FTS lexical search.
 - Query with the latest user message and compact run summary.

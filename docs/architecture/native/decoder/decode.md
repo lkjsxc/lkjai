@@ -41,6 +41,10 @@ Sidecar metadata cannot promote host recompute. Accepted disclosure requires
 generation to prefill real CUDA K/V tensors once and append one token per step
 without calling host `transformer_forward` for the full prompt.
 
+Accepted decode metrics must include time to first token, per-token decode
+time, sampler time, cache prefill bytes, steady-state token allocation count,
+and cache reuse counters when batching is enabled.
+
 ## Prompt And Tokenizer
 
 The server loads artifact `tokenizer.json`, parses ordered OpenAI-style
@@ -75,7 +79,7 @@ HTTP `400` with no `choices`.
 - Prefill consumes the prompt up to the configured context.
 - Incremental decode appends one token at a time.
 - Accepted decode uses a native-owned contiguous BF16 KV cache.
-- Paged KV cache is a later batching optimization.
+- Block-pool or paged KV cache is a later batching optimization.
 - Steady-state accepted decode must not allocate device memory per token.
 - Host recompute choices are partial usability only and do not satisfy accepted
   decode even when diagnostic K/V allocation exists.

@@ -17,9 +17,10 @@
 
 ## Bind Defaults
 
-- `APP_HOST=127.0.0.1`.
-- `APP_PORT=8080`.
-- The app must not default to a public network bind.
+- Compose binds the host port to `127.0.0.1`.
+- The container process listens on `INFERENCE_HOST=0.0.0.0` and
+  `INFERENCE_PORT=8080` for the merged server.
+- The runtime must not publish a host public network bind by default.
 
 ## Model Status
 

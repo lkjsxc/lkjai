@@ -14,7 +14,8 @@
 - `train/exports/`: serving manifests copied from training outputs.
 - `train/runs/`: training and eval logs.
 - `agent/runs/`: chat and tool transcripts.
-- `agent/memory.sqlite3`: durable memory and summaries.
+- future `agent/memory/`: durable memory and summaries after memory store
+  implementation.
 - `workspace/`: only filesystem root visible to agent file and shell tools.
 
 ## Persistence

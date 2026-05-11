@@ -59,9 +59,9 @@ correctness and profiling.
 
 ## Research-Informed Order
 
-The latest research report agrees with the repo canon: dense BF16 CUDA is the
-foundation, but accepted chat product value depends on completing decoder
-training and decode. Keep this order:
+The latest report, `tmp/deep-research-report (52).md`, agrees with the repo
+canon: dense BF16 CUDA is the foundation, but accepted chat product value
+depends on completing decoder training and decode. Keep this order:
 
 1. Wire the existing decoder forward substrate into the actual training path
    without changing acceptance fields.
@@ -71,7 +71,10 @@ training and decode. Keep this order:
    coverage and checkpoint/export/logits checks pass.
 4. Replace host-reference recompute serving with contiguous BF16 KV-cache
    decode and disclose the accepted backend names in responses.
-5. Add large profiles only after the 40M RTX 3070 lane is accepted.
+5. Add decode metrics: time to first token, decode tokens per second, queue
+   wait, cache bytes, cache blocks allocated/reused/evicted, and sampler time.
+6. Add continuous batching only after single-request KV-cache correctness.
+7. Add large profiles only after the 40M RTX 3070 lane is accepted.
 
 See [decoder/README.md](../decoder/README.md) for the same-model chat path. See
 [transformer-cuda-plan.md](../cuda/transformer-cuda-plan.md) for the retained

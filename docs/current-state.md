@@ -75,10 +75,11 @@ config. Code should validate truth fields and config shape, not treat
 
 ## Research Synthesis
 
-The latest deep research report under `tmp/deep-research-report (48).md`
-supports this order: keep the dense substrate as a harness, ship the tied 40M
-RTX 3070 decoder target, finish contiguous BF16 KV-cache decode, and only then
-broaden performance, frontend, and multi-GPU work.
+The latest deep research report under `tmp/deep-research-report (52).md`
+supports this order: preserve the dense substrate as the regression harness,
+ship the tied 40M RTX 3070 decoder target, finish contiguous BF16 KV-cache
+decode, and only then broaden performance, batching, frontend, and multi-GPU
+work.
 
 Durable conclusions now owned by docs:
 
@@ -93,3 +94,9 @@ Durable conclusions now owned by docs:
   then promote only passing shards into `corpus/generated/kimi-sft-60m`.
 - Promoted-run bundle: include train report, metrics, plots, GPU capability,
   Nsight reports, config, tokenizer digest, dataset manifest, and transcript.
+- Serving order: request validation, prompt serialization, prefill, native
+  BF16 KV-cache decode, sampler, structured metrics, then optional `kjxlkj`
+  tool calls.
+- Kernel policy: keep GEMMs in cuBLASLt, use correctness-first custom CUDA for
+  RMSNorm, RoPE, attention glue, KV writes/reads, sampling, and cache
+  bookkeeping, and consider cuDNN SDPA only after active-shape parity exists.
