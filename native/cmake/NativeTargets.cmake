@@ -25,6 +25,9 @@ target_link_libraries(lkjai-native-logits-check PRIVATE lkjai_native_core)
 add_executable(lkjai-native-packed-cache src/packed_cache_main.cpp)
 target_link_libraries(lkjai-native-packed-cache PRIVATE lkjai_native_core)
 
+add_executable(lkjai-native-tokenizer-build src/tokenizer_build_main.cpp)
+target_link_libraries(lkjai-native-tokenizer-build PRIVATE lkjai_native_core)
+
 add_executable(lkjai-native-repo-check
   src/repo_check_main.cpp
   src/repo_check_common.cpp

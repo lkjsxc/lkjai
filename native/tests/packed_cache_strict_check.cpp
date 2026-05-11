@@ -60,6 +60,31 @@ bool strict_build_validate() {
                 "corrupt tokens rejected");
 }
 
+bool directory_source_is_sorted_and_streamed() {
+  auto dir = root();
+  auto source = dir / "source";
+  std::filesystem::create_directories(source);
+  auto tokenizer = dir / "tokenizer.json";
+  auto config = dir / "config.json";
+  auto cache = dir / "cache";
+  write_file(source / "000002.jsonl", "{\"text\":\"aaaaaaaa\"}\n");
+  write_file(source / "000001.jsonl", "{\"content\":\"aaaaaaaa\"}\n");
+  write_file(tokenizer, tokenizer_json());
+  write_file(config, "{\"vocab_size\":16,\"context\":4}\n");
+  lkjai::PackedCacheBuildOptions opt;
+  opt.source = source;
+  opt.tokenizer = tokenizer;
+  opt.config = config;
+  opt.out = cache;
+  opt.seq_len = 4;
+  opt.sequence_count = 3;
+  std::string error;
+  if (!expect(lkjai::build_packed_cache(opt, &error), error)) return false;
+  return expect(lkjai::validate_packed_cache_command(
+                    cache, source, tokenizer, config, false, &error),
+                error);
+}
+
 bool missing_tokenizer_rejected() {
   auto dir = root();
   auto source = dir / "source.jsonl";
@@ -79,5 +104,8 @@ bool missing_tokenizer_rejected() {
 }  // namespace
 
 int main() {
-  return strict_build_validate() && missing_tokenizer_rejected() ? 0 : 1;
+  return strict_build_validate() && directory_source_is_sorted_and_streamed() &&
+                 missing_tokenizer_rejected()
+             ? 0
+             : 1;
 }

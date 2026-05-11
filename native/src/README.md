@@ -95,6 +95,9 @@ artifact inspection, and CUDA capability probing.
   helpers.
 - [logits_check_main.cpp](logits_check_main.cpp): dense and transformer artifact
   logits probe, including dense BF16 export parity against FP32 checkpoints.
+- [native_tokenizer_build.cpp](native_tokenizer_build.cpp) and
+  [native_tokenizer_build.hpp](native_tokenizer_build.hpp): deterministic
+  native byte-level BPE-compatible tokenizer builder with atomic decoder tags.
 - [packed_cache.cpp](packed_cache.cpp) and [packed_cache.hpp](packed_cache.hpp):
   packed-cache validation.
 - [packed_cache_build.cpp](packed_cache_build.cpp) and

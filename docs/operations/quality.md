@@ -29,6 +29,15 @@ checks by default. Set `VERIFY_TAIL_LINES` to tune failure output size.
 
 ## Training Gate
 
+- Decoder data preflight requires a deterministic tokenizer and strict seq1024
+  packed-cache validation before any long run:
+
+```bash
+docker compose --profile corpus run --build --rm corpus build-tokenizer
+docker compose --profile corpus run --rm corpus validate-public-pretrain
+docker compose --profile corpus run --rm corpus build-public-pretrain-cache
+```
+
 - `docker compose --profile train up --build train` runs the committed smoke
   command and is not a full long-training gate.
 - Full training gates require an explicit `--train` command, matching config,

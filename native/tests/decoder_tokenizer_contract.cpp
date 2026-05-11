@@ -7,44 +7,33 @@
 #include <vector>
 
 #include "native_tokenizer.hpp"
+#include "native_tokenizer_build.hpp"
+#include "packed_cache_digest.hpp"
 
 namespace {
-
-std::string escape(std::string_view value) {
-  std::string out;
-  for (char ch : value) {
-    if (ch == '"' || ch == '\\') out.push_back('\\');
-    out.push_back(ch);
-  }
-  return out;
-}
 
 std::filesystem::path tokenizer_fixture() {
   auto dir = std::filesystem::temp_directory_path() / "lkjai-tokenizer-contract";
   std::filesystem::create_directories(dir);
   auto path = dir / "tokenizer.json";
-  std::ofstream out(path);
-  out << "{\"model\":{\"type\":\"BPE\",\"vocab\":{";
-  bool first = true;
-  for (int ch = 33; ch <= 126; ++ch) {
-    if (!first) out << ",";
-    first = false;
-    std::string token(1, static_cast<char>(ch));
-    out << "\"" << escape(token) << "\":" << ch;
+  lkjai::NativeTokenizerBuildResult result;
+  std::string error;
+  if (!lkjai::build_native_tokenizer_json(path, 8192, &result, &error)) {
+    std::cerr << error << "\n";
+    std::exit(1);
   }
-  out << "}},\"pre_tokenizer\":{\"type\":\"ByteLevel\"},";
-  out << "\"added_tokens\":[";
-  int id = 256;
-  for (const auto& tag : {"<pad>", "<unk>", "<bos>", "<eos>",
-                          "<assistant_action>", "<dialogue>", "</dialogue>",
-                          "<message>", "</message>", "<role>", "</role>",
-                          "<tool_name>", "</tool_name>", "<content>",
-                          "</content>", "<action>", "</action>"}) {
-    if (id != 256) out << ",";
-    out << "{\"id\":" << id++ << ",\"content\":\"" << tag
-        << "\",\"special\":true}";
+  auto second = dir / "tokenizer-again.json";
+  lkjai::NativeTokenizerBuildResult result_again;
+  if (!lkjai::build_native_tokenizer_json(second, 8192, &result_again,
+                                          &error)) {
+    std::cerr << error << "\n";
+    std::exit(1);
   }
-  out << "],\"merges\":[]}\n";
+  if (result.vocab_size > 8192 || result.digest != result_again.digest ||
+      result.digest != lkjai::packed_file_digest(path)) {
+    std::cerr << "tokenizer builder is not deterministic\n";
+    std::exit(1);
+  }
   return path;
 }
 

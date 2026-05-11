@@ -56,6 +56,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/native_server_routes.cpp
   src/native_status_page.cpp
   src/native_tokenizer.cpp
+  src/native_tokenizer_build.cpp
   src/native_tokenizer_codec.cpp
   src/native_tokenizer_json.cpp
   src/native_http_client.cpp

@@ -39,6 +39,7 @@ COPY --from=build /build/lkjai-native-dense-check /usr/local/bin/lkjai-native-de
 COPY --from=build /build/lkjai-native-device-check /usr/local/bin/lkjai-native-device-check
 COPY --from=build /build/lkjai-native-logits-check /usr/local/bin/lkjai-native-logits-check
 COPY --from=build /build/lkjai-native-packed-cache /usr/local/bin/lkjai-native-packed-cache
+COPY --from=build /build/lkjai-native-tokenizer-build /usr/local/bin/lkjai-native-tokenizer-build
 COPY --from=build /build/lkjai-native-repo-check /usr/local/bin/lkjai-native-repo-check
 COPY --from=build /build/lkjai-native-packed-cache-reader-check /usr/local/bin/lkjai-native-packed-cache-reader-check
 

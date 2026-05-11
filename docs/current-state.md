@@ -43,12 +43,42 @@ synthetic, optimizer coverage is not tied to real decoder backward, and decode
 still calls host `transformer_forward` instead of consuming CUDA KV-cache
 attention state.
 
+## Data Readiness
+
+Decoder acceptance is also blocked on real local data inputs. A fresh checkout
+does not contain `data/train/tokenizer/tokenizer.json`, and any seq1024 cache
+path must be treated as unproven until strict validation shows it was built
+from public-pretrain JSONL with the decoder tokenizer and
+`configs/native/decoder_40m_bf16_3070.json`.
+
+Required data-prep order:
+
+```bash
+docker compose --profile corpus run --build --rm corpus build-tokenizer
+docker compose --profile corpus run --rm corpus validate-public-pretrain
+docker compose --profile corpus run --rm corpus build-public-pretrain-cache
+docker compose --profile corpus run --rm corpus \
+  lkjai-native-packed-cache validate \
+    --cache /app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
+    --source /app/data/public-corpus/train \
+    --tokenizer /app/data/train/tokenizer/tokenizer.json \
+    --config /workspace/configs/native/decoder_40m_bf16_3070.json
+```
+
+The tokenizer builder writes a deterministic byte-level BPE-compatible
+`tokenizer.json` whose canonical XML-like prompt and action tags are atomic
+tokens. The packed-cache builder accepts one JSONL file or a directory of
+sorted `*.jsonl` shards and streams rows instead of loading the full source.
+
 ## Do Not Claim
 
 - Partial decoder CUDA is not accepted decoder CUDA training.
 - Tied embedding or LM-head updates are not decoder block training.
 - `host_reference_recompute` decode is not accepted CUDA KV-cache serving.
 - Larger GPU profile results do not relax the RTX 3070 acceptance lane.
+- A seq1024 path name is not evidence of a real seq1024 public cache; strict
+  packed-cache validation must pass against the exact source, tokenizer, and
+  decoder config.
 
 Accepted decoder reports must prove real block-weight updates, full block
 backward, FP32 optimizer coverage for every trainable decoder tensor,

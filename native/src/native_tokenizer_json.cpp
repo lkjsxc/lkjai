@@ -146,6 +146,9 @@ bool parse_merges(std::string_view text, NativeTokenizer* t) {
   if (pos == std::string_view::npos) return true;
   pos = text.find('[', pos);
   if (pos == std::string_view::npos) return false;
+  size_t scan = pos + 1;
+  skip_ws(text, &scan);
+  if (scan < text.size() && text[scan] == ']') return true;
   int rank = 0;
   while ((pos = text.find('[', pos + 1)) != std::string_view::npos) {
     std::string a, b;

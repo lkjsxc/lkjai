@@ -70,6 +70,8 @@ docker compose --profile inference up --build inference
 docker compose --profile web up --build web
 docker compose --profile train up --build train
 docker compose --profile corpus run --build --rm corpus download-public-pretrain
+docker compose --profile corpus run --build --rm corpus build-tokenizer
+docker compose --profile corpus run --rm corpus build-public-pretrain-cache
 docker compose --progress quiet --profile verify run --build --rm verify
 ```
 
@@ -104,10 +106,18 @@ docker compose --progress quiet --profile verify run --build --rm verify
   shards under `TRAIN_CORPUS_DIR` until `TRAIN_PUBLIC_PRETRAIN_TOKENS`.
 - `validate-public-pretrain` checks manifests and generated rows for text-only
   provenance, pinned source revisions, checksums, and split counts.
+- `build-tokenizer` writes `TRAIN_TOKENIZER_JSON`, default
+  `/app/data/train/tokenizer/tokenizer.json`, with a deterministic native
+  byte-level BPE-compatible tokenizer and atomic canonical XML-like tags.
 - `build-public-pretrain-cache` runs the native `lkjai-native-packed-cache`
-  binary on `TRAIN_PACKED_CACHE_SOURCE`, defaulting to the first train shard.
-  It requires `TRAIN_TOKENIZER_JSON` to point at the local byte-level BPE
-  tokenizer; smoke/export tokenizers are not valid public cache inputs.
+  binary on `TRAIN_PACKED_CACHE_SOURCE`, defaulting to the prepared train
+  shard directory. It streams one JSONL file or sorted `*.jsonl` shards into
+  `TRAIN_PACKED_CACHE_DIR`, default
+  `/app/data/train/datasets/packed/train-causal_lm_full-seq1024`.
+- Public-pretrain cache validation must compare the cache against the exact
+  source path, `TRAIN_TOKENIZER_JSON`, and
+  `configs/native/decoder_40m_bf16_3070.json`; smoke/export tokenizers are not
+  valid public cache inputs.
 
 ## Presets
 

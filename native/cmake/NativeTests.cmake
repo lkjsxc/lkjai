@@ -79,7 +79,8 @@ add_test(NAME native_decoder_cuda_attention_plan
   COMMAND lkjai-native-decoder-cuda-attention-plan-check)
 
 set_tests_properties(native_decoder_tokenizer_contract PROPERTIES
-  ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
+  ENVIRONMENT
+    "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT};LKJAI_TOKENIZER_BUILD=$<TARGET_FILE:lkjai-native-tokenizer-build>")
 set_tests_properties(native_decoder_cuda_block_forward_substrate PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
 
