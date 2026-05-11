@@ -2,16 +2,18 @@
 
 ## Source
 
-This file distills ignored reports `tmp/deep-research-report (52).md`,
-`tmp/deep-research-report (48).md`, and decoder-relevant conclusions from older
-research notes into durable canon. Reports under `tmp/` are source evidence,
-not canonical docs.
+This file distills decoder-relevant conclusions from ignored reports including
+`tmp/deep-research-report (54).md`, modified `2026-05-12`,
+`tmp/deep-research-report (52).md`, and older research notes into durable
+canon. Reports under `tmp/` are source evidence, not canonical docs.
 
 ## Canon Decision
 
 - The active train/serve product path is native C++/CUDA.
 - Dense BF16 CUDA training is the accepted foundation and regression substrate.
-- The first accepted same-model product target is
+- The immediate product target is the dense 40M browser demo described in
+  [product/dense-demo.md](../product/dense-demo.md).
+- The accepted same-model chat target is
   `configs/native/decoder_40m_bf16_3070.json` with
   `configs/training/decoder_2h_40m_3070.json`.
 - The target hardware gate is RTX 3070 8GB, compute capability 8.6.
@@ -25,7 +27,7 @@ not canonical docs.
 - Dense accepted evidence covers embeddings, LM head, packed-cache training,
   BF16 CUDA math, FP32 AdamW state, checkpoint/export, logits checks, and native
   unsupported-decode behavior.
-- Dense substrate evidence does not prove decoder readiness because the product
+- Dense demo evidence does not prove decoder readiness because the chat product
   model needs RoPE, RMSNorm, GQA, SwiGLU, tied embeddings, block backward, and
   KV-cache decode.
 - The accepted decoder CUDA path must train tied embeddings, block tensors, and

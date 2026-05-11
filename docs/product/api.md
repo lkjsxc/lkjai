@@ -8,8 +8,10 @@ should link here instead of restating success and failure semantics.
 
 ## Routes
 
-- `GET /`: static no-build native browser status/chat page.
+- `GET /`: static no-build native dense demo page.
 - `GET /healthz`: returns JSON process, artifact, and CUDA capability state.
+- `GET /api/dense/status`: returns dense demo readiness and artifact metadata.
+- `POST /api/dense/next-token`: returns dense next-token top-k logits summary.
 - `POST /api/chat`: runs one bounded agent turn.
 - `GET /api/runs/{id}`: returns one run transcript.
 - `GET /api/model`: returns model client status including reachability.
@@ -18,8 +20,38 @@ should link here instead of restating success and failure semantics.
 - `GET /v1/models`: OpenAI-compatible model readiness route.
 - `POST /v1/chat/completions`: OpenAI-compatible model generation route.
 
-`/v1/*` is preserved only for OpenAI-compatible clients. New local APIs should
-use unnumbered route names.
+`/v1/*` is preserved only for OpenAI-compatible clients. New local APIs use
+unnumbered route names.
+
+## Dense Demo Request
+
+```json
+{
+  "tokens": [1, 2, 3],
+  "top_k": 8
+}
+```
+
+`tokens` is a required array of token ids. `top_k` is optional and defaults to
+`8`.
+
+## Dense Demo Response
+
+```json
+{
+  "status": "success",
+  "model_kind": "dense",
+  "decode_supported": false,
+  "checksum": "string",
+  "top_token": 42,
+  "top_k": [
+    {"id": 42, "logit": 1.25, "prob": 0.33}
+  ]
+}
+```
+
+Dense demo routes do not return chat `choices`. They expose logits evidence for
+the loaded artifact.
 
 ## `POST /api/chat` Request
 

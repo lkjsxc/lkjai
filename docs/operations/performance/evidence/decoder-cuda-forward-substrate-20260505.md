@@ -10,7 +10,8 @@ Baseline commits referenced by this substrate batch:
 - `3fefbee`
 - `d4319d2`
 
-New commit: `TBD after commit`.
+Record status: non-final historical evidence note. No new commit was recorded
+in this file when the substrate batch was written.
 
 ## Changed Primitives
 

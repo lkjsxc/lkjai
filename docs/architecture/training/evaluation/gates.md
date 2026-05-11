@@ -1,4 +1,4 @@
-# Training Evaluation
+# Evaluation Gates
 
 ## Goal
 

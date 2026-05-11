@@ -64,13 +64,26 @@ Each contract record uses these fields:
 
 - contract_id: `native-http-runtime`.
 - owner: `docs/architecture/native/contracts/runtime.md`.
-- canonical_source: `/healthz`, `/v1/models`, `/v1/chat/completions`, `/api/chat`,
-  `/api/model`, `/api/config`, and `/api/runs/{id}`.
+- canonical_source: `/healthz`, `/v1/models`, `/v1/chat/completions`,
+  `/api/dense/status`, `/api/dense/next-token`, `/api/chat`, `/api/model`,
+  `/api/config`, and `/api/runs/{id}`.
 - state: `accepted` for route shape and unsupported-decode behavior.
 - supersedes: none.
 - acceptance: native server loads readable artifacts and reports unsupported
   decode truthfully for unsupported model kinds.
 - non_claims: route availability does not imply accepted low-latency decode.
+
+### Dense Browser Demo
+
+- contract_id: `dense-browser-demo`.
+- owner: `docs/product/dense-demo.md`.
+- canonical_source: `GET /`, `GET /api/dense/status`, and
+  `POST /api/dense/next-token`.
+- state: `additive`.
+- supersedes: chat-first root page for dense artifacts.
+- acceptance: browser page and route contract tests prove dense status,
+  top-k logits, checksum, and unsupported chat disclosure.
+- non_claims: dense demo evidence does not prove autoregressive chat.
 
 ### Dense Foundation
 

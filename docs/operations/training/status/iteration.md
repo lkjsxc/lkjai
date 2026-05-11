@@ -164,7 +164,7 @@ Full retrain target:
 docker compose --profile train run --rm \
   -e TRAIN_DATA_DIR=/app/data/train-speed \
   -e TRAIN_INIT_CHECKPOINT= \
-  train train
+  train --train
 ```
 
 ## Manual Probe Set

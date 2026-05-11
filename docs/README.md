@@ -7,6 +7,8 @@
 - Train and serve a commercial-safe scratch model through native C++/CUDA
   product binaries. The active default is about `40M` parameters for the
   current corpus; `60M` remains a later scale target.
+- Ship the dense 40M native browser demo before claiming accepted decoder
+  chat: dense local APIs expose logits, top-k, checksum, and provenance.
 - Keep the runtime LLM-readable: paired XML-like prompt sections and one
   XML-like assistant action with child tags only.
 - Make canonical XML-like prompt and action tags single tokenizer tokens.
@@ -50,6 +52,9 @@
   [architecture/native/decoder/training.md](architecture/native/decoder/training.md),
   [architecture/native/decoder/config.md](architecture/native/decoder/config.md),
   [operations/performance/profiles/scale-profiles.md](operations/performance/profiles/scale-profiles.md).
+- Dense demo: [product/dense-demo.md](product/dense-demo.md),
+  [product/api.md](product/api.md),
+  [architecture/runtime/web.md](architecture/runtime/web.md).
 - Runtime and API: [architecture/native/contracts/runtime.md](architecture/native/contracts/runtime.md),
   [architecture/runtime/inference.md](architecture/runtime/inference.md),
   [product/api.md](product/api.md), [product/chat.md](product/chat.md),
