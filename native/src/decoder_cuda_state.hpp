@@ -16,6 +16,16 @@ struct DecoderCudaStepResult {
 
 class DecoderCudaState {
  public:
+  struct RegistryTensor {
+    Parameter* param = nullptr;
+    DeviceTensor weight;
+    DeviceTensor grad;
+    DeviceTensor moment_m;
+    DeviceTensor moment_v;
+    DeviceTensor shadow;
+    std::vector<float> accumulated_grad;
+  };
+
   DecoderCudaState(const TransformerConfig& cfg,
                    const TransformerState& initial);
 
@@ -31,10 +41,17 @@ class DecoderCudaState {
   DenseCudaState& dense_cuda() { return dense_cuda_; }
 
  private:
+  void build_registry();
+  void accumulate_decoder_gradients(const PackedBatch& batch, double loss,
+                                    float grad_scale, bool reset_grads);
+  void copy_registry_to_host();
+
   TransformerState state_;
   CudaExecutionContext ctx_;
   DenseTrainState dense_host_;
   DenseCudaState dense_cuda_;
+  std::vector<RegistryTensor> registry_;
+  uint64_t registry_shadow_bytes_ = 0;
 };
 
 }  // namespace lkjai

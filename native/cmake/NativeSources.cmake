@@ -23,6 +23,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/decoder_cuda_forward.cpp
   src/decoder_cuda_norm.cu
   src/decoder_cuda_optimizer.cpp
+  src/decoder_cuda_report.cpp
   src/decoder_cuda_residual.cu
   src/decoder_cuda_slice_block.cpp
   src/decoder_cuda_slice.cpp

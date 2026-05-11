@@ -41,6 +41,13 @@ bool append_kv_token(DecoderKvCache* cache, int token, std::string* error) {
   return decoder_kv_cache_append(cache, 0, k, v, error);
 }
 
+bool accepted_decode_artifact(const std::filesystem::path& model_dir) {
+  (void)model_dir;
+  // Sidecar metadata cannot promote host recompute into accepted CUDA decode.
+  // This must switch only when generation consumes a real CUDA KV cache.
+  return false;
+}
+
 }  // namespace
 
 bool decoder_chat_json(const std::filesystem::path& model_dir,
@@ -71,6 +78,7 @@ bool decoder_chat_json(const std::filesystem::path& model_dir,
     return false;
   }
   auto tokens = tokenizer_encode(tokenizer, prompt);
+  bool accepted_decode = accepted_decode_artifact(model_dir);
   int prompt_count = static_cast<int>(tokens.size());
   DecoderKvCache cache;
   DecoderKvCacheConfig kv_cfg{state.cfg.layers, 1, state.cfg.kv_heads,
@@ -115,12 +123,16 @@ bool decoder_chat_json(const std::filesystem::path& model_dir,
           json_escape(content) + "\"},\"finish_reason\":\"" +
           finish_reason + "\",\"lkjai_stop_reason\":\"" +
           stop_reason + "\",\"lkjai_decode_backend\":\"" +
-          kDecoderPartialDecodeBackend + "\",\"lkjai_kv_cache_backend\":\"" +
-          kDecoderPartialKvCacheBackend +
+          std::string(accepted_decode ? kDecoderAcceptedDecodeBackend
+                                      : kDecoderPartialDecodeBackend) +
+          "\",\"lkjai_kv_cache_backend\":\"" +
+          std::string(accepted_decode ? kDecoderAcceptedKvCacheBackend
+                                      : kDecoderPartialKvCacheBackend) +
           "\",\"lkjai_kv_prefill_allocated_bytes\":" +
           std::to_string(cache.allocated_bytes) +
           ",\"lkjai_kv_steady_state_token_allocations\":0,"
-          "\"lkjai_decode_supported\":false}],"
+          "\"lkjai_decode_supported\":" +
+          std::string(accepted_decode ? "true" : "false") + "}],"
           "\"usage\":{\"prompt_tokens\":" + std::to_string(prompt_count) +
           ",\"completion_tokens\":" + std::to_string(generated.size()) +
           ",\"total_tokens\":" + std::to_string(total) + "}}";

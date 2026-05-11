@@ -22,9 +22,16 @@ struct DecoderKvCacheLayout {
 };
 
 struct DecoderKvCache {
+  DecoderKvCache() = default;
+  DecoderKvCache(const DecoderKvCache&) = delete;
+  DecoderKvCache& operator=(const DecoderKvCache&) = delete;
+  DecoderKvCache(DecoderKvCache&& other) noexcept;
+  DecoderKvCache& operator=(DecoderKvCache&& other) noexcept;
+  ~DecoderKvCache();
+
   DecoderKvCacheLayout layout;
-  std::vector<uint16_t> key;
-  std::vector<uint16_t> value;
+  void* key_device = nullptr;
+  void* value_device = nullptr;
   std::vector<int> next_position;
   uint64_t allocated_bytes = 0;
 };

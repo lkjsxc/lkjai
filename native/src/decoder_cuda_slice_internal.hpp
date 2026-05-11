@@ -27,9 +27,17 @@ void decoder_set_forward_probe(const DecoderCudaForwardSubstrateReport& probe,
                                TransformerTrainReport* report);
 void decoder_fill_cuda_slice_report(DenseCudaState& cuda,
                                     TransformerTrainReport* report);
+void decoder_fill_full_cuda_report(DenseCudaState& cuda,
+                                   uint64_t registry_shadow_bytes,
+                                   TransformerTrainReport* report);
 void decoder_record_partial_weight_change(const std::vector<float>& before_emb,
                                           const std::vector<float>& before_head,
                                           const DenseTrainState& after,
                                           TransformerTrainReport* report);
+void decoder_record_full_weight_change(const TransformerState& before,
+                                       const TransformerState& after,
+                                       TransformerTrainReport* report);
+bool decoder_write_acceptance_sidecars(const TransformerTrainReport& report,
+                                       std::string* error);
 
 }  // namespace lkjai

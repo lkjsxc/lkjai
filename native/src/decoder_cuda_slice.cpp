@@ -166,6 +166,7 @@ bool run_decoder_cuda_training(const TransformerTrainOptions& opt,
   if (!report->deadline_hit) report->stop_reason = "max_steps";
   auto trained_state = cuda.copy_to_host();
   cuda.record_weight_change(before_state, report);
+  cuda.fill_report(report);
   auto phase = std::chrono::steady_clock::now();
   if (!decoder_write_all(effective, trained_state, report, seq_len)) {
     *error = "failed to write decoder CUDA slice artifact";
@@ -173,7 +174,6 @@ bool run_decoder_cuda_training(const TransformerTrainOptions& opt,
   }
   report->checkpoint_export_seconds += since(phase);
   report->export_seconds = report->checkpoint_export_seconds;
-  cuda.fill_report(report);
   report->elapsed_seconds = since(started);
   std::string logits_json, logits_error;
   report->logits_check_passed =
@@ -186,6 +186,7 @@ bool run_decoder_cuda_training(const TransformerTrainOptions& opt,
     *error = "exported decoder BF16 logits check failed: " + logits_error;
     return false;
   }
+  if (!decoder_write_acceptance_sidecars(*report, error)) return false;
   return true;
 }
 
