@@ -47,6 +47,8 @@ artifact inspection, and CUDA capability probing.
   decoder CUDA state skeleton and partial training report path.
 - [dense_cuda.cu](dense_cuda.cu) and [dense_cuda.hpp](dense_cuda.hpp):
   dense CUDA parity and public training/logits entrypoints.
+- [dense_demo.cpp](dense_demo.cpp) and [dense_demo.hpp](dense_demo.hpp):
+  local dense demo status and next-token JSON helpers.
 - [dense_cuda_common.cpp](dense_cuda_common.cpp),
   [dense_cuda_gemm.cu](dense_cuda_gemm.cu),
   [dense_cuda_internal.hpp](dense_cuda_internal.hpp),

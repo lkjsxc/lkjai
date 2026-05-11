@@ -23,7 +23,7 @@ This directory contains test helpers for native CTest cases.
 - [runtime_contract_check.cpp](runtime_contract_check.cpp): native runtime
   event filtering, transcript persistence, and model-status JSON contract.
 - [server_route_contract.cpp](server_route_contract.cpp): merged native route
-  dispatcher contract for model, runtime, health, and transcript routes.
+  dispatcher contract for model, dense demo, health, and transcript routes.
 - [decoder_acceptance_report_contract.cpp](decoder_acceptance_report_contract.cpp):
   decoder accepted-report guard for full CUDA training and KV-cache decode.
 

@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "capability_json.hpp"
+#include "dense_demo.hpp"
 #include "decoder_decode.hpp"
 #include "json_min.hpp"
 #include "native_status_page.hpp"
@@ -124,6 +125,12 @@ HttpResponse native_server_route(const HttpRequest& request,
   }
   if (request.method == "GET" && request.path == "/api/config") {
     return {200, runtime_config_status_json(runtime)};
+  }
+  if (request.method == "GET" && request.path == "/api/dense/status") {
+    return dense_demo_status_response(artifact);
+  }
+  if (request.method == "POST" && request.path == "/api/dense/next-token") {
+    return dense_demo_next_token_response(artifact, request);
   }
   if (request.method == "POST" && request.path == "/api/chat") {
     return runtime_chat_json(runtime, request, artifact);

@@ -42,6 +42,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/dense_cuda_state.cu
   src/dense_cuda_step.cu
   src/dense_cuda_train.cpp
+  src/dense_demo.cpp
   src/dense_loss_trend.cpp
   src/dense_model.cpp
   src/dense_report_util.cpp

@@ -16,7 +16,9 @@ int main() {
       html.body.find("<!doctype html>") == std::string::npos ||
       html.body.find("fetch('/healthz')") == std::string::npos ||
       html.body.find("fetch('/api/model')") == std::string::npos ||
-      html.body.find("fetch('/api/chat'") == std::string::npos) {
+      html.body.find("fetch('/api/dense/status')") == std::string::npos ||
+      html.body.find("fetch('/api/dense/next-token'") == std::string::npos ||
+      html.body.find("lkjai dense demo") == std::string::npos) {
     std::cerr << "native status page contract failed\n";
     return 1;
   }
