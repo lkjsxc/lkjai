@@ -59,6 +59,8 @@ Dense reports also include `backward_gemm_enabled`,
 `copy_compute_overlap_enabled`, and `batch_staging_backend`.
 
 Dense weight evidence uses `weight_changed` and `weight_change`.
+`copy_compute_overlap_enabled` must remain `false` unless measured runtime
+evidence proves overlap for the reported run.
 
 ## Decoder Fields
 

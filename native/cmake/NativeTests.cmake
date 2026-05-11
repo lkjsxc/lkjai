@@ -47,7 +47,7 @@ set_tests_properties(native_inspect_missing PROPERTIES WILL_FAIL TRUE)
 
 add_test(
   NAME native_train_smoke
-  COMMAND sh -c "$<TARGET_FILE:lkjai-native-train> --smoke --steps 2 > /tmp/lkjai-native-smoke.json && grep -q '\"dense_cuda_path\":true' /tmp/lkjai-native-smoke.json && grep -q '\"status\":\"success\"' /tmp/lkjai-native-smoke.json"
+  COMMAND sh -c "$<TARGET_FILE:lkjai-native-train> --smoke --steps 2 > /tmp/lkjai-native-smoke.json && grep -q '\"dense_cuda_path\":true' /tmp/lkjai-native-smoke.json && grep -q '\"copy_compute_overlap_enabled\":false' /tmp/lkjai-native-smoke.json && grep -q '\"status\":\"success\"' /tmp/lkjai-native-smoke.json"
 )
 add_test(NAME native_device_tensor_check COMMAND lkjai-native-device-check)
 add_test(NAME native_packed_cache_reader_check

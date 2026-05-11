@@ -70,9 +70,10 @@ artifact checksums, positive throughput, non-negative CUDA-event timings, and
 passing logits/reference tolerance checks. Dense foundation promotion also requires
 `loss_kernel_backend=block_row_softmax_fp32`,
 `loss_readback_mode=optimizer_step_deferred_pinned`,
-`logits_readback_mode=single_row_capture`, `dense_stream_count=2`,
-`dense_batch_slot_count=3`, `copy_compute_overlap_enabled=true`, and
-`batch_staging_backend=triple_slot_pinned_direct_read`.
+`logits_readback_mode=single_row_capture`, `dense_stream_count`,
+`dense_batch_slot_count`, `copy_compute_overlap_enabled`, and
+`batch_staging_backend`. `copy_compute_overlap_enabled` must stay `false`
+until runtime evidence proves copy/compute overlap for the reported run.
 Reports with `run_purpose=bounded_diagnostic_start_check` are listed as
 diagnostic runs and are rejected by promotion aggregates even when
 loss decreases.

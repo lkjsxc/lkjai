@@ -33,7 +33,7 @@ Schema stays stable. Accepted dense reports must include:
 - `dense_logits_readback_bytes`
 - `dense_stream_count=2`
 - `dense_batch_slot_count=3`
-- `copy_compute_overlap_enabled=true`
+- `copy_compute_overlap_enabled=false` until observed overlap is measured
 - `batch_staging_backend="triple_slot_pinned_direct_read"`
 
 Existing dense fields remain required, including accepted CUDA status,

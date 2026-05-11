@@ -41,10 +41,11 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << ",\"loss_kernel_backend\":\"block_row_softmax_fp32\""
        << ",\"loss_readback_mode\":\"optimizer_step_deferred_pinned\""
        << ",\"logits_readback_mode\":\"single_row_capture\""
-       << ",\"dense_stream_count\":2"
-       << ",\"dense_batch_slot_count\":3"
-       << ",\"copy_compute_overlap_enabled\":true"
-       << ",\"batch_staging_backend\":\"triple_slot_pinned_direct_read\""
+       << ",\"dense_stream_count\":" << report.dense_stream_count
+       << ",\"dense_batch_slot_count\":" << report.dense_batch_slot_count
+       << ",\"copy_compute_overlap_enabled\":"
+       << (report.copy_compute_overlap_enabled ? "true" : "false")
+       << ",\"batch_staging_backend\":\"" << json_escape(report.batch_staging_backend) << "\""
        << ",\"optimizer_backend\":\"cuda_adamw_fp32\""
        << ",\"cuda_probe_passed\":"
        << (cuda_required_ok(cuda) ? "true" : "false")

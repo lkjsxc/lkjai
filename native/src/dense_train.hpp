@@ -134,6 +134,10 @@ struct DenseTrainReport {
   std::string dense_timing_mode = "deferred";
   bool dense_head_f32_cache_enabled = true;
   int dense_head_f32_cache_refreshes = 0;
+  int dense_stream_count = 2;
+  int dense_batch_slot_count = 3;
+  bool copy_compute_overlap_enabled = false;
+  std::string batch_staging_backend = "triple_slot_pinned_direct_read";
 };
 
 bool load_dense_config(const std::filesystem::path& path, DenseConfig* config,
