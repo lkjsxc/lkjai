@@ -101,10 +101,11 @@ RMSNorm, and LM head. The config records `vocab_size`, `context`, `layers`,
 `hidden_size`, `heads`, `kv_heads`, `head_dim`, `ffn_size`, `activation`,
 `rope_theta`, `rms_norm_eps`, `tie_embeddings`, and `seed`.
 
-Transformer chat decode remains unsupported. Decoder artifacts own chat-capable
-serving.
+Transformer chat decode remains unsupported. Decoder artifacts are the product
+target for chat, but current host-reference choices are partial usability until
+accepted CUDA KV-cache decode exists.
 
-## Compatibility
+## Native Loading
 
 - Native artifacts do not need to load Python `model.pt` checkpoints.
 - Product serving reads only `lkjai-native-artifact`.

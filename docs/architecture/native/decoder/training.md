@@ -5,8 +5,8 @@ State: acceptance contract.
 
 ## Goal
 
-Train a same-model chat-capable decoder through native C++/CUDA without Python
-or PyTorch in the product path.
+Train a same-model decoder through native C++/CUDA without Python or PyTorch in
+the product path. Accepted chat comes after real CUDA KV-cache decode evidence.
 
 ## CUDA Ownership
 
@@ -26,6 +26,10 @@ Accepted full decoder CUDA training requires:
 Accepted decoder training covers embeddings, tied LM head, every decoder block
 tensor, and final norm. Reports must prove positive non-embedding and
 decoder-block deltas before using accepted backend names.
+
+Current scaffolding may own registry tensors, BF16 shadows, AdamW moments, and
+diagnostic CUDA buffers, but it is not accepted evidence while block gradients
+are synthetic or detached from a real decoder backward pass.
 
 ## Public Invocation
 
@@ -101,17 +105,25 @@ decode backend names are reported, KV prefill allocation is positive, steady
 state per-token device allocation is zero, and the documented benchmark gate
 passes. LM-head-only updates do not satisfy decoder block-training acceptance.
 
+No report may emit `implementation_status=accepted`,
+`decoder_cuda_slice=full_decoder`,
+`decoder_backward_backend=cuda_full_decoder`,
+`decode_backend=cuda_kv_cache`, or
+`kv_cache_backend=cuda_contiguous_bf16` until real block backward, optimizer
+coverage for all trainable decoder tensors, accepted logits/export/server
+checks, and real CUDA KV-cache decode exist. Sidecars such as
+`decoder_acceptance.json` may be written only after accepted evidence is
+produced.
+
 The two-hour RTX 3070 run is the acceptance lane. Code must not promote a
 report solely because `target_seconds > 0`.
 
 ## Current Status
 
 The decoder lane is promoted only through this document's acceptance contract.
-Historical partial reports remain useful regression evidence, but any current
-accepted report must say `decoder_cuda_slice=full_decoder`,
-`decoder_backward_backend=cuda_full_decoder`,
-`kv_cache_backend=cuda_contiguous_bf16`, and
-`decode_backend=cuda_kv_cache`.
+Historical partial reports remain useful regression evidence. Current partial
+reports must keep `accepted_cuda_training=false`, avoid accepted backend names,
+and disclose host recompute choices as unsupported decode.
 
 The report contract rejects partial slices, missing logits evidence, missing
 served artifacts, missing block-weight deltas, untied product configs, and KV

@@ -30,7 +30,8 @@ autoregressive generation.
 - Prefill may reuse decoder forward buffers, but steady-state decode must reuse
   cache and workspace allocations across output tokens.
 - The serving response may expose accepted backend names only after CUDA write,
-  append, and read behavior is covered by CTest and route contracts.
+  append, read, and attention consumption behavior is covered by CTest and
+  route contracts.
 
 ## Current Status
 
@@ -41,4 +42,5 @@ serving disclosure, not accepted KV-cache decode.
 
 The native implementation now has a tested layout helper for the accepted
 contiguous BF16 K/V memory contract. It does not change serving reports until
-decode writes and reads the cache on the CUDA path.
+decode writes model K/V tensors, reads them through CUDA attention, avoids
+steady-state token allocations, and stops using host prompt recompute.

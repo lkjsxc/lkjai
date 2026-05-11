@@ -49,4 +49,5 @@ report before any performance claim is treated as product evidence:
 
 Partial paths must keep explicit diagnostic names. A report that trains only
 embeddings and the LM head is dense-substrate evidence, not accepted decoder
-training evidence.
+training evidence. Synthetic decoder-block deltas and host recompute decode
+also remain diagnostic until real backward and CUDA KV-cache decode are proven.

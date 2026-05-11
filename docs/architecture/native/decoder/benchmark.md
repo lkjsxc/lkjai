@@ -11,7 +11,7 @@ The decoder smoke gate must run through Docker Compose and prove:
 - checkpoint and export artifacts,
 - inspect success,
 - logits check success,
-- native server chat `choices` success.
+- native server route success with truthful decode disclosure.
 
 ## Two-Hour Gate
 
@@ -30,6 +30,11 @@ Commit `a806c88` makes `--full` and `--require-accepted-cuda` run an acceptance
 probe first. The runner must fail when the report is foundation/reference or partial
 CUDA. A dry-run script, foundation server contract, or embedding/head-only CUDA slice is
 not accepted evidence.
+
+Current decoder smoke remains partial when it uses synthetic block gradients or
+host recompute decode. Such runs must report `accepted_cuda_training=false`,
+`decoder_backward_backend=not_implemented`, and
+`decode_supported=false`.
 
 Use smoke mode for current partial CUDA work:
 
@@ -62,6 +67,11 @@ Record under ignored `artifacts/benchmarks/<run-id>/`:
   `decoder_backward_backend=cuda_full_decoder`,
   `kv_cache_backend=cuda_contiguous_bf16`, and
   `decode_backend=cuda_kv_cache`.
+
+Tracked accepted evidence pages are added only after the generated train report,
+artifact inspection, logits check, served artifact manifest, route transcript,
+positive KV prefill bytes, and zero steady-state token allocation evidence
+exist.
 
 Tracked docs may summarize curated accepted results after the generated
 artifacts exist.

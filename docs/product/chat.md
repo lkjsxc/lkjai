@@ -33,11 +33,12 @@ State: canonical product chat surface contract.
   an accepted default.
 - Current native dense and transformer artifacts do not produce chat responses.
   They return HTTP `422` unsupported decode with no `choices` field.
-- Native decoder artifacts are the same-model product target for successful
-  chat `choices` responses.
+- Native decoder artifacts are the same-model product target for accepted chat
+  responses.
 - Current decoder choices may be served by host-reference recompute with
   `lkjai_kv_cache_backend=host_contiguous_bf16_diagnostic`; those responses are
-  not accepted CUDA KV-cache decode.
+  not accepted CUDA KV-cache decode and must report
+  `lkjai_decode_supported=false`.
 
 ## Default Safety Boundary
 

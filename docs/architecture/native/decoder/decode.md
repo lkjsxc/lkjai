@@ -5,8 +5,9 @@ State: accepted when `decode_backend=cuda_kv_cache`.
 
 ## API
 
-`POST /v1/chat/completions` returns OpenAI-compatible JSON for decoder
-artifacts:
+`POST /v1/chat/completions` may return OpenAI-compatible JSON for decoder
+artifacts. Current decoder choices are partial host-reference usability until
+accepted CUDA KV-cache decode exists:
 
 - `id`
 - `object`
@@ -35,6 +36,10 @@ The current host-reference bridge may return `choices`, but it must report
 `lkjai_decode_backend=host_reference_recompute`,
 `lkjai_kv_cache_backend=host_contiguous_bf16_diagnostic`, and
 `lkjai_decode_supported=false`.
+
+Sidecar metadata cannot promote host recompute. Accepted disclosure requires
+generation to prefill real CUDA K/V tensors once and append one token per step
+without calling host `transformer_forward` for the full prompt.
 
 ## Prompt And Tokenizer
 
@@ -72,6 +77,8 @@ HTTP `400` with no `choices`.
 - Accepted decode uses a native-owned contiguous BF16 KV cache.
 - Paged KV cache is a later batching optimization.
 - Steady-state accepted decode must not allocate device memory per token.
+- Host recompute choices are partial usability only and do not satisfy accepted
+  decode even when diagnostic K/V allocation exists.
 
 ## Sampling
 

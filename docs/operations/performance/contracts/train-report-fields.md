@@ -75,4 +75,12 @@ Decoder reports also include `decoder_status`, `embedding_tying`,
 `decoder_weight_change` records quantitative deltas for embeddings, LM head,
 non-embedding tensors, and decoder-block tensors. Partial tied decoder slice
 reports must show real embedding and LM-head deltas while keeping
-non-embedding and decoder-block deltas at zero.
+accepted training status false.
+
+Decoder reports must not emit `implementation_status=accepted`,
+`decoder_cuda_slice=full_decoder`,
+`decoder_backward_backend=cuda_full_decoder`,
+`decode_backend=cuda_kv_cache`, or
+`kv_cache_backend=cuda_contiguous_bf16` until real full decoder backward and
+real CUDA KV-cache decode are implemented and verified. Sidecars such as
+`decoder_acceptance.json` belong only to accepted evidence bundles.

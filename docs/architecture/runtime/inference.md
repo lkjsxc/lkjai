@@ -22,9 +22,12 @@ Use one real native model engine and surface its health honestly.
 ## Request And Response
 
 - Request fields: `model`, `messages`, `max_tokens`, `temperature`.
-- The runtime consumes `choices[0].message.content` from decoder artifacts.
+- The runtime consumes `choices[0].message.content` from decoder artifacts when
+  the route returns choices.
 - Dense and transformer artifacts return unsupported decode, so product chat
   quality gates require decoder exports with the real tokenizer.
+- Current decoder choices are partial host-reference usability and must report
+  unsupported CUDA decode.
 - Accepted decoder choices report `cuda_kv_cache` and
   `cuda_contiguous_bf16`, with zero steady-state token allocation.
 - Every accepted future model step must return one XML action.

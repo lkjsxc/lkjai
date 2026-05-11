@@ -19,7 +19,7 @@ preparation work.
 
 | Lane | State | Accepted Evidence | Blocked Capability |
 |---|---|---|---|
-| `dense` | accepted foundation | BF16 CUDA train, checkpoint/export, logits checks, packed-cache IO | chat-capable decoder blocks and KV-cache decode |
+| `dense` | accepted foundation | BF16 CUDA train, checkpoint/export, logits checks, packed-cache IO | decoder blocks and KV-cache decode |
 | `decoder` | product acceptance target | tied artifacts, tokenizer copy, partial host-reference choices, full-decoder CUDA report contract | real block backward, optimizer coverage, and CUDA KV-cache decode |
 | `transformer` | diagnostic lane | host/reference checks and probe reports | not an accepted training or serving target |
 
@@ -37,6 +37,12 @@ Partial reports remain non-claims and must set `decode_supported=false`.
 Host-reference recompute decode may produce decoder `choices`, but it is not
 accepted CUDA KV-cache serving evidence.
 
+The current decoder CUDA scaffolding is useful implementation work, not
+accepted evidence. It must remain non-accepted while block gradients are
+synthetic, optimizer coverage is not tied to real decoder backward, and decode
+still calls host `transformer_forward` instead of consuming CUDA KV-cache
+attention state.
+
 ## Do Not Claim
 
 - Partial decoder CUDA is not accepted decoder CUDA training.
@@ -47,7 +53,8 @@ accepted CUDA KV-cache serving evidence.
 Accepted decoder reports must prove real block-weight updates, full block
 backward, FP32 optimizer coverage for every trainable decoder tensor,
 export/logits/server checks, finite loss, passing logits checks, positive
-steps and loss-token counts, CUDA KV-cache decode, and supported decode.
+steps and loss-token counts, contiguous CUDA BF16 KV-cache decode, zero
+steady-state token allocations, and supported decode.
 
 ## Next Target
 

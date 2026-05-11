@@ -9,7 +9,8 @@
   benchmark substrate, not the final product mode.
 - `decoder` is the product training target. It remains partial until reports
   prove `decoder_cuda_slice=full_decoder`, CUDA attention/backward, contiguous
-  BF16 KV-cache decode, and the decoder benchmark gate.
+  BF16 KV-cache decode, and the decoder benchmark gate. Synthetic block
+  gradients and host recompute decode are not promotion evidence.
 - Dense training uses FP32 master weights and Adam state, BF16 CUDA shadow
   tensors for forward/backward, FP32 accumulation, and BF16 export.
 - Accepted reports must say `accepted_cuda_training=true`,

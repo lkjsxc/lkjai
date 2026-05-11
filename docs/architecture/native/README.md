@@ -8,7 +8,7 @@ contracts.
 | Mode | Status | Public Role |
 |---|---|---|
 | `dense` | CUDA foundation | Accepted BF16 training substrate and benchmark continuity path. |
-| `decoder` | Product target | Same-model train/export/serve goal; current CUDA slice is partial until full block kernels and acceptance evidence land. |
+| `decoder` | Product target | Same-model train/export/serve goal; current CUDA scaffolding is partial until real block backward, CUDA KV-cache decode, and acceptance evidence land. |
 | `transformer` | Reference-only | Host/reference parity and migration checks; not a public product mode. |
 
 ## Read This Section When
@@ -28,5 +28,5 @@ contracts.
   diagnostic plans.
 - [dense/README.md](dense/README.md): accepted dense substrate and dense
   runtime contracts.
-- [decoder/README.md](decoder/README.md): chat-capable decoder model kind,
-  artifact, training, decode, and benchmark contracts.
+- [decoder/README.md](decoder/README.md): decoder product target, artifact,
+  training, decode, and benchmark contracts.

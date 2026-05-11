@@ -32,6 +32,10 @@ embeddings and the LM head.
 
 ## Current Status
 
-The partial CUDA slice trains embeddings and the LM head only. Reports must keep
-`decoder_backward_backend=not_implemented` until full block backward and
-optimizer coverage are implemented and verified.
+The partial CUDA slice trains embeddings and the LM head on the dense
+substrate. Current decoder registry and AdamW scaffolding may update block
+tensors for diagnostic work, but synthetic deltas are not accepted backward
+evidence. Reports must keep `decoder_backward_backend=not_implemented` until
+full block backward computes real gradients and optimizer coverage is verified
+for embeddings, tied LM head, norms, projections, MLP tensors, final norm, and
+Adam moments.

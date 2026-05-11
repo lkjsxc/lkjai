@@ -24,7 +24,8 @@ State: canonical Compose profile, mount, port, and verification contract.
   `GET /v1/models`.
 - Inference loads exported native artifacts. Dense and transformer artifacts
   return HTTP `422` unsupported with no `choices`; decoder artifacts can return
-  choices when exported with the real local tokenizer.
+  partial host-reference choices when exported with the real local tokenizer.
+  Accepted CUDA decode requires the decoder evidence gate.
 - Inference must not use exact supervised lookup, prompt matching, or canned
   response tables.
 - Training writes datasets, tokenizer, checkpoints, exports, and logs under

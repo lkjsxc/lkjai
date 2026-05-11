@@ -7,7 +7,7 @@ State: canonical.
 
 This inventory is the canonical list of stable native surfaces for foundation
 work. Changes here must preserve current dense CUDA acceptance while making
-future transformer CUDA work measurable.
+decoder product acceptance measurable.
 
 ## Ownership Fields
 
@@ -47,7 +47,7 @@ Each contract record uses these fields:
 - supersedes: none.
 - acceptance: artifact inspect, logits check, checksum, and server load pass for
   the claimed model kind.
-- non_claims: artifact load does not imply chat-capable decode.
+- non_claims: artifact load does not imply accepted chat decode.
 
 ### Train Report
 
@@ -97,8 +97,9 @@ Each contract record uses these fields:
   [decoder/training.md](../decoder/training.md), including full-decoder CUDA
   training, logits/export/server evidence, block-weight deltas, and accepted
   KV-cache decode names.
-- non_claims: `native_dense_40m_bf16_3070.json` remains dense diagnostic and
-  profile evidence, not same-model decoder acceptance.
+- non_claims: current dirty decoder scaffolding, synthetic block gradients,
+  host recompute decode, and `native_dense_40m_bf16_3070.json` are not
+  same-model decoder acceptance.
 
 ### Decoder Decode
 
@@ -109,9 +110,9 @@ Each contract record uses these fields:
 - state: `partial`.
 - supersedes: none.
 - acceptance: governed by [decoder/training.md](../decoder/training.md) and
-  [decoder/decode.md](../decoder/decode.md); accepted decode requires native BF16
-  KV cache, no per-token device allocation in steady state, and real chat
-  `choices`.
+  [decoder/decode.md](../decoder/decode.md); accepted decode requires native
+  CUDA BF16 KV cache consumed by generation, no per-token device allocation in
+  steady state, and real chat `choices`.
 - non_claims: `host_reference_recompute` with
   `kv_cache_backend=host_contiguous_bf16_diagnostic` is not accepted serving
   evidence.

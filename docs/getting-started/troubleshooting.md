@@ -33,7 +33,8 @@ Check:
 
 Fix:
 - Ensure `data/models/${MODEL_NAME}` exists.
-- Use a decoder artifact for successful chat choices.
+- Use a decoder artifact for partial host-reference choices. Accepted chat
+  requires CUDA KV-cache decode evidence.
 
 ## Training Finishes Instantly
 

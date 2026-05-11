@@ -60,7 +60,7 @@ correctness and profiling.
 ## Research-Informed Order
 
 The latest research report agrees with the repo canon: dense BF16 CUDA is the
-foundation, but chat-capable product value depends on completing decoder
+foundation, but accepted chat product value depends on completing decoder
 training and decode. Keep this order:
 
 1. Wire the existing decoder forward substrate into the actual training path

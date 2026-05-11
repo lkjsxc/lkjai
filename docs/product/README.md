@@ -12,7 +12,8 @@ API contracts.
 
 Current native dense artifacts load and expose readiness/logits validation, but
 they do not support autoregressive chat decode. Decoder artifacts are the
-chat-capable product target when exported with the real local tokenizer.
+product target for chat, but current decoder choices remain partial
+host-reference usability until accepted CUDA KV-cache decode evidence exists.
 
 ## Child Index
 

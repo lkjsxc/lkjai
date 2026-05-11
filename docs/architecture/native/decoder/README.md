@@ -1,6 +1,6 @@
 # Decoder Native Path
 
-Use this subtree for the chat-capable native `decoder` model kind.
+Use this subtree for the native `decoder` product target.
 
 ## Read This Section When
 
@@ -31,9 +31,10 @@ Use this subtree for the chat-capable native `decoder` model kind.
 | `transformer` | Reference-only | CPU/host parity source while decoder pieces are migrated; not a product training mode. |
 
 The current decoder implementation exports real decoder artifacts with the
-repo byte-level BPE tokenizer and can serve decoder chat choices through the
-native tokenizer bridge. Host-reference recompute decode is partial usability
-only: it applies RoPE and omits learned position embeddings, but it is not
-accepted CUDA KV-cache serving. Training still reports partial CUDA because
-block weights are not updated, full block backward is absent, block optimizer
-coverage is absent, and KV-cache decode is not complete.
+repo byte-level BPE tokenizer and may return partial host-reference choices
+through the native tokenizer bridge. Those choices are partial usability only:
+decode still calls host `transformer_forward`, the diagnostic KV writes are not
+model attention state, and the route must report `lkjai_decode_supported=false`.
+Training remains partial while block gradients are synthetic, full block
+backward is absent, and accepted contiguous CUDA BF16 KV-cache decode is not
+complete.

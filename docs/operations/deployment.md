@@ -25,7 +25,9 @@ docker compose --profile web up --build web
 - Runtime configuration and `kjxlkj` adapter status are visible at
   `http://127.0.0.1:8080/api/config`.
 - Chat reports explicit model errors instead of dummy web-runtime responses.
-- Default inference is the native C++/CUDA server.
+- Default inference is the native server. Dense artifacts provide readiness and
+  logits diagnostics; accepted decoder chat requires separate CUDA KV-cache
+  evidence.
 
 ## Rejected Bootstrap
 
