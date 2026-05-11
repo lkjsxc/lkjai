@@ -50,5 +50,16 @@ bool write_dense_train_artifact(const std::filesystem::path& dir,
                                 int microsteps, int batch_size, int seq_len,
                                 int grad_accum, double loss,
                                 bool checkpoint, std::string* checksum);
+bool write_dense_train_artifact_staged(const std::filesystem::path& dir,
+                                       const DenseTrainState& state, int step,
+                                       int microsteps, int batch_size,
+                                       int seq_len, int grad_accum,
+                                       double loss, bool checkpoint,
+                                       std::string* checksum);
+bool write_dense_train_outputs(const DenseTrainOptions& opt,
+                               const DenseTrainState& final_state,
+                               const DenseTrainState& best_state,
+                               int seq_len, DenseTrainReport* report,
+                               std::string* error);
 
 }  // namespace lkjai

@@ -87,7 +87,8 @@ void check_training_config(const std::filesystem::path& repo,
   static const std::vector<std::string_view> allowed = {
       "format", "name", "description", "preset", "model_name", "model_kind",
       "native_config", "packed_cache_dir", "tokenizer", "objective",
-      "sequence_len", "learning_rate", "warmup_steps", "batch_size",
+      "sequence_len", "learning_rate", "lr_schedule",
+      "min_learning_rate_fraction", "warmup_steps", "batch_size",
       "gradient_accumulation", "max_optimizer_steps",
       "save_latest_every_optimizer_steps", "target_seconds", "seed"};
   auto body = read(path);
@@ -105,6 +106,10 @@ void check_training_config(const std::filesystem::path& repo,
   if (objective != "causal_lm_full")
     result->fail(path.string() + " unsupported objective " + objective);
   auto model_kind = json_first_string(body, "model_kind");
+  auto schedule = json_first_string(body, "lr_schedule");
+  if (!schedule.empty() && schedule != "warmup_constant" &&
+      schedule != "warmup_cosine")
+    result->fail(path.string() + " unsupported lr_schedule " + schedule);
   auto name = json_first_string(body, "name");
   bool profile = path.filename().string().find("profile") != std::string::npos ||
                  name.find("profile") != std::string::npos;

@@ -92,11 +92,11 @@ The immediate product target is a dense 40M native browser demo on the merged
 server:
 
 - native config: `configs/native/native_dense_40m_bf16_3070.json`
-- training config: `configs/training/dense_12h_40m_3070.json`
+- training config: `configs/training/dense_40m_accepted_3070.json`
 - browser page: `GET /`
 - local APIs: `GET /api/dense/status` and `POST /api/dense/next-token`
 - evidence: bounded pilot checks, deterministic checksum, logits/top-k output,
-  and truthful unsupported chat decode
+  train-report provenance, and truthful unsupported chat decode
 
 This target does not claim autoregressive chat. It uses dense logits and top-k
 output to make the accepted dense substrate visible and testable from a browser.

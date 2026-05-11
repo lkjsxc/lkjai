@@ -9,6 +9,9 @@
   current corpus; `60M` remains a later scale target.
 - Ship the dense 40M native browser demo before claiming accepted decoder
   chat: dense local APIs expose logits, top-k, checksum, and provenance.
+- Accepted dense 40M training uses
+  `configs/training/dense_40m_accepted_3070.json` with
+  `configs/native/native_dense_40m_bf16_3070.json`.
 - Keep the runtime LLM-readable: paired XML-like prompt sections and one
   XML-like assistant action with child tags only.
 - Make canonical XML-like prompt and action tags single tokenizer tokens.

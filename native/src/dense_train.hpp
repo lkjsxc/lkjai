@@ -40,6 +40,8 @@ struct DenseTrainOptions {
   int loss_sample_interval = 0;
   int seed = -1;
   float lr = 1.0e-3f;
+  std::string lr_schedule = "warmup_constant";
+  float min_lr_fraction = 0.0f;
   std::filesystem::path train_config_path;
 };
 
@@ -79,6 +81,13 @@ struct DenseTrainReport {
   int batch_size = 0;
   int seq_len = 0;
   int grad_accum = 1;
+  int target_seconds = 0;
+  bool deadline_hit = false;
+  std::string stop_reason = "max_steps";
+  std::string lr_schedule = "warmup_constant";
+  double learning_rate = 0.0;
+  double min_learning_rate_fraction = 0.0;
+  double final_learning_rate = 0.0;
   double initial_loss = 0.0;
   double loss = 0.0;
   int loss_sample_interval = 0;
@@ -102,6 +111,7 @@ struct DenseTrainReport {
   std::filesystem::path config_path;
   std::filesystem::path packed_cache;
   std::filesystem::path checkpoint_dir;
+  std::filesystem::path best_checkpoint_dir;
   std::filesystem::path export_dir;
   std::filesystem::path served_dir;
   double elapsed_seconds = 0.0;

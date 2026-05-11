@@ -5,16 +5,16 @@ State: canonical operator run contract.
 
 ## Goal
 
-Run one measurable long training job for the 3070-first 40M scratch model.
+Run one measurable long training job for the 3070-first dense 40M model.
 
 ## Default Behavior
 
 - `docker compose --profile train up --build train` runs the committed two-step
   dense smoke command.
-- `TRAIN_CONFIG=/workspace/configs/training/scratch_40m_12h.json` is the
-  default training-run config.
-- `TRAIN_NATIVE_CONFIG=/workspace/configs/native/native_40m_bf16.json` is the
-  default model-shape config for the train service.
+- `TRAIN_CONFIG=/workspace/configs/training/dense_40m_accepted_3070.json` is
+  the default training-run config.
+- `TRAIN_NATIVE_CONFIG=/workspace/configs/native/native_dense_40m_bf16_3070.json`
+  is the default model-shape config for the train service.
 - Training writes under `TRAIN_DATA_DIR`, default `/app/data/train`.
 - Training defaults to `TRAIN_OBJECTIVE=causal_lm_full`.
 - The current native trainer consumes an existing packed cache; tokenizer and
@@ -42,6 +42,7 @@ Run one measurable long training job for the 3070-first 40M scratch model.
   `--max-steps` overrides both.
 - `TRAIN_LEARNING_RATE`: AdamW learning rate; `--lr` overrides it.
 - `TRAIN_WARMUP_STEPS`: linear warmup optimizer steps.
+- `TRAIN_TARGET_SECONDS`: optional wall-clock deadline for dense long runs.
 - `TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS`: checkpoint cadence;
   `--checkpoint-interval` overrides it.
 - `TRAIN_SEED`: overrides the native config seed.
@@ -70,8 +71,8 @@ unknown training-config keys instead of silently ignoring them.
 - `native_debug_bf16.json`: routine debug shape.
 - `native_dense_20m_bf16_3070.json`: explicit dense 20M-size seq1024 shape
   for the two-hour BF16 runner.
-- `native_dense_40m_bf16_3070.json`: explicit dense 40M-size seq1024 shape for
-  manual long runs.
+- `native_dense_40m_bf16_3070.json`: accepted dense 40M-size seq1024 shape for
+  browser-demo long runs.
 - `native_40m_bf16.json`: legacy scratch 40M shape for bounded manual runs.
 
 ## Accounting
@@ -93,8 +94,8 @@ Training writes dense checkpoint/export directories. Public checkpoint paths are
 moments, optimizer step, microsteps, batch size, sequence length, gradient
 accumulation, loss, and checksum. Resume rejects incompatible manifest/config,
 model shape, vocab, seed, batch, sequence length, gradient accumulation, or
-dense tensor shape. Scheduler, scaler, best metric, validation history, retained
-numbered snapshots, and atomic promotion are target additions.
+dense tensor shape. The trainer also writes `checkpoints/best/`, uses staged
+latest/final writes, and records scheduler and stop-reason fields.
 
 ## Start Check
 
@@ -105,25 +106,24 @@ running the full long job:
 docker compose --profile train run --rm \
   -e DATA_DIR=/app/data/train-start-check \
   -e TRAIN_MAX_OPTIMIZER_STEPS=1 \
-  -e TRAIN_NATIVE_CONFIG=/workspace/configs/native/native_40m_bf16.json \
+  -e TRAIN_NATIVE_CONFIG=/workspace/configs/native/native_dense_40m_bf16_3070.json \
   train --train
 ```
 
 ## Deadline Run
 
-Wall-clock deadline stopping is implemented for `--mode decoder` partial CUDA
-and target accepted decoder runs. Dense long runs should still use bounded
-optimizer steps or an external timeout:
+Wall-clock deadline stopping is implemented for dense and decoder native runs.
+The accepted dense config uses a 12-hour deadline plus optimizer-step cap:
 
 ```bash
 docker compose --profile train run -d \
-  --name lkjai-train-until-noon-20260503 \
-  -e DATA_DIR=/app/data/train-until-noon-20260503 \
-  -e TRAIN_MAX_OPTIMIZER_STEPS=1000 \
+  --name lkjai-dense-40m-accepted-20260512 \
+  -e DATA_DIR=/app/data/dense-40m-accepted-20260512 \
+  -e TRAIN_CONFIG=/workspace/configs/training/dense_40m_accepted_3070.json \
   train --train
 ```
 
-Monitor with `docker logs -f lkjai-train-until-noon-20260503`.
+Monitor with `docker logs -f lkjai-dense-40m-accepted-20260512`.
 
 ## Two-Hour Dense BF16 Run
 

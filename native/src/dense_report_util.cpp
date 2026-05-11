@@ -59,4 +59,20 @@ void append_dense_tuning_fields(std::ostringstream* out,
        << report.dense_head_f32_cache_refreshes;
 }
 
+void append_dense_run_control_fields(std::ostringstream* out,
+                                     const DenseTrainReport& report) {
+  *out << ",\"target_seconds\":" << report.target_seconds
+       << ",\"deadline_hit\":" << (report.deadline_hit ? "true" : "false")
+       << ",\"stop_reason\":\"" << json_escape(report.stop_reason) << "\""
+       << ",\"lr_schedule\":\"" << json_escape(report.lr_schedule) << "\""
+       << ",\"learning_rate\":" << report.learning_rate
+       << ",\"min_learning_rate_fraction\":"
+       << report.min_learning_rate_fraction
+       << ",\"final_learning_rate\":" << report.final_learning_rate
+       << ",\"best_checkpoint_path\":\""
+       << json_escape(report.best_checkpoint_dir.string()) << "\""
+       << ",\"best_checkpoint_checksum\":\""
+       << train_report_manifest_checksum(report.best_checkpoint_dir) << "\"";
+}
+
 }  // namespace lkjai

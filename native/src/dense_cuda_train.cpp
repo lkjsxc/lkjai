@@ -38,8 +38,13 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt, DenseTrainReport* rep
     report->batch_size = opt.batch_size;
     report->seq_len = seq_len;
     report->grad_accum = opt.grad_accum;
+    report->target_seconds = opt.target_seconds;
+    report->lr_schedule = opt.lr_schedule;
+    report->learning_rate = opt.lr;
+    report->min_learning_rate_fraction = opt.min_lr_fraction;
     report->loss_sample_interval = opt.loss_sample_interval;
     report->checkpoint_dir = opt.out_dir / "checkpoints" / "latest";
+    report->best_checkpoint_dir = opt.out_dir / "checkpoints" / "best";
     report->export_dir = opt.out_dir / "exports" / opt.model_name;
     report->served_dir = opt.out_dir.parent_path() / "models" / opt.model_name;
     int step_rows = opt.batch_size * seq_len;
@@ -64,9 +69,17 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt, DenseTrainReport* rep
     report->start_step = resume.optimizer_steps;
     report->microsteps = resume.microsteps;
     report->best_loss = std::numeric_limits<double>::infinity();
+    DenseTrainState best_host;
+    bool have_best_host = false;
     std::vector<float> logits;
     auto started = std::chrono::steady_clock::now();
     for (int local = 1; local <= opt.max_steps; ++local) {
+      if (local > 1 && opt.target_seconds > 0 &&
+          dense_seconds_since(started) >= static_cast<double>(opt.target_seconds)) {
+        report->deadline_hit = true;
+        report->stop_reason = "wall_clock_deadline";
+        break;
+      }
       auto phase = std::chrono::steady_clock::now();
       double loss_sum = 0.0;
       int step = report->start_step + local;
@@ -114,6 +127,8 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt, DenseTrainReport* rep
       if (report->loss < report->best_loss) {
         report->best_loss = report->loss;
         report->best_loss_step = step;
+        best_host = state.copy_to_host();
+        have_best_host = true;
       }
       bool should_sample = local == 1 || local == opt.max_steps ||
                            (opt.loss_sample_interval > 0 &&
@@ -122,60 +137,30 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt, DenseTrainReport* rep
         report->loss_samples.push_back({step, report->loss});
       }
       phase = std::chrono::steady_clock::now();
-      state.adamw(dense_step_lr(opt, step), step);
+      report->final_learning_rate = dense_step_lr(opt, step);
+      state.adamw(static_cast<float>(report->final_learning_rate), step);
       report->optimizer_seconds += dense_seconds_since(phase);
       report->steps = step;
       if (!logits.empty()) report->logits_checksum = dense_checksum_floats(logits);
       if (opt.checkpoint_interval > 0 && step % opt.checkpoint_interval == 0) {
         phase = std::chrono::steady_clock::now();
         auto host = state.copy_to_host();
-        if (!write_dense_train_artifact(opt.out_dir / "checkpoints" / "latest",
-                                        host, step, report->microsteps,
-                                        opt.batch_size, seq_len, opt.grad_accum,
-                                        report->loss, true,
-                                        &report->logits_checksum)) return false;
+        if (!write_dense_train_artifact_staged(
+                opt.out_dir / "checkpoints" / "latest", host, step,
+                report->microsteps, opt.batch_size, seq_len, opt.grad_accum,
+                report->loss, true, &report->logits_checksum)) return false;
         report->checkpoint_seconds += dense_seconds_since(phase);
       }
     }
+    if (!report->deadline_hit) report->stop_reason = "max_steps";
     auto host = state.copy_to_host();
+    if (!have_best_host) best_host = host;
     report->weight_change = dense_weight_change_report(init, host);
     report->weight_changed = report->weight_change.status == "pass";
     finalize_dense_loss_trend(report);
-    auto phase = std::chrono::steady_clock::now();
-    bool ok = write_dense_train_artifact(opt.out_dir / "checkpoints" / "latest",
-                                         host, report->steps, report->microsteps,
-                                         opt.batch_size, seq_len, opt.grad_accum,
-                                         report->loss, true,
-                                         &report->logits_checksum) &&
-              write_dense_train_artifact(opt.out_dir / "checkpoints" / "final",
-                                         host, report->steps, report->microsteps,
-                                         opt.batch_size, seq_len, opt.grad_accum,
-                                         report->loss, true,
-                                         &report->logits_checksum);
-    report->checkpoint_seconds += dense_seconds_since(phase);
-    phase = std::chrono::steady_clock::now();
-    ok = ok && write_dense_train_artifact(report->export_dir, host, report->steps,
-                                          report->microsteps, opt.batch_size,
-                                          seq_len, opt.grad_accum,
-                                          report->loss, false,
-                                          &report->logits_checksum) &&
-         write_dense_train_artifact(report->served_dir, host, report->steps,
-                                    report->microsteps, opt.batch_size, seq_len,
-                                    opt.grad_accum, report->loss,
-                                    false, &report->logits_checksum);
-    if (ok && !opt.export_artifact.empty()) {
-      ok = write_dense_train_artifact(opt.export_artifact, host, report->steps,
-                                      report->microsteps, opt.batch_size,
-                                      seq_len, opt.grad_accum, report->loss,
-                                      false,
-                                      &report->logits_checksum);
-    }
-    report->export_seconds += dense_seconds_since(phase);
     dense_fill_runtime_report(state, report);
-    if (!ok) {
-      *error = "failed to write dense artifact";
+    if (!write_dense_train_outputs(opt, host, best_host, seq_len, report, error))
       return false;
-    }
     std::string logits_json;
     std::string logits_error;
     report->logits_check_passed =

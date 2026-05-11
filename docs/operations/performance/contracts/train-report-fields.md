@@ -22,8 +22,10 @@ Each benchmark repeat copies `DATA_DIR/runs/train-report.json`.
   `cuda_total_global_memory`, `cuda_sm_count`, `git_commit`, `build_type`.
 - Inputs: `config_path`, `config_digest`, `dataset_path`,
   `packed_cache_path`, `dataset_digest`, `train_config_path`, `seed`.
-- Shape: `batch_size`, `seq_len`, `grad_accum`, `parameter_count`,
-  `target_seconds`, `deadline_hit`, `stop_reason`.
+- Shape and run control: `batch_size`, `seq_len`, `grad_accum`,
+  `parameter_count`, `target_seconds`, `deadline_hit`, `stop_reason`,
+  `lr_schedule`, `learning_rate`, `min_learning_rate_fraction`,
+  `final_learning_rate`.
 - Transformer and decoder shape fields: `layers`, `heads`, `kv_heads`,
   `hidden_size`, `head_dim`, `ffn_size`, `context`.
 - Progress: `optimizer_steps`, `steps`, `start_step`, `microsteps`,
@@ -34,7 +36,8 @@ Each benchmark repeat copies `DATA_DIR/runs/train-report.json`.
   `last_quarter_loss_mean`, `learning_status`.
 - Timings and throughput: `elapsed_ms`, `elapsed_seconds`,
   `tokens_per_second`, `timings`.
-- Artifacts: `checkpoint_path`, `checkpoint_checksum`, `export_path`,
+- Artifacts: `checkpoint_path`, `checkpoint_checksum`,
+  `best_checkpoint_path`, `best_checkpoint_checksum`, `export_path`,
   `export_checksum`, `served_path`.
 - Logits: `logits_checksum`, `logits_check_passed`, `logits_check`.
 - Capability: `capability`.

@@ -104,7 +104,8 @@ HttpResponse runtime_chat_json(const RuntimeConfig& cfg,
 HttpResponse native_server_route(const HttpRequest& request,
                                  const ArtifactStatus& artifact,
                                  const CudaStatus& cuda,
-                                 const RuntimeConfig& runtime) {
+                                 const RuntimeConfig& runtime,
+                                 const DenseDemoRuntime& dense) {
   if (request.method == "GET" && request.path == "/") {
     return {200, std::string(native_status_page_html()),
             "text/html; charset=utf-8"};
@@ -127,10 +128,10 @@ HttpResponse native_server_route(const HttpRequest& request,
     return {200, runtime_config_status_json(runtime)};
   }
   if (request.method == "GET" && request.path == "/api/dense/status") {
-    return dense_demo_status_response(artifact);
+    return dense_demo_status_response(dense);
   }
   if (request.method == "POST" && request.path == "/api/dense/next-token") {
-    return dense_demo_next_token_response(artifact, request);
+    return dense_demo_next_token_response(dense, request);
   }
   if (request.method == "POST" && request.path == "/api/chat") {
     return runtime_chat_json(runtime, request, artifact);
@@ -140,6 +141,14 @@ HttpResponse native_server_route(const HttpRequest& request,
     return runtime_route(runtime, request);
   }
   return {404, error_json("not found")};
+}
+
+HttpResponse native_server_route(const HttpRequest& request,
+                                 const ArtifactStatus& artifact,
+                                 const CudaStatus& cuda,
+                                 const RuntimeConfig& runtime) {
+  auto dense = load_dense_demo_runtime(artifact, runtime.data_dir);
+  return native_server_route(request, artifact, cuda, runtime, dense);
 }
 
 }  // namespace lkjai

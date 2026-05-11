@@ -4,6 +4,7 @@
 #include <iterator>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace lkjai {
@@ -50,6 +51,35 @@ bool corpus_python_file(const std::filesystem::path& repo,
                         const std::filesystem::path& file) {
   auto rel = file.lexically_relative(repo).string();
   return rel.rfind("ops/corpus/", 0) == 0;
+}
+
+std::string relative_string(const std::filesystem::path& repo,
+                            const std::filesystem::path& file) {
+  return file.lexically_relative(repo).string();
+}
+
+bool durable_dir(const std::string& rel) {
+  return !rel.empty() && rel.rfind("data", 0) != 0 && rel.rfind("artifacts", 0) != 0;
+}
+
+void check_readme_child_mentions(const std::filesystem::path& repo,
+    const std::filesystem::path& dir, const std::unordered_set<std::string>& dirs,
+    RepoCheckResult* result) {
+  auto readme = dir / "README.md";
+  if (!std::filesystem::is_regular_file(readme)) {
+    result->fail("missing durable directory README: " + dir.string());
+    return;
+  }
+  auto body = read_file(readme);
+  auto rel = relative_string(repo, dir);
+  for (const auto& child : dirs) {
+    auto parent = std::filesystem::path(child).parent_path().string();
+    if (parent != rel) continue;
+    auto name = std::filesystem::path(child).filename().string();
+    if (body.find(name) == std::string::npos) {
+      result->fail(readme.string() + " missing child directory " + name);
+    }
+  }
 }
 
 void check_native_only_file(const std::filesystem::path& repo,
@@ -99,11 +129,32 @@ int check_line_limits(const std::filesystem::path& repo) {
   return result.errors == 0 ? 0 : 1;
 }
 
+int check_repo_readmes(const std::filesystem::path& repo) {
+  RepoCheckResult result;
+  std::unordered_set<std::string> dirs;
+  for (const auto& file : collect_tracked_files(repo)) {
+    auto rel = relative_string(repo, file.parent_path());
+    while (durable_dir(rel)) {
+      dirs.insert(rel);
+      rel = std::filesystem::path(rel).parent_path().string();
+    }
+  }
+  for (const auto& rel : dirs) {
+    check_readme_child_mentions(repo, repo / rel, dirs, &result);
+  }
+  return result.errors == 0 ? 0 : 1;
+}
+
 int check_no_node(const std::filesystem::path& repo) {
   RepoCheckResult result;
   for (const auto& file : collect_tracked_files(repo)) {
-    if (file.filename() == "package.json") {
-      result.fail("Node runtime manifest is forbidden: " + file.string());
+    auto name = file.filename().string();
+    if (name == "package.json" || name == "package-lock.json" ||
+        name == "pnpm-lock.yaml" || name == "yarn.lock" ||
+        name == "bun.lockb" || name == "tsconfig.json" ||
+        name.rfind("vite.config.", 0) == 0 ||
+        name.rfind("webpack.config.", 0) == 0) {
+      result.fail("Node runtime artifact is forbidden: " + file.string());
     }
   }
   return result.errors == 0 ? 0 : 1;

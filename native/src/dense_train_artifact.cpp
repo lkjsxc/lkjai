@@ -166,4 +166,24 @@ bool write_dense_train_artifact(const std::filesystem::path& dir,
   return true;
 }
 
+bool write_dense_train_artifact_staged(const std::filesystem::path& dir,
+                                       const DenseTrainState& state, int step,
+                                       int microsteps, int batch_size,
+                                       int seq_len, int grad_accum,
+                                       double loss, bool checkpoint,
+                                       std::string* checksum) {
+  auto tmp = dir;
+  tmp += ".tmp";
+  std::filesystem::remove_all(tmp);
+  if (!write_dense_train_artifact(tmp, state, step, microsteps, batch_size,
+                                  seq_len, grad_accum, loss, checkpoint,
+                                  checksum)) {
+    std::filesystem::remove_all(tmp);
+    return false;
+  }
+  std::filesystem::remove_all(dir);
+  std::filesystem::rename(tmp, dir);
+  return true;
+}
+
 }  // namespace lkjai

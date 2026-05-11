@@ -20,7 +20,8 @@ int main() {
       lkjai::env_string("KJXLKJ_API_URL", "http://127.0.0.1:8080"),
       lkjai::env_string("KJXLKJ_USER", "default"),
       lkjai::env_string("KJXLKJ_BEARER_TOKEN", "")};
+  auto dense = lkjai::load_dense_demo_runtime(artifact, runtime.data_dir);
   return lkjai::serve_http(host, port, [&](const lkjai::HttpRequest& request) {
-    return lkjai::native_server_route(request, artifact, cuda, runtime);
+    return lkjai::native_server_route(request, artifact, cuda, runtime, dense);
   });
 }

@@ -16,8 +16,17 @@ double dense_seconds_since(std::chrono::steady_clock::time_point start) {
 }
 
 float dense_step_lr(const DenseTrainOptions& opt, int step) {
-  if (opt.warmup_steps <= 0 || step > opt.warmup_steps) return opt.lr;
-  return opt.lr * static_cast<float>(step) / static_cast<float>(opt.warmup_steps);
+  if (opt.warmup_steps > 0 && step <= opt.warmup_steps) {
+    return opt.lr * static_cast<float>(step) / static_cast<float>(opt.warmup_steps);
+  }
+  if (opt.lr_schedule != "warmup_cosine") return opt.lr;
+  int span = std::max(1, opt.max_steps - opt.warmup_steps);
+  float progress = static_cast<float>(std::max(0, step - opt.warmup_steps)) /
+                   static_cast<float>(span);
+  progress = std::min(1.0f, progress);
+  float floor = std::max(0.0f, opt.min_lr_fraction);
+  float cosine = 0.5f * (1.0f + std::cos(3.14159265358979323846f * progress));
+  return opt.lr * (floor + (1.0f - floor) * cosine);
 }
 
 uint16_t dense_pack_bf16(float value) {

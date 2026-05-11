@@ -15,12 +15,6 @@ std::string error_json(std::string_view error) {
   return "{\"error\":\"" + json_escape(error) + "\"}";
 }
 
-bool dense_loaded(const ArtifactStatus& artifact, std::string* manifest) {
-  if (!artifact.loaded) return false;
-  *manifest = read_text(artifact.model_dir / "manifest.json");
-  return contains_json_string(*manifest, "kind", "dense");
-}
-
 bool parse_tokens(std::string_view body, std::vector<int>* tokens,
                   std::string* error) {
   auto key = body.find("\"tokens\"");
@@ -88,6 +82,7 @@ double softmax_denominator(const std::vector<float>& logits, float max_logit) {
 }
 
 std::string next_token_json(const DenseConfig& cfg,
+                            const DenseDemoRuntime& runtime,
                             const std::vector<float>& logits, int top_k) {
   auto best = std::max_element(logits.begin(), logits.end());
   float max_logit = *best;
@@ -99,6 +94,14 @@ std::string next_token_json(const DenseConfig& cfg,
       << ",\"decode_supported\":false"
       << ",\"vocab_size\":" << cfg.vocab_size
       << ",\"checksum\":\"" << dense_checksum_floats(logits) << "\""
+      << ",\"weights_checksum\":\"" << json_escape(runtime.weights_checksum)
+      << "\",\"config_checksum\":\"" << json_escape(runtime.config_checksum)
+      << "\",\"optimizer_steps\":" << runtime.optimizer_steps
+      << ",\"loss\":" << runtime.loss
+      << ",\"parameter_count\":" << runtime.parameter_count
+      << ",\"train_report_path\":\"" << json_escape(runtime.train_report_path)
+      << "\",\"train_report_digest\":\""
+      << json_escape(runtime.train_report_digest) << "\""
       << ",\"top_token\":" << top_token << ",\"top_k\":[";
   for (size_t i = 0; i < ids.size(); ++i) {
     int id = ids[i];
@@ -114,21 +117,36 @@ std::string next_token_json(const DenseConfig& cfg,
 }  // namespace
 
 HttpResponse dense_demo_status_response(const ArtifactStatus& artifact) {
-  std::string manifest;
-  bool supported = dense_loaded(artifact, &manifest);
+  return dense_demo_status_response(load_dense_demo_runtime(artifact, {}));
+}
+
+HttpResponse dense_demo_status_response(const DenseDemoRuntime& runtime) {
+  bool supported = runtime.dense_supported;
   std::ostringstream out;
   out << "{\"status\":\"" << (supported ? "ready" : "degraded") << "\""
-      << ",\"loaded\":" << (artifact.loaded ? "true" : "false")
+      << ",\"loaded\":" << (runtime.artifact.loaded ? "true" : "false")
       << ",\"dense_supported\":" << (supported ? "true" : "false")
       << ",\"decode_supported\":false"
-      << ",\"model\":\"" << json_escape(artifact.model_name) << "\""
-      << ",\"model_kind\":\"" << json_escape(json_first_string(manifest, "kind"))
-      << "\",\"artifact_error\":\"" << json_escape(artifact.error) << "\"";
+      << ",\"model\":\"" << json_escape(runtime.artifact.model_name) << "\""
+      << ",\"model_kind\":\""
+      << json_escape(json_first_string(runtime.manifest, "kind"))
+      << "\",\"artifact_error\":\""
+      << json_escape(runtime.error.empty() ? runtime.artifact.error
+                                           : runtime.error)
+      << "\"";
   if (supported) {
-    DenseConfig cfg = dense_config_from_artifact(artifact.model_dir);
-    out << ",\"vocab_size\":" << cfg.vocab_size
-        << ",\"context\":" << cfg.context
-        << ",\"hidden_size\":" << cfg.hidden_size;
+    out << ",\"vocab_size\":" << runtime.config.vocab_size
+        << ",\"context\":" << runtime.config.context
+        << ",\"hidden_size\":" << runtime.config.hidden_size
+        << ",\"weights_checksum\":\"" << json_escape(runtime.weights_checksum)
+        << "\",\"config_checksum\":\"" << json_escape(runtime.config_checksum)
+        << "\",\"optimizer_steps\":" << runtime.optimizer_steps
+        << ",\"loss\":" << runtime.loss
+        << ",\"parameter_count\":" << runtime.parameter_count
+        << ",\"train_report_path\":\""
+        << json_escape(runtime.train_report_path)
+        << "\",\"train_report_digest\":\""
+        << json_escape(runtime.train_report_digest) << "\"";
   }
   out << "}";
   return {200, out.str()};
@@ -136,27 +154,28 @@ HttpResponse dense_demo_status_response(const ArtifactStatus& artifact) {
 
 HttpResponse dense_demo_next_token_response(const ArtifactStatus& artifact,
                                             const HttpRequest& request) {
-  std::string manifest;
-  if (!dense_loaded(artifact, &manifest)) {
+  return dense_demo_next_token_response(load_dense_demo_runtime(artifact, {}),
+                                        request);
+}
+
+HttpResponse dense_demo_next_token_response(const DenseDemoRuntime& runtime,
+                                            const HttpRequest& request) {
+  if (!runtime.dense_supported) {
     return {422, error_json("loaded artifact does not support dense logits")};
   }
   std::vector<int> tokens;
   std::string error;
   if (!parse_tokens(request.body, &tokens, &error)) return {400, error_json(error)};
-  DenseConfig cfg = dense_config_from_artifact(artifact.model_dir);
+  DenseConfig cfg = runtime.config;
   int top_k = json_int_value(request.body, "top_k", 8);
   if (top_k <= 0) return {400, error_json("top_k must be positive")};
   top_k = std::min(top_k, cfg.vocab_size);
-  auto emb = read_dense_tensor(artifact.model_dir, "tok_embeddings", &error);
-  if (!error.empty()) return {500, error_json(error)};
-  auto head = read_dense_tensor(artifact.model_dir, "lm_head", &error);
-  if (!error.empty()) return {500, error_json(error)};
   std::vector<float> logits;
-  if (!dense_logits_for_tokens(cfg, emb, head, csv_tokens(tokens), &logits,
-                               &error)) {
+  if (!dense_logits_for_tokens(cfg, runtime.embeddings, runtime.head,
+                               csv_tokens(tokens), &logits, &error)) {
     return {400, error_json(error)};
   }
-  return {200, next_token_json(cfg, logits, top_k)};
+  return {200, next_token_json(cfg, runtime, logits, top_k)};
 }
 
 }  // namespace lkjai

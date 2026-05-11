@@ -93,8 +93,8 @@ services:
       DATA_DIR: ${TRAIN_DATA_DIR:-/app/data/train}
       LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
       MODEL_NAME: ${MODEL_NAME:-lkjai-scratch-40m}
-      TRAIN_CONFIG: ${TRAIN_CONFIG:-/workspace/configs/training/scratch_40m_12h.json}
-      TRAIN_NATIVE_CONFIG: ${TRAIN_NATIVE_CONFIG:-/workspace/configs/native/native_40m_bf16.json}
+      TRAIN_CONFIG: ${TRAIN_CONFIG:-/workspace/configs/training/dense_40m_accepted_3070.json}
+      TRAIN_NATIVE_CONFIG: ${TRAIN_NATIVE_CONFIG:-/workspace/configs/native/native_dense_40m_bf16_3070.json}
       TRAIN_BEHAVIORAL_CHECKPOINT: ${TRAIN_BEHAVIORAL_CHECKPOINT:-export}
       TRAIN_COMMITTED_CORPUS_DIR: ${TRAIN_COMMITTED_CORPUS_DIR:-/workspace/corpus/generated/kimi-sft-60m}
       TRAIN_CORPUS_DIR: ${TRAIN_CORPUS_DIR:-/app/data/public-corpus}

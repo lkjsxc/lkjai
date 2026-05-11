@@ -55,14 +55,15 @@ Keep one coherent contract for training, export, and serving on a local RTX
 - `MODEL_CONTEXT_TOKENS=1024`
 - `MODEL_MAX_NEW_TOKENS=512`
 - `MODEL_TEMPERATURE=0.2`
-- `TRAIN_CONFIG=/workspace/configs/training/scratch_40m_12h.json`
-- `TRAIN_MODEL_PRESET=scratch-40m`
+- `TRAIN_CONFIG=/workspace/configs/training/dense_40m_accepted_3070.json`
+- `TRAIN_NATIVE_CONFIG=/workspace/configs/native/native_dense_40m_bf16_3070.json`
+- `TRAIN_MODEL_PRESET=dense-40m-3070`
 - `TRAIN_OBJECTIVE=causal_lm_full`
 - `TRAIN_EXPORT_CHECKPOINT=best`
 
 ## 40M Agent Preset
 
-`scratch-40m` is the active default training and serving target.
+`dense-40m-3070` is the active dense training and browser-demo target.
 
 - Vocabulary: `8192`
 - Context: `1024`

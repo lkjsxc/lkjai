@@ -10,6 +10,8 @@ add_test(NAME native_docs_wording
   COMMAND lkjai-native-repo-check docs-wording --repo ${LKJAI_REPO_ROOT})
 add_test(NAME native_line_limits
   COMMAND lkjai-native-repo-check line-limits --repo ${LKJAI_REPO_ROOT})
+add_test(NAME native_repo_readmes
+  COMMAND lkjai-native-repo-check repo-readmes --repo ${LKJAI_REPO_ROOT})
 add_test(NAME native_no_node
   COMMAND lkjai-native-repo-check no-node --repo ${LKJAI_REPO_ROOT})
 add_test(NAME native_native_only
@@ -69,6 +71,12 @@ add_test(NAME native_decoder_kv_cache_contract
 add_test(NAME native_runtime_contract COMMAND lkjai-native-runtime-contract)
 add_test(NAME native_server_route_contract
   COMMAND lkjai-native-server-route-contract)
+add_test(NAME native_dense_runtime_contract
+  COMMAND lkjai-native-dense-runtime-contract)
+add_test(NAME native_dense_scheduler_contract
+  COMMAND lkjai-native-dense-scheduler-contract)
+add_test(NAME native_dense_train_outputs_contract
+  COMMAND lkjai-native-dense-train-outputs-contract)
 add_test(NAME native_decoder_route_contract
   COMMAND lkjai-native-decoder-route-contract)
 add_test(NAME native_decoder_acceptance_report_contract

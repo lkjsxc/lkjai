@@ -23,10 +23,8 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
                    const std::string& status,
                    const std::string& failure_reason) {
   double elapsed_ms = report.elapsed_seconds * 1000.0;
-  double tokens_per_second =
-      report.elapsed_seconds > 0.0
-          ? static_cast<double>(report.input_tokens) / report.elapsed_seconds
-          : 0.0;
+  double tokens_per_second = report.elapsed_seconds > 0.0
+      ? static_cast<double>(report.input_tokens) / report.elapsed_seconds : 0.0;
   *out << "{\"schema\":\"lkjai-train-report\""
        << ",\"trainer_mode\":\"" << json_escape(trainer_mode) << "\""
        << ",\"mode\":\"" << json_escape(trainer_mode) << "\""
@@ -97,8 +95,9 @@ void append_common(std::ostringstream* out, const DenseTrainReport& report,
        << ",\"seed\":" << json_int_value(read_text(report.config_path), "seed", 0)
        << ",\"batch_size\":" << report.batch_size
        << ",\"seq_len\":" << report.seq_len
-       << ",\"grad_accum\":" << report.grad_accum
-       << ",\"parameter_count\":" << dense_report_parameter_count(report)
+       << ",\"grad_accum\":" << report.grad_accum;
+  append_dense_run_control_fields(out, report);
+  *out << ",\"parameter_count\":" << dense_report_parameter_count(report)
        << ",\"dense_step_logits_bytes\":"
        << static_cast<unsigned long long>(report.dense_step_logits_bytes)
        << ",\"dense_step_grad_logits_bytes\":"

@@ -18,6 +18,9 @@ int main() {
       html.body.find("fetch('/api/model')") == std::string::npos ||
       html.body.find("fetch('/api/dense/status')") == std::string::npos ||
       html.body.find("fetch('/api/dense/next-token'") == std::string::npos ||
+      html.body.find("chat decode: unsupported") == std::string::npos ||
+      html.body.find("weights_checksum") == std::string::npos ||
+      html.body.find("class=\"bar\"") == std::string::npos ||
       html.body.find("lkjai dense demo") == std::string::npos) {
     std::cerr << "native status page contract failed\n";
     return 1;

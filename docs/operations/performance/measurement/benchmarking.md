@@ -135,7 +135,7 @@ The 40M dense shape is checked with a bounded start-only command:
 ```sh
 docker compose --profile train run --rm train \
   --train --mode dense \
-  --config /workspace/configs/native/native_40m_bf16.json \
+  --config /workspace/configs/native/native_dense_40m_bf16_3070.json \
   --packed-cache /app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
   --seq-len 1024 --max-steps 4
 ```

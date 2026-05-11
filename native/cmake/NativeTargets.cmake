@@ -106,6 +106,27 @@ target_link_libraries(lkjai-native-server-route-contract PRIVATE
   lkjai_native_core
 )
 
+add_executable(lkjai-native-dense-runtime-contract
+  tests/dense_runtime_contract.cpp
+)
+target_link_libraries(lkjai-native-dense-runtime-contract PRIVATE
+  lkjai_native_core
+)
+
+add_executable(lkjai-native-dense-scheduler-contract
+  tests/dense_scheduler_contract.cpp
+)
+target_link_libraries(lkjai-native-dense-scheduler-contract PRIVATE
+  lkjai_native_core
+)
+
+add_executable(lkjai-native-dense-train-outputs-contract
+  tests/dense_train_outputs_contract.cpp
+)
+target_link_libraries(lkjai-native-dense-train-outputs-contract PRIVATE
+  lkjai_native_core
+)
+
 add_executable(lkjai-native-decoder-route-contract
   tests/decoder_route_contract.cpp
 )

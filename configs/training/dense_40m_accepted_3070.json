@@ -1,7 +1,7 @@
 {
   "format": "lkjai-train-config",
-  "name": "dense_12h_40m_3070",
-  "description": "RTX 3070 12-hour dense BF16 40M-size run target.",
+  "name": "dense_40m_accepted_3070",
+  "description": "RTX 3070 accepted dense BF16 40M browser-demo target.",
   "preset": "agent",
   "model_name": "dense-40m-3070",
   "model_kind": "dense",
@@ -10,10 +10,13 @@
   "objective": "causal_lm_full",
   "sequence_len": 1024,
   "learning_rate": 0.0003,
+  "lr_schedule": "warmup_cosine",
+  "min_learning_rate_fraction": 0.1,
   "warmup_steps": 200,
   "batch_size": 1,
   "gradient_accumulation": 8,
   "max_optimizer_steps": 400000,
+  "target_seconds": 43200,
   "save_latest_every_optimizer_steps": 3000,
   "seed": 20260504
 }

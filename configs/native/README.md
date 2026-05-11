@@ -14,8 +14,8 @@ so the C++ trainer can parse them without a third-party JSON dependency.
 - [native_dense_20m_bf16_3070.json](native_dense_20m_bf16_3070.json):
   explicit dense BF16 20M-size RTX 3070 run shape for seq1024 real-data runs.
 - [native_dense_40m_bf16_3070.json](native_dense_40m_bf16_3070.json):
-  explicit dense BF16 40M-size RTX 3070 run shape. It is separate from future
-  transformer profile shapes.
+  accepted dense BF16 40M-size RTX 3070 browser-demo shape. It is the native
+  pair for `configs/training/dense_40m_accepted_3070.json`.
 - [native_transformer_debug_bf16.json](native_transformer_debug_bf16.json):
   tiny verification shape for explicit native transformer training. It uses
   learned positional embeddings and untied embeddings.
@@ -29,9 +29,8 @@ so the C++ trainer can parse them without a third-party JSON dependency.
 - [native_20m_bf16_3070.json](native_20m_bf16_3070.json): RTX 3070
   transformer profile target for future CUDA-forward profiling. It is not
   accepted transformer CUDA training.
-- [native_40m_bf16.json](native_40m_bf16.json): scratch 40M target shape for
-  manual smoke runs and production-oriented experiments. It is not the current
-  accepted-training target.
+- [native_40m_bf16.json](native_40m_bf16.json): legacy scratch 40M target
+  shape for manual smoke runs. It is not a default.
 - [native_120m_bf16_5090.json](native_120m_bf16_5090.json): RTX
   5090/Blackwell transformer profile target. It is not an acceptance baseline.
 

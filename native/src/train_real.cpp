@@ -39,9 +39,9 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
   auto train_config = env_string("TRAIN_CONFIG", "");
   if (!train_config.empty() &&
       !apply_training_config(train_config, opt, error)) return false;
-  if (train_config.empty() &&
-      std::filesystem::is_regular_file("configs/training/scratch_40m_12h.json")) {
-    train_config = "configs/training/scratch_40m_12h.json";
+  if (train_config.empty() && std::filesystem::is_regular_file(
+          "configs/training/dense_40m_accepted_3070.json")) {
+    train_config = "configs/training/dense_40m_accepted_3070.json";
     if (!apply_training_config(train_config, opt, error)) return false;
   }
   if (opt->config_path != std::filesystem::path("configs/native/native_debug_bf16.json")) {
@@ -72,6 +72,9 @@ bool options(int argc, char** argv, DenseTrainOptions* opt,
   opt->seq_len = env_int("TRAIN_SEQUENCE_LEN", opt->seq_len);
   opt->grad_accum = env_int("TRAIN_GRADIENT_ACCUMULATION", opt->grad_accum);
   opt->warmup_steps = env_int("TRAIN_WARMUP_STEPS", opt->warmup_steps);
+  opt->lr_schedule = env_string("TRAIN_LR_SCHEDULE", opt->lr_schedule);
+  opt->min_lr_fraction = env_float("TRAIN_MIN_LR_FRACTION",
+                                   opt->min_lr_fraction);
   opt->seed = env_int("TRAIN_SEED", opt->seed);
   opt->lr = env_float("TRAIN_LEARNING_RATE", opt->lr);
   auto env_kind = env_string("TRAIN_MODEL_KIND", "");

@@ -118,6 +118,20 @@ int json_int_value(std::string_view text, std::string_view key, int fallback) {
   }
 }
 
+double json_double_value(std::string_view text, std::string_view key,
+                         double fallback) {
+  const auto needle = quoted(key);
+  auto pos = text.find(needle);
+  if (pos == std::string_view::npos) return fallback;
+  pos = value_start(text, pos + needle.size());
+  if (pos == std::string_view::npos || pos >= text.size()) return fallback;
+  try {
+    return std::stod(std::string(text.substr(pos)));
+  } catch (...) {
+    return fallback;
+  }
+}
+
 bool json_bool_value(std::string_view text, std::string_view key, bool fallback) {
   const auto needle = quoted(key);
   auto pos = text.find(needle);

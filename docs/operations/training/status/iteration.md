@@ -38,7 +38,7 @@ docker compose --profile train run --rm \
   -e TRAIN_CORPUS_DIR=/app/data/public-corpus \
   -e TRAIN_PUBLIC_DATA_DIR=/app/data/raw/cosmopedia \
   -e TRAIN_PUBLIC_PRETRAIN_TOKENS=500000000 \
-  -e TRAIN_CONFIG=/workspace/configs/training/scratch_40m_12h.json \
+  -e TRAIN_CONFIG=/workspace/configs/training/dense_40m_accepted_3070.json \
   train train
 ```
 

@@ -28,14 +28,14 @@ Train and export the current dense BF16 CUDA foundation while preserving the
 
 ## Defaults
 
-- `TRAIN_CONFIG=/workspace/configs/training/scratch_40m_12h.json`
-- `TRAIN_NATIVE_CONFIG=/workspace/configs/native/native_40m_bf16.json`
+- `TRAIN_CONFIG=/workspace/configs/training/dense_40m_accepted_3070.json`
+- `TRAIN_NATIVE_CONFIG=/workspace/configs/native/native_dense_40m_bf16_3070.json`
 - `TRAIN_SEQUENCE_LEN=1024`
 - `TRAIN_MAX_STEPS=400000` optimizer steps
-- `TRAIN_BATCH_SIZE=2`
-- `TRAIN_GRADIENT_ACCUMULATION=4`
+- `TRAIN_BATCH_SIZE=1`
+- `TRAIN_GRADIENT_ACCUMULATION=8`
 - `TRAIN_LEARNING_RATE=0.0003`
-- `TRAIN_WARMUP_STEPS=100`
+- `TRAIN_WARMUP_STEPS=200`
 - `TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS=3000`
 - Native packed-cache reader for `--train`
 - `TRAIN_DATA_DIR=/app/data/train`
@@ -82,6 +82,6 @@ Checkpoints contain dense model weights, FP32 master tensors, FP32 Adam moments,
 optimizer step, microsteps, batch size, sequence length, gradient accumulation,
 loss, and checksum. `--resume` restores the FP32 masters and Adam moments,
 rebuilds BF16 CUDA shadows, and rejects incompatible config, model shape, vocab,
-seed, batch, sequence, gradient accumulation, or dense tensor shape. Scheduler,
-scaler, retained intermediate checkpoints, and best checkpoint selection are
-target additions.
+seed, batch, sequence, gradient accumulation, or dense tensor shape. Warmup plus
+cosine decay, wall-clock deadline stopping, best-checkpoint promotion, and
+latest/final staged writes are part of the dense runtime contract.

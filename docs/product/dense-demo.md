@@ -17,6 +17,7 @@ The demo shows:
 - sorted top-k entries,
 - checksum stability,
 - artifact/config metadata,
+- optimizer steps, loss, parameter count, and train-report provenance,
 - benchmark or diagnostic provenance when present.
 
 ## Local Routes

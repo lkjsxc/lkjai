@@ -21,6 +21,7 @@ int check_docs_links(const std::filesystem::path& repo);
 int check_docs_contract_owners(const std::filesystem::path& repo);
 int check_docs_wording(const std::filesystem::path& repo);
 int check_line_limits(const std::filesystem::path& repo);
+int check_repo_readmes(const std::filesystem::path& repo);
 int check_no_node(const std::filesystem::path& repo);
 int check_native_only(const std::filesystem::path& repo);
 int check_stable_identifiers(const std::filesystem::path& repo);

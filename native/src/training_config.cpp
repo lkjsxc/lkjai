@@ -16,7 +16,8 @@ bool known_key(std::string_view key) {
       "format", "name", "description", "preset", "model_name",
       "model_kind", "native_config", "packed_cache_dir", "tokenizer",
       "objective", "sequence_len",
-      "learning_rate", "warmup_steps", "batch_size",
+      "learning_rate", "lr_schedule", "min_learning_rate_fraction",
+      "warmup_steps", "batch_size",
       "gradient_accumulation", "max_optimizer_steps",
       "save_latest_every_optimizer_steps", "target_seconds", "seed"};
   return std::find(known.begin(), known.end(), key) != known.end();
@@ -39,20 +40,6 @@ std::vector<std::string> top_keys(std::string_view text) {
 
 bool has_key(std::string_view text, std::string_view key) {
   return text.find("\"" + std::string(key) + "\"") != std::string_view::npos;
-}
-
-double json_double_value(std::string_view text, std::string_view key,
-                         double fallback) {
-  const auto needle = "\"" + std::string(key) + "\"";
-  auto pos = text.find(needle);
-  if (pos == std::string_view::npos) return fallback;
-  pos = text.find(':', pos + needle.size());
-  if (pos == std::string_view::npos) return fallback;
-  try {
-    return std::stod(std::string(text.substr(pos + 1)));
-  } catch (...) {
-    return fallback;
-  }
 }
 
 bool reject_unknown_keys(std::string_view text, std::string* error) {
@@ -103,11 +90,24 @@ bool apply_training_config(const std::filesystem::path& path,
   opt->target_seconds =
       json_int_value(text, "target_seconds", opt->target_seconds);
   opt->warmup_steps = json_int_value(text, "warmup_steps", opt->warmup_steps);
+  auto schedule = json_first_string(text, "lr_schedule");
+  if (!schedule.empty()) {
+    if (schedule != "warmup_constant" && schedule != "warmup_cosine") {
+      *error = "unsupported TRAIN_CONFIG lr_schedule: " + schedule;
+      return false;
+    }
+    opt->lr_schedule = schedule;
+  }
   opt->checkpoint_interval = json_int_value(
       text, "save_latest_every_optimizer_steps", opt->checkpoint_interval);
   opt->seed = json_int_value(text, "seed", opt->seed);
   if (has_key(text, "learning_rate")) {
     opt->lr = static_cast<float>(json_double_value(text, "learning_rate", opt->lr));
+  }
+  if (has_key(text, "min_learning_rate_fraction")) {
+    opt->min_lr_fraction = static_cast<float>(
+        json_double_value(text, "min_learning_rate_fraction",
+                          opt->min_lr_fraction));
   }
   return true;
 }
