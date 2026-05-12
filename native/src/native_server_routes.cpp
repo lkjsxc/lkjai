@@ -7,6 +7,7 @@
 #include "decoder_decode.hpp"
 #include "json_min.hpp"
 #include "native_status_page.hpp"
+#include "runtime_agent.hpp"
 
 namespace lkjai {
 namespace {
@@ -86,30 +87,18 @@ HttpResponse openai_chat_json(const HttpRequest& request,
   return {422, error_json("native autoregressive decode is unsupported")};
 }
 
-std::string runtime_chat_payload(const std::string& model,
-                                 const std::string& message) {
-  return "{\"model\":\"" + json_escape(model) +
-         "\",\"messages\":[{\"role\":\"user\",\"content\":\"" +
-         json_escape(message) +
-         "\"}],\"max_tokens\":512,\"temperature\":0.2}";
-}
-
 HttpResponse runtime_chat_json(const RuntimeConfig& cfg,
                                const HttpRequest& request,
                                const ArtifactStatus& artifact) {
-  NativeHttpResponse native;
-  if (!artifact.loaded) {
-    native.status = 503;
-    native.body = error_json(artifact.error);
-  } else {
-    auto message = json_first_string(request.body, "message");
-    HttpRequest model_request{"POST", "/v1/chat/completions",
-                              runtime_chat_payload(cfg.model, message)};
-    auto model_response = openai_chat_json(model_request, artifact);
-    native.status = model_response.status;
-    native.body = model_response.body;
-  }
-  return runtime_chat_with_model_response(cfg, request, native);
+  return runtime_chat_with_model_callback(
+      cfg, request, [&](const std::string& payload) {
+        if (!artifact.loaded) {
+          return NativeHttpResponse{503, error_json(artifact.error), ""};
+        }
+        HttpRequest model_request{"POST", "/v1/chat/completions", payload};
+        auto model_response = openai_chat_json(model_request, artifact);
+        return NativeHttpResponse{model_response.status, model_response.body, ""};
+      });
 }
 
 }  // namespace

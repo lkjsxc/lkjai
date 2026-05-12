@@ -9,6 +9,7 @@
 namespace lkjai {
 
 std::string runtime_new_run_id();
+bool runtime_run_id_ok(const std::string& id);
 std::filesystem::path runtime_run_path(const RuntimeConfig& cfg,
                                        const std::string& id);
 void runtime_append_event(const RuntimeConfig& cfg, const std::string& run_id,
@@ -18,6 +19,9 @@ void runtime_append_event(const RuntimeConfig& cfg, const std::string& run_id,
 std::string runtime_events_json(const RuntimeConfig& cfg,
                                 const std::string& run_id,
                                 const std::vector<std::string>& visible);
+std::string runtime_chat_messages_json(const RuntimeConfig& cfg,
+                                       const std::string& run_id,
+                                       int limit);
 std::string runtime_runs_json(const RuntimeConfig& cfg, int limit);
 
 }  // namespace lkjai

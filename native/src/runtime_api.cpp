@@ -5,6 +5,7 @@
 
 #include "json_min.hpp"
 #include "native_status_page.hpp"
+#include "runtime_agent.hpp"
 #include "runtime_events.hpp"
 
 namespace lkjai {
@@ -12,19 +13,6 @@ namespace {
 
 std::string error_json(std::string_view error) {
   return "{\"error\":\"" + json_escape(error) + "\"}";
-}
-
-bool max_steps_ok(std::string_view body, std::string* error) {
-  int max_steps = json_int_value(body, "max_steps", 6);
-  if (max_steps >= 1 && max_steps <= 64) return true;
-  *error = "max_steps must be in [1,64]";
-  return false;
-}
-
-std::string chat_payload(const RuntimeConfig& cfg, const std::string& message) {
-  return "{\"model\":\"" + json_escape(cfg.model) +
-         "\",\"messages\":[{\"role\":\"user\",\"content\":\"" +
-         json_escape(message) + "\"}],\"max_tokens\":512,\"temperature\":0.2}";
 }
 
 int query_limit(const std::string& path) {
@@ -38,6 +26,7 @@ int query_limit(const std::string& path) {
 }
 
 HttpResponse run(const RuntimeConfig& cfg, const std::string& id) {
+  if (!runtime_run_id_ok(id)) return {400, error_json("invalid run_id")};
   auto path = runtime_run_path(cfg, id);
   if (!std::filesystem::is_regular_file(path)) return {404, error_json("run not found")};
   return {200, "{\"run_id\":\"" + json_escape(id) + "\",\"events\":" +
@@ -86,41 +75,6 @@ std::string runtime_model_status_json(const RuntimeConfig& cfg,
   return out.str();
 }
 
-HttpResponse runtime_chat_with_model_response(const RuntimeConfig& cfg,
-                                              const HttpRequest& request,
-                                              const NativeHttpResponse& model) {
-  auto message = json_first_string(request.body, "message");
-  if (message.empty()) return {400, error_json("message is required")};
-  std::string error;
-  if (!max_steps_ok(request.body, &error)) return {400, error_json(error)};
-  auto run_id = json_first_string(request.body, "run_id");
-  if (run_id.empty()) run_id = runtime_new_run_id();
-  runtime_append_event(cfg, run_id, "user", message);
-  auto visible = runtime_visible_event_kinds(request.body);
-  if (model.status != 200) {
-    runtime_append_event(cfg, run_id, "error",
-                         model.body.empty() ? model.error : model.body);
-    return {200, "{\"run_id\":\"" + json_escape(run_id) +
-                     "\",\"assistant\":\"\",\"events\":" +
-                     runtime_events_json(cfg, run_id, visible) +
-                     ",\"stop_reason\":\"model_error\"}"};
-  }
-  auto content = json_first_string(model.body, "content");
-  if (content.empty()) {
-    runtime_append_event(cfg, run_id, "error",
-                         "model response missing assistant content");
-    return {200, "{\"run_id\":\"" + json_escape(run_id) +
-                     "\",\"assistant\":\"\",\"events\":" +
-                     runtime_events_json(cfg, run_id, visible) +
-                     ",\"stop_reason\":\"invalid_model_response\"}"};
-  }
-  runtime_append_event(cfg, run_id, "assistant", content);
-  return {200, "{\"run_id\":\"" + json_escape(run_id) +
-                   "\",\"assistant\":\"" + json_escape(content) +
-                   "\",\"events\":" + runtime_events_json(cfg, run_id, visible) +
-                   ",\"stop_reason\":\"finish\"}"};
-}
-
 std::string runtime_health_json(const RuntimeConfig& cfg) {
   return "{\"status\":\"ok\",\"service\":\"lkjai-native-runtime\",\"bind\":"
          "{\"host\":\"" + json_escape(cfg.host) + "\",\"port\":" +
@@ -144,12 +98,10 @@ HttpResponse runtime_route(const RuntimeConfig& cfg, const HttpRequest& request)
     return {200, runtime_runs_json(cfg, query_limit(request.path))};
   }
   if (request.method == "POST" && request.path == "/api/chat") {
-    auto message = json_first_string(request.body, "message");
-    if (message.empty()) return {400, error_json("message is required")};
-    std::string error;
-    if (!max_steps_ok(request.body, &error)) return {400, error_json(error)};
-    auto model = native_http_post_json(cfg.model_url, chat_payload(cfg, message));
-    return runtime_chat_with_model_response(cfg, request, model);
+    return runtime_chat_with_model_callback(
+        cfg, request, [&](const std::string& payload) {
+          return native_http_post_json(cfg.model_url, payload);
+        });
   }
   const std::string prefix = "/api/runs/";
   if (request.method == "GET" && request.path.rfind(prefix, 0) == 0) {

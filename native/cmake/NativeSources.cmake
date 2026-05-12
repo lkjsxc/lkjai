@@ -68,6 +68,8 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/packed_cache_digest.cpp
   src/packed_cache_reader.cpp
   src/packed_cache_validate.cpp
+  src/runtime_action.cpp
+  src/runtime_agent.cpp
   src/runtime_api.cpp
   src/runtime_config_status.cpp
   src/runtime_events.cpp

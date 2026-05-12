@@ -120,11 +120,13 @@ artifact inspection, and CUDA capability probing.
   [native_server_routes.hpp](native_server_routes.hpp): testable merged route
   dispatcher for `/`, `/healthz`, `/api/*`, and `/v1/*`.
 - [runtime_main.cpp](runtime_main.cpp), [runtime_api.cpp](runtime_api.cpp),
-  [runtime_api.hpp](runtime_api.hpp), [runtime_events.cpp](runtime_events.cpp),
+  [runtime_api.hpp](runtime_api.hpp), [runtime_action.cpp](runtime_action.cpp),
+  [runtime_action.hpp](runtime_action.hpp), [runtime_agent.cpp](runtime_agent.cpp),
+  [runtime_agent.hpp](runtime_agent.hpp), [runtime_events.cpp](runtime_events.cpp),
   [runtime_events.hpp](runtime_events.hpp),
   [native_http_client.cpp](native_http_client.cpp), and
   [native_http_client.hpp](native_http_client.hpp): native agent API runtime,
-  transcript/event contracts, and blocking HTTP model client.
+  XML action loop, transcript/event contracts, and blocking HTTP model client.
 - [repo_check_main.cpp](repo_check_main.cpp) and `repo_check_*`: native docs,
   corpus, and repository quality checks.
 - [train_main.cpp](train_main.cpp): scratch training entrypoint.

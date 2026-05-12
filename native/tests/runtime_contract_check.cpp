@@ -33,7 +33,8 @@ bool chat_filter_contract() {
              "\"visible_event_kinds\":[\"user\"]}";
   lkjai::NativeHttpResponse model;
   model.status = 200;
-  model.body = "{\"choices\":[{\"message\":{\"content\":\"hi\"}}]}";
+  model.body =
+      "{\"choices\":[{\"message\":{\"content\":\"<action>\\n<tool>agent.finish</tool>\\n<content>hi</content>\\n</action>\"}}]}";
   auto resp = lkjai::runtime_chat_with_model_response(c, req, model);
   auto transcript = std::filesystem::path(c.data_dir) / "agent" / "runs" /
                     "r1.jsonl";
@@ -44,6 +45,7 @@ bool chat_filter_contract() {
          expect(has(resp.body, "\"assistant\":\"hi\""), "assistant content") &&
          expect(!has(resp.body, "\"kind\":\"assistant\""), "filtered assistant") &&
          expect(has(body, "\"kind\":\"assistant\""), "persisted assistant") &&
+         expect(has(body, "\"kind\":\"finish\""), "persisted finish") &&
          expect(has(body, "\"timestamp\":\""), "timestamp persisted");
 }
 
@@ -95,12 +97,26 @@ bool health_contract() {
          expect(has(body, "\"host\":\"127.0.0.1\""), "health bind");
 }
 
+bool run_id_guard_contract() {
+  auto c = cfg();
+  lkjai::NativeHttpResponse model;
+  model.status = 200;
+  model.body =
+      "{\"choices\":[{\"message\":{\"content\":\"<action><tool>agent.finish</tool><content>x</content></action>\"}}]}";
+  lkjai::HttpRequest req{"POST", "/api/chat",
+                         "{\"message\":\"hello\",\"run_id\":\"../bad\"}"};
+  auto resp = lkjai::runtime_chat_with_model_response(c, req, model);
+  auto run = lkjai::runtime_route(c, {"GET", "/api/runs/../bad", ""});
+  return expect(resp.status == 400, "bad chat run id rejected") &&
+         expect(run.status == 400, "bad route run id rejected");
+}
+
 }  // namespace
 
 int main() {
 	  return chat_filter_contract() && chat_error_contract() &&
 	                 model_status_contract() && config_status_contract() &&
-	                 health_contract()
+	                 health_contract() && run_id_guard_contract()
 	             ? 0
 	             : 1;
 }

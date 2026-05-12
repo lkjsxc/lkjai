@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cctype>
 #include <ctime>
 #include <filesystem>
 #include <fstream>
@@ -76,6 +77,14 @@ std::string runtime_new_run_id() {
   return "run-" + std::to_string(ms);
 }
 
+bool runtime_run_id_ok(const std::string& id) {
+  if (id.empty() || id.size() > 96) return false;
+  for (unsigned char ch : id) {
+    if (!std::isalnum(ch) && ch != '_' && ch != '-') return false;
+  }
+  return true;
+}
+
 std::filesystem::path runtime_run_path(const RuntimeConfig& cfg,
                                        const std::string& id) {
   return std::filesystem::path(cfg.data_dir) / "agent" / "runs" / (id + ".jsonl");
@@ -111,6 +120,30 @@ std::string runtime_events_json(const RuntimeConfig& cfg,
     out << line;
   }
   out << "]";
+  return out.str();
+}
+
+std::string runtime_chat_messages_json(const RuntimeConfig& cfg,
+                                       const std::string& run_id,
+                                       int limit) {
+  std::ifstream file(runtime_run_path(cfg, run_id));
+  std::vector<std::string> rows;
+  std::string line;
+  while (std::getline(file, line)) {
+    auto kind = json_first_string(line, "kind");
+    if (kind != "user" && kind != "assistant") continue;
+    auto content = json_first_string(line, "content");
+    rows.push_back("{\"role\":\"" + kind + "\",\"content\":\"" +
+                   json_escape(content) + "\"}");
+  }
+  if (limit < 1) limit = 1;
+  size_t start = rows.size() > static_cast<size_t>(limit)
+                     ? rows.size() - static_cast<size_t>(limit)
+                     : 0;
+  std::ostringstream out;
+  for (size_t i = start; i < rows.size(); ++i) {
+    out << "," << rows[i];
+  }
   return out.str();
 }
 

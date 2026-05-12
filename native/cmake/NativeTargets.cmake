@@ -99,6 +99,20 @@ target_link_libraries(lkjai-native-decoder-kv-cache-contract
 add_executable(lkjai-native-runtime-contract tests/runtime_contract_check.cpp)
 target_link_libraries(lkjai-native-runtime-contract PRIVATE lkjai_native_core)
 
+add_executable(lkjai-native-runtime-action-contract
+  tests/runtime_action_contract.cpp
+)
+target_link_libraries(lkjai-native-runtime-action-contract PRIVATE
+  lkjai_native_core
+)
+
+add_executable(lkjai-native-runtime-agent-contract
+  tests/runtime_agent_contract.cpp
+)
+target_link_libraries(lkjai-native-runtime-agent-contract PRIVATE
+  lkjai_native_core
+)
+
 add_executable(lkjai-native-server-route-contract
   tests/server_route_contract.cpp
 )

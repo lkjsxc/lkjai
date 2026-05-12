@@ -22,6 +22,10 @@ This directory contains test helpers for native CTest cases.
   finite BF16 projection outputs, and truthful partial report fields.
 - [runtime_contract_check.cpp](runtime_contract_check.cpp): native runtime
   event filtering, transcript persistence, and model-status JSON contract.
+- [runtime_action_contract.cpp](runtime_action_contract.cpp): XML action parser
+  validation and repeat-action signature checks.
+- [runtime_agent_contract.cpp](runtime_agent_contract.cpp): `agent.finish`,
+  `agent.think`, repeat-action, and unsupported-tool loop behavior.
 - [server_route_contract.cpp](server_route_contract.cpp): merged native route
   dispatcher contract for model, dense demo, health, and transcript routes.
 - [decoder_acceptance_report_contract.cpp](decoder_acceptance_report_contract.cpp):
