@@ -7,11 +7,12 @@ The decoder smoke gate must run through Docker Compose and prove:
 - config validation,
 - at least two optimizer steps,
 - finite loss,
-- truthful zero non-embedding weight change while full backward is absent,
+- positive non-embedding and decoder-block weight change,
 - checkpoint and export artifacts,
 - inspect success,
 - logits check success,
-- native server route success with truthful decode disclosure.
+- native server route success with truthful accepted or non-accepted decode
+  disclosure.
 
 ## Two-Hour Gate
 
@@ -32,13 +33,14 @@ full-decoder training and CUDA KV-cache decode fields. A dry-run script,
 foundation server contract, or embedding/head-only CUDA slice is not accepted
 evidence.
 
-Current decoder smoke remains partial because block backward is absent and
-serving still uses host recompute decode. Such runs must report
-`accepted_cuda_training=false`, `decoder_backward_backend=not_implemented`,
-`non_embedding_weight_changed=false`, `decoder_block_weight_changed=false`, and
-`decode_supported=false`.
+Current decoder smoke runs the full-decoder training contract on small
+dimensions. It must report `decoder_cuda_slice=full_decoder`,
+`decoder_backward_backend=cuda_full_decoder`,
+`non_embedding_weight_changed=true`, `decoder_block_weight_changed=true`, and
+`decode_supported=true`. It is smoke evidence only; the tracked acceptance lane
+is still the two-hour RTX 3070 run.
 
-Use smoke mode for current partial CUDA work:
+Use smoke mode for current CUDA work:
 
 ```bash
 docker compose --profile train run --rm train \

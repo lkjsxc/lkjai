@@ -27,9 +27,10 @@ Accepted decoder training covers embeddings, tied LM head, every decoder block
 tensor, and final norm. Reports must prove positive non-embedding and
 decoder-block deltas before using accepted backend names.
 
-Current scaffolding may own registry tensors, BF16 shadows, AdamW moments, and
-diagnostic CUDA buffers, but it is not accepted evidence while block gradients
-are absent or detached from a real decoder backward pass.
+The decoder path owns registry tensors, BF16 shadows, AdamW moments, and
+diagnostic CUDA buffers for every trainable decoder tensor. Smoke reports prove
+the contract shape; accepted evidence still requires the documented RTX 3070
+run and route checks.
 The implementation must prefer correctness evidence over kernel cleverness:
 cuBLASLt remains the GEMM owner, while custom CUDA covers pointwise kernels,
 attention glue, loss, optimizer helpers, sampling, and KV-cache operations.
@@ -112,11 +113,11 @@ No report may emit `implementation_status=accepted`,
 `decoder_cuda_slice=full_decoder`,
 `decoder_backward_backend=cuda_full_decoder`,
 `decode_backend=cuda_kv_cache`, or
-`kv_cache_backend=cuda_contiguous_bf16` until real block backward, optimizer
+`kv_cache_backend=cuda_contiguous_bf16` unless block backward, optimizer
 coverage for all trainable decoder tensors, accepted logits/export/server
-checks, and real CUDA KV-cache decode exist. Sidecars such as
-`decoder_acceptance.json` may be written only after accepted evidence is
-produced.
+checks, and CUDA KV-cache decode execute. Sidecars such as
+`decoder_acceptance.json` are written only for the accepted 40M RTX 3070
+training configuration after report fields pass.
 
 The two-hour RTX 3070 run is the acceptance lane. Code must not promote a
 report solely because `target_seconds > 0`.
@@ -124,9 +125,9 @@ report solely because `target_seconds > 0`.
 ## Current Status
 
 The decoder lane is promoted only through this document's acceptance contract.
-Historical partial reports remain useful regression evidence. Current partial
-reports must keep `accepted_cuda_training=false`, avoid accepted backend names,
-and avoid accepted decode backend names.
+Historical partial reports remain useful regression evidence. Any future
+partial report must keep `accepted_cuda_training=false`, avoid accepted backend
+names, and avoid accepted decode backend names.
 
 The report contract rejects partial slices, missing logits evidence, missing
 served artifacts, missing block-weight deltas, untied product configs, and KV

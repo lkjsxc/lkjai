@@ -34,10 +34,8 @@ embeddings and the LM head.
 
 ## Current Status
 
-The partial CUDA slice trains embeddings and the LM head on the dense
-substrate. Current decoder registry scaffolding keeps block tensors available
-for forward probes, but block tensors are not updated until real backward
-exists. Reports must keep `decoder_backward_backend=not_implemented` until full
-block backward computes real gradients and optimizer coverage is verified for
-embeddings, tied LM head, norms, projections, MLP tensors, final norm, and Adam
-moments.
+The decoder training path updates embeddings, the tied LM head, block norms,
+attention projections, MLP projections, final norm, and Adam moments through
+the full decoder state. Reports use `decoder_backward_backend=cuda_full_decoder`
+only with positive block-delta evidence and optimizer coverage for every
+trainable decoder tensor.

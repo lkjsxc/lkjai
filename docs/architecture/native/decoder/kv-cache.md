@@ -19,8 +19,8 @@ autoregressive generation.
   `decode_backend=cuda_kv_cache`.
 - Decode reports must include cache allocation accounting and prove zero
   steady-state device allocations per generated token.
-- Stop-token behavior must be tested before partial CUDA reference decode can
-  be replaced in route evidence.
+- Stop-token behavior must stay covered before accepted CUDA KV-cache decode is
+  used in route evidence.
 
 ## Implementation Shape
 
@@ -38,11 +38,11 @@ autoregressive generation.
 
 ## Current Status
 
-The current decoder bridge uses native CUDA reference decode and reports
-`cuda_reference_kv_cache` plus partial KV-cache metadata. That is valid partial
-serving disclosure, not accepted KV-cache decode.
+The decoder bridge can disclose either accepted CUDA KV-cache decode or
+`cuda_reference_kv_cache` plus partial KV-cache metadata. The accepted name is
+allowed only when the sidecar and executed route path agree.
 
-The native implementation now has a tested layout helper for the accepted
-contiguous BF16 K/V memory contract. It does not change serving reports until
-decode writes model K/V tensors, reads them through CUDA attention, avoids
-steady-state token allocations, and stops using host prompt recompute.
+The native implementation has the accepted contiguous BF16 K/V memory contract,
+CUDA append, cached attention consumption, allocation accounting, and route
+contracts. Future batching work must preserve zero steady-state token
+allocations.

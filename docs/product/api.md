@@ -87,21 +87,20 @@ the loaded artifact.
 `assistant` is populated only when the model emits an `agent.finish` action
 with user-facing content. Current native dense and transformer artifacts return
 unsupported decode from `/v1/chat/completions`. Decoder artifacts are the
-product target. Current decoder choices use a partial native CUDA reference
-decode path and remain non-accepted until full CUDA KV-cache decode evidence
-exists.
+product target. Decoder choices use the native CUDA route and disclose accepted
+CUDA KV-cache decode only when the executed route evidence is present.
 
 ## Decode Capability Matrix
 
 | Artifact kind | `/v1/chat/completions` result | Product role |
 |---|---|---|
 | `dense` | HTTP `422`, no `choices` | BF16 training and logits diagnostics. |
-| `decoder` | `choices`; current CUDA reference choices report non-accepted decode | Product target for accepted chat. |
+| `decoder` | `choices`; accepted or non-accepted CUDA disclosure | Product target for accepted chat. |
 | `transformer` | HTTP `422`, no `choices` | Reference plumbing only. |
 
 Accepted decoder chat requires `decode_backend=cuda_kv_cache`,
 `kv_cache_backend=cuda_contiguous_bf16`, and KV allocation accounting in the
-response. The current partial route reports
+response. Non-accepted decoder route responses report
 `lkjai_decode_backend=cuda_reference_kv_cache`,
 `lkjai_kv_cache_backend=cuda_contiguous_bf16_partial`,
 `lkjai_decode_supported=true`, and `lkjai_decode_accepted=false`.

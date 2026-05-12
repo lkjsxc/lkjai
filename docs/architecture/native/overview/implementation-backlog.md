@@ -71,15 +71,14 @@ The latest report, `tmp/deep-research-report (56).md`, modified
 but its durable order is still active:
 
 1. Keep dense diagnostics and report fields truthful.
-2. Keep partial decoder fields fenced from accepted claims.
-3. Wire the existing decoder forward substrate into the actual training path
-   without changing acceptance fields.
-4. Add block-tensor backward and FP32 AdamW state until at least one
-   deterministic CTest proves a non-embedding block weight changes.
-5. Promote the report only after all decoder trainable tensors have optimizer
+2. Keep historical partial decoder fields fenced from accepted claims.
+3. Keep the decoder forward substrate wired into the actual training path.
+4. Keep block-tensor backward and FP32 AdamW state covered by CTests that prove
+   non-embedding block weights change.
+5. Promote reports only after all decoder trainable tensors have optimizer
    coverage and checkpoint/export/logits checks pass.
-6. Promote partial CUDA reference serving to accepted contiguous BF16 KV-cache
-   decode and disclose the accepted backend names in responses.
+6. Disclose accepted contiguous BF16 KV-cache decode names only when the
+   executed route path and sidecar agree.
 7. Add decode metrics: time to first token, decode tokens per second, queue
    wait, cache bytes, cache blocks allocated/reused/evicted, and sampler time.
 8. Add continuous batching only after single-request KV-cache correctness.

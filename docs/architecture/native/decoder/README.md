@@ -19,22 +19,19 @@ Use this subtree for the native `decoder` product target.
 - [backward.md](backward.md): decoder backward and optimizer acceptance
 - [kv-cache.md](kv-cache.md): accepted contiguous BF16 KV-cache decode contract
 - [benchmark.md](benchmark.md): smoke, two-hour, and evidence requirements
-- [cuda-progress.md](cuda-progress.md): foundation commits, partial CUDA slice evidence,
-  and remaining acceptance gap
+- [cuda-progress.md](cuda-progress.md): foundation commits, accepted decoder path,
+  and remaining evidence gap
 
 ## Boundary
 
 | Mode | Status | Boundary |
 |---|---|---|
 | `dense` | Foundation | Accepted CUDA BF16 dense trainer and CUDA benchmark substrate. |
-| `decoder` | Product target | Requires real tokenizer artifacts, decoder-shaped weights, native prompt serialization, and full CUDA decoder evidence before acceptance. |
+| `decoder` | Product target | Requires real tokenizer artifacts, decoder-shaped weights, native prompt serialization, full CUDA decoder evidence, and accepted route evidence. |
 | `transformer` | Reference-only | CPU/host parity source while decoder pieces are migrated; not a product training mode. |
 
-The current decoder implementation exports real decoder artifacts with the
-repo byte-level BPE tokenizer and may return partial CUDA reference choices
-through the native tokenizer bridge. Those choices are partial usability only:
-the route reports `lkjai_decode_backend=cuda_reference_kv_cache`,
-`lkjai_kv_cache_backend=cuda_contiguous_bf16_partial`,
-`lkjai_decode_supported=true`, and `lkjai_decode_accepted=false`. Training
-remains partial while block gradients are absent, full block backward is
-absent, and accepted contiguous CUDA BF16 KV-cache decode is not complete.
+The decoder implementation exports decoder artifacts with the repo byte-level
+BPE tokenizer and returns CUDA choices through the native tokenizer bridge.
+Accepted artifacts report `lkjai_decode_backend=cuda_kv_cache` and
+`lkjai_kv_cache_backend=cuda_contiguous_bf16`; artifacts without accepted route
+evidence report the explicit non-accepted CUDA reference names.

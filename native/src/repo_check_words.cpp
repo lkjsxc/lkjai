@@ -29,6 +29,16 @@ std::vector<std::string> blocked_doc_terms() {
           "version"};
 }
 
+std::vector<std::string> stale_decoder_terms() {
+  return {"host recompute decode", "host prompt recompute"};
+}
+
+bool historical_evidence_doc(const std::filesystem::path& repo,
+                             const std::filesystem::path& path) {
+  auto relative = path.lexically_relative(repo).string();
+  return relative.find("/evidence/") != std::string::npos;
+}
+
 bool allowed_route_context(const std::string& body, size_t pos) {
   auto start = pos > 8 ? pos - 8 : 0;
   auto end = std::min(body.size(), pos + 24);
@@ -58,6 +68,13 @@ int check_docs_wording(const std::filesystem::path& repo) {
     if (!docs_markdown(repo, file)) continue;
     auto body = read_text(file);
     auto relative = file.lexically_relative(repo).string();
+    if (!historical_evidence_doc(repo, file)) {
+      for (const auto& term : stale_decoder_terms()) {
+        if (body.find(term) != std::string::npos) {
+          result.fail(relative + " contains stale decoder wording: " + term);
+        }
+      }
+    }
     for (const auto& term : blocked) {
       size_t pos = 0;
       while ((pos = body.find(term, pos)) != std::string::npos) {

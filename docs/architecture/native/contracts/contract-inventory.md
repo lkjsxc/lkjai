@@ -104,14 +104,14 @@ Each contract record uses these fields:
 - owner: `docs/architecture/native/decoder/training.md`.
 - canonical_source: `configs/native/decoder_40m_bf16_3070.json` with
   `configs/training/decoder_2h_40m_3070.json`.
-- state: `future`.
+- state: `active`.
 - supersedes: none.
 - acceptance: governed by
   [decoder/training.md](../decoder/training.md), including full-decoder CUDA
   training, logits/export/server evidence, block-weight deltas, and accepted
   KV-cache decode names.
-- non_claims: current partial decoder scaffolding, absent block gradients,
-  host recompute decode, and `native_dense_40m_bf16_3070.json` are not
+- non_claims: historical partial decoder scaffolding, absent block gradients,
+  non-cache decode paths, and `native_dense_40m_bf16_3070.json` are not
   same-model decoder acceptance.
 
 ### Decoder Decode
@@ -120,7 +120,7 @@ Each contract record uses these fields:
 - owner: `docs/architecture/native/decoder/decode.md`.
 - canonical_source: autoregressive decoder chat through `/v1/chat/completions` and
   `/api/chat`.
-- state: `partial`.
+- state: `active`.
 - supersedes: none.
 - acceptance: governed by [decoder/training.md](../decoder/training.md) and
   [decoder/decode.md](../decoder/decode.md); accepted decode requires native

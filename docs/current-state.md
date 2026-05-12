@@ -20,7 +20,7 @@ preparation work.
 | Lane | State | Accepted Evidence | Blocked Capability |
 |---|---|---|---|
 | `dense` | accepted foundation and browser diagnostics | BF16 CUDA train, checkpoint/export, logits checks, packed-cache IO, local top-k demo | decoder blocks and KV-cache decode |
-| `decoder` | product acceptance target | tied artifacts, tokenizer copy, partial CUDA reference choices, full-decoder CUDA report contract | real block backward, optimizer coverage, and accepted CUDA KV-cache decode |
+| `decoder` | product acceptance target | tied artifacts, tokenizer copy, full-decoder train report fields, CUDA KV-cache route disclosure contract | long-run accepted evidence on the RTX 3070 lane |
 | `transformer` | diagnostic lane | host/reference checks and probe reports | not an accepted training or serving target |
 
 ## Decoder Limits
@@ -33,15 +33,17 @@ The `decoder` model kind is the product target. Accepted reports must use:
 - `kv_cache_backend=cuda_contiguous_bf16`
 - `decode_backend=cuda_kv_cache`
 
-Partial training reports remain non-claims and must avoid accepted backend
-names. Partial CUDA reference decode may produce decoder `choices`, but it is
-not accepted CUDA KV-cache serving evidence.
+Partial or historical training reports remain non-claims and must avoid
+accepted backend names. Decoder route responses may still disclose
+`cuda_reference_kv_cache` when the served artifact lacks accepted runtime
+evidence. Accepted route disclosure requires the executed CUDA KV-cache path and
+the accepted sidecar fields.
 
-The current decoder CUDA scaffolding is useful implementation work, not
-accepted evidence. The active engineering order is native CUDA decode first,
-then full decoder backward and accepted training. It must remain non-accepted
-while full block gradients are absent and optimizer coverage is limited to
-embeddings and LM head.
+The current decoder implementation target is the accepted path: full decoder
+training state updates, optimizer moments for every trainable tensor,
+checkpoint/export coverage, logits checks, and CUDA KV-cache generation. The
+remaining blocker is generated evidence from the documented RTX 3070
+acceptance lane.
 
 ## Data Readiness
 
@@ -72,7 +74,7 @@ sorted `*.jsonl` shards and streams rows instead of loading the full source.
 
 ## Do Not Claim
 
-- Partial decoder CUDA is not accepted decoder CUDA training.
+- Historical partial decoder CUDA is not accepted decoder CUDA training.
 - Tied embedding or LM-head updates are not decoder block training.
 - `cuda_reference_kv_cache` decode is not accepted CUDA KV-cache serving.
 - Larger GPU profile results do not relax the RTX 3070 acceptance lane.
@@ -80,11 +82,11 @@ sorted `*.jsonl` shards and streams rows instead of loading the full source.
   packed-cache validation must pass against the exact source, tokenizer, and
   decoder config.
 
-Accepted decoder reports must prove real block-weight updates, full block
-backward, FP32 optimizer coverage for every trainable decoder tensor,
-export/logits/server checks, finite loss, passing logits checks, positive
-steps and loss-token counts, contiguous CUDA BF16 KV-cache decode, zero
-steady-state token allocations, and supported decode.
+Accepted decoder reports must prove block-weight updates, full block backward,
+FP32 optimizer coverage for every trainable decoder tensor, export/logits/server
+checks, finite loss, passing logits checks, positive steps and loss-token
+counts, contiguous CUDA BF16 KV-cache decode, zero steady-state token
+allocations, and supported decode.
 
 ## Dense Diagnostic Surface
 
@@ -123,10 +125,10 @@ config. Code should validate truth fields and config shape, not treat
 The latest deep research report under `tmp/deep-research-report (56).md`,
 modified `2026-05-12`, was written against repository snapshot `193ab03`.
 Current `main` has later work, including chat-first operator surface changes,
-but the report still supports the active order: hard-fence partial decoder
-claims, ship native CUDA decode as a non-accepted runtime first, replace
-synthetic decoder gradients with real full-block backward, and only then
-broaden streaming, batching, frontend, and multi-GPU work.
+but the report still supports the active order: hard-fence historical partial
+decoder claims, land accepted native CUDA decode and full-decoder training
+evidence, and only then broaden streaming, batching, frontend, and multi-GPU
+work.
 
 Durable conclusions now owned by docs:
 

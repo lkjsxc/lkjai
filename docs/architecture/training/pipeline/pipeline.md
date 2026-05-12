@@ -62,9 +62,8 @@ Recommended stages:
 2. `assistant_masked_sft` on first-party XML action traces.
 3. Optional later preference training after both objective gates pass.
 
-No current artifact is accepted for product chat. Decoder artifacts may serve
-partial CUDA reference choices, but accepted autoregressive KV-cache decode is
-still a native target.
+Decoder artifacts may serve CUDA choices. Accepted autoregressive KV-cache
+decode requires the native route evidence gate.
 
 ## Artifacts
 

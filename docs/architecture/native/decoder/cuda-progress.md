@@ -67,51 +67,37 @@ The exported artifact remains `manifest.json.kind=decoder`, so inspect,
 logits-check, and native server foundation chat contracts continue to operate on the
 same decoder artifact shape.
 
-## What Is Not Accepted Yet
+## Current Acceptance Gap
 
-foundation server contract is not the accepted CUDA decoder trainer.
+The foundation server contract alone is not the accepted CUDA decoder trainer.
+Current reports must prove:
 
-The partial CUDA slice is also not the accepted CUDA decoder trainer. Reports
-must say:
+- `implementation_status=accepted`
+- `accepted_cuda_training=true`
+- `decoder_cuda_slice=full_decoder`
+- `decoder_block_backend=cuda_full_decoder`
+- `decoder_backward_backend=cuda_full_decoder`
+- `decoder_block_weight_changed=true`
+- `kv_cache_backend=cuda_contiguous_bf16`
+- `decode_backend=cuda_kv_cache`
 
-- `implementation_status=partial_cuda`
-- `accepted_cuda_training=false`
-- `decoder_cuda_slice=embedding_lm_head`
-- `decoder_block_backend=cuda_forward_partial`
-- `rmsnorm_backend=cuda_bf16_fp32_reduce`
-- `rope_backend=cuda_bf16`
-- `qkv_projection_backend=cuda_bf16_cublaslt`
-- `attention_backend=cuda_causal_gqa_bf16_reference`
-- `mlp_backend=cuda_swiglu_partial`
-- `decoder_backward_backend=not_implemented`
-- `decoder_block_weight_changed=false`
-- `kv_cache_backend=none`
-- `decode_backend=host_reference_recompute`
+Decoder chat serving may still disclose `cuda_reference_kv_cache` plus
+`cuda_contiguous_bf16_partial` for artifacts without accepted route evidence.
+Accepted disclosure requires the sidecar and executed CUDA KV-cache path to
+agree.
 
-Decoder chat serving is also partial. Successful decoder `choices` responses
-must disclose `lkjai_decode_backend=cuda_reference_kv_cache`,
-`lkjai_kv_cache_backend=cuda_contiguous_bf16_partial`,
-`lkjai_decode_supported=true`, and `lkjai_decode_accepted=false` until the
-accepted contiguous BF16 CUDA KV-cache path lands. Training reports remain
-truthful with `accepted_cuda_training=false`,
-`decoder_cuda_slice=embedding_lm_head`, and
-`decoder_backward_backend=not_implemented`.
-
-Before acceptance, the repo still needs this stateful forward substrate wired
-into training with full decoder backward, optimizer coverage for block tensors,
-real block-weight updates, contiguous BF16 KV-cache decode, no per-token device
-allocations, and a real two-hour RTX acceptance run.
+Before tracked acceptance, the repo still needs a real two-hour RTX acceptance
+run with full decoder weight deltas, logits/export checks, route transcript,
+positive prefill allocation, and zero steady-state token allocations.
 
 ## Hardware Implications
 
-RTX 3070 remains the first acceptance target. The current slice is useful
-because it proves the decoder artifact can be trained through the device
-resident BF16/FP32 substrate without changing server contracts, but it is much
-cheaper than full decoder blocks and does not predict final two-hour throughput.
+RTX 3070 remains the first acceptance target. Smoke runs prove contracts and
+small-shape behavior, but they do not predict final two-hour throughput.
 
-RTX 5090 should use separate presets and autotune data once full decoder blocks
-exist. The current slice should build there, but it is not enough evidence for
-Blackwell decoder performance.
+RTX 5090 should use separate presets and autotune data after the RTX 3070 lane
+has accepted evidence. Smoke builds there are not enough evidence for Blackwell
+decoder performance.
 
 ## Verification
 
@@ -127,5 +113,5 @@ docker compose --progress quiet --profile verify run --build --rm verify
 Actual result on this change set: the local shell did not have `cmake` or
 `ninja`, so direct host configure/build commands were not runnable. Docker
 verify ran native configure, native build, and CTest inside the verify image and
-passed. The two-hour acceptance job is still not applicable because a full
-accepted CUDA decoder backend does not exist yet.
+passed. The two-hour acceptance job remains the required generated evidence for
+the full accepted CUDA decoder backend.

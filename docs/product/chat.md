@@ -21,7 +21,7 @@ State: canonical product chat surface contract.
 |---|---|---|
 | Dense artifact | Browser diagnostics, status, logits, top-k, checksum | Stay non-chat and support demo evidence |
 | Chat route | Bounded XML-action loop for `agent.finish` and `agent.think` | Read-only tools, memory, summaries, and confirmations |
-| Decoder route | Partial CUDA reference choices report non-accepted decode | CUDA KV-cache decode with accepted metrics |
+| Decoder route | CUDA decoder choices with truthful accepted/non-accepted disclosure | Broader streaming and batching metrics |
 | Tools | Core agent actions only in the first loop | Read-only filesystem and `kjxlkj` resource tools |
 
 ## Behavior
@@ -47,10 +47,11 @@ State: canonical product chat surface contract.
   They return HTTP `422` unsupported decode with no `choices` field.
 - Native decoder artifacts are the same-model product target for accepted chat
   responses.
-- Current decoder choices use native CUDA prefill plus partial contiguous BF16
-  KV-cache state. They report `lkjai_decode_backend=cuda_reference_kv_cache`,
-  `lkjai_kv_cache_backend=cuda_contiguous_bf16_partial`,
-  `lkjai_decode_supported=true`, and `lkjai_decode_accepted=false`.
+- Decoder choices use native CUDA prefill and contiguous BF16 KV-cache state.
+  Accepted artifacts report `lkjai_decode_backend=cuda_kv_cache` and
+  `lkjai_kv_cache_backend=cuda_contiguous_bf16`. Artifacts without accepted
+  route evidence report `cuda_reference_kv_cache`,
+  `cuda_contiguous_bf16_partial`, and `lkjai_decode_accepted=false`.
 
 ## Default Safety Boundary
 

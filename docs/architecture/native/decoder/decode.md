@@ -6,8 +6,9 @@ State: accepted when `decode_backend=cuda_kv_cache`.
 ## API
 
 `POST /v1/chat/completions` may return OpenAI-compatible JSON for decoder
-artifacts. Current decoder choices are partial native CUDA reference decode
-until accepted CUDA KV-cache decode exists:
+artifacts. Accepted decoder artifacts disclose CUDA KV-cache decode only when
+the executed route used the native cache path and accepted sidecar fields are
+present:
 
 - `id`
 - `object`
@@ -33,14 +34,15 @@ decode with no `choices`.
 Accepted decoder artifacts return `lkjai_decode_backend=cuda_kv_cache` and
 `lkjai_kv_cache_backend=cuda_contiguous_bf16`. Reports and route responses also
 disclose positive prefill allocation and zero steady-state per-token allocation.
-The current partial CUDA path may return `choices`, but it must report
+Artifacts without accepted runtime evidence may still return `choices`, but
+they must report
 `lkjai_decode_backend=cuda_reference_kv_cache`,
 `lkjai_kv_cache_backend=cuda_contiguous_bf16_partial`,
 `lkjai_decode_supported=true`, and `lkjai_decode_accepted=false`.
 
-Sidecar metadata cannot promote partial runtime names. Accepted disclosure requires
-generation to prefill real CUDA K/V tensors once and append one token per step
-without calling host `transformer_forward` for the full prompt.
+Sidecar metadata alone cannot promote runtime names. Accepted disclosure
+requires generation to prefill real CUDA K/V tensors once and append one token
+per step without calling host `transformer_forward` for the full prompt.
 
 Accepted decode metrics must include time to first token, per-token decode
 time, sampler time, cache prefill bytes, steady-state token allocation count,
@@ -82,8 +84,8 @@ HTTP `400` with no `choices`.
 - Accepted decode uses a native-owned contiguous BF16 KV cache.
 - Block-pool or paged KV cache is a later batching optimization.
 - Steady-state accepted decode must not allocate device memory per token.
-- Partial CUDA reference choices are usability only and do not satisfy accepted
-  decode until full metrics and acceptance evidence exist.
+- CUDA reference choices are usability only and do not satisfy accepted decode
+  until full metrics and acceptance evidence exist.
 
 ## Sampling
 

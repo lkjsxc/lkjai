@@ -26,10 +26,9 @@ Use one real native model engine and surface its health honestly.
   the route returns choices.
 - Dense and transformer artifacts return unsupported decode, so product chat
   quality gates require decoder exports with the real tokenizer.
-- Current decoder choices are partial CUDA reference usability and must report
-  non-accepted decode.
-- Accepted decoder choices report `cuda_kv_cache` and
-  `cuda_contiguous_bf16`, with zero steady-state token allocation.
+- Decoder choices report either accepted `cuda_kv_cache` plus
+  `cuda_contiguous_bf16`, or explicit non-accepted CUDA reference names.
+  Accepted disclosure requires zero steady-state token allocation.
 - Every accepted future model step must return one XML action.
 - The runtime system prompt is tracked in native runtime configuration and must
   use the same XML-like serialization as training data.
