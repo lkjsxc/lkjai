@@ -110,7 +110,7 @@ Each contract record uses these fields:
   [decoder/training.md](../decoder/training.md), including full-decoder CUDA
   training, logits/export/server evidence, block-weight deltas, and accepted
   KV-cache decode names.
-- non_claims: current dirty decoder scaffolding, synthetic block gradients,
+- non_claims: current partial decoder scaffolding, absent block gradients,
   host recompute decode, and `native_dense_40m_bf16_3070.json` are not
   same-model decoder acceptance.
 

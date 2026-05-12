@@ -19,11 +19,9 @@ class DecoderCudaState {
   struct RegistryTensor {
     Parameter* param = nullptr;
     DeviceTensor weight;
-    DeviceTensor grad;
     DeviceTensor moment_m;
     DeviceTensor moment_v;
     DeviceTensor shadow;
-    std::vector<float> accumulated_grad;
   };
 
   DecoderCudaState(const TransformerConfig& cfg,
@@ -42,8 +40,6 @@ class DecoderCudaState {
 
  private:
   void build_registry();
-  void accumulate_decoder_gradients(const PackedBatch& batch, double loss,
-                                    float grad_scale, bool reset_grads);
   void copy_registry_to_host();
 
   TransformerState state_;

@@ -38,10 +38,9 @@ Host-reference recompute decode may produce decoder `choices`, but it is not
 accepted CUDA KV-cache serving evidence.
 
 The current decoder CUDA scaffolding is useful implementation work, not
-accepted evidence. It must remain non-accepted while block gradients are
-synthetic, optimizer coverage is not tied to real decoder backward, and decode
-still calls host `transformer_forward` instead of consuming CUDA KV-cache
-attention state.
+accepted evidence. It must remain non-accepted while block gradients are absent,
+optimizer coverage is limited to embeddings and LM head, and decode still calls
+host `transformer_forward` instead of consuming CUDA KV-cache attention state.
 
 ## Data Readiness
 

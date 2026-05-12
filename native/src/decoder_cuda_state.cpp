@@ -1,7 +1,6 @@
 #include "decoder_cuda_state.hpp"
 
 #include <algorithm>
-#include <cmath>
 
 namespace lkjai {
 namespace {
@@ -30,13 +29,10 @@ void append_param(Parameter* p, cudaStream_t stream,
   DecoderCudaState::RegistryTensor t;
   t.param = p;
   t.weight = f32_tensor(stream, *p);
-  t.grad = f32_tensor(stream, *p);
   t.moment_m = f32_tensor(stream, *p);
   t.moment_v = f32_tensor(stream, *p);
   t.shadow = bf16_tensor(stream, *p);
-  t.accumulated_grad.assign(p->w.size(), 0.0f);
   t.weight.copy_from_host_f32(p->w, stream);
-  t.grad.copy_from_host_f32(t.accumulated_grad, stream);
   t.moment_m.copy_from_host_f32(p->m, stream);
   t.moment_v.copy_from_host_f32(p->v, stream);
   t.shadow.copy_from_host_f32(p->w, stream);
@@ -101,32 +97,6 @@ void DecoderCudaState::build_registry() {
   }
   append_param(&state_.final_norm, ctx_.stream(), &registry_,
                &registry_shadow_bytes_);
-}
-
-void DecoderCudaState::accumulate_decoder_gradients(const PackedBatch& batch,
-                                                    double loss,
-                                                    float grad_scale,
-                                                    bool reset_grads) {
-  if (reset_grads) {
-    for (auto& t : registry_) {
-      std::fill(t.accumulated_grad.begin(), t.accumulated_grad.end(), 0.0f);
-    }
-  }
-  float base =
-      static_cast<float>(std::max(std::fabs(loss), 1.0e-6)) * grad_scale;
-  float token_mix = 0.0f;
-  for (uint16_t tok : batch.tokens) token_mix += float((tok % 17) + 1);
-  token_mix /= static_cast<float>(std::max<size_t>(batch.tokens.size(), 1));
-  for (size_t tensor_index = 0; tensor_index < registry_.size();
-       ++tensor_index) {
-    auto& t = registry_[tensor_index];
-    float scale = base * (1.0e-5f + 1.0e-7f * token_mix) *
-                  static_cast<float>((tensor_index % 7) + 1);
-    for (size_t i = 0; i < t.accumulated_grad.size(); ++i) {
-      float sign = ((i + tensor_index) % 2 == 0) ? 1.0f : -1.0f;
-      t.accumulated_grad[i] += sign * scale;
-    }
-  }
 }
 
 void DecoderCudaState::copy_registry_to_host() {

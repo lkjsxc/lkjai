@@ -164,7 +164,7 @@ void decoder_fill_cuda_slice_report(DenseCudaState& cuda,
   r->decoder_block_backend = "cuda_forward_partial";
   r->forward_backend = "cuda_bf16_embedding_lm_head";
   r->backward_backend = "cuda_bf16_embedding_lm_head";
-  r->optimizer_backend = "cuda_adamw_fp32";
+  r->optimizer_backend = "cuda_adamw_fp32_embedding_lm_head";
   r->rmsnorm_backend = "cuda_bf16_fp32_reduce";
   r->rope_backend = "cuda_bf16";
   r->qkv_projection_backend = "cuda_bf16_cublaslt";

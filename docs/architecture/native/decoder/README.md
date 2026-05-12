@@ -35,6 +35,5 @@ repo byte-level BPE tokenizer and may return partial host-reference choices
 through the native tokenizer bridge. Those choices are partial usability only:
 decode still calls host `transformer_forward`, the diagnostic KV writes are not
 model attention state, and the route must report `lkjai_decode_supported=false`.
-Training remains partial while block gradients are synthetic, full block
-backward is absent, and accepted contiguous CUDA BF16 KV-cache decode is not
-complete.
+Training remains partial while block gradients are absent, full block backward
+is absent, and accepted contiguous CUDA BF16 KV-cache decode is not complete.

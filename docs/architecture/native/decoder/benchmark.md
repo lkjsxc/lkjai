@@ -7,7 +7,7 @@ The decoder smoke gate must run through Docker Compose and prove:
 - config validation,
 - at least two optimizer steps,
 - finite loss,
-- nonzero non-embedding weight change,
+- truthful zero non-embedding weight change while full backward is absent,
 - checkpoint and export artifacts,
 - inspect success,
 - logits check success,
@@ -26,14 +26,16 @@ docker compose --profile train run --rm train \
   --seq-len 1024 --target-seconds 7200
 ```
 
-Commit `a806c88` makes `--full` and `--require-accepted-cuda` run an acceptance
-probe first. The runner must fail when the report is foundation/reference or partial
-CUDA. A dry-run script, foundation server contract, or embedding/head-only CUDA slice is
-not accepted evidence.
+`scripts/codex/run_e2e_decoder_demo.sh` must fail under
+`REQUIRE_ACCEPTED_CUDA=1` unless the generated report contains accepted
+full-decoder training and CUDA KV-cache decode fields. A dry-run script,
+foundation server contract, or embedding/head-only CUDA slice is not accepted
+evidence.
 
-Current decoder smoke remains partial when it uses synthetic block gradients or
-host recompute decode. Such runs must report `accepted_cuda_training=false`,
-`decoder_backward_backend=not_implemented`, and
+Current decoder smoke remains partial because block backward is absent and
+serving still uses host recompute decode. Such runs must report
+`accepted_cuda_training=false`, `decoder_backward_backend=not_implemented`,
+`non_embedding_weight_changed=false`, `decoder_block_weight_changed=false`, and
 `decode_supported=false`.
 
 Use smoke mode for current partial CUDA work:

@@ -26,6 +26,17 @@ docker compose --profile train run --rm train \
   --seq-len "$SEQ_LEN" \
   --run-purpose decoder_2h_demo
 
+REPORT="data/perf-runs/$RUN_ID/decoder_2h_bf16_cuda/$PHASE/runs/train-report.json"
+test -f "$REPORT"
+if [[ "${REQUIRE_ACCEPTED_CUDA:-0}" == "1" ]]; then
+  grep -q '"accepted_cuda_training":true' "$REPORT"
+  grep -q '"implementation_status":"accepted"' "$REPORT"
+  grep -q '"decoder_cuda_slice":"full_decoder"' "$REPORT"
+  grep -q '"decoder_backward_backend":"cuda_full_decoder"' "$REPORT"
+  grep -q '"kv_cache_backend":"cuda_contiguous_bf16"' "$REPORT"
+  grep -q '"decode_backend":"cuda_kv_cache"' "$REPORT"
+fi
+
 echo "[3/5] Publish model artifact"
 SRC="data/perf-runs/$RUN_ID/decoder_2h_bf16_cuda/$PHASE/exports/$MODEL_NAME"
 test -d "$SRC"
