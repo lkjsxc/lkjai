@@ -10,7 +10,7 @@ Train and export the current dense BF16 CUDA foundation while preserving the
 - `docker compose --profile train up --build train`
 - `docker compose --profile verify up --build --abort-on-container-exit verify`
 - `lkjai-native-train --smoke --steps 2`
-- `lkjai-native-inspect --model-dir data/models/lkjai-scratch-40m`
+- `lkjai-native-inspect --model-dir data/models/dense-40m-3070`
 
 ## Pipeline Order
 
@@ -30,13 +30,15 @@ Train and export the current dense BF16 CUDA foundation while preserving the
 
 - `TRAIN_CONFIG=/workspace/configs/training/dense_40m_accepted_3070.json`
 - `TRAIN_NATIVE_CONFIG=/workspace/configs/native/native_dense_40m_bf16_3070.json`
+- `TRAIN_MODEL_NAME=dense-40m-3070`
 - `TRAIN_SEQUENCE_LEN=1024`
 - `TRAIN_MAX_STEPS=400000` optimizer steps
 - `TRAIN_BATCH_SIZE=1`
 - `TRAIN_GRADIENT_ACCUMULATION=8`
 - `TRAIN_LEARNING_RATE=0.0003`
 - `TRAIN_WARMUP_STEPS=200`
-- `TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS=3000`
+- `TRAIN_TARGET_SECONDS=7200`
+- `TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS=512`
 - Native packed-cache reader for `--train`
 - `TRAIN_DATA_DIR=/app/data/train`
 
@@ -73,7 +75,7 @@ still a native target.
   required intermediate gate. No deleted Kimi corpus is active.
 - Tokenizer: `data/train/tokenizer`
 - Checkpoints: `data/train/checkpoints`
-- Native exports: `data/models/lkjai-scratch-40m`
+- Native exports: `data/models/dense-40m-3070`
 - Stable train report: `data/train/runs/train-report.json`
 
 ## Checkpoint Resume

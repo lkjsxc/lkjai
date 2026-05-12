@@ -70,5 +70,5 @@ Fix:
 - Reduce `TRAIN_HIDDEN_SIZE`.
 - Reduce `TRAIN_LAYERS`.
 - Increase `TRAIN_GRADIENT_ACCUMULATION` and reduce batch size.
-- Use `docker compose --profile train up --build train` to verify the smoke
-  pipeline before a long run.
+- Use `docker compose --profile train run --rm train --smoke --steps 2` for a
+  smoke pipeline check before a long run.

@@ -30,7 +30,8 @@ task instead of reading the tree linearly.
   explicit unsupported chat decode. Decoder exports may return choices through
   the current host-reference recompute bridge, but that is partial usability
   only and not accepted CUDA KV-cache serving.
-- `train` runs native dense CUDA smoke or packed-cache training from scratch.
+- `train` runs the two-hour dense 40M packed-cache training profile from
+  scratch; smoke checks are explicit native trainer invocations.
 - Dense BF16 CUDA training is the accepted substrate. The decoder CUDA slice is
   partial: embeddings and LM head train, block forward is forward-only, block
   weights are not trained, and full decoder backward is not implemented.

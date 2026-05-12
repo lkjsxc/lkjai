@@ -159,6 +159,15 @@ void check_decoder_acceptance_config(const std::filesystem::path& repo,
   require_contains(train, "configs/native/decoder_40m_bf16_3070.json", result);
 }
 
+void check_dense_train_compose_contract(const std::filesystem::path& repo,
+                                        RepoCheckResult* result) {
+  auto compose = repo / "compose.yaml"; auto train = repo / "configs/training/dense_40m_accepted_3070.json";
+  for (auto needle : {"MODEL_NAME: ${TRAIN_MODEL_NAME:-dense-40m-3070}", "TRAIN_CONFIG: ${TRAIN_CONFIG:-/workspace/configs/training/dense_40m_accepted_3070.json}", "TRAIN_NATIVE_CONFIG: ${TRAIN_NATIVE_CONFIG:-/workspace/configs/native/native_dense_40m_bf16_3070.json}", "command: [\"--train\", \"--mode\", \"dense\"]"})
+    require_contains(compose, needle, result);
+  for (auto needle : {"\"target_seconds\": 7200", "\"save_latest_every_optimizer_steps\": 512", "\"model_name\": \"dense-40m-3070\""})
+    require_contains(train, needle, result);
+}
+
 }  // namespace
 
 int check_config_contract(const std::filesystem::path& repo) {
@@ -171,9 +180,9 @@ int check_config_contract(const std::filesystem::path& repo) {
       check_training_config(repo, entry.path(), &result);
   }
   check_decoder_acceptance_config(repo, &result);
+  check_dense_train_compose_contract(repo, &result);
   return result.errors == 0 ? 0 : 1;
 }
-
 int check_cuda_arch_contract(const std::filesystem::path& repo) {
   RepoCheckResult result;
   auto cmake = repo / "native" / "CMakeLists.txt";
@@ -183,11 +192,8 @@ int check_cuda_arch_contract(const std::filesystem::path& repo) {
     require_contains(cmake, required, &result);
   }
   require_contains(repo / "compose.yaml", "LKJAI_CUDA_ARCHS", &result);
-  require_contains(repo / "ops/docker/Dockerfile.native", "LKJAI_CUDA_ARCHS",
-                   &result);
-  require_contains(repo / "ops/docker/Dockerfile.verify", "LKJAI_CUDA_ARCHS",
-                   &result);
+  require_contains(repo / "ops/docker/Dockerfile.native", "LKJAI_CUDA_ARCHS", &result);
+  require_contains(repo / "ops/docker/Dockerfile.verify", "LKJAI_CUDA_ARCHS", &result);
   return result.errors == 0 ? 0 : 1;
 }
-
 }  // namespace lkjai

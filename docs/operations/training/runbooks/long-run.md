@@ -9,12 +9,14 @@ Run one measurable long training job for the 3070-first dense 40M model.
 
 ## Default Behavior
 
-- `docker compose --profile train up --build train` runs the committed two-step
-  dense smoke command.
+- `docker compose --profile train up --build train` runs the committed dense
+  40M profile with a two-hour wall-clock target.
 - `TRAIN_CONFIG=/workspace/configs/training/dense_40m_accepted_3070.json` is
   the default training-run config.
 - `TRAIN_NATIVE_CONFIG=/workspace/configs/native/native_dense_40m_bf16_3070.json`
   is the default model-shape config for the train service.
+- `TRAIN_MODEL_NAME=dense-40m-3070` is the default training export name and is
+  independent from serving `MODEL_NAME`.
 - Training writes under `TRAIN_DATA_DIR`, default `/app/data/train`.
 - Training defaults to `TRAIN_OBJECTIVE=causal_lm_full`.
 - The current native trainer consumes an existing packed cache; tokenizer and
@@ -27,13 +29,15 @@ Run one measurable long training job for the 3070-first dense 40M model.
   weights plus Adam moments from the checkpoint optimizer artifact.
 - The current native binary supports two modes:
   `lkjai-native-train --smoke --steps N` and `lkjai-native-train --train`.
-  Compose keeps the smoke command as the service default for cheap health
-  checks; real corpus training must override the command with `--train`.
+  Compose uses `--train --mode dense` as the service default. Smoke checks must
+  override the command explicitly.
 
 ## Supported Native Knobs
 
 - `TRAIN_CONFIG`: training-run JSON config.
 - `TRAIN_NATIVE_CONFIG`: native model-shape JSON config; `--config` overrides it.
+- `TRAIN_MODEL_NAME`: Compose-only training artifact name; maps to container
+  `MODEL_NAME` and defaults to `dense-40m-3070`.
 - `TRAIN_SEQUENCE_LEN`: sequence length; `--seq-len` overrides it.
 - `TRAIN_BATCH_SIZE`: microbatch size; `--batch-size` overrides it.
 - `TRAIN_GRADIENT_ACCUMULATION`: microsteps per AdamW step; `--grad-accum`
@@ -113,31 +117,28 @@ docker compose --profile train run --rm \
 ## Deadline Run
 
 Wall-clock deadline stopping is implemented for dense and decoder native runs.
-The accepted dense config uses a 12-hour deadline plus optimizer-step cap:
+The accepted dense config uses a two-hour deadline plus optimizer-step cap:
 
 ```bash
 docker compose --profile train run -d \
   --name lkjai-dense-40m-accepted-20260512 \
   -e DATA_DIR=/app/data/dense-40m-accepted-20260512 \
   -e TRAIN_CONFIG=/workspace/configs/training/dense_40m_accepted_3070.json \
-  train --train
+  train
 ```
 
 Monitor with `docker logs -f lkjai-dense-40m-accepted-20260512`.
 
 ## Two-Hour Dense BF16 Run
 
-Use native train commands for reproducible RTX 3070 two-hour jobs. Build and
-validate the seq1024 cache, run a pilot calibration, compute the optimizer step
-budget from measured step time, and write JSON plus Markdown evidence.
+Use the train Compose profile for reproducible RTX 3070 two-hour jobs. Build
+and validate the seq1024 cache first, then start the default dense 40M command:
 
 ```bash
-docker compose --profile train run --rm train \
-  --train --mode dense \
-  --config /workspace/configs/native/native_dense_20m_bf16_3070.json \
-  --packed-cache /app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
-  --seq-len 1024 --batch-size 1 --grad-accum 8 \
-  --lr 0.0003 --max-steps TARGET_STEPS
+docker compose --profile corpus run --build --rm corpus build-tokenizer
+docker compose --profile corpus run --rm corpus validate-public-pretrain
+docker compose --profile corpus run --rm corpus build-public-pretrain-cache
+docker compose --profile train up --build train
 ```
 
 The runner stores raw outputs under

@@ -53,6 +53,20 @@ int main() {
   auto ok_dir = make_cache("lkjai-reader-ok", {0, 4});
   lkjai::PackedCacheReader reader;
   if (!expect(reader.open(ok_dir, 4, 16, &error), error)) return 1;
+  if (!expect(!lkjai::packed_cache_allowed_for_run(reader.status(),
+                                                  "accepted_training", &error),
+              "smoke fixture rejected for real training")) {
+    return 1;
+  }
+  if (!expect(error == "smoke packed cache fixture cannot be used for real training",
+              "smoke fixture rejection message")) {
+    return 1;
+  }
+  if (!expect(lkjai::packed_cache_allowed_for_run(reader.status(), "smoke",
+                                                 &error),
+              "smoke fixture allowed for smoke")) {
+    return 1;
+  }
   lkjai::PackedBatch batch;
   if (!expect(reader.load_batch(1, 3, &batch, &error), error)) return 1;
   if (!expect(batch.tokens.size() == 12, "batch token count")) return 1;

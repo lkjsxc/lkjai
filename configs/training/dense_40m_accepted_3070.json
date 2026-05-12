@@ -16,7 +16,7 @@
   "batch_size": 1,
   "gradient_accumulation": 8,
   "max_optimizer_steps": 400000,
-  "target_seconds": 43200,
-  "save_latest_every_optimizer_steps": 3000,
+  "target_seconds": 7200,
+  "save_latest_every_optimizer_steps": 512,
   "seed": 20260504
 }

@@ -81,9 +81,14 @@ bool run_decoder_cuda_training(const TransformerTrainOptions& opt,
     *error = "requested seq_len exceeds decoder config context";
     return false;
   }
+  auto cache = inspect_packed_cache(opt.packed_cache);
+  if (!cache.ok) {
+    *error = cache.error;
+    return false;
+  }
+  if (!packed_cache_allowed_for_run(cache, opt.run_purpose, error)) return false;
   PackedCacheReader reader;
   if (!reader.open(opt.packed_cache, seq_len, cfg.vocab_size, error)) return false;
-  if (!packed_cache_allowed_for_run(reader.status(), opt.run_purpose, error)) return false;
   TransformerState host_state;
   init_transformer_state(cfg, &host_state);
   auto before_state = host_state;

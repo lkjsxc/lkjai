@@ -9,12 +9,6 @@
 #include "json_min.hpp"
 namespace lkjai {
 bool run_dense_cuda_training(const DenseTrainOptions& opt, DenseTrainReport* report, std::string* error) {
-  auto status = cuda_status();
-  if (!cuda_required_ok(status)) {
-    *error = "CUDA BF16/cuBLASLt capability unavailable: " +
-             (status.error.empty() ? status.warning : status.error);
-    return false;
-  }
   DenseConfig cfg;
   if (!load_dense_config(opt.config_path, &cfg, error)) return false;
   if (opt.seed >= 0) cfg.seed = opt.seed;
@@ -27,9 +21,20 @@ bool run_dense_cuda_training(const DenseTrainOptions& opt, DenseTrainReport* rep
     *error = "requested seq_len exceeds dense config context";
     return false;
   }
+  auto cache = inspect_packed_cache(opt.packed_cache);
+  if (!cache.ok) {
+    *error = cache.error;
+    return false;
+  }
+  if (!packed_cache_allowed_for_run(cache, opt.run_purpose, error)) return false;
   PackedCacheReader reader;
   if (!reader.open(opt.packed_cache, seq_len, cfg.vocab_size, error)) return false;
-  if (!packed_cache_allowed_for_run(reader.status(), opt.run_purpose, error)) return false;
+  auto status = cuda_status();
+  if (!cuda_required_ok(status)) {
+    *error = "CUDA BF16/cuBLASLt capability unavailable: " +
+             (status.error.empty() ? status.warning : status.error);
+    return false;
+  }
   try {
     report->train_config_path = opt.train_config_path;
     report->run_purpose = opt.run_purpose;

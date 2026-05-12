@@ -38,10 +38,10 @@ docker compose --profile corpus run --rm corpus validate-public-pretrain
 docker compose --profile corpus run --rm corpus build-public-pretrain-cache
 ```
 
-- `docker compose --profile train up --build train` runs the committed smoke
-  command and is not a full long-training gate.
-- Full training gates require an explicit `--train` command, matching config,
-  packed cache, report, and eval artifacts.
+- `docker compose --profile train up --build train` starts the committed
+  two-hour dense 40M run and is not part of routine verification.
+- Full training gates require matching config, packed cache, report, and eval
+  artifacts.
 - The bounded Docker start check in
   [training/runbooks/long-run.md](training/runbooks/long-run.md) must pass for training-config
   changes.

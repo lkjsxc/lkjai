@@ -17,7 +17,10 @@ Compose.
 
 ```bash
 cp .env.example .env
-mkdir -p data/models/lkjai-scratch-40m data/train data/agent data/workspace
+mkdir -p \
+  data/models/lkjai-scratch-40m \
+  data/models/dense-40m-3070 \
+  data/train data/agent data/workspace
 ```
 
 ## Run Web Runtime
@@ -55,11 +58,23 @@ Use this only when probing model routes without the web UI.
 
 ## Run Scratch Training
 
+Build the required tokenizer and packed cache first:
+
+```bash
+docker compose --profile corpus run --build --rm corpus build-tokenizer
+docker compose --profile corpus run --rm corpus validate-public-pretrain
+docker compose --profile corpus run --rm corpus build-public-pretrain-cache
+```
+
 ```bash
 docker compose --profile train up --build train
 ```
 
-For a 40M Docker start check without the full long run:
+This starts the dense 40M RTX 3070 training profile with a two-hour
+wall-clock target. It fails fast if the packed cache is missing, incompatible,
+or still the seq16/vocab256 smoke fixture.
+
+For a 40M Docker start check after the cache exists:
 
 ```bash
 docker compose --profile train run --rm \
@@ -74,7 +89,7 @@ Expected training artifacts:
 - `data/train/tokenizer/`: local byte-level BPE tokenizer.
 - `data/train/checkpoints/final/`: native dense checkpoint.
 - `data/train/runs/train-report.json`: native train report.
-- `data/train/exports/lkjai-scratch-40m/`: serving artifact export.
+- `data/train/exports/dense-40m-3070/`: serving artifact export.
 
 Behavioral chat evaluation is meaningful only for decoder artifacts. Dense
 exports remain training and diagnostics artifacts.

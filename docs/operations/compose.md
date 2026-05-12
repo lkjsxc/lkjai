@@ -17,6 +17,8 @@ State: canonical Compose profile, mount, port, and verification contract.
 - All runtime profiles mount `./data:/app/data`.
 - Inference mounts `./data/models` to `/models`.
 - Inference loads `/models/${MODEL_NAME}`.
+- Training exports under `/app/data/models/${TRAIN_MODEL_NAME}` by default;
+  serving still selects artifacts with `MODEL_NAME`.
 - The `web` profile does not start a second model service.
 - The `inference` profile remains as a direct `/v1/*` diagnostic service.
 - The merged server process owns both `/api/*` and `/v1/*` routes.
@@ -65,13 +67,17 @@ State: canonical Compose profile, mount, port, and verification contract.
 
 ```bash
 cp .env.example .env
-mkdir -p data/models/lkjai-scratch-40m data/train data/agent data/workspace
+mkdir -p \
+  data/models/lkjai-scratch-40m \
+  data/models/dense-40m-3070 \
+  data/train data/agent data/workspace
 docker compose --profile inference up --build inference
 docker compose --profile web up --build web
-docker compose --profile train up --build train
 docker compose --profile corpus run --build --rm corpus download-public-pretrain
 docker compose --profile corpus run --build --rm corpus build-tokenizer
+docker compose --profile corpus run --rm corpus validate-public-pretrain
 docker compose --profile corpus run --rm corpus build-public-pretrain-cache
+docker compose --profile train up --build train
 docker compose --progress quiet --profile verify run --build --rm verify
 ```
 
@@ -88,9 +94,16 @@ docker compose --progress quiet --profile verify run --build --rm verify
 
 - The `train` service runs `lkjai-native-train`.
 - Training writes to `TRAIN_DATA_DIR`, default `/app/data/train`.
-- The default Compose command is a two-step smoke run.
+- The default Compose command is `--train --mode dense`, a real dense 40M
+  training run bounded by the committed two-hour config.
+- `TRAIN_MODEL_NAME` selects the training export name and defaults to
+  `dense-40m-3070`; it is independent from serving `MODEL_NAME`.
 - `TRAIN_CONFIG` selects the training-run JSON config.
 - `TRAIN_NATIVE_CONFIG` selects the native model-shape JSON config.
+- `TRAIN_TARGET_SECONDS` can override the committed wall-clock deadline.
+- The train profile consumes an existing packed cache. It does not build or
+  repair tokenizer/cache data; missing, incompatible, or smoke-fixture caches
+  fail before training.
 - Long native training must save `lkjai-native-artifact` under `data/models`.
 - The `verify` service requires NVIDIA GPU access and builds native code with
   the real CUDA compiler.

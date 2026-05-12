@@ -35,11 +35,11 @@ docker compose --profile train run --rm \
   -e DATA_DIR=/app/data/dense-40m-accepted \
   -e TRAIN_CONFIG=/workspace/configs/training/dense_40m_accepted_3070.json \
   -e TRAIN_NATIVE_CONFIG=/workspace/configs/native/native_dense_40m_bf16_3070.json \
-  train --train --mode dense
+  train
 ```
 
-The config uses warmup plus cosine decay, `target_seconds=43200`, and
-`save_latest_every_optimizer_steps=3000`.
+The config uses warmup plus cosine decay, `target_seconds=7200`, and
+`save_latest_every_optimizer_steps=512`.
 
 ## Required Outputs
 
