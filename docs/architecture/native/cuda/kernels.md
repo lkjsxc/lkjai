@@ -34,6 +34,6 @@ Custom kernels are accepted for:
 - Use CUDA Graph replay for stable decode and train buckets.
 - Keep FP32 accumulators for softmax, reductions, and optimizer state updates.
 - Benchmark before replacing vendor GEMM or attention primitives.
-- Do not replace the reference attention path with a custom FlashAttention-style
-  kernel before cuDNN SDPA parity and timing have been measured on the active
-  GQA shape.
+- Do not replace the correctness-first causal GQA path with a custom
+  FlashAttention-style kernel before cuDNN SDPA parity and timing have been
+  measured on the active GQA shape.

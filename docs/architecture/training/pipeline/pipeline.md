@@ -8,7 +8,7 @@ Train and export the current dense BF16 CUDA foundation while preserving the
 ## Commands
 
 - `docker compose --profile train up --build train`
-- `docker compose --profile verify up --build --abort-on-container-exit verify`
+- `docker compose --progress quiet --profile verify run --build --rm verify`
 - `lkjai-native-train --smoke --steps 2`
 - `lkjai-native-inspect --model-dir data/models/dense-40m-3070`
 

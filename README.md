@@ -35,10 +35,9 @@ task instead of reading the tree linearly.
 - Dense BF16 CUDA training is the accepted substrate. The decoder CUDA slice is
   partial: embeddings and LM head train, block forward is forward-only, block
   weights are not trained, and full decoder backward is not implemented.
-- The immediate product target is the dense 40M native browser demo: local
-  next-token logits, top-k output, checksums, and benchmark provenance through
-  the merged native server.
-- The next chat acceptance target remains `decoder_2h_40m_3070` on RTX 3070
+- The dense 40M browser diagnostics expose local next-token logits, top-k
+  output, checksums, and benchmark provenance through the merged native server.
+- The active implementation target is `decoder_2h_40m_3070` on RTX 3070
   with real block-weight updates and native KV-cache decode.
 - Competency acceptance is behavioral eval pass rate `>= 80%`.
 - Runtime data is mounted at `./data` for models, checkpoints, memory, runs, and

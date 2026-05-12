@@ -20,7 +20,7 @@ directory instead of exposing the host root.
 ## Verification
 
 ```bash
-docker compose --profile verify up --build --abort-on-container-exit verify
+docker compose --progress quiet --profile verify run --build --rm verify
 ```
 
 Expected: tests prove allowed workspace access and blocked root access.

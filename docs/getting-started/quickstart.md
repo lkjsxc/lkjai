@@ -78,7 +78,7 @@ For a 40M Docker start check after the cache exists:
 
 ```bash
 docker compose --profile train run --rm \
-  -e TRAIN_DATA_DIR=/app/data/train-start-check \
+  -e DATA_DIR=/app/data/train-start-check \
   -e TRAIN_MAX_OPTIMIZER_STEPS=1 \
   -e TRAIN_MAX_STEPS=1 \
   train --train

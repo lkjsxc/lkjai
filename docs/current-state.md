@@ -19,7 +19,7 @@ preparation work.
 
 | Lane | State | Accepted Evidence | Blocked Capability |
 |---|---|---|---|
-| `dense` | accepted foundation and immediate demo target | BF16 CUDA train, checkpoint/export, logits checks, packed-cache IO, local top-k demo | decoder blocks and KV-cache decode |
+| `dense` | accepted foundation and browser diagnostics | BF16 CUDA train, checkpoint/export, logits checks, packed-cache IO, local top-k demo | decoder blocks and KV-cache decode |
 | `decoder` | product acceptance target | tied artifacts, tokenizer copy, partial host-reference choices, full-decoder CUDA report contract | real block backward, optimizer coverage, and CUDA KV-cache decode |
 | `transformer` | diagnostic lane | host/reference checks and probe reports | not an accepted training or serving target |
 
@@ -86,10 +86,9 @@ export/logits/server checks, finite loss, passing logits checks, positive
 steps and loss-token counts, contiguous CUDA BF16 KV-cache decode, zero
 steady-state token allocations, and supported decode.
 
-## Immediate Target
+## Dense Diagnostic Surface
 
-The immediate product target is a dense 40M native browser demo on the merged
-server:
+The dense 40M native browser diagnostics run on the merged server:
 
 - native config: `configs/native/native_dense_40m_bf16_3070.json`
 - training config: `configs/training/dense_40m_accepted_3070.json`
@@ -98,12 +97,13 @@ server:
 - evidence: bounded pilot checks, deterministic checksum, logits/top-k output,
   train-report provenance, and truthful unsupported chat decode
 
-This target does not claim autoregressive chat. It uses dense logits and top-k
-output to make the accepted dense substrate visible and testable from a browser.
+This surface does not claim autoregressive chat. It uses dense logits and top-k
+output to keep the accepted dense substrate visible and testable from a browser
+while decoder-core work proceeds.
 
-## Chat Target
+## Active Implementation Target
 
-The next chat acceptance target is the tied 40M decoder on RTX 3070:
+The active implementation target is the tied 40M decoder on RTX 3070:
 
 - native config: `configs/native/decoder_40m_bf16_3070.json`
 - training config: `configs/training/decoder_2h_40m_3070.json`
@@ -120,11 +120,13 @@ config. Code should validate truth fields and config shape, not treat
 
 ## Research Synthesis
 
-The latest deep research report under `tmp/deep-research-report (54).md`,
-modified `2026-05-12`, supports this order: promote the dense 40M path into a
-real native browser demo first, keep decoder chat as the later acceptance
-target, finish contiguous BF16 KV-cache decode before chat claims, and only
-then broaden performance, batching, frontend, and multi-GPU work.
+The latest deep research report under `tmp/deep-research-report (56).md`,
+modified `2026-05-12`, was written against repository snapshot `193ab03`.
+Current `main` has later work, including chat-first operator surface changes,
+but the report still supports the active order: hard-fence partial decoder
+claims, replace synthetic decoder gradients with real full-block backward,
+finish contiguous BF16 KV-cache decode before chat claims, and only then
+broaden streaming, batching, frontend, and multi-GPU work.
 
 Durable conclusions now owned by docs:
 
@@ -139,8 +141,8 @@ Durable conclusions now owned by docs:
   then promote only passing shards into `corpus/generated/kimi-sft-60m`.
 - Promoted-run bundle: include train report, metrics, plots, GPU capability,
   Nsight reports, config, tokenizer digest, dataset manifest, and transcript.
-- Dense demo order: docs contract, dense local APIs, root browser page,
-  checksum/top-k contract tests, bounded pilot evidence.
+- Dense diagnostics order: keep local APIs, root browser diagnostics,
+  checksum/top-k contract tests, and bounded pilot evidence green.
 - Serving order: request validation, prompt serialization, prefill, native
   BF16 KV-cache decode, sampler, structured metrics, then optional `kjxlkj`
   tool calls.

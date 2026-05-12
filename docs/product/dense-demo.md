@@ -1,13 +1,13 @@
 # Dense Demo
 
 Owner: `docs/product/dense-demo.md`.
-State: canonical immediate product target.
+State: canonical dense diagnostic surface.
 
 ## Goal
 
-The immediate native product target is a dense 40M BF16 browser demo. It proves
-that an exported dense artifact can be loaded, inspected, and queried through
-the merged native server without pretending dense artifacts support chat.
+The dense 40M BF16 browser diagnostics prove that an exported dense artifact
+can be loaded, inspected, and queried through the merged native server without
+pretending dense artifacts support chat.
 
 The demo shows:
 

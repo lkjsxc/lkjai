@@ -48,15 +48,15 @@ The repository currently has:
 
 That slice is useful for contracts, but it is not the final trainer.
 
-## Dense Demo Target
+## Dense Diagnostic Surface
 
-The immediate implementation target is the dense 40M native browser demo:
-truthful dense artifact status, local top-k logits, checksum stability,
-benchmark provenance, and no chat claim for dense artifacts.
+The dense 40M native browser diagnostics provide truthful dense artifact
+status, local top-k logits, checksum stability, benchmark provenance, and no
+chat claim for dense artifacts.
 
-## Decoder Target
+## Active Decoder Target
 
-The next chat implementation target is accepted `decoder` CUDA training for the
+The active implementation target is accepted `decoder` CUDA training for the
 40M RTX 3070 preset: device-resident cuBLASLt projections, fused pointwise
 kernels, correctness-first CUDA causal GQA attention, decoder backward,
 contiguous BF16 KV-cache decode, native runtime chat, accepted report fields,
@@ -65,13 +65,12 @@ correctness and profiling.
 
 ## Research-Informed Order
 
-The latest report, `tmp/deep-research-report (54).md`, modified
-`2026-05-12`, updates the repo order: ship a truthful dense 40M browser demo
-from the accepted substrate, then complete decoder training and decode for
-accepted chat. Keep this order:
+The latest report, `tmp/deep-research-report (56).md`, modified
+`2026-05-12`, was written against snapshot `193ab03`. Current `main` is newer,
+but its durable order is still active:
 
-1. Define the dense demo docs, local APIs, root page, and bounded pilot gates.
-2. Make dense report fields truthful about measured slot and overlap behavior.
+1. Keep dense diagnostics and report fields truthful.
+2. Keep partial decoder fields fenced from accepted claims.
 3. Wire the existing decoder forward substrate into the actual training path
    without changing acceptance fields.
 4. Add block-tensor backward and FP32 AdamW state until at least one

@@ -3,20 +3,22 @@
 ## Escalation Order
 
 1. cuBLASLt for dense projections.
-2. cuDNN frontend SDPA for eligible attention shapes.
-3. CUTLASS paths for exact-shape fused patterns only after measurement.
-4. Custom CUDA for measured cache, decode, sampler, and fusion hotspots.
-5. CUDA Graph replay for stable decode and train buckets.
-6. NCCL only after single-GPU native acceptance passes.
+2. Correctness-first custom CUDA causal GQA for the first accepted decoder.
+3. cuDNN frontend SDPA for eligible attention shapes after parity and timing.
+4. CUTLASS paths for exact-shape fused patterns only after measurement.
+5. Custom CUDA for measured cache, decode, sampler, and fusion hotspots.
+6. CUDA Graph replay for stable decode and train buckets.
+7. NCCL only after single-GPU native acceptance passes.
 
 ## Library Rules
 
 - GEMM replacement is out of scope unless a profiler proves a library path is
   unavailable or wrong for the shape.
-- Prefer cuBLASLt, cuDNN, and CUTLASS for standard dense math.
+- Prefer cuBLASLt for GEMMs and use the custom CUDA causal GQA path as the
+  first accepted attention owner.
 - Keep native CPU/reference checks for correctness, not product execution.
-- A custom attention kernel is not accepted until cuDNN SDPA parity and timing
-  have been measured for the active GQA shape.
+- cuDNN SDPA may replace the first accepted attention path only after parity
+  and timing have been measured for the active GQA shape.
 
 ## Native CUDA Entry Points
 

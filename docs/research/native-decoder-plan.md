@@ -3,7 +3,7 @@
 ## Source
 
 This file distills decoder-relevant conclusions from ignored reports including
-`tmp/deep-research-report (54).md`, modified `2026-05-12`,
+`tmp/deep-research-report (56).md`, modified `2026-05-12`,
 `tmp/deep-research-report (52).md`, and older research notes into durable
 canon. Reports under `tmp/` are source evidence, not canonical docs.
 
@@ -11,9 +11,10 @@ canon. Reports under `tmp/` are source evidence, not canonical docs.
 
 - The active train/serve product path is native C++/CUDA.
 - Dense BF16 CUDA training is the accepted foundation and regression substrate.
-- The immediate product target is the dense 40M browser demo described in
-  [product/dense-demo.md](../product/dense-demo.md).
-- The accepted same-model chat target is
+- The dense 40M browser diagnostics described in
+  [product/dense-demo.md](../product/dense-demo.md) are the accepted
+  foundation surface.
+- The active implementation target is the accepted same-model chat path:
   `configs/native/decoder_40m_bf16_3070.json` with
   `configs/training/decoder_2h_40m_3070.json`.
 - The target hardware gate is RTX 3070 8GB, compute capability 8.6.

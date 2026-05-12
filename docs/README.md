@@ -7,8 +7,9 @@
 - Train and serve a commercial-safe scratch model through native C++/CUDA
   product binaries. The active default is about `40M` parameters for the
   current corpus; `60M` remains a later scale target.
-- Ship the dense 40M native browser demo before claiming accepted decoder
-  chat: dense local APIs expose logits, top-k, checksum, and provenance.
+- Keep the dense 40M browser diagnostics as the accepted foundation surface:
+  dense local APIs expose logits, top-k, checksum, and provenance without
+  claiming decoder chat.
 - Accepted dense 40M training uses
   `configs/training/dense_40m_accepted_3070.json` with
   `configs/native/native_dense_40m_bf16_3070.json`.
