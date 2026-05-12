@@ -120,6 +120,13 @@ target_link_libraries(lkjai-native-server-route-contract PRIVATE
   lkjai_native_core
 )
 
+add_executable(lkjai-native-server-route-dense-contract
+  tests/server_route_dense_contract.cpp
+)
+target_link_libraries(lkjai-native-server-route-dense-contract PRIVATE
+  lkjai_native_core
+)
+
 add_executable(lkjai-native-dense-runtime-contract
   tests/dense_runtime_contract.cpp
 )
