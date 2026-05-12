@@ -67,7 +67,7 @@ function applyModel(){const can=!!model.chat_supported&&!pending;$('message').di
 function startDraft(){viewToken++;runId='';events=[];$('message').value='';$('title').textContent='Draft run';renderEvents();loadRuns('')}
 async function loadRun(id){const token=++viewToken;const data=await fetch('/api/runs/'+encodeURIComponent(id)).then(r=>r.json());if(token!==viewToken)return;runId=id;events=data.events||[];$('title').textContent=id;renderEvents();await loadRuns(id)}
 function runButton(r,active){const b=document.createElement('button');b.className='run'+(active?' active':'');b.innerHTML=`<b>${r.run_id}</b><br><span class="muted">${r.last_kind||'empty'}: ${(r.preview||'').slice(0,72)}</span>`;b.onclick=()=>loadRun(r.run_id);return b}
-async function loadRuns(active){const data=await fetch('/api/runs?limit=20').then(r=>r.json()).catch(()=>({runs:[]}));$('runs').innerHTML='';$('runState').textContent=data.runs.length?'Recent runs':'No persisted runs';for(const r of data.runs)$('runs').appendChild(runButton(r,r.run_id===active));return data.runs}
+async function loadRuns(active){const data=await fetch('/api/runs?limit=20').then(r=>r.json()).catch(()=>({runs:[]}));$('runs').innerHTML='';$('runState').textContent=active&&data.runs.length?'Recent runs':'No persisted runs';for(const r of data.runs)$('runs').appendChild(runButton(r,r.run_id===active));return data.runs}
 async function load(){
   [health,model,config,dense]=await Promise.all([
     fetch('/healthz').then(r=>r.json()).catch(e=>({error:String(e)})),
