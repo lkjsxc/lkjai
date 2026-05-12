@@ -21,6 +21,9 @@ int main() {
       html.body.find("fetch('/api/chat'") == std::string::npos ||
       html.body.find("fetch('/api/dense/status')") == std::string::npos ||
       html.body.find("fetch('/api/dense/next-token'") == std::string::npos ||
+      html.body.find("function startDraft()") == std::string::npos ||
+      html.body.find("viewToken++") == std::string::npos ||
+      html.body.find("$('new').onclick=startDraft") == std::string::npos ||
       html.body.find("Advanced diagnostics") == std::string::npos ||
       html.body.find("Dense artifact loaded; chat requires a decoder artifact") ==
           std::string::npos ||

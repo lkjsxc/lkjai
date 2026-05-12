@@ -58,13 +58,14 @@ pre{white-space:pre-wrap;word-break:break-word;margin:8px 0 0;font-size:12px}
 </div>
 <script>
 const $=id=>document.getElementById(id);
-let runId='',events=[],pending=false,model={},health={},config={},dense={};
+let runId='',events=[],pending=false,viewToken=0,model={},health={},config={},dense={};
 const shown=e=>['user','assistant','error'].includes(e.kind);
 function eventNode(e){const d=document.createElement('div');d.className='event '+e.kind;d.textContent=e.content||'';return d}
 function renderEvents(){const box=$('events');box.innerHTML='';const list=events.filter(shown);if(!list.length){const p=document.createElement('p');p.className='muted';p.textContent='No messages yet.';box.appendChild(p)}for(const e of list)box.appendChild(eventNode(e));box.scrollTop=box.scrollHeight}
 function reason(){if(model.chat_supported)return '';const k=model.artifact_kind||'artifact';if(k==='dense')return 'Dense artifact loaded; chat requires a decoder artifact';if(k==='transformer')return 'Transformer artifact loaded; chat requires a decoder artifact';return 'Chat requires a loaded decoder artifact'}
 function applyModel(){const can=!!model.chat_supported&&!pending;$('message').disabled=!can;$('send').disabled=!can;$('chatState').textContent=pending?'sending':reason()||'chat ready';$('modelLine').textContent=`${model.model||'model'} / ${model.artifact_kind||'unknown'} / ${config.tool_profile||model.tool_profile||'tool profile pending'}`;$('status').textContent=`${health.status||'unknown'} / ${model.loaded?'loaded':'not loaded'}`}
-async function loadRun(id){runId=id;const data=await fetch('/api/runs/'+encodeURIComponent(id)).then(r=>r.json());events=data.events||[];$('title').textContent=id;renderEvents();await loadRuns(id)}
+function startDraft(){viewToken++;runId='';events=[];$('message').value='';$('title').textContent='Draft run';renderEvents();loadRuns('')}
+async function loadRun(id){const token=++viewToken;const data=await fetch('/api/runs/'+encodeURIComponent(id)).then(r=>r.json());if(token!==viewToken)return;runId=id;events=data.events||[];$('title').textContent=id;renderEvents();await loadRuns(id)}
 function runButton(r,active){const b=document.createElement('button');b.className='run'+(active?' active':'');b.innerHTML=`<b>${r.run_id}</b><br><span class="muted">${r.last_kind||'empty'}: ${(r.preview||'').slice(0,72)}</span>`;b.onclick=()=>loadRun(r.run_id);return b}
 async function loadRuns(active){const data=await fetch('/api/runs?limit=20').then(r=>r.json()).catch(()=>({runs:[]}));$('runs').innerHTML='';$('runState').textContent=data.runs.length?'Recent runs':'No persisted runs';for(const r of data.runs)$('runs').appendChild(runButton(r,r.run_id===active));return data.runs}
 async function load(){
@@ -75,7 +76,7 @@ async function load(){
     fetch('/api/dense/status').then(r=>r.json()).catch(e=>({error:String(e)}))
   ]);
   $('raw').textContent=JSON.stringify({health,model,config,dense},null,2);applyModel();
-  const runs=await loadRuns('');if(runs[0])await loadRun(runs[0].run_id);else renderEvents();
+  const runs=await loadRuns('');if(runs[0]&&viewToken===0)await loadRun(runs[0].run_id);else renderEvents();
 }
 async function send(){
   const message=$('message').value.trim();if(!message||pending)return;pending=true;applyModel();
@@ -84,7 +85,7 @@ async function send(){
   runId=data.run_id||runId;events=data.events||events;$('message').value='';$('title').textContent=runId||'Draft run';renderEvents();await loadRuns(runId);pending=false;applyModel();
 }
 function renderRows(data){$('rows').innerHTML='';for(const item of data.top_k||[]){const row=document.createElement('div');row.className='row';const pct=Math.max(0,Math.min(100,(item.prob||0)*100));row.innerHTML=`<b>${item.id}</b><div class="meter"><span style="width:${pct}%"></span></div><code>${pct.toFixed(2)}%</code>`;$('rows').appendChild(row)}$('raw').textContent=JSON.stringify(data,null,2)}
-$('new').onclick=()=>{runId='';events=[];$('title').textContent='Draft run';renderEvents();loadRuns('')};
+$('new').onclick=startDraft;
 $('send').onclick=send;
 $('message').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
 $('runDense').onclick=async()=>{const tokens=$('tokens').value.split(',').map(s=>Number(s.trim())).filter(Number.isInteger);const body=JSON.stringify({tokens,top_k:8});const r=await fetch('/api/dense/next-token',{method:'POST',headers:{'content-type':'application/json'},body});renderRows(await r.json())};
