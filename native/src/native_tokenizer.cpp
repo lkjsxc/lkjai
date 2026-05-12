@@ -6,6 +6,7 @@
 
 #include "json_min.hpp"
 #include "native_tokenizer_internal.hpp"
+#include "native_xml_tags.hpp"
 
 namespace lkjai {
 
@@ -46,13 +47,9 @@ bool validate_decoder_tokenizer(const NativeTokenizer& tokenizer, int config_voc
     *error = "tokenizer vocab_size exceeds decoder config vocab_size";
     return false;
   }
-  for (const auto& tag : {"<pad>", "<unk>", "<bos>", "<eos>",
-                          "<assistant_action>", "<dialogue>", "</dialogue>",
-                          "<message>", "</message>", "<role>", "</role>",
-                          "<tool_name>", "</tool_name>", "<content>",
-                          "</content>", "<action>", "</action>"}) {
-    if (tokenizer_id(tokenizer, tag, -1) < 0) {
-      *error = std::string("tokenizer missing atomic tag ") + tag;
+  for (const auto& tag : kNativeXmlTags) {
+    if (tokenizer_id(tokenizer, tag.text, -1) < 0) {
+      *error = std::string("tokenizer missing atomic tag ") + tag.text;
       return false;
     }
   }

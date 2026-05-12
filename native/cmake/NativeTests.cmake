@@ -100,4 +100,5 @@ add_test(
   NAME native_decoder_cli_smoke
   COMMAND sh ${LKJAI_REPO_ROOT}/native/tests/decoder_cli_smoke.sh
     $<TARGET_FILE:lkjai-native-train>
+    $<TARGET_FILE:lkjai-native-tokenizer-build>
 )

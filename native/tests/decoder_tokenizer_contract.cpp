@@ -8,6 +8,7 @@
 
 #include "native_tokenizer.hpp"
 #include "native_tokenizer_build.hpp"
+#include "native_xml_tags.hpp"
 #include "packed_cache_digest.hpp"
 
 namespace {
@@ -48,16 +49,18 @@ int main() {
     std::cerr << error << "\n";
     return 1;
   }
-  for (const auto& tag : {"<dialogue>", "</dialogue>", "<message>",
-                          "</message>", "<role>", "</role>", "<tool_name>",
-                          "</tool_name>", "<content>", "</content>",
-                          "<assistant_action>", "<action>", "</action>",
-                          "<eos>"}) {
-    auto ids = lkjai::tokenizer_encode(tokenizer, tag);
+  for (const auto& tag : lkjai::kNativeXmlTags) {
+    auto ids = lkjai::tokenizer_encode(tokenizer, tag.text);
     if (ids.size() != 1) {
-      std::cerr << "tag is not atomic: " << tag << "\n";
+      std::cerr << "tag is not atomic: " << tag.text << "\n";
       return 1;
     }
+  }
+  auto xml_ids = lkjai::tokenizer_encode(tokenizer, "<action><tool>x</tool>");
+  if (lkjai::tokenizer_decode(tokenizer, xml_ids, true) !=
+      "<action><tool>x</tool>") {
+    std::cerr << "xml action tags should survive special-token skipping\n";
+    return 1;
   }
 
   std::string body =

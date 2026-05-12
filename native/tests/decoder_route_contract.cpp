@@ -1,10 +1,11 @@
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <string_view>
 
 #include "native_server_routes.hpp"
+#include "native_tokenizer_build.hpp"
 #include "transformer_state.hpp"
 
 namespace {
@@ -19,38 +20,14 @@ bool expect(bool ok, const std::string& message) {
   return false;
 }
 
-std::string escape(std::string_view value) {
-  std::string out;
-  for (char ch : value) {
-    if (ch == '"' || ch == '\\') out.push_back('\\');
-    out.push_back(ch);
-  }
-  return out;
-}
-
 std::filesystem::path write_tokenizer(const std::filesystem::path& dir) {
   auto path = dir / "tokenizer.json";
-  std::ofstream out(path);
-  out << "{\"model\":{\"type\":\"BPE\",\"vocab\":{";
-  bool first = true;
-  for (int ch = 33; ch <= 126; ++ch) {
-    if (!first) out << ",";
-    first = false;
-    std::string token(1, static_cast<char>(ch));
-    out << "\"" << escape(token) << "\":" << ch;
+  lkjai::NativeTokenizerBuildResult result;
+  std::string error;
+  if (!lkjai::build_native_tokenizer_json(path, 512, &result, &error)) {
+    std::cerr << error << "\n";
+    std::exit(1);
   }
-  out << "}},\"pre_tokenizer\":{\"type\":\"ByteLevel\"},\"added_tokens\":[";
-  int id = 256;
-  for (const auto& tag : {"<pad>", "<unk>", "<bos>", "<eos>",
-                          "<assistant_action>", "<dialogue>", "</dialogue>",
-                          "<message>", "</message>", "<role>", "</role>",
-                          "<tool_name>", "</tool_name>", "<content>",
-                          "</content>", "<action>", "</action>"}) {
-    if (id != 256) out << ",";
-    out << "{\"id\":" << id++ << ",\"content\":\"" << tag
-        << "\",\"special\":true}";
-  }
-  out << "],\"merges\":[]}\n";
   return path;
 }
 

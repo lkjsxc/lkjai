@@ -2,6 +2,7 @@
 set -eu
 
 train_bin="$1"
+tokenizer_bin="$2"
 root="${TMPDIR:-/tmp}/lkjai-decoder-cli-smoke"
 cache="$root/cache"
 out="$root/out"
@@ -23,9 +24,7 @@ cat > "$config" <<'JSON'
 {"model":"decoder-cli-smoke","model_kind":"decoder","dtype":"bf16","vocab_size":512,"context":8,"layers":1,"hidden_size":32,"heads":4,"kv_heads":4,"head_dim":8,"ffn_size":64,"activation":"swiglu","rope_theta":10000,"rms_norm_eps":0.00001,"tie_embeddings":true,"seed":1337}
 JSON
 
-cat > "$tokenizer" <<'JSON'
-{"model":{"type":"BPE","vocab":{"h":104,"i":105}},"pre_tokenizer":{"type":"ByteLevel"},"added_tokens":[{"id":256,"content":"<pad>","special":true},{"id":257,"content":"<unk>","special":true},{"id":258,"content":"<bos>","special":true},{"id":259,"content":"<eos>","special":true},{"id":260,"content":"<assistant_action>","special":true},{"id":261,"content":"<dialogue>","special":true},{"id":262,"content":"</dialogue>","special":true},{"id":263,"content":"<message>","special":true},{"id":264,"content":"</message>","special":true},{"id":265,"content":"<role>","special":true},{"id":266,"content":"</role>","special":true},{"id":267,"content":"<tool_name>","special":true},{"id":268,"content":"</tool_name>","special":true},{"id":269,"content":"<content>","special":true},{"id":270,"content":"</content>","special":true},{"id":271,"content":"<action>","special":true},{"id":272,"content":"</action>","special":true}],"merges":[]}
-JSON
+"$tokenizer_bin" --out "$tokenizer" --max-vocab-size 512 >/dev/null
 
 "$train_bin" --train --mode decoder --packed-cache "$cache" \
   --config "$config" --tokenizer "$tokenizer" --out "$out" \

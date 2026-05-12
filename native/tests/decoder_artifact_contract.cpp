@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -7,6 +8,7 @@
 #include "artifact_manifest.hpp"
 #include "decoder_decode.hpp"
 #include "json_min.hpp"
+#include "native_tokenizer_build.hpp"
 #include "train_report.hpp"
 #include "transformer_state.hpp"
 
@@ -20,20 +22,12 @@ bool expect(bool ok, const std::string& message) {
 
 std::filesystem::path write_tokenizer(const std::filesystem::path& dir) {
   auto path = dir / "tokenizer.json";
-  std::ofstream out(path);
-  out << "{\"model\":{\"type\":\"BPE\",\"vocab\":{\"A\":10}},"
-      << "\"pre_tokenizer\":{\"type\":\"ByteLevel\"},\"added_tokens\":[";
-  int id = 100;
-  for (const auto& tag : {"<pad>", "<unk>", "<bos>", "<eos>",
-                          "<assistant_action>", "<dialogue>", "</dialogue>",
-                          "<message>", "</message>", "<role>", "</role>",
-                          "<tool_name>", "</tool_name>", "<content>",
-                          "</content>", "<action>", "</action>"}) {
-    if (id != 100) out << ",";
-    out << "{\"id\":" << id++ << ",\"content\":\"" << tag
-        << "\",\"special\":true}";
+  lkjai::NativeTokenizerBuildResult result;
+  std::string error;
+  if (!lkjai::build_native_tokenizer_json(path, 512, &result, &error)) {
+    std::cerr << error << "\n";
+    std::exit(1);
   }
-  out << "],\"merges\":[]}\n";
   return path;
 }
 

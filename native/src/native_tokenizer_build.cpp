@@ -8,18 +8,11 @@
 
 #include "json_min.hpp"
 #include "native_tokenizer_internal.hpp"
+#include "native_xml_tags.hpp"
 #include "packed_cache_digest.hpp"
 
 namespace lkjai {
 namespace {
-
-constexpr const char* kCanonicalTags[] = {
-    "<pad>",     "<unk>",       "<bos>",       "<eos>",
-    "<assistant_action>",       "<dialogue>",  "</dialogue>",
-    "<message>", "</message>",  "<role>",      "</role>",
-    "<tool_name>", "</tool_name>", "<content>", "</content>",
-    "<action>",  "</action>",
-};
 
 std::vector<std::string> byte_vocab() {
   std::vector<std::string> out;
@@ -40,7 +33,7 @@ bool build_native_tokenizer_json(const std::filesystem::path& out,
                                  std::string* error) {
   auto vocab = byte_vocab();
   int next_id = static_cast<int>(vocab.size());
-  int total_vocab = next_id + static_cast<int>(std::size(kCanonicalTags));
+  int total_vocab = next_id + static_cast<int>(std::size(kNativeXmlTags));
   if (max_vocab_size <= 0 || total_vocab > max_vocab_size) {
     *error = "native tokenizer vocab exceeds requested max_vocab_size";
     return false;
@@ -69,12 +62,13 @@ bool build_native_tokenizer_json(const std::filesystem::path& out,
   file << "  \"pre_tokenizer\":{\"type\":\"ByteLevel\",\"add_prefix_space\":false},\n";
   file << "  \"decoder\":{\"type\":\"ByteLevel\"},\n";
   file << "  \"added_tokens\":[";
-  for (size_t i = 0; i < std::size(kCanonicalTags); ++i) {
+  for (size_t i = 0; i < std::size(kNativeXmlTags); ++i) {
     if (i > 0) file << ",";
     file << "\n    {\"id\":" << (next_id + static_cast<int>(i))
-         << ",\"content\":\"" << json_escape(kCanonicalTags[i])
+         << ",\"content\":\"" << json_escape(kNativeXmlTags[i].text)
          << "\",\"single_word\":false,\"lstrip\":false,\"rstrip\":false,"
-            "\"normalized\":false,\"special\":true}";
+            "\"normalized\":false,\"special\":"
+         << (kNativeXmlTags[i].special ? "true" : "false") << "}";
   }
   file << "\n  ],\n";
   file << "  \"lkjai\":{\"kind\":\"native_bytelevel_bpe\","
