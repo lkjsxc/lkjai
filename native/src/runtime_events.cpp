@@ -1,7 +1,9 @@
 #include "runtime_events.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <ctime>
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 
@@ -23,6 +25,47 @@ std::string timestamp() {
 bool includes(const std::vector<std::string>& values, const std::string& value) {
   for (const auto& item : values) if (item == value) return true;
   return false;
+}
+
+struct RunSummary {
+  std::string id;
+  std::string created_at;
+  std::string updated_at;
+  int event_count = 0;
+  std::string last_kind;
+  std::string preview;
+};
+
+bool preview_kind(const std::string& kind) {
+  return kind == "user" || kind == "assistant" || kind == "error";
+}
+
+RunSummary summarize_run(const std::filesystem::path& path) {
+  RunSummary summary;
+  summary.id = path.stem().string();
+  std::ifstream file(path);
+  std::string line;
+  while (std::getline(file, line)) {
+    auto timestamp = json_first_string(line, "timestamp");
+    auto kind = json_first_string(line, "kind");
+    auto content = json_first_string(line, "content");
+    if (summary.event_count == 0) summary.created_at = timestamp;
+    summary.updated_at = timestamp;
+    ++summary.event_count;
+    summary.last_kind = kind;
+    if (preview_kind(kind)) summary.preview = content;
+  }
+  return summary;
+}
+
+std::string run_summary_json(const RunSummary& run) {
+  std::ostringstream out;
+  out << "{\"run_id\":\"" << json_escape(run.id) << "\",\"created_at\":\""
+      << json_escape(run.created_at) << "\",\"updated_at\":\""
+      << json_escape(run.updated_at) << "\",\"event_count\":"
+      << run.event_count << ",\"last_kind\":\"" << json_escape(run.last_kind)
+      << "\",\"preview\":\"" << json_escape(run.preview) << "\"}";
+  return out.str();
 }
 
 }  // namespace
@@ -68,6 +111,33 @@ std::string runtime_events_json(const RuntimeConfig& cfg,
     out << line;
   }
   out << "]";
+  return out.str();
+}
+
+std::string runtime_runs_json(const RuntimeConfig& cfg, int limit) {
+  if (limit < 1) limit = 20;
+  if (limit > 100) limit = 100;
+  auto dir = std::filesystem::path(cfg.data_dir) / "agent" / "runs";
+  std::vector<RunSummary> runs;
+  if (std::filesystem::is_directory(dir)) {
+    for (const auto& entry : std::filesystem::directory_iterator(dir)) {
+      if (!entry.is_regular_file() || entry.path().extension() != ".jsonl") {
+        continue;
+      }
+      runs.push_back(summarize_run(entry.path()));
+    }
+  }
+  std::sort(runs.begin(), runs.end(),
+            [](const RunSummary& a, const RunSummary& b) {
+              return a.id > b.id;
+            });
+  std::ostringstream out;
+  out << "{\"runs\":[";
+  for (size_t i = 0; i < runs.size() && i < static_cast<size_t>(limit); ++i) {
+    if (i > 0) out << ",";
+    out << run_summary_json(runs[i]);
+  }
+  out << "]}";
   return out.str();
 }
 

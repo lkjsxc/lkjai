@@ -16,12 +16,18 @@ int main() {
       html.body.find("<!doctype html>") == std::string::npos ||
       html.body.find("fetch('/healthz')") == std::string::npos ||
       html.body.find("fetch('/api/model')") == std::string::npos ||
+      html.body.find("fetch('/api/config')") == std::string::npos ||
+      html.body.find("fetch('/api/runs?limit=20')") == std::string::npos ||
+      html.body.find("fetch('/api/chat'") == std::string::npos ||
       html.body.find("fetch('/api/dense/status')") == std::string::npos ||
       html.body.find("fetch('/api/dense/next-token'") == std::string::npos ||
-      html.body.find("chat decode: unsupported") == std::string::npos ||
-      html.body.find("weights_checksum") == std::string::npos ||
-      html.body.find("class=\"bar\"") == std::string::npos ||
-      html.body.find("lkjai dense demo") == std::string::npos) {
+      html.body.find("Advanced diagnostics") == std::string::npos ||
+      html.body.find("Dense artifact loaded; chat requires a decoder artifact") ==
+          std::string::npos ||
+      html.body.find("top-k logits") == std::string::npos ||
+      html.body.find("Raw JSON") == std::string::npos ||
+      html.body.find("Send an operator message") == std::string::npos ||
+      html.body.find("lkjai dense demo") != std::string::npos) {
     std::cerr << "native status page contract failed\n";
     return 1;
   }

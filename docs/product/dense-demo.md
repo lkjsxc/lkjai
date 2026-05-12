@@ -65,8 +65,8 @@ and demo evidence; they are not autoregressive chat evidence.
 
 ## Browser Page
 
-`GET /` serves the dense-first no-build browser page. It calls `/healthz`,
-`/api/model`, `/api/dense/status`, and `/api/dense/next-token`.
+`GET /` serves the chat-first operator page. Dense status, token-id input, and
+top-k logits remain available inside its collapsed advanced diagnostics area.
 
 The page must be usable without Node, bundlers, external assets, or generated
 frontend code.

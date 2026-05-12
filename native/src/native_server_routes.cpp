@@ -32,17 +32,30 @@ std::string models_json(const std::string& model, const CudaStatus& cuda) {
   return out.str();
 }
 
+std::string artifact_kind(const ArtifactStatus& artifact) {
+  if (!artifact.loaded) return "none";
+  auto manifest = read_text(artifact.model_dir / "manifest.json");
+  auto kind = json_first_string(manifest, "kind");
+  return kind.empty() ? "unknown" : kind;
+}
+
 std::string runtime_model_json(const std::string& model,
                                const ArtifactStatus& artifact,
-                               const CudaStatus& cuda) {
+                               const CudaStatus& cuda,
+                               const RuntimeConfig& runtime) {
   bool ready = artifact.loaded;
+  auto kind = artifact_kind(artifact);
   std::ostringstream out;
   out << "{\"model\":\"" << json_escape(model)
       << "\",\"api_url\":\"local-native-engine\",\"loaded\":"
       << (ready ? "true" : "false") << ",\"reachable\":"
       << (ready ? "true" : "false") << ",\"message\":\""
       << (ready ? "model loaded" : json_escape(artifact.error))
-      << "\",\"probe_status\":" << (ready ? 200 : 503) << ","
+      << "\",\"probe_status\":" << (ready ? 200 : 503)
+      << ",\"artifact_kind\":\"" << json_escape(kind) << "\""
+      << ",\"chat_supported\":" << (ready && kind == "decoder" ? "true" : "false")
+      << ",\"dense_supported\":" << (ready && kind == "dense" ? "true" : "false")
+      << ",\"tool_profile\":\"" << json_escape(runtime.tool_profile) << "\","
       << capability_json_fields(cuda) << "}";
   return out.str();
 }
@@ -122,7 +135,7 @@ HttpResponse native_server_route(const HttpRequest& request,
     return openai_chat_json(request, artifact);
   }
   if (request.method == "GET" && request.path == "/api/model") {
-    return {200, runtime_model_json(runtime.model, artifact, cuda)};
+    return {200, runtime_model_json(runtime.model, artifact, cuda, runtime)};
   }
   if (request.method == "GET" && request.path == "/api/config") {
     return {200, runtime_config_status_json(runtime)};
@@ -136,7 +149,7 @@ HttpResponse native_server_route(const HttpRequest& request,
   if (request.method == "POST" && request.path == "/api/chat") {
     return runtime_chat_json(runtime, request, artifact);
   }
-  const std::string prefix = "/api/runs/";
+  const std::string prefix = "/api/runs";
   if (request.method == "GET" && request.path.rfind(prefix, 0) == 0) {
     return runtime_route(runtime, request);
   }

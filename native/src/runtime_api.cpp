@@ -27,6 +27,16 @@ std::string chat_payload(const RuntimeConfig& cfg, const std::string& message) {
          json_escape(message) + "\"}],\"max_tokens\":512,\"temperature\":0.2}";
 }
 
+int query_limit(const std::string& path) {
+  auto pos = path.find("limit=");
+  if (pos == std::string::npos) return 20;
+  try {
+    return std::stoi(path.substr(pos + 6));
+  } catch (...) {
+    return 20;
+  }
+}
+
 HttpResponse run(const RuntimeConfig& cfg, const std::string& id) {
   auto path = runtime_run_path(cfg, id);
   if (!std::filesystem::is_regular_file(path)) return {404, error_json("run not found")};
@@ -68,7 +78,11 @@ std::string runtime_model_status_json(const RuntimeConfig& cfg,
       << (json_bool_value(probe.body, "cuda_available", false) ? "true" : "false")
       << ",\"gpu_name\":\"" << json_escape(json_first_string(probe.body, "gpu_name"))
       << "\",\"warning\":\"" << json_escape(json_first_string(probe.body, "warning"))
-      << "\",\"probe_status\":" << probe.status << "}";
+      << "\",\"probe_status\":" << probe.status
+      << ",\"artifact_kind\":\"remote\""
+      << ",\"chat_supported\":" << (ok ? "true" : "false")
+      << ",\"dense_supported\":false"
+      << ",\"tool_profile\":\"" << json_escape(cfg.tool_profile) << "\"}";
   return out.str();
 }
 
@@ -124,6 +138,10 @@ HttpResponse runtime_route(const RuntimeConfig& cfg, const HttpRequest& request)
   }
   if (request.method == "GET" && request.path == "/api/config") {
     return {200, runtime_config_status_json(cfg)};
+  }
+  if (request.method == "GET" &&
+      (request.path == "/api/runs" || request.path.rfind("/api/runs?", 0) == 0)) {
+    return {200, runtime_runs_json(cfg, query_limit(request.path))};
   }
   if (request.method == "POST" && request.path == "/api/chat") {
     auto message = json_first_string(request.body, "message");

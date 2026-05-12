@@ -5,9 +5,9 @@
 - Native binary named `lkjai-native-server`.
 - Merged native HTTP server for `/api/*` and `/v1/*` routing.
 - Direct native model-engine calls are the product path.
-- `GET /` serves a no-build HTML/CSS/browser-JS dense demo page.
+- `GET /` serves a no-build HTML/CSS/browser-JS chat-first operator page.
 - The same process serves `/healthz`, `/api/*`, and `/v1/*`.
-- JSON APIs for dense logits, chat, and transcripts.
+- JSON APIs for chat, transcript lists, transcript details, and dense logits.
 - OpenAI-compatible model routes for generation.
 - Implemented transcripts label user, assistant, and error events.
 - Target transcripts also label reasoning, plan, tool call, tool result,
@@ -26,8 +26,8 @@
 
 - The header reports model reachability.
 - The header reports inference device status.
-- Dense pages show whether the loaded artifact supports dense logits and
-  whether chat decode is unsupported.
+- The page shows whether the loaded artifact supports chat and keeps dense
+  logits in collapsed advanced diagnostics.
 - CPU fallback is visible as degraded, not hidden behind a healthy label.
 - `/healthz` returns JSON process, artifact, and CUDA capability state from the
   merged server.
@@ -42,6 +42,7 @@
 
 - `/api/chat` validates `message`, optional `run_id`, `max_steps`, and
   `visible_event_kinds`.
+- `/api/runs` lists JSONL transcripts newest first and clamps `limit` to `100`.
 - `/api/dense/status` and `/api/dense/next-token` validate dense demo readiness
   and token-id payloads.
 - The runtime persists all events before response filtering.

@@ -8,11 +8,12 @@ should link here instead of restating success and failure semantics.
 
 ## Routes
 
-- `GET /`: static no-build native dense demo page.
+- `GET /`: static no-build chat-first operator page.
 - `GET /healthz`: returns JSON process, artifact, and CUDA capability state.
 - `GET /api/dense/status`: returns dense demo readiness and artifact metadata.
 - `POST /api/dense/next-token`: returns dense next-token top-k logits summary.
 - `POST /api/chat`: runs one bounded agent turn.
+- `GET /api/runs`: lists persisted run transcripts.
 - `GET /api/runs/{id}`: returns one run transcript.
 - `GET /api/model`: returns model client status including reachability.
 - `GET /api/config`: returns local runtime, workspace, and future `kjxlkj`
@@ -117,7 +118,11 @@ runtime routes stay under unnumbered `/api/*` names.
   "device": "cuda",
   "cuda_available": true,
   "gpu_name": "NVIDIA GeForce RTX 3070",
-  "warning": ""
+  "warning": "",
+  "artifact_kind": "dense",
+  "chat_supported": false,
+  "dense_supported": true,
+  "tool_profile": "readonly"
 }
 ```
 
@@ -128,6 +133,30 @@ runtime routes stay under unnumbered `/api/*` names.
 - `gpu_name`: CUDA device name when available.
 - `warning`: non-empty when serving is degraded, such as CPU fallback.
 - `probe_status`: `200` when the artifact is loaded, otherwise `503`.
+- `artifact_kind`: active artifact kind, such as `dense`, `transformer`, or
+  `decoder`.
+- `chat_supported`: whether `/api/chat` can return decoder assistant content.
+- `dense_supported`: whether dense logits diagnostics are available.
+- `tool_profile`: active local tool permission profile.
+
+## `GET /api/runs` Response
+
+The optional `limit` query defaults to `20` and is clamped to `100`.
+
+```json
+{
+  "runs": [
+    {
+      "run_id": "run-...",
+      "created_at": "2026-05-12T00:00:00Z",
+      "updated_at": "2026-05-12T00:00:05Z",
+      "event_count": 3,
+      "last_kind": "assistant",
+      "preview": "latest visible run content"
+    }
+  ]
+}
+```
 
 ## `GET /api/config` Response
 

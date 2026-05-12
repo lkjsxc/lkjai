@@ -18,5 +18,6 @@ void runtime_append_event(const RuntimeConfig& cfg, const std::string& run_id,
 std::string runtime_events_json(const RuntimeConfig& cfg,
                                 const std::string& run_id,
                                 const std::vector<std::string>& visible);
+std::string runtime_runs_json(const RuntimeConfig& cfg, int limit);
 
 }  // namespace lkjai
