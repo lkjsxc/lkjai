@@ -126,7 +126,7 @@ report solely because `target_seconds > 0`.
 The decoder lane is promoted only through this document's acceptance contract.
 Historical partial reports remain useful regression evidence. Current partial
 reports must keep `accepted_cuda_training=false`, avoid accepted backend names,
-and disclose host recompute choices as unsupported decode.
+and avoid accepted decode backend names.
 
 The report contract rejects partial slices, missing logits evidence, missing
 served artifacts, missing block-weight deltas, untied product configs, and KV

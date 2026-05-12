@@ -6,8 +6,8 @@ State: accepted when `decode_backend=cuda_kv_cache`.
 ## API
 
 `POST /v1/chat/completions` may return OpenAI-compatible JSON for decoder
-artifacts. Current decoder choices are partial host-reference usability until
-accepted CUDA KV-cache decode exists:
+artifacts. Current decoder choices are partial native CUDA reference decode
+until accepted CUDA KV-cache decode exists:
 
 - `id`
 - `object`
@@ -22,6 +22,7 @@ accepted CUDA KV-cache decode exists:
 - `choices[0].lkjai_kv_prefill_allocated_bytes`
 - `choices[0].lkjai_kv_steady_state_token_allocations`
 - `choices[0].lkjai_decode_supported`
+- `choices[0].lkjai_decode_accepted`
 - `usage.prompt_tokens`
 - `usage.completion_tokens`
 - `usage.total_tokens`
@@ -32,12 +33,12 @@ decode with no `choices`.
 Accepted decoder artifacts return `lkjai_decode_backend=cuda_kv_cache` and
 `lkjai_kv_cache_backend=cuda_contiguous_bf16`. Reports and route responses also
 disclose positive prefill allocation and zero steady-state per-token allocation.
-The current host-reference bridge may return `choices`, but it must report
-`lkjai_decode_backend=host_reference_recompute`,
-`lkjai_kv_cache_backend=host_contiguous_bf16_diagnostic`, and
-`lkjai_decode_supported=false`.
+The current partial CUDA path may return `choices`, but it must report
+`lkjai_decode_backend=cuda_reference_kv_cache`,
+`lkjai_kv_cache_backend=cuda_contiguous_bf16_partial`,
+`lkjai_decode_supported=true`, and `lkjai_decode_accepted=false`.
 
-Sidecar metadata cannot promote host recompute. Accepted disclosure requires
+Sidecar metadata cannot promote partial runtime names. Accepted disclosure requires
 generation to prefill real CUDA K/V tensors once and append one token per step
 without calling host `transformer_forward` for the full prompt.
 
@@ -81,8 +82,8 @@ HTTP `400` with no `choices`.
 - Accepted decode uses a native-owned contiguous BF16 KV cache.
 - Block-pool or paged KV cache is a later batching optimization.
 - Steady-state accepted decode must not allocate device memory per token.
-- Host recompute choices are partial usability only and do not satisfy accepted
-  decode even when diagnostic K/V allocation exists.
+- Partial CUDA reference choices are usability only and do not satisfy accepted
+  decode until full metrics and acceptance evidence exist.
 
 ## Sampling
 

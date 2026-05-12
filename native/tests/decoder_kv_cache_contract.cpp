@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "decoder_kv_cache.hpp"
+#include "runtime_device.hpp"
 
 namespace {
 
@@ -62,6 +63,34 @@ int main() {
                         cache, true, 0, 1, 0, 0, 0, &value, &error),
                     error);
   ok = ok && expect(value == 9, "append/read value");
+  std::vector<float> key_f(static_cast<size_t>(2 * cfg.kv_heads * cfg.head_dim),
+                           1.0f);
+  std::vector<float> val_f(key_f.size(), 2.0f);
+  lkjai::CudaExecutionContext ctx;
+  lkjai::DeviceTensor dk(
+      {lkjai::DeviceDType::bf16, {2, cfg.kv_heads, cfg.head_dim}},
+      ctx.stream());
+  lkjai::DeviceTensor dv(
+      {lkjai::DeviceDType::bf16, {2, cfg.kv_heads, cfg.head_dim}},
+      ctx.stream());
+  dk.copy_from_host_f32(key_f, ctx.stream());
+  dv.copy_from_host_f32(val_f, ctx.stream());
+  ok = ok && expect(lkjai::decoder_kv_cache_append_device_layer(
+                        &cache, cfg.layers - 1, 1, dk.data(), dv.data(), 1,
+                        2, ctx.stream(), &error),
+                    error);
+  ok = ok && expect(cache.next_position[0] == 3,
+                    "device append advanced position");
+  ok = ok && expect(lkjai::decoder_kv_cache_read(
+                        cache, false, cfg.layers - 1, 0, 0, 2, 0, &value,
+                        &error),
+                    error);
+  ok = ok && expect(value == 0x3f80, "device key append value");
+  ok = ok && expect(lkjai::decoder_kv_cache_read(
+                        cache, true, cfg.layers - 1, 0, 1, 2,
+                        cfg.head_dim - 1, &value, &error),
+                    error);
+  ok = ok && expect(value == 0x4000, "device value append value");
   lkjai::DecoderKvCacheConfig bad{1, 1, 1, 8, 7};
   ok = ok && expect(!lkjai::decoder_kv_cache_layout(bad, &layout, &error),
                     "invalid head_dim rejected");

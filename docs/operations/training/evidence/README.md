@@ -2,6 +2,12 @@
 
 Use this subtree for dated training proof records.
 
+## Read This Section When
+
+- You need dense training proof records.
+- You need dated training evidence.
+- You need long-run prerequisite blockers.
+
 ## Child Index
 
 - [dense-accepted-training-20260503.md](dense-accepted-training-20260503.md):

@@ -2,6 +2,12 @@
 
 `docs/` is the only active canon for `lkjai`.
 
+## Read This Section When
+
+- You need the top-level canon map.
+- You need global repository rules.
+- You need the fastest route to a task-specific docs owner.
+
 ## System Goal
 
 - Train and serve a commercial-safe scratch model through native C++/CUDA
@@ -35,7 +41,7 @@
 9. Product training, serving, runtime, verification, and benchmark tooling must
    not depend on Rust or Python.
 
-## Top-Level Sections
+## Child Index
 
 - [vision/README.md](vision/README.md): product intent and LLM-first rules.
 - [current-state.md](current-state.md): accepted dense substrate, partial

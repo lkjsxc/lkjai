@@ -3,6 +3,12 @@
 Use this subtree for benchmark procedures, profiling, validation, and kernel
 planning.
 
+## Read This Section When
+
+- You need benchmark protocol.
+- You need profiling or validation procedures.
+- You need kernel planning order.
+
 ## Child Index
 
 - [benchmarking.md](benchmarking.md): required measurements and workflow.

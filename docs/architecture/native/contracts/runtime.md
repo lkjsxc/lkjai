@@ -31,8 +31,8 @@ process.
   decode returns HTTP `422` with an explicit unsupported-decode error and no
   `choices` field for those kinds.
 - Decoder artifacts are the only artifacts that may return
-  `/v1/chat/completions` choices. Current host-reference choices are partial
-  usability and must disclose unsupported CUDA decode.
+  `/v1/chat/completions` choices. Current CUDA reference choices are partial
+  usability and must disclose non-accepted decode.
 - The target runtime path calls the loaded model engine directly instead of
   posting to another native service over loopback HTTP.
 - `lkjai-native-logits-check` is the accepted inference proof for this slice.
@@ -52,6 +52,11 @@ The accepted decoder decode slice must provide:
 - on-device temperature, top-k/top-p, and argmax or multinomial sampling,
 - stop-token and `</action>` completion detection,
 - paged KV cache only after continuous batching is introduced.
+
+The current non-accepted decoder runtime reports
+`lkjai_decode_backend=cuda_reference_kv_cache`,
+`lkjai_kv_cache_backend=cuda_contiguous_bf16_partial`,
+`lkjai_decode_supported=true`, and `lkjai_decode_accepted=false`.
 
 Accepted runtime disclosure must not be driven by `decoder_acceptance.json`
 alone. It requires real CUDA KV-cache decode and route evidence.

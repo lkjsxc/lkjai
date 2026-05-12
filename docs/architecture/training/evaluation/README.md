@@ -2,6 +2,12 @@
 
 Use this subtree for fixed evaluation, competency gates, and preference data.
 
+## Read This Section When
+
+- You need fixed-eval or competency-gate behavior.
+- You need preference-pair policy.
+- You need evaluation acceptance boundaries.
+
 ## Child Index
 
 - [gates.md](gates.md): fixed eval and competency gate contract.

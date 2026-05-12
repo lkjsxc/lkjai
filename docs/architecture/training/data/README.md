@@ -3,6 +3,12 @@
 Use this subtree for corpus, dataset, tokenizer, provenance, and packed-cache
 contracts.
 
+## Read This Section When
+
+- You need corpus or dataset schemas.
+- You need tokenizer and packed-cache contracts.
+- You need provenance and quarantine policy.
+
 ## Child Index
 
 - [corpus.md](corpus.md): instruction and trajectory dataset contract.

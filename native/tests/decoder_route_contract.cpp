@@ -78,13 +78,15 @@ bool decoder_route_contract() {
             expect(!has(resp.body, "\"lkjai_decode_backend\":\"cuda_kv_cache\""),
                    "host decode must not claim CUDA KV-cache") &&
             expect(has(resp.body,
-                       "\"lkjai_decode_backend\":\"host_reference_recompute\""),
+                       "\"lkjai_decode_backend\":\"cuda_reference_kv_cache\""),
                    "partial decode backend") &&
             expect(has(resp.body,
-                       "\"lkjai_kv_cache_backend\":\"host_contiguous_bf16_diagnostic\""),
+                       "\"lkjai_kv_cache_backend\":\"cuda_contiguous_bf16_partial\""),
                    "partial kv backend") &&
-            expect(has(resp.body, "\"lkjai_decode_supported\":false"),
+            expect(has(resp.body, "\"lkjai_decode_supported\":true"),
                    "partial decode disclosure") &&
+            expect(has(resp.body, "\"lkjai_decode_accepted\":false"),
+                   "non-accepted disclosure") &&
             expect(has(resp.body, "\"lkjai_kv_steady_state_token_allocations\":0"),
                    "zero steady-state allocations");
   std::ofstream(model_dir / "decoder_acceptance.json")
@@ -97,10 +99,10 @@ bool decoder_route_contract() {
                      "\"lkjai_decode_backend\":\"cuda_kv_cache\""),
                 "sidecar must not promote incomplete CUDA KV-cache") &&
          expect(has(accepted.body,
-                    "\"lkjai_decode_backend\":\"host_reference_recompute\""),
+                    "\"lkjai_decode_backend\":\"cuda_reference_kv_cache\""),
                 "sidecar remains partial decode backend") &&
-         expect(has(accepted.body, "\"lkjai_decode_supported\":false"),
-                "sidecar remains unsupported disclosure");
+         expect(has(accepted.body, "\"lkjai_decode_accepted\":false"),
+                "sidecar remains non-accepted disclosure");
 }
 
 }  // namespace

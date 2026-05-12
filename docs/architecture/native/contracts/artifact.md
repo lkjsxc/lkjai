@@ -102,7 +102,7 @@ RMSNorm, and LM head. The config records `vocab_size`, `context`, `layers`,
 `rope_theta`, `rms_norm_eps`, `tie_embeddings`, and `seed`.
 
 Transformer chat decode remains unsupported. Decoder artifacts are the product
-target for chat, but current host-reference choices are partial usability until
+target for chat, but current CUDA reference choices are partial usability until
 accepted CUDA KV-cache decode exists.
 
 ## Native Loading

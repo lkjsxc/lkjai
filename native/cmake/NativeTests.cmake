@@ -62,6 +62,10 @@ add_test(NAME native_decoder_cuda_block_forward_substrate
   COMMAND lkjai-native-decoder-cuda-block-check)
 add_test(NAME native_decoder_slice_block_forward
   COMMAND lkjai-native-decoder-slice-block-check)
+add_test(NAME native_decoder_cuda_full_forward
+  COMMAND lkjai-native-decoder-full-forward-check)
+add_test(NAME native_decoder_cuda_backward_primitives
+  COMMAND lkjai-native-decoder-backward-primitives-check)
 add_test(NAME native_decoder_tokenizer_contract
   COMMAND lkjai-native-decoder-tokenizer-contract)
 add_test(NAME native_decoder_artifact_contract
@@ -96,6 +100,8 @@ set_tests_properties(native_decoder_tokenizer_contract PROPERTIES
   ENVIRONMENT
     "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT};LKJAI_TOKENIZER_BUILD=$<TARGET_FILE:lkjai-native-tokenizer-build>")
 set_tests_properties(native_decoder_cuda_block_forward_substrate PROPERTIES
+  ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
+set_tests_properties(native_decoder_cuda_full_forward PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
 
 add_test(

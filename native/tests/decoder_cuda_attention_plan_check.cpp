@@ -7,6 +7,7 @@
 
 #include "decoder_cuda_block.hpp"
 #include "decoder_cuda_block_internal.hpp"
+#include "decoder_kv_cache.hpp"
 #include "runtime_device.hpp"
 
 namespace {
@@ -99,6 +100,55 @@ bool run_attention_case(lkjai::CudaExecutionContext* ctx, int heads,
   return false;
 }
 
+bool run_cached_attention_case(lkjai::CudaExecutionContext* ctx) {
+  constexpr int batch = 1;
+  constexpr int seq = 4;
+  constexpr int heads = 4;
+  constexpr int kv_heads = 2;
+  constexpr int head_dim = 8;
+  std::vector<float> q(batch * seq * heads * head_dim);
+  std::vector<float> k(batch * seq * kv_heads * head_dim);
+  std::vector<float> v(k.size());
+  for (size_t i = 0; i < q.size(); ++i) q[i] = std::sin(float(i) * 0.11f);
+  for (size_t i = 0; i < k.size(); ++i) {
+    k[i] = std::cos(float(i) * 0.09f);
+    v[i] = std::sin(float(i) * 0.05f) * 0.7f;
+  }
+  lkjai::DeviceTensor dq({lkjai::DeviceDType::bf16,
+                          {batch, seq, heads, head_dim}}, ctx->stream());
+  lkjai::DeviceTensor dk({lkjai::DeviceDType::bf16,
+                          {batch, seq, kv_heads, head_dim}}, ctx->stream());
+  lkjai::DeviceTensor dv({lkjai::DeviceDType::bf16,
+                          {batch, seq, kv_heads, head_dim}}, ctx->stream());
+  lkjai::DeviceTensor dout({lkjai::DeviceDType::bf16,
+                            {batch, 1, heads, head_dim}}, ctx->stream());
+  dq.copy_from_host_f32(q, ctx->stream());
+  dk.copy_from_host_f32(k, ctx->stream());
+  dv.copy_from_host_f32(v, ctx->stream());
+  lkjai::DecoderKvCache cache;
+  std::string error;
+  lkjai::DecoderKvCacheConfig cfg{1, batch, kv_heads, seq, head_dim};
+  if (!lkjai::decoder_kv_cache_allocate(cfg, &cache, &error)) {
+    std::cerr << error << "\n";
+    return false;
+  }
+  if (!lkjai::decoder_kv_cache_append_device_layer(
+          &cache, 0, 0, dk.data(), dv.data(), batch, seq, ctx->stream(),
+          &error)) {
+    std::cerr << error << "\n";
+    return false;
+  }
+  size_t q_last = static_cast<size_t>(seq - 1) * heads * head_dim;
+  lkjai::decoder_launch_cached_gqa_attention_bf16(
+      static_cast<const uint16_t*>(dq.data()) + q_last, cache.key_device,
+      cache.value_device, dout.data(), 0, 0, seq - 1, batch, seq, batch,
+      heads, kv_heads, head_dim, ctx->stream());
+  auto got = dout.copy_to_host_f32(ctx->stream());
+  auto full = cpu_attention(q, k, v, batch, seq, heads, kv_heads, head_dim);
+  std::vector<float> want(full.end() - heads * head_dim, full.end());
+  return close(got, want);
+}
+
 }  // namespace
 
 int main() {
@@ -127,7 +177,8 @@ int main() {
       return 1;
     }
     if (!run_attention_case(&ctx, 4, 4, "MHA") ||
-        !run_attention_case(&ctx, 4, 2, "GQA")) {
+        !run_attention_case(&ctx, 4, 2, "GQA") ||
+        !run_cached_attention_case(&ctx)) {
       return 1;
     }
   } catch (const std::exception& e) {

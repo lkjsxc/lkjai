@@ -29,13 +29,15 @@ artifact inspection, and CUDA capability probing.
 - [decoder_cuda_block.cu](decoder_cuda_block.cu),
   [decoder_cuda_block_probe.cpp](decoder_cuda_block_probe.cpp),
   [decoder_cuda_block_project.cu](decoder_cuda_block_project.cu),
+  [decoder_cuda_layer_forward.cpp](decoder_cuda_layer_forward.cpp),
+  [decoder_cuda_full_forward.cpp](decoder_cuda_full_forward.cpp),
   [decoder_cuda_block.hpp](decoder_cuda_block.hpp), and
-  [decoder_cuda_block_internal.hpp](decoder_cuda_block_internal.hpp): partial
-  decoder block forward substrate probe covering RMSNorm, RoPE, BF16
-  cuBLASLt projections, residual adds, down projection, and SwiGLU glue.
+  [decoder_cuda_block_internal.hpp](decoder_cuda_block_internal.hpp): stateful
+  decoder forward substrate covering RMSNorm, RoPE, BF16 cuBLASLt projections,
+  residual adds, down projection, SwiGLU glue, and debug full-forward parity.
 - [decoder_cuda_residual.cu](decoder_cuda_residual.cu) and
   [decoder_cuda_residual.hpp](decoder_cuda_residual.hpp): BF16 residual-add
-  helper for decoder block probes and later full forward wiring.
+  and residual-backward helpers for decoder probes and later backward wiring.
 - [decoder_cuda_slice.cpp](decoder_cuda_slice.cpp),
   [decoder_cuda_state.hpp](decoder_cuda_state.hpp),
   [decoder_cuda_state.cpp](decoder_cuda_state.cpp),

@@ -63,7 +63,7 @@ Recommended stages:
 3. Optional later preference training after both objective gates pass.
 
 No current artifact is accepted for product chat. Decoder artifacts may serve
-host-reference recompute choices, but accepted autoregressive KV-cache decode is
+partial CUDA reference choices, but accepted autoregressive KV-cache decode is
 still a native target.
 
 ## Artifacts

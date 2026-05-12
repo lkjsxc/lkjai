@@ -87,21 +87,24 @@ the loaded artifact.
 `assistant` is populated only when the model emits an `agent.finish` action
 with user-facing content. Current native dense and transformer artifacts return
 unsupported decode from `/v1/chat/completions`. Decoder artifacts are the
-product target, but current decoder choices are partial host-reference
-usability until accepted CUDA KV-cache decode evidence exists.
+product target. Current decoder choices use a partial native CUDA reference
+decode path and remain non-accepted until full CUDA KV-cache decode evidence
+exists.
 
 ## Decode Capability Matrix
 
 | Artifact kind | `/v1/chat/completions` result | Product role |
 |---|---|---|
 | `dense` | HTTP `422`, no `choices` | BF16 training and logits diagnostics. |
-| `decoder` | `choices`; current host-reference choices report unsupported decode | Product target for accepted chat. |
+| `decoder` | `choices`; current CUDA reference choices report non-accepted decode | Product target for accepted chat. |
 | `transformer` | HTTP `422`, no `choices` | Reference plumbing only. |
 
 Accepted decoder chat requires `decode_backend=cuda_kv_cache`,
 `kv_cache_backend=cuda_contiguous_bf16`, and KV allocation accounting in the
-response. Host-reference recompute choices must report
-`lkjai_decode_supported=false`.
+response. The current partial route reports
+`lkjai_decode_backend=cuda_reference_kv_cache`,
+`lkjai_kv_cache_backend=cuda_contiguous_bf16_partial`,
+`lkjai_decode_supported=true`, and `lkjai_decode_accepted=false`.
 
 The exact `/v1/*` route names exist only for OpenAI-compatible clients. Local
 runtime routes stay under unnumbered `/api/*` names.

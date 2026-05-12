@@ -15,13 +15,18 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/decoder_chat_request.cpp
   src/decoder_decode.cpp
   src/decoder_kv_cache.cpp
+  src/decoder_kv_cache_cuda.cu
   src/decoder_kv_cache_lifetime.cpp
   src/decoder_cuda_block.cu
+  src/decoder_cuda_cached_attention.cu
+  src/decoder_cuda_decode.cpp
   src/decoder_cuda_block_probe.cpp
   src/decoder_cuda_block_project.cu
   src/decoder_cuda_block_shape.cpp
   src/decoder_cuda_backward.cpp
   src/decoder_cuda_forward.cpp
+  src/decoder_cuda_full_forward.cpp
+  src/decoder_cuda_layer_forward.cpp
   src/decoder_cuda_norm.cu
   src/decoder_cuda_optimizer.cpp
   src/decoder_cuda_report.cpp

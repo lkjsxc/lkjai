@@ -12,12 +12,12 @@ namespace {
 
 __global__ void rope_bf16_kernel(__nv_bfloat16* tensor, int total_pairs,
                                  int seq, int heads, int head_dim,
-                                 float theta) {
+                                 int position_offset, float theta) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i >= total_pairs) return;
   int pair = i % (head_dim / 2);
   int row = i / (head_dim / 2);
-  int pos = (row / heads) % seq;
+  int pos = position_offset + (row / heads) % seq;
   auto* base = tensor + static_cast<size_t>(row) * head_dim + pair * 2;
   float x0 = __bfloat162float(base[0]);
   float x1 = __bfloat162float(base[1]);
@@ -38,6 +38,20 @@ __global__ void swiglu_bf16_kernel(const __nv_bfloat16* gate,
   float g = __bfloat162float(gate[i]);
   float u = __bfloat162float(up[i]);
   out[i] = __float2bfloat16((g / (1.0f + expf(-g))) * u);
+}
+
+__global__ void swiglu_backward_bf16_kernel(
+    const __nv_bfloat16* gate, const __nv_bfloat16* up,
+    const __nv_bfloat16* d_out, __nv_bfloat16* d_gate,
+    __nv_bfloat16* d_up, int elements) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i >= elements) return;
+  float g = __bfloat162float(gate[i]);
+  float u = __bfloat162float(up[i]);
+  float dy = __bfloat162float(d_out[i]);
+  float s = 1.0f / (1.0f + expf(-g));
+  d_up[i] = __float2bfloat16(dy * g * s);
+  d_gate[i] = __float2bfloat16(dy * u * (s + g * s * (1.0f - s)));
 }
 
 __global__ void causal_gqa_attention_bf16_kernel(
@@ -88,6 +102,13 @@ __global__ void causal_gqa_attention_bf16_kernel(
 void decoder_launch_rope_bf16(void* tensor_bf16, int batch, int seq, int heads,
                               int head_dim, float theta,
                               cudaStream_t stream) {
+  decoder_launch_rope_bf16_at(tensor_bf16, batch, seq, heads, head_dim, 0,
+                              theta, stream);
+}
+
+void decoder_launch_rope_bf16_at(void* tensor_bf16, int batch, int seq,
+                                 int heads, int head_dim, int position_offset,
+                                 float theta, cudaStream_t stream) {
   if (batch <= 0 || seq <= 0 || heads <= 0 || head_dim <= 0) return;
   if (head_dim % 2 != 0) {
     throw std::runtime_error("decoder RoPE requires even head_dim");
@@ -95,7 +116,7 @@ void decoder_launch_rope_bf16(void* tensor_bf16, int batch, int seq, int heads,
   int total_pairs = batch * seq * heads * (head_dim / 2);
   rope_bf16_kernel<<<(total_pairs + 255) / 256, 256, 0, stream>>>(
       static_cast<__nv_bfloat16*>(tensor_bf16), total_pairs, seq, heads,
-      head_dim, theta);
+      head_dim, position_offset, theta);
   require_cuda(cudaGetLastError(), "decoder_rope_bf16_kernel");
 }
 
@@ -108,6 +129,19 @@ void decoder_launch_swiglu_bf16(const void* gate_bf16, const void* up_bf16,
       static_cast<const __nv_bfloat16*>(up_bf16),
       static_cast<__nv_bfloat16*>(out_bf16), elements);
   require_cuda(cudaGetLastError(), "decoder_swiglu_bf16_kernel");
+}
+
+void decoder_launch_swiglu_backward_bf16(
+    const void* gate_bf16, const void* up_bf16, const void* d_out_bf16,
+    void* d_gate_bf16, void* d_up_bf16, int elements, cudaStream_t stream) {
+  if (elements <= 0) return;
+  swiglu_backward_bf16_kernel<<<(elements + 255) / 256, 256, 0, stream>>>(
+      static_cast<const __nv_bfloat16*>(gate_bf16),
+      static_cast<const __nv_bfloat16*>(up_bf16),
+      static_cast<const __nv_bfloat16*>(d_out_bf16),
+      static_cast<__nv_bfloat16*>(d_gate_bf16),
+      static_cast<__nv_bfloat16*>(d_up_bf16), elements);
+  require_cuda(cudaGetLastError(), "decoder_swiglu_backward_bf16_kernel");
 }
 
 void decoder_launch_causal_gqa_attention_bf16(

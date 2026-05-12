@@ -2,6 +2,12 @@
 
 Use this subtree for dated performance proof records and evidence rules.
 
+## Read This Section When
+
+- You need accepted performance evidence format.
+- You need dated dense or decoder evidence records.
+- You need evidence field requirements.
+
 ## Child Index
 
 - [evidence.md](evidence.md): required fields for accepted records.

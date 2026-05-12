@@ -40,15 +40,40 @@ int child_count(const std::filesystem::path& dir) {
 void check_readme_links(const std::filesystem::path& dir,
                         RepoCheckResult* result) {
   auto readme = text(dir / "README.md");
+  auto child_index = readme.find("## Child Index");
+  auto next_section = child_index == std::string::npos
+                          ? std::string::npos
+                          : readme.find("\n## ", child_index + 1);
+  auto listed = child_index == std::string::npos
+                    ? std::string()
+                    : readme.substr(child_index, next_section - child_index);
   for (const auto& entry : std::filesystem::directory_iterator(dir)) {
     auto path = entry.path();
     if (path.filename() == "README.md") continue;
     if (entry.is_regular_file() && path.extension() != ".md") continue;
     if (!entry.is_directory() && !entry.is_regular_file()) continue;
     auto name = path.filename().string();
-    if (readme.find(name) == std::string::npos) {
+    if (listed.find(name) == std::string::npos) {
       result->fail((dir / "README.md").string() + " missing child " + name);
     }
+  }
+}
+
+void check_readme_shape(const std::filesystem::path& dir,
+                        RepoCheckResult* result) {
+  auto path = dir / "README.md";
+  auto readme = text(path);
+  auto read_when = readme.find("## Read This Section When");
+  auto child_index = readme.find("## Child Index");
+  if (read_when == std::string::npos) {
+    result->fail(path.string() + " missing Read This Section When");
+  }
+  if (child_index == std::string::npos) {
+    result->fail(path.string() + " missing Child Index");
+  }
+  if (read_when != std::string::npos && child_index != std::string::npos &&
+      read_when > child_index) {
+    result->fail(path.string() + " Child Index before read guidance");
   }
 }
 
@@ -68,6 +93,7 @@ int check_docs_topology(const std::filesystem::path& repo) {
     if (child_count(dir) < 2) {
       result.fail("docs directory needs at least two children: " + dir.string());
     }
+    check_readme_shape(dir, &result);
     check_readme_links(dir, &result);
   }
   return result.errors == 0 ? 0 : 1;

@@ -2,6 +2,12 @@
 
 Use this subtree for operator procedures for long runs and dense CUDA training.
 
+## Read This Section When
+
+- You need long-run operator procedures.
+- You need dense CUDA runbooks.
+- You need production BF16 native training guidance.
+
 ## Child Index
 
 - [long-run.md](long-run.md): real training runtime contract and knobs.

@@ -56,12 +56,13 @@ chat claim for dense artifacts.
 
 ## Active Decoder Target
 
-The active implementation target is accepted `decoder` CUDA training for the
-40M RTX 3070 preset: device-resident cuBLASLt projections, fused pointwise
-kernels, correctness-first CUDA causal GQA attention, decoder backward,
-contiguous BF16 KV-cache decode, native runtime chat, accepted report fields,
-and two-hour RTX 3070 evidence. cuDNN SDPA and NCCL stay after single-GPU
-correctness and profiling.
+The active implementation target remains the 40M RTX 3070 decoder lane, but
+the current code stage is not accepted training. The next active step is
+stateful full-forward parity and small backward primitives with CTest evidence;
+promotion still requires full decoder backward, optimizer coverage, contiguous
+BF16 KV-cache decode, native runtime chat, accepted report fields, and two-hour
+RTX 3070 evidence. cuDNN SDPA and NCCL stay after single-GPU correctness and
+profiling.
 
 ## Research-Informed Order
 
@@ -77,7 +78,7 @@ but its durable order is still active:
    deterministic CTest proves a non-embedding block weight changes.
 5. Promote the report only after all decoder trainable tensors have optimizer
    coverage and checkpoint/export/logits checks pass.
-6. Replace host-reference recompute serving with contiguous BF16 KV-cache
+6. Promote partial CUDA reference serving to accepted contiguous BF16 KV-cache
    decode and disclose the accepted backend names in responses.
 7. Add decode metrics: time to first token, decode tokens per second, queue
    wait, cache bytes, cache blocks allocated/reused/evicted, and sampler time.

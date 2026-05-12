@@ -2,13 +2,19 @@
 
 This subtree is the canonical performance contract for `lkjai`.
 
+## Read This Section When
+
+- You need benchmark, profiling, or validation rules.
+- You need performance report and promotion contracts.
+- You need accepted evidence or hardware profile policy.
+
 ## Purpose
 
 - Maximize training throughput for the active `scratch-40m` model contract.
 - Keep optimization decisions measurable and reproducible.
 - Prefer repo-local, Compose-runnable workflows over one-off host commands.
 
-## Contents
+## Child Index
 
 - [contracts/README.md](contracts/README.md): report fields, benchmark outputs,
   artifacts, and promotion criteria.

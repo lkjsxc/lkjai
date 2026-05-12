@@ -31,9 +31,10 @@ Use this subtree for the native `decoder` product target.
 | `transformer` | Reference-only | CPU/host parity source while decoder pieces are migrated; not a product training mode. |
 
 The current decoder implementation exports real decoder artifacts with the
-repo byte-level BPE tokenizer and may return partial host-reference choices
+repo byte-level BPE tokenizer and may return partial CUDA reference choices
 through the native tokenizer bridge. Those choices are partial usability only:
-decode still calls host `transformer_forward`, the diagnostic KV writes are not
-model attention state, and the route must report `lkjai_decode_supported=false`.
-Training remains partial while block gradients are absent, full block backward
-is absent, and accepted contiguous CUDA BF16 KV-cache decode is not complete.
+the route reports `lkjai_decode_backend=cuda_reference_kv_cache`,
+`lkjai_kv_cache_backend=cuda_contiguous_bf16_partial`,
+`lkjai_decode_supported=true`, and `lkjai_decode_accepted=false`. Training
+remains partial while block gradients are absent, full block backward is
+absent, and accepted contiguous CUDA BF16 KV-cache decode is not complete.

@@ -3,6 +3,12 @@
 Use this subtree for CUDA libraries, tensors, kernels, and diagnostic
 transformer CUDA plans.
 
+## Read This Section When
+
+- You need CUDA stack and precision rules.
+- You need device tensor ownership behavior.
+- You need kernel escalation and diagnostic transformer CUDA limits.
+
 ## Child Index
 
 - [cuda-stack.md](cuda-stack.md): pinned CUDA, vendor library, and precision

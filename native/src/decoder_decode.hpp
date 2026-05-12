@@ -9,6 +9,10 @@ inline constexpr const char* kDecoderPartialDecodeBackend =
     "host_reference_recompute";
 inline constexpr const char* kDecoderPartialKvCacheBackend =
     "host_contiguous_bf16_diagnostic";
+inline constexpr const char* kDecoderRuntimePartialDecodeBackend =
+    "cuda_reference_kv_cache";
+inline constexpr const char* kDecoderRuntimePartialKvCacheBackend =
+    "cuda_contiguous_bf16_partial";
 inline constexpr const char* kDecoderNoKvCacheBackend = "none";
 inline constexpr const char* kDecoderAcceptedDecodeBackend = "cuda_kv_cache";
 inline constexpr const char* kDecoderAcceptedKvCacheBackend =

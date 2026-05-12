@@ -29,6 +29,16 @@ First CUDA progress after foundation:
   BF16-aware tolerance.
 - Current attention hook: deterministic BF16 causal MHA/GQA CUDA parity plus
   reusable cuBLASLt projection plan-cache coverage.
+- Current stateful forward hook: a reusable CUDA decoder layer object owns
+  device-resident layer weights and intermediates, and a full-forward probe
+  compares final hidden/logits against the host reference on
+  `decoder_debug_bf16`.
+- Current backward substrate hook: residual-add backward and SwiGLU backward
+  kernels have direct parity tests, but they are not wired into training
+  reports or optimizer evidence.
+- Current decode hook: decoder chat executes native CUDA prefill and
+  incremental token steps, writes real BF16 K/V tensors into a contiguous device
+  cache, and exposes partial non-accepted runtime disclosure fields.
 
 ## What Is CUDA-Backed
 
@@ -79,14 +89,18 @@ must say:
 - `decode_backend=host_reference_recompute`
 
 Decoder chat serving is also partial. Successful decoder `choices` responses
-must disclose `lkjai_decode_backend=host_reference_recompute` and
-`lkjai_kv_cache_backend=host_contiguous_bf16_diagnostic` until the accepted
-contiguous BF16 CUDA KV-cache path lands.
+must disclose `lkjai_decode_backend=cuda_reference_kv_cache`,
+`lkjai_kv_cache_backend=cuda_contiguous_bf16_partial`,
+`lkjai_decode_supported=true`, and `lkjai_decode_accepted=false` until the
+accepted contiguous BF16 CUDA KV-cache path lands. Training reports remain
+truthful with `accepted_cuda_training=false`,
+`decoder_cuda_slice=embedding_lm_head`, and
+`decoder_backward_backend=not_implemented`.
 
-Before acceptance, the repo still needs this forward substrate wired into the
-trainer as full decoder forward, full block backward, optimizer coverage for
-block tensors, real block-weight updates, contiguous BF16 KV-cache decode, no
-per-token device allocations, and a real two-hour RTX acceptance run.
+Before acceptance, the repo still needs this stateful forward substrate wired
+into training with full decoder backward, optimizer coverage for block tensors,
+real block-weight updates, contiguous BF16 KV-cache decode, no per-token device
+allocations, and a real two-hour RTX acceptance run.
 
 ## Hardware Implications
 

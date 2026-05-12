@@ -14,8 +14,8 @@ memory, and HTTP API contracts.
 Current native dense artifacts are the immediate browser-demo target. They
 support readiness, logits, top-k, and checksum surfaces, but they do not
 support autoregressive chat decode. Decoder artifacts remain the chat target,
-but current decoder choices are partial host-reference usability until
-accepted CUDA KV-cache decode evidence exists.
+but current decoder choices are partial CUDA reference usability until accepted
+CUDA KV-cache decode evidence exists.
 
 ## Child Index
 

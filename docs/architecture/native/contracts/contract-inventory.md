@@ -126,8 +126,8 @@ Each contract record uses these fields:
   [decoder/decode.md](../decoder/decode.md); accepted decode requires native
   CUDA BF16 KV cache consumed by generation, no per-token device allocation in
   steady state, and real chat `choices`.
-- non_claims: `host_reference_recompute` with
-  `kv_cache_backend=host_contiguous_bf16_diagnostic` is not accepted serving
+- non_claims: `cuda_reference_kv_cache` with
+  `kv_cache_backend=cuda_contiguous_bf16_partial` is not accepted serving
   evidence.
 
 ### Transformer Lane

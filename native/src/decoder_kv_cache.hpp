@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include <cuda_runtime.h>
+
 namespace lkjai {
 
 struct DecoderKvCacheConfig {
@@ -57,5 +59,12 @@ bool decoder_kv_cache_append(DecoderKvCache* cache, int batch,
                              const std::vector<uint16_t>& key_values,
                              const std::vector<uint16_t>& value_values,
                              std::string* error);
+bool decoder_kv_cache_append_device_layer(DecoderKvCache* cache, int layer,
+                                          int start_position,
+                                          const void* key_bf16,
+                                          const void* value_bf16,
+                                          int batch, int seq,
+                                          cudaStream_t stream,
+                                          std::string* error);
 
 }  // namespace lkjai

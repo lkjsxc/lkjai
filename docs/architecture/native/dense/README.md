@@ -3,6 +3,12 @@
 Use this subtree for the accepted dense CUDA substrate. Dense remains the CUDA
 regression harness; it is not the product chat lane.
 
+## Read This Section When
+
+- You need accepted dense CUDA substrate behavior.
+- You need dense runtime and report-field contracts.
+- You need the dense foundation relationship to decoder work.
+
 ## Child Index
 
 - [substrate.md](substrate.md): accepted dense CUDA substrate and BF16

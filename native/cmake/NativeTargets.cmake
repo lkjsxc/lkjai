@@ -75,6 +75,20 @@ target_link_libraries(lkjai-native-decoder-slice-block-check
   PRIVATE lkjai_native_core
 )
 
+add_executable(lkjai-native-decoder-full-forward-check
+  tests/decoder_cuda_full_forward_check.cpp
+)
+target_link_libraries(lkjai-native-decoder-full-forward-check
+  PRIVATE lkjai_native_core
+)
+
+add_executable(lkjai-native-decoder-backward-primitives-check
+  tests/decoder_cuda_backward_primitives_check.cpp
+)
+target_link_libraries(lkjai-native-decoder-backward-primitives-check
+  PRIVATE lkjai_native_core
+)
+
 add_executable(lkjai-native-decoder-tokenizer-contract
   tests/decoder_tokenizer_contract.cpp
 )

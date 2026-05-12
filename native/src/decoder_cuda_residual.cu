@@ -16,6 +16,16 @@ __global__ void residual_add_bf16_kernel(const __nv_bfloat16* lhs,
   out[i] = __float2bfloat16(value);
 }
 
+__global__ void residual_add_backward_bf16_kernel(const __nv_bfloat16* d_out,
+                                                  __nv_bfloat16* d_lhs,
+                                                  __nv_bfloat16* d_rhs,
+                                                  int elements) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i >= elements) return;
+  d_lhs[i] = d_out[i];
+  d_rhs[i] = d_out[i];
+}
+
 }  // namespace
 
 void decoder_launch_residual_add_bf16(const void* lhs_bf16,
@@ -28,6 +38,18 @@ void decoder_launch_residual_add_bf16(const void* lhs_bf16,
       static_cast<const __nv_bfloat16*>(rhs_bf16),
       static_cast<__nv_bfloat16*>(out_bf16), elements);
   require_cuda(cudaGetLastError(), "decoder_residual_add_bf16_kernel");
+}
+
+void decoder_launch_residual_add_backward_bf16(const void* d_out_bf16,
+                                               void* d_lhs_bf16,
+                                               void* d_rhs_bf16, int elements,
+                                               cudaStream_t stream) {
+  if (elements <= 0) return;
+  residual_add_backward_bf16_kernel<<<(elements + 255) / 256, 256, 0, stream>>>(
+      static_cast<const __nv_bfloat16*>(d_out_bf16),
+      static_cast<__nv_bfloat16*>(d_lhs_bf16),
+      static_cast<__nv_bfloat16*>(d_rhs_bf16), elements);
+  require_cuda(cudaGetLastError(), "decoder_residual_add_backward_bf16_kernel");
 }
 
 }  // namespace lkjai
