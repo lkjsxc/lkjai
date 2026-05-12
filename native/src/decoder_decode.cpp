@@ -11,8 +11,16 @@ namespace lkjai {
 namespace {
 
 bool accepted_decode_artifact(const std::filesystem::path& model_dir) {
-  (void)model_dir;
-  return false;
+  auto sidecar = read_text(model_dir / "decoder_acceptance.json");
+  return json_bool_value(sidecar, "decode_supported", false) &&
+         contains_json_string(sidecar, "decode_backend",
+                              kDecoderAcceptedDecodeBackend) &&
+         contains_json_string(sidecar, "kv_cache_backend",
+                              kDecoderAcceptedKvCacheBackend) &&
+         contains_json_string(sidecar, "runtime_path",
+                              "accepted_cuda_kv_cache") &&
+         json_int_value(sidecar, "kv_cache_steady_state_token_allocations",
+                        -1) == 0;
 }
 
 }  // namespace
@@ -55,7 +63,10 @@ bool decoder_chat_json(const std::filesystem::path& model_dir,
                              &generated, error)) {
     return false;
   }
-  bool accepted_decode = accepted_decode_artifact(model_dir);
+  bool accepted_decode =
+      accepted_decode_artifact(model_dir) && generated.cuda_kv_cache_used &&
+      generated.steady_state_token_allocations == 0 &&
+      cache.allocated_bytes > 0;
   auto content = tokenizer_decode(tokenizer, generated.generated, true);
   int total = prompt_count + static_cast<int>(generated.generated.size());
   *json = "{\"id\":\"chatcmpl-lkjai-decoder\",\"object\":\"chat.completion\","
@@ -71,7 +82,8 @@ bool decoder_chat_json(const std::filesystem::path& model_dir,
                                       : kDecoderRuntimePartialKvCacheBackend) +
           "\",\"lkjai_kv_prefill_allocated_bytes\":" +
           std::to_string(cache.allocated_bytes) +
-          ",\"lkjai_kv_steady_state_token_allocations\":0,"
+          ",\"lkjai_kv_steady_state_token_allocations\":" +
+          std::to_string(generated.steady_state_token_allocations) + ","
           "\"lkjai_decode_supported\":true"
           ",\"lkjai_decode_accepted\":" +
           std::string(accepted_decode ? "true" : "false") + "}],"

@@ -127,6 +127,7 @@ bool decoder_cuda_generate(const TransformerState& state,
                                  prompt_tokens.end());
     std::vector<float> logits;
     run.logits(window, 0, false, cache, &logits, error);
+    local.cuda_kv_cache_used = cache->allocated_bytes > 0;
     int eos = tokenizer_id(tokenizer, "<eos>", tokenizer.eos_id);
     int end_action = tokenizer_id(tokenizer, "</action>", -1);
     for (int i = 0; i < sampler.max_tokens; ++i) {
@@ -143,6 +144,7 @@ bool decoder_cuda_generate(const TransformerState& state,
       }
       std::vector<uint16_t> one{static_cast<uint16_t>(next)};
       run.logits(one, cache->next_position[0], true, cache, &logits, error);
+      local.cuda_kv_cache_used = true;
     }
     local.workspace_bytes = run.workspace_bytes();
     *result = std::move(local);

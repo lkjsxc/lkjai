@@ -16,6 +16,8 @@ struct DecoderCudaGenerateResult {
   std::string finish_reason = "length";
   std::string stop_reason = "max_tokens";
   uint64_t workspace_bytes = 0;
+  bool cuda_kv_cache_used = false;
+  int steady_state_token_allocations = 0;
 };
 
 bool decoder_cuda_generate(const TransformerState& state,
