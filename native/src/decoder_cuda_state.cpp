@@ -40,6 +40,25 @@ void append_param(Parameter* p, cudaStream_t stream,
   registry->push_back(std::move(t));
 }
 
+template <typename Fn>
+void each_param(TransformerState* state, Fn fn) {
+  fn(&state->tok_embeddings);
+  if (state->cfg.kind != "decoder") fn(&state->pos_embeddings);
+  for (auto& layer : state->layers) {
+    fn(&layer.attn_norm);
+    fn(&layer.q_proj);
+    fn(&layer.k_proj);
+    fn(&layer.v_proj);
+    fn(&layer.o_proj);
+    fn(&layer.mlp_norm);
+    fn(&layer.gate_proj);
+    fn(&layer.up_proj);
+    fn(&layer.down_proj);
+  }
+  fn(&state->final_norm);
+  if (!state->cfg.tie_embeddings) fn(&state->lm_head);
+}
+
 }  // namespace
 
 DecoderCudaState::DecoderCudaState(const TransformerConfig& cfg,
@@ -52,14 +71,12 @@ DecoderCudaState::DecoderCudaState(const TransformerConfig& cfg,
 }
 
 TransformerState DecoderCudaState::copy_to_host() {
-  auto dense = dense_cuda_.copy_to_host();
-  decoder_copy_dense_back(dense, &state_);
   copy_registry_to_host();
   return state_;
 }
 
 void DecoderCudaState::fill_report(TransformerTrainReport* report) {
-  decoder_fill_cuda_slice_report(dense_cuda_, report);
+  decoder_fill_full_cuda_report(dense_cuda_, registry_shadow_bytes_, report);
   report->workspace_high_water_bytes =
       std::max<uint64_t>(report->workspace_high_water_bytes,
                          dense_cuda_.workspace_high_water_bytes() +
@@ -104,6 +121,54 @@ void DecoderCudaState::copy_registry_to_host() {
     t.param->w = t.weight.copy_to_host_f32(ctx_.stream());
     t.param->m = t.moment_m.copy_to_host_f32(ctx_.stream());
     t.param->v = t.moment_v.copy_to_host_f32(ctx_.stream());
+  }
+}
+
+void DecoderCudaState::sync_registry_from_host() {
+  for (auto& t : registry_) {
+    t.weight.copy_from_host_f32(t.param->w, ctx_.stream());
+    t.moment_m.copy_from_host_f32(t.param->m, ctx_.stream());
+    t.moment_v.copy_from_host_f32(t.param->v, ctx_.stream());
+    t.shadow.copy_from_host_f32(t.param->w, ctx_.stream());
+  }
+}
+
+void DecoderCudaState::scale_and_accumulate_grads(
+    const TransformerState& previous, float grad_scale, bool reset_grads) {
+  size_t index = 0;
+  each_param(&state_, [&](Parameter* p) {
+    const Parameter* before = nullptr;
+    size_t seen = 0;
+    auto find = [&](const Parameter& candidate) {
+      if (seen++ == index) before = &candidate;
+    };
+    find(previous.tok_embeddings);
+    if (previous.cfg.kind != "decoder") find(previous.pos_embeddings);
+    for (const auto& layer : previous.layers) {
+      find(layer.attn_norm);
+      find(layer.q_proj);
+      find(layer.k_proj);
+      find(layer.v_proj);
+      find(layer.o_proj);
+      find(layer.mlp_norm);
+      find(layer.gate_proj);
+      find(layer.up_proj);
+      find(layer.down_proj);
+    }
+    find(previous.final_norm);
+    if (!previous.cfg.tie_embeddings) find(previous.lm_head);
+    for (size_t i = 0; i < p->g.size(); ++i) {
+      float old = (!reset_grads && before) ? before->g[i] : 0.0f;
+      p->g[i] = old + p->g[i] * grad_scale;
+    }
+    ++index;
+  });
+  if (state_.cfg.tie_embeddings) {
+    for (size_t i = 0; i < state_.lm_head.g.size(); ++i) {
+      float old = reset_grads ? 0.0f : previous.lm_head.g[i];
+      float raw = state_.lm_head.g[i] - previous.lm_head.g[i];
+      state_.lm_head.g[i] = old + raw * grad_scale;
+    }
   }
 }
 

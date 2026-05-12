@@ -41,6 +41,9 @@ class DecoderCudaState {
  private:
   void build_registry();
   void copy_registry_to_host();
+  void sync_registry_from_host();
+  void scale_and_accumulate_grads(const TransformerState& previous,
+                                  float grad_scale, bool reset_grads);
 
   TransformerState state_;
   CudaExecutionContext ctx_;

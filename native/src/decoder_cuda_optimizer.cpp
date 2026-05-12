@@ -3,9 +3,10 @@
 namespace lkjai {
 
 void DecoderCudaState::optimizer_step(float lr, int step) {
-  dense_cuda_.adamw(lr, step);
+  transformer_adamw(&state_, lr, step);
+  sync_registry_from_host();
   require_cuda(cudaStreamSynchronize(ctx_.stream()),
-               "decoder embedding lm-head adamw");
+               "decoder full-state adamw sync");
 }
 
 }  // namespace lkjai
