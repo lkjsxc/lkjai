@@ -22,6 +22,9 @@ int main() {
       html.body.find("fetch('/api/dense/status')") == std::string::npos ||
       html.body.find("fetch('/api/dense/next-token'") == std::string::npos ||
       html.body.find("function startDraft()") == std::string::npos ||
+      html.body.find("const can=!pending") == std::string::npos ||
+      html.body.find("$('runState').textContent='No persisted runs'") ==
+          std::string::npos ||
       html.body.find("viewToken++") == std::string::npos ||
       html.body.find("active&&data.runs.length?'Recent runs':'No persisted runs'") ==
           std::string::npos ||
