@@ -11,8 +11,8 @@ Execute one user turn as a bounded multi-step loop.
 
 1. Append the user message to the run transcript.
 2. Load recent transcript events.
-3. Load the rolling summary for older events.
-4. Retrieve relevant durable memories.
+3. Load the rolling summary for older events when summary storage exists.
+4. Retrieve relevant durable memories when memory search is enabled.
 5. Verify the model server is reachable.
 6. Build the model prompt with system policy, tools, memory, and recent context.
 7. Ask the model for one XML action.
@@ -22,6 +22,13 @@ Execute one user turn as a bounded multi-step loop.
 11. Execute the requested tool.
 12. Append the tool result as an observation when the tool is external.
 13. Repeat until the executed tool is `agent.finish` or a stop rule fires.
+
+## Implemented Core Tools
+
+- `agent.finish`: append `finish` and `assistant` events and stop with
+  `finish`.
+- `agent.think`: append a visible `plan` event and continue the loop.
+- Any other tool stops as `tool_error` until the read-only tool runner lands.
 
 ## Model Unreachable Guard
 

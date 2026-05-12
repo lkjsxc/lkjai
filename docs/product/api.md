@@ -69,8 +69,9 @@ the loaded artifact.
 - When omitted, the server returns all events for API clients.
 - When present, the response `events` array contains only matching event kinds.
 - Filtering never changes what is persisted to the run transcript.
-- Current foundation parity performs one model call. `max_steps` is validated
-  and recorded as the future loop bound; full tool-loop stepping is target work.
+- The implemented core loop executes `agent.finish` and `agent.think`.
+- `max_steps` bounds model/action attempts in one user turn.
+- Filesystem, memory, resource, shell, and website tools remain target work.
 
 ## `POST /api/chat` Response
 
@@ -83,12 +84,11 @@ the loaded artifact.
 }
 ```
 
-This is the implemented foundation response shape. `assistant` is populated
-only when the model endpoint returns OpenAI-compatible `choices` content.
-Current native dense and transformer artifacts return unsupported decode from
-`/v1/chat/completions`. Decoder artifacts are the product target, but current
-decoder choices are partial host-reference usability until accepted CUDA
-KV-cache decode evidence exists.
+`assistant` is populated only when the model emits an `agent.finish` action
+with user-facing content. Current native dense and transformer artifacts return
+unsupported decode from `/v1/chat/completions`. Decoder artifacts are the
+product target, but current decoder choices are partial host-reference
+usability until accepted CUDA KV-cache decode evidence exists.
 
 ## Decode Capability Matrix
 
@@ -201,7 +201,11 @@ visible brief rationales and must not contain hidden chain-of-thought detail.
 - If the model server is unreachable, `stop_reason` is `model_error`.
 - If the model server responds without assistant content, `stop_reason` is
   `invalid_model_response`.
+- If the assistant content is not one valid XML action, `stop_reason` is
+  `invalid_action`.
 - If no final assistant action is produced, `stop_reason` must indicate failure.
+- If the action tool is unavailable in the active profile, `stop_reason` is
+  `tool_error`.
 - If confirmation is required, `stop_reason` is `confirmation_required`.
 - `GET /api/model` reflects runtime model client configuration and reachability,
   not benchmarked quality.

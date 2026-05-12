@@ -58,4 +58,6 @@ context, and recurring first-party corpus sections.
 - Unit tests must assert every canonical XML-like tag encodes to one token.
 - Unit tests must assert model-facing prompts contain no `<message role=...>`
   attribute tags.
+- Runtime validation must fail when a trained tokenizer lacks the action tags
+  required by the XML-action parser.
 - Full acceptance uses the Compose verify profile.

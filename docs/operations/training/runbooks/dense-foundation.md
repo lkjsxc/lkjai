@@ -89,8 +89,9 @@ The dense benchmark tiers are intentionally separate:
 - `accepted_training`: real packed-cache proof from
   `data/train/datasets/train.jsonl` and
   `data/train/tokenizer/tokenizer.json`.
-- 40M: diagnostic and performance-only until a longer 40M run satisfies the
-  accepted-training evidence.
+- 40M bounded start checks: diagnostic and performance-only.
+- 40M browser-demo lane: accepted only through
+  [dense-40m-accepted.md](dense-40m-accepted.md) evidence.
 - Transformer train/decode: future work and not part of this dense target.
 
 The controlled dense bigram run remains useful for debugging. Build a small
@@ -143,7 +144,7 @@ BF16 reference tolerance `0.01`, passing inspect/logits checks, two matching
 dense infer checksums, positive throughput, and required dense timing/backend
 metadata.
 
-The 40M dense command remains diagnostic-only:
+The bounded 40M dense start-check command remains diagnostic-only:
 
 ```sh
 docker compose --profile train run --rm train \
@@ -153,9 +154,10 @@ docker compose --profile train run --rm train \
   --seq-len 1024 --max-steps 4
 ```
 
-The 40M command is a bounded diagnostic start check. Promotion summaries
-must reject `run_purpose=bounded_diagnostic_start_check`; it is never
-promotable as accepted training.
+This command is a bounded diagnostic start check. Promotion summaries must
+reject `run_purpose=bounded_diagnostic_start_check`; it is never promotable as
+accepted training by itself. Use the dense 40M accepted runbook for browser-demo
+promotion evidence.
 
 The reproducible two-hour dense BF16 run is native-only. Build/validate the
 cache first, run a short pilot to estimate step time, then run the target

@@ -15,19 +15,31 @@ State: canonical product chat surface contract.
 - The app is local-only by default.
 - There is no login in the current product.
 
+## Current And Target Matrix
+
+| Layer | Current accepted behavior | Target behavior |
+|---|---|---|
+| Dense artifact | Browser diagnostics, status, logits, top-k, checksum | Stay non-chat and support demo evidence |
+| Chat route | Bounded XML-action loop for `agent.finish` and `agent.think` | Read-only tools, memory, summaries, and confirmations |
+| Decoder route | Host-reference choices may exist but report unsupported CUDA decode | CUDA KV-cache decode with accepted metrics |
+| Tools | Core agent actions only in the first loop | Read-only filesystem and `kjxlkj` resource tools |
+
 ## Behavior
 
 - User prompts are sent to `POST /api/chat`.
-- The implemented foundation makes one model call per request.
-- The target agent loop may run several model/tool steps before answering.
+- The implemented foundation runs a bounded XML-action loop.
+- The first loop executes `agent.finish` and `agent.think`.
+- Unsupported tools stop as `tool_error` until their contracts land.
 - Non-tool prompts use the same HTTP path as later tool prompts.
 - Model-status strings are not valid assistant replies.
 - The model response must use validated XML actions.
 - Simple everyday chat should finish directly with `agent.finish`.
 - The runtime must not use canned conversational replies as the default.
 - Repeated identical non-terminal model actions stop as `repeat_action`.
-- Tool calls, outputs, visible `<reasoning>`, and memory writes are target
-  transcript event kinds until tool execution lands.
+- Visible `<reasoning>`, `plan`, `finish`, and `assistant` events are persisted
+  when produced by the implemented core agent tools.
+- Filesystem, resource, memory, confirmation, and shell tools remain target
+  work until their profile gates pass.
 - Every run is persisted as JSONL under `data/agent/runs/`.
 - The runtime must use a real model endpoint; policy-file dummy responses are not
   an accepted default.
