@@ -32,6 +32,7 @@ if [[ "${REQUIRE_ACCEPTED_CUDA:-0}" == "1" ]]; then
   grep -q '"accepted_cuda_training":true' "$REPORT"
   grep -q '"implementation_status":"accepted"' "$REPORT"
   grep -q '"decoder_cuda_slice":"full_decoder"' "$REPORT"
+  grep -q '"attention_backend":"cudnn_sdpa_bf16_gqa"' "$REPORT"
   grep -q '"decoder_backward_backend":"cuda_full_decoder"' "$REPORT"
   grep -q '"kv_cache_backend":"cuda_contiguous_bf16"' "$REPORT"
   grep -q '"decode_backend":"cuda_kv_cache"' "$REPORT"
