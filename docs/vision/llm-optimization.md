@@ -1,5 +1,8 @@
 # LLM Optimization Rules
 
+Owner: `docs/vision/llm-optimization.md`.
+State: authoring guidance.
+
 ## Formatting Rules
 
 - Use stable section names such as `Goal`, `Contract`, `Defaults`, and

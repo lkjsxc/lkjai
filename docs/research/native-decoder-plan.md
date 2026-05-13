@@ -1,5 +1,8 @@
 # Native Decoder Plan Canon
 
+Owner: `docs/research/native-decoder-plan.md`.
+State: canonical decoder research summary.
+
 ## Source
 
 This file distills decoder-relevant conclusions from ignored reports including

@@ -1,5 +1,8 @@
 # Device Tensor Contract
 
+Owner: `docs/architecture/native/cuda/device-tensor.md`.
+State: canonical device tensor contract.
+
 `DeviceTensor` is the canonical native storage substrate for CUDA-resident
 model tensors and temporary buffers.
 

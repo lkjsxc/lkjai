@@ -1,5 +1,8 @@
 # Preference Optimization
 
+Owner: `docs/architecture/training/evaluation/preference.md`.
+State: target preference optimization contract.
+
 ## Goal
 
 Improve the supervised scratch checkpoint with lightweight preference training

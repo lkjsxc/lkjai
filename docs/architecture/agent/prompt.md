@@ -1,5 +1,8 @@
 # Agent Prompt
 
+Owner: `docs/architecture/agent/prompt.md`.
+State: canonical prompt contract.
+
 ## Goal
 
 Keep the runtime prompt short, tracked, and aligned with the training action

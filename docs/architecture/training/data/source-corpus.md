@@ -1,5 +1,8 @@
 # Source Corpus
 
+Owner: `docs/architecture/training/data/source-corpus.md`.
+State: canonical source corpus contract.
+
 ## Goal
 
 Keep authored training content in LLM-readable JSON files instead of hiding it

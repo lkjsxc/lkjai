@@ -1,5 +1,8 @@
 # Native Failure Policy
 
+Owner: `docs/architecture/native/overview/failure-policy.md`.
+State: canonical failure policy.
+
 Native failures must be explicit and machine-readable.
 
 ## Unsupported Work

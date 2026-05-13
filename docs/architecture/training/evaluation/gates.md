@@ -1,5 +1,8 @@
 # Evaluation Gates
 
+Owner: `docs/architecture/training/evaluation/gates.md`.
+State: canonical evaluation gate contract.
+
 ## Goal
 
 Define the checks that decide whether a model is better in the real runtime.

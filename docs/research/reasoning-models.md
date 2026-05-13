@@ -1,5 +1,8 @@
 # Reasoning Models
 
+Owner: `docs/research/reasoning-models.md`.
+State: research guidance.
+
 ## Goal
 
 Summarize applicable lessons from recent reasoning-budget and RL work for our

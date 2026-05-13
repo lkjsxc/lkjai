@@ -1,5 +1,8 @@
 # Tokenizer Contract
 
+Owner: `docs/architecture/training/data/tokenizer.md`.
+State: canonical tokenizer contract.
+
 ## Goal
 
 Keep prompt boundaries and XML-like action structure easy for the small model to

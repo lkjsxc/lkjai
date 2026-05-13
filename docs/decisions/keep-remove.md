@@ -1,5 +1,8 @@
 # Keep And Remove
 
+Owner: `docs/decisions/keep-remove.md`.
+State: canonical scope decision list.
+
 ## Keep
 
 - Docs-first canon and topology validation.

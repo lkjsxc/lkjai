@@ -1,5 +1,8 @@
 # Dense Foundation Runtime Contract
 
+Owner: `docs/architecture/native/dense/runtime.md`.
+State: accepted dense runtime contract.
+
 ## Scope
 
 This contract applies only to the accepted native dense CUDA trainer. The

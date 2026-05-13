@@ -1,5 +1,8 @@
 # Rolling Summaries
 
+Owner: `docs/architecture/memory/summaries.md`.
+State: target architecture.
+
 ## Goal
 
 - Keep long conversations useful without sending full transcripts every turn.

@@ -1,5 +1,8 @@
 # Model References
 
+Owner: `docs/research/models.md`.
+State: research guidance.
+
 ## Policy
 
 - These models are not default runtime dependencies.

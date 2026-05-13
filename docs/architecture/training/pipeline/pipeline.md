@@ -1,5 +1,8 @@
 # Scratch Training Pipeline
 
+Owner: `docs/architecture/training/pipeline/pipeline.md`.
+State: canonical training pipeline contract.
+
 ## Goal
 
 Train and export the current decoder 40M target while preserving the dense BF16

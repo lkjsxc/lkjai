@@ -1,5 +1,8 @@
 # CUDA Contract
 
+Owner: `docs/architecture/training/pipeline/cuda.md`.
+State: canonical training CUDA contract.
+
 ## Required Behavior
 
 - Training uses CUDA when the native trainer detects a usable device.

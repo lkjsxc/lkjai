@@ -1,5 +1,8 @@
 # Lightweighting Contract
 
+Owner: `docs/architecture/model/lightweighting.md`.
+State: canonical lightweighting contract.
+
 ## Required
 
 - Keep the default scratch preset small enough for RTX 3070 8GB.

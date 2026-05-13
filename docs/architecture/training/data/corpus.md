@@ -1,5 +1,8 @@
 # Training Corpus
 
+Owner: `docs/architecture/training/data/corpus.md`.
+State: canonical corpus contract.
+
 ## Goal
 
 Define the canonical license-conservative training pack for scratch language

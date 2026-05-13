@@ -1,5 +1,8 @@
 # CUDA Stack
 
+Owner: `docs/architecture/native/cuda/cuda-stack.md`.
+State: canonical CUDA stack contract.
+
 ## Baseline
 
 The initial native stack is deliberately narrow:

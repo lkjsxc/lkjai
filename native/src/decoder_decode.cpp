@@ -69,6 +69,34 @@ bool accepted_state_shape(const TransformerConfig& cfg) {
 
 }  // namespace
 
+DecoderRouteCapability decoder_route_capability(
+    const std::filesystem::path& model_dir, std::string_view artifact_kind) {
+  DecoderRouteCapability capability;
+  capability.decoder_artifact = artifact_kind == "decoder";
+  if (!capability.decoder_artifact) return capability;
+
+  capability.decode_supported = true;
+  capability.decode_backend = kDecoderRuntimePartialDecodeBackend;
+  capability.kv_cache_backend = kDecoderRuntimePartialKvCacheBackend;
+  capability.attention_backend = kDecoderReferenceAttentionBackend;
+  capability.acceptance_sidecar_present =
+      std::filesystem::is_regular_file(model_dir / "decoder_acceptance.json");
+  std::string error;
+  capability.train_report_accepted =
+      transformer_emitted_decoder_route_report_accepted(
+          model_dir / "decoder_train_report.json", &error);
+  capability.decode_accepted = accepted_decode_artifact(model_dir);
+  if (capability.decode_accepted) {
+    capability.decode_backend = kDecoderAcceptedDecodeBackend;
+    capability.kv_cache_backend = kDecoderAcceptedKvCacheBackend;
+    capability.attention_backend = kDecoderAcceptedAttentionBackend;
+    return capability;
+  }
+  capability.degraded_reason =
+      error.empty() ? "accepted decoder route evidence missing" : error;
+  return capability;
+}
+
 bool decoder_chat_json(const std::filesystem::path& model_dir,
                        const std::string& model_name,
                        const std::string& request_body,

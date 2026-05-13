@@ -1,5 +1,8 @@
 # Prompt Format Research
 
+Owner: `docs/research/prompt-format.md`.
+State: research guidance.
+
 ## Policy
 
 - Use paired XML-like tags for prompt structure and assistant actions.

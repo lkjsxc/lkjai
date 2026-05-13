@@ -1,5 +1,8 @@
 # Small Model Training Notes
 
+Owner: `docs/research/small-model-training.md`.
+State: research guidance.
+
 ## Policy
 
 - Use recent small-model work as process guidance, not as pretrained weights.

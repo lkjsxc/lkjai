@@ -1,5 +1,8 @@
 # Native Capability JSON
 
+Owner: `docs/architecture/native/overview/capability.md`.
+State: canonical capability field contract.
+
 Native capability reporting is one reusable API consumed by dense checks,
 server health/model responses, training reports, and benchmark records.
 

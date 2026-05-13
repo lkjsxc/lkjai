@@ -1,5 +1,8 @@
 # Scratch Model Defaults
 
+Owner: `docs/architecture/model/config.md`.
+State: canonical model defaults.
+
 ## Goal
 
 Keep one coherent contract for training, export, and serving on a local RTX

@@ -1,5 +1,8 @@
 # Reinforcement Learning Research
 
+Owner: `docs/research/reinforcement-learning.md`.
+State: research guidance.
+
 ## Current Policy
 
 - Use DPO-style preference optimization before rollout-based RL.

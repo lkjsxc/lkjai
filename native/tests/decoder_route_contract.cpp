@@ -73,6 +73,10 @@ bool decoder_route_contract() {
       "\"content\":\"hi\"}],\"max_tokens\":1,\"temperature\":0}";
   auto resp = lkjai::native_server_route(
       {"POST", "/v1/chat/completions", body}, artifact, cuda, runtime);
+  auto health = lkjai::native_server_route({"GET", "/healthz", ""}, artifact,
+                                           cuda, runtime);
+  auto models = lkjai::native_server_route({"GET", "/v1/models", ""}, artifact,
+                                           cuda, runtime);
   bool ok = expect(resp.status == 200, "decoder route status") &&
             expect(has(resp.body, "\"choices\""), "decoder choices present") &&
             expect(!has(resp.body, "\"lkjai_decode_backend\":\"cuda_kv_cache\""),
@@ -92,7 +96,32 @@ bool decoder_route_contract() {
             expect(has(resp.body, "\"lkjai_decode_cuda_kv_cache_used\":true"),
                    "cuda kv-cache executed") &&
             expect(has(resp.body, "\"lkjai_decode_workspace_bytes\":"),
-                   "workspace metadata");
+                   "workspace metadata") &&
+            expect(health.status == 200, "decoder health status") &&
+            expect(has(health.body, "\"decoder_artifact_loadable\":true"),
+                   "decoder artifact loadable") &&
+            expect(has(health.body,
+                       "\"decoder_partial_decode_supported\":true"),
+                   "decoder partial decode support") &&
+            expect(has(health.body,
+                       "\"decoder_accepted_decode_supported\":false"),
+                   "decoder accepted decode not promoted") &&
+            expect(has(health.body,
+                       "\"decode_backend\":\"cuda_reference_kv_cache\""),
+                   "health partial decode backend") &&
+            expect(has(health.body,
+                       "\"kv_cache_backend\":\"cuda_contiguous_bf16_partial\""),
+                   "health partial kv backend") &&
+            expect(models.status == 200, "decoder models status") &&
+            expect(has(models.body,
+                       "\"decoder_partial_decode_supported\":true"),
+                   "models partial decode support") &&
+            expect(has(models.body,
+                       "\"decoder_accepted_decode_supported\":false"),
+                   "models accepted decode not promoted") &&
+            expect(!has(models.body,
+                        "\"decode_backend\":\"cuda_kv_cache\""),
+                   "models does not claim accepted decode");
   std::ofstream(model_dir / "decoder_acceptance.json")
       << "{\"decode_supported\":true,\"decode_backend\":\"cuda_kv_cache\","
          "\"kv_cache_backend\":\"cuda_contiguous_bf16\"}\n";

@@ -1,5 +1,8 @@
 # Decoder Artifact
 
+Owner: `docs/architecture/native/decoder/artifact.md`.
+State: canonical decoder artifact contract.
+
 ## Format
 
 Decoder exports use `lkjai-native-artifact` with `manifest.json.kind` set to

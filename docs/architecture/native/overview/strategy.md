@@ -1,5 +1,8 @@
 # Native Rewrite Strategy
 
+Owner: `docs/architecture/native/overview/strategy.md`.
+State: canonical native strategy.
+
 ## Target State
 
 - Product training and serving run through native C++/CUDA binaries.

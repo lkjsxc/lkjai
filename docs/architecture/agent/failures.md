@@ -1,5 +1,8 @@
 # Agent Failure Handling
 
+Owner: `docs/architecture/agent/failures.md`.
+State: canonical failure behavior.
+
 ## Invalid Model Output
 
 - Invalid XML action output gets one repair attempt by default.

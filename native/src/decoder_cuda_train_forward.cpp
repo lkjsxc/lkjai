@@ -173,6 +173,7 @@ double DecoderCudaState::forward_backward(
   phase = std::chrono::steady_clock::now();
   transformer_backward(batch, host_fwd, &state_);
   scale_and_accumulate_grads(before_backward, grad_scale, reset_grads);
+  sync_registry_grads_from_host();
   if (backward_seconds) *backward_seconds += since(phase);
   return cuda_loss;
 }

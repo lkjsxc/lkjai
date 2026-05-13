@@ -1,5 +1,8 @@
 # Decision Log
 
+Owner: `docs/decisions/decision-log.md`.
+State: canonical decision index.
+
 ## Accepted Defaults
 
 - Runtime orchestrator: native C++ HTTP service.

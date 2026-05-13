@@ -95,6 +95,7 @@ class DecoderCudaState {
   void build_registry();
   void copy_registry_to_host();
   void sync_registry_from_host();
+  void sync_registry_grads_from_host();
   void refresh_layer_forwards();
   void ensure_tape_capacity(int rows, int vocab, int hidden, int layers);
   void scale_and_accumulate_grads(const TransformerState& previous,

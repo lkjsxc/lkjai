@@ -19,7 +19,13 @@ std::string health_json(const ArtifactStatus& artifact,
                   ? json_first_string(read_text(artifact.model_dir / "manifest.json"),
                                       "kind")
                   : artifact.kind;
+  auto decoder = decoder_route_capability(artifact.model_dir, kind);
   bool degraded = !artifact.loaded || !cuda.available;
+  auto degraded_reason =
+      !artifact.loaded
+          ? artifact.error
+          : (!cuda.available ? "cuda unavailable" : decoder.degraded_reason);
+  if (!decoder.degraded_reason.empty()) degraded = true;
   std::ostringstream out;
   out << "{\"status\":\"ok\",\"loaded\":"
       << (artifact.loaded ? "true" : "false") << ",\"artifact_error\":\""
@@ -27,10 +33,22 @@ std::string health_json(const ArtifactStatus& artifact,
       << json_escape(kind) << "\",\"chat_supported\":"
       << (kind == "decoder" ? "true" : "false")
       << ",\"decode_supported\":" << (kind == "decoder" ? "true" : "false")
+      << ",\"decoder_artifact_loadable\":"
+      << (artifact.loaded && decoder.decoder_artifact ? "true" : "false")
+      << ",\"decoder_partial_decode_supported\":"
+      << (decoder.decode_supported ? "true" : "false")
+      << ",\"decoder_accepted_decode_supported\":"
+      << (decoder.decode_accepted ? "true" : "false")
+      << ",\"decoder_train_report_accepted\":"
+      << (decoder.train_report_accepted ? "true" : "false")
+      << ",\"decoder_acceptance_sidecar_present\":"
+      << (decoder.acceptance_sidecar_present ? "true" : "false")
+      << ",\"decode_backend\":\"" << json_escape(decoder.decode_backend)
+      << "\",\"kv_cache_backend\":\"" << json_escape(decoder.kv_cache_backend)
+      << "\",\"attention_backend\":\"" << json_escape(decoder.attention_backend)
       << ",\"degraded\":" << (degraded ? "true" : "false")
       << ",\"degraded_reason\":\""
-      << json_escape(!artifact.loaded ? artifact.error
-                                      : (cuda.available ? "" : "cuda unavailable"))
+      << json_escape(degraded_reason)
       << "\"," << capability_json_fields(cuda)
       << "}";
   return out.str();
@@ -42,19 +60,41 @@ std::string models_json(const ArtifactStatus& artifact,
                   ? json_first_string(read_text(artifact.model_dir / "manifest.json"),
                                       "kind")
                   : artifact.kind;
+  auto decoder = decoder_route_capability(artifact.model_dir, kind);
   bool chat = kind == "decoder";
-  bool degraded = !cuda.available;
+  bool degraded = !cuda.available || !decoder.degraded_reason.empty();
+  auto degraded_reason =
+      !cuda.available ? "cuda unavailable" : decoder.degraded_reason;
   std::ostringstream out;
   out << "{\"data\":[{\"id\":\"" << json_escape(artifact.model_name)
       << "\",\"object\":\"model\",\"artifact_kind\":\"" << json_escape(kind)
       << "\",\"chat_supported\":" << (chat ? "true" : "false")
       << ",\"decode_supported\":" << (chat ? "true" : "false")
+      << ",\"decoder_partial_decode_supported\":"
+      << (decoder.decode_supported ? "true" : "false")
+      << ",\"decoder_accepted_decode_supported\":"
+      << (decoder.decode_accepted ? "true" : "false")
+      << ",\"decode_backend\":\"" << json_escape(decoder.decode_backend)
+      << "\",\"kv_cache_backend\":\"" << json_escape(decoder.kv_cache_backend)
       << "}],\"artifact_kind\":\"" << json_escape(kind)
       << "\",\"chat_supported\":" << (chat ? "true" : "false")
       << ",\"decode_supported\":" << (chat ? "true" : "false")
+      << ",\"decoder_artifact_loadable\":"
+      << (artifact.loaded && decoder.decoder_artifact ? "true" : "false")
+      << ",\"decoder_partial_decode_supported\":"
+      << (decoder.decode_supported ? "true" : "false")
+      << ",\"decoder_accepted_decode_supported\":"
+      << (decoder.decode_accepted ? "true" : "false")
+      << ",\"decoder_train_report_accepted\":"
+      << (decoder.train_report_accepted ? "true" : "false")
+      << ",\"decoder_acceptance_sidecar_present\":"
+      << (decoder.acceptance_sidecar_present ? "true" : "false")
+      << ",\"decode_backend\":\"" << json_escape(decoder.decode_backend)
+      << "\",\"kv_cache_backend\":\"" << json_escape(decoder.kv_cache_backend)
+      << "\",\"attention_backend\":\"" << json_escape(decoder.attention_backend)
       << ",\"degraded\":" << (degraded ? "true" : "false")
       << ",\"degraded_reason\":\""
-      << json_escape(cuda.available ? "" : "cuda unavailable") << "\","
+      << json_escape(degraded_reason) << "\","
       << capability_json_fields(cuda) << "}";
   return out.str();
 }

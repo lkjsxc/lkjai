@@ -1,5 +1,8 @@
 # Tool Workspace
 
+Owner: `docs/architecture/runtime/workspace.md`.
+State: canonical workspace boundary.
+
 ## Goal
 
 Keep agent-controlled filesystem and command execution inside the mounted data

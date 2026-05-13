@@ -1,5 +1,8 @@
 # Runtime Storage
 
+Owner: `docs/architecture/runtime/storage.md`.
+State: canonical runtime storage contract.
+
 ## Root
 
 - `DATA_DIR` defaults to `/app/data` in containers.

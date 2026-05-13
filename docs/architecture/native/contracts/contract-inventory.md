@@ -104,7 +104,7 @@ Each contract record uses these fields:
 - owner: `docs/architecture/native/decoder/training.md`.
 - canonical_source: `configs/native/decoder_40m_bf16_3070.json` with
   `configs/training/decoder_2h_40m_3070.json`.
-- state: `active`.
+- state: `future`.
 - supersedes: none.
 - acceptance: governed by
   [decoder/training.md](../decoder/training.md), including full-decoder CUDA
@@ -120,7 +120,7 @@ Each contract record uses these fields:
 - owner: `docs/architecture/native/decoder/decode.md`.
 - canonical_source: autoregressive decoder chat through `/v1/chat/completions` and
   `/api/chat`.
-- state: `active`.
+- state: `partial`.
 - supersedes: none.
 - acceptance: governed by [decoder/training.md](../decoder/training.md) and
   [decoder/decode.md](../decoder/decode.md); accepted decode requires native

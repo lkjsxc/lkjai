@@ -1,5 +1,8 @@
 # Dense CUDA Substrate
 
+Owner: `docs/architecture/native/dense/substrate.md`.
+State: accepted dense CUDA substrate.
+
 ## Purpose
 
 This is the accepted dense BF16 CUDA optimization surface. It is the shared

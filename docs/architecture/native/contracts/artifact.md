@@ -1,5 +1,8 @@
 # Native Artifact Format
 
+Owner: `docs/architecture/native/contracts/artifact.md`.
+State: canonical artifact contract.
+
 ## Format
 
 The product artifact format is `lkjai-native-artifact`.

@@ -1,5 +1,8 @@
 # Dense BF16 Native Contract
 
+Owner: `docs/architecture/native/dense/decoder.md`.
+State: accepted dense CUDA foundation.
+
 ## Goal
 
 Keep the current dense CUDA target honest while preserving the target

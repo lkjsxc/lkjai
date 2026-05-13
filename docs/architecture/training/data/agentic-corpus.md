@@ -1,5 +1,8 @@
 # Agentic Corpus
 
+Owner: `docs/architecture/training/data/agentic-corpus.md`.
+State: canonical agentic corpus contract.
+
 ## Goal
 
 Define multi-turn agentic training rows that teach observable planning,

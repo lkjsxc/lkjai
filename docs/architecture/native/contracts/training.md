@@ -1,5 +1,8 @@
 # Native Training
 
+Owner: `docs/architecture/native/contracts/training.md`.
+State: canonical native training contract.
+
 ## Goal
 
 Train native BF16 CUDA models without Python or PyTorch in the product path.
@@ -182,10 +185,11 @@ LM-head-only updates cannot satisfy decoder block-training acceptance.
 The current experimental decoder slice reports
 `decoder_cuda_slice=cuda_full_forward_host_backward`,
 `forward_backend=cuda_full_decoder`, `backward_backend=host_reference`,
+`optimizer_backend=cuda_adamw_fp32_registry`,
 `decoder_backward_backend=host_reference`, and
 `attention_backend=cuda_causal_gqa_bf16_reference`. It computes full decoder
-forward logits and CE loss on CUDA, but backward and optimizer updates are
-host-reference, so it must keep `accepted_cuda_training=false`.
+forward logits and CE loss on CUDA, but backward gradients are host-reference,
+so it must keep `accepted_cuda_training=false`.
 
 Transformer reports declare `accepted_cuda_training=false`,
 `implementation_status=experimental`, `transformer_status=experimental`,

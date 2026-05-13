@@ -1,5 +1,8 @@
 # Native Implementation Backlog
 
+Owner: `docs/architecture/native/overview/implementation-backlog.md`.
+State: implementation backlog.
+
 ## Goal
 
 Grow the current dense BF16 CUDA foundation into a device-resident decoder

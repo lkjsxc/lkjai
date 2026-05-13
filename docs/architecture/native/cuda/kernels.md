@@ -1,13 +1,16 @@
 # Kernel Policy
 
+Owner: `docs/architecture/native/cuda/kernels.md`.
+State: canonical kernel policy.
+
 ## Library First
 
 - GEMM and linear layers use cuBLASLt unless profiling proves a better local
   path.
-- The first accepted attention path may be the custom causal GQA BF16 reference
-  kernel when parity passes.
-- cuDNN frontend SDPA remains the preferred performance target when headers,
+- The first accepted attention path is cuDNN SDPA BF16 GQA when headers,
   runtime, dtype, and model shape are eligible.
+- The custom causal GQA BF16 reference kernel remains diagnostic fallback and
+  oracle evidence, not an accepted attention backend.
 - CUTLASS is allowed for custom epilogues and exact-shape experiments after
   cuBLASLt or cuDNN measurements justify it.
 - NCCL is not part of the first single-GPU acceptance gate.

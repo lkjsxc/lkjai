@@ -20,7 +20,7 @@ void decoder_fill_full_cuda_report(DenseCudaState& cuda,
   r->decoder_block_backend = "cuda_full_decoder_forward";
   r->forward_backend = "cuda_full_decoder";
   r->backward_backend = "host_reference";
-  r->optimizer_backend = "host_adamw_fp32";
+  r->optimizer_backend = "cuda_adamw_fp32_registry";
   r->rmsnorm_backend = "cuda_bf16_fp32_reduce";
   r->rope_backend = "cuda_bf16";
   r->qkv_projection_backend = "cuda_bf16_cublaslt";

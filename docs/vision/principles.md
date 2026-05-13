@@ -1,5 +1,8 @@
 # Principles
 
+Owner: `docs/vision/principles.md`.
+State: canonical project principles.
+
 ## Build Principles
 
 - Documentation defines behavior before implementation.

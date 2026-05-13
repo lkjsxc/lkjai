@@ -1,5 +1,8 @@
 # Scaling Laws
 
+Owner: `docs/research/scaling-laws.md`.
+State: research guidance.
+
 ## Goal
 
 Track the practical gap between our from-scratch training budget and

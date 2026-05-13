@@ -1,5 +1,8 @@
 # Decoder Benchmark
 
+Owner: `docs/architecture/native/decoder/benchmark.md`.
+State: acceptance evidence contract.
+
 ## Smoke Gate
 
 The decoder smoke gate must run through Docker Compose and prove:

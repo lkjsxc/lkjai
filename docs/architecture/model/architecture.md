@@ -1,5 +1,8 @@
 # Scratch Decoder Architecture
 
+Owner: `docs/architecture/model/architecture.md`.
+State: canonical model architecture target.
+
 ## Accepted Traits
 
 - The current implemented model is a dense token embedding plus LM head.

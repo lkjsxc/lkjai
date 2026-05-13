@@ -1,5 +1,8 @@
 # Decoder Attention
 
+Owner: `docs/architecture/native/decoder/attention.md`.
+State: acceptance target.
+
 ## Acceptance Target
 
 Accepted decoder attention is cuDNN SDPA BF16 causal grouped-query attention

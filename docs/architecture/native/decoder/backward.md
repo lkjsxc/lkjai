@@ -1,5 +1,8 @@
 # Decoder Backward
 
+Owner: `docs/architecture/native/decoder/backward.md`.
+State: acceptance target.
+
 ## Acceptance Target
 
 Accepted decoder training updates every trainable block tensor, not only token

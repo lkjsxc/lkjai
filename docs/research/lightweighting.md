@@ -1,5 +1,8 @@
 # Lightweighting References
 
+Owner: `docs/research/lightweighting.md`.
+State: research guidance.
+
 ## GGUF
 
 - GGUF export is optional optional export work.

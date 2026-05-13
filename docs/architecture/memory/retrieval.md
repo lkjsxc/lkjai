@@ -1,5 +1,8 @@
 # Memory Retrieval
 
+Owner: `docs/architecture/memory/retrieval.md`.
+State: target architecture.
+
 ## Goal
 
 - Retrieve compact relevant context before each model action.

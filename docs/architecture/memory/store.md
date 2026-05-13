@@ -1,5 +1,8 @@
 # Memory Store
 
+Owner: `docs/architecture/memory/store.md`.
+State: target architecture.
+
 ## Files
 
 - Run transcripts stay as JSONL under `data/agent/runs/`.

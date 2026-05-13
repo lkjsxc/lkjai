@@ -1,5 +1,8 @@
 # Web Runtime
 
+Owner: `docs/architecture/runtime/web.md`.
+State: canonical web runtime contract.
+
 ## Stack
 
 - Static files under `web/`.

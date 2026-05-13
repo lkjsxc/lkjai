@@ -1,5 +1,8 @@
 # Decoder CUDA Progress
 
+Owner: `docs/architecture/native/decoder/cuda-progress.md`.
+State: historical progress record.
+
 ## Evidence Trail
 
 Decoder foundation landed in these commits:
@@ -35,8 +38,10 @@ First CUDA progress after foundation:
   `decoder_debug_bf16`.
 - Current training hook: decoder training uses the full CUDA forward stack and
   CUDA CE/loss-gradient helper for loss and captured logits, while backward and
-  AdamW remain host-reference. Reports name the slice
-  `cuda_full_forward_host_backward` and remain non-accepted.
+  gradient source remain host-reference. Registry-wide CUDA AdamW updates
+  device FP32 masters, moments, and BF16 shadows for every decoder tensor.
+  Reports name the slice `cuda_full_forward_host_backward` and remain
+  non-accepted.
 - Current backward substrate hook: residual-add backward and SwiGLU backward
   kernels have direct parity tests, but they are not wired into training
   reports or optimizer evidence.
@@ -93,10 +98,9 @@ Accepted disclosure requires the sidecar and executed CUDA KV-cache path to
 agree.
 
 Before tracked acceptance, the repo still needs full decoder CUDA backward,
-device AdamW coverage for every trainable tensor, a real two-hour RTX
-acceptance run with full decoder weight deltas, logits/export checks, route
-transcript, positive prefill allocation, and zero steady-state token
-allocations.
+accepted cuDNN SDPA attention, a real two-hour RTX acceptance run with full
+decoder weight deltas, logits/export checks, route transcript, positive prefill
+allocation, and zero steady-state token allocations.
 
 ## Hardware Implications
 

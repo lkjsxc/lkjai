@@ -1,5 +1,8 @@
 # Training Corpus Research
 
+Owner: `docs/research/corpus.md`.
+State: research guidance.
+
 ## Finding
 
 `lkjai` needs two data types, not one generic English dump:

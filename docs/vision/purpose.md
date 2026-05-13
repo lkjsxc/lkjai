@@ -1,5 +1,8 @@
 # Purpose
 
+Owner: `docs/vision/purpose.md`.
+State: canonical product purpose.
+
 ## Goal
 
 - Build a small local agentic AI system for RTX 3070 8GB.

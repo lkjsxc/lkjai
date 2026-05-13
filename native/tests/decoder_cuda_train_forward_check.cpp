@@ -79,6 +79,24 @@ int main() {
     return 1;
   }
 
+  auto expected = cuda_state.copy_to_host();
+  lkjai::transformer_adamw(&expected, 1.0e-3f, 1);
+  cuda_state.optimizer_step(1.0e-3f, 1);
+  auto updated = cuda_state.copy_to_host();
+  double optimizer_diff =
+      std::max(max_abs_diff(expected.tok_embeddings.w,
+                            updated.tok_embeddings.w),
+               max_abs_diff(expected.layers[0].q_proj.w,
+                            updated.layers[0].q_proj.w));
+  optimizer_diff =
+      std::max(optimizer_diff, max_abs_diff(expected.final_norm.w,
+                                           updated.final_norm.w));
+  if (optimizer_diff > 1.0e-5) {
+    std::cerr << "decoder registry CUDA AdamW parity failed diff="
+              << optimizer_diff << "\n";
+    return 1;
+  }
+
   auto zero = batch;
   zero.loss_mask = {0, 0, 0, 0};
   logits.clear();
@@ -98,6 +116,7 @@ int main() {
   std::cout << "{\"status\":\"pass\",\"decoder_cuda_train_forward\":true"
             << ",\"loss_diff\":" << loss_diff
             << ",\"logits_max_abs\":" << logits_max
-            << ",\"logits_mean_abs\":" << logits_mean << "}\n";
+            << ",\"logits_mean_abs\":" << logits_mean
+            << ",\"registry_adamw_max_abs\":" << optimizer_diff << "}\n";
   return 0;
 }

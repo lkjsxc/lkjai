@@ -1,5 +1,8 @@
 # Transformer CUDA Plan
 
+Owner: `docs/architecture/native/cuda/transformer-cuda-plan.md`.
+State: experimental transformer CUDA plan.
+
 ## Current State
 
 The accepted native CUDA trainer is dense BF16 only: token embedding plus
@@ -14,6 +17,10 @@ It is not accepted CUDA training. Reports must keep
 `backward_backend=host_surrogate`, and
 `optimizer_backend=host_adamw_fp32` until real device-resident kernels replace
 that path.
+
+Decoder mode is separate from this transformer diagnostic lane. Its current
+experimental slice can use registry-wide CUDA AdamW while still remaining
+non-accepted because backward gradients are host-reference.
 
 ## Required Acceptance Order
 

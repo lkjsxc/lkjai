@@ -1,5 +1,8 @@
 # Rejected Alternatives
 
+Owner: `docs/decisions/rejected-alternatives.md`.
+State: canonical rejected decision list.
+
 ## Pretrained Default Runtime
 
 - Rejected.
