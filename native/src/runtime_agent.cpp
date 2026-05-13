@@ -3,6 +3,7 @@
 #include "json_min.hpp"
 #include "runtime_action.hpp"
 #include "runtime_events.hpp"
+#include "runtime_tools.hpp"
 
 namespace lkjai {
 namespace {
@@ -20,8 +21,10 @@ int max_steps(std::string_view body, std::string* error) {
 
 std::string system_prompt(const RuntimeConfig& cfg) {
   return "Return exactly one XML action. Available tools: agent.finish, "
-         "agent.think. Use <tool>agent.finish</tool> for ordinary replies. "
+         "agent.think, fs.list, fs.read. Use <tool>agent.finish</tool> for ordinary replies. "
          "Use <tool>agent.think</tool> only for a short visible plan. "
+         "Use <tool>fs.list</tool><path>.</path> or "
+         "<tool>fs.read</tool><path>README.md</path> for read-only files. "
          "Tool profile: " +
          cfg.tool_profile + ".";
 }
@@ -121,8 +124,15 @@ HttpResponse runtime_chat_with_model_callback(const RuntimeConfig& cfg,
     }
     runtime_append_event(cfg, run_id, "tool_call", action.raw, step,
                          action.tool);
-    return stop_error(cfg, run_id, visible, "tool_error",
-                      "unsupported tool: " + action.tool);
+    auto tool = runtime_run_tool(cfg, action);
+    if (!tool.supported) {
+      return stop_error(cfg, run_id, visible, "tool_error",
+                        "unsupported tool: " + action.tool);
+    }
+    runtime_append_event(cfg, run_id, "tool_result", tool.json, step,
+                         action.tool);
+    runtime_append_event(cfg, run_id, "observation", tool.json, step,
+                         action.tool);
   }
   return stop_error(cfg, run_id, visible, "max_steps",
                     "agent loop reached max_steps");

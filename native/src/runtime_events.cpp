@@ -131,9 +131,13 @@ std::string runtime_chat_messages_json(const RuntimeConfig& cfg,
   std::string line;
   while (std::getline(file, line)) {
     auto kind = json_first_string(line, "kind");
-    if (kind != "user" && kind != "assistant") continue;
+    if (kind != "user" && kind != "assistant" && kind != "observation") {
+      continue;
+    }
     auto content = json_first_string(line, "content");
-    rows.push_back("{\"role\":\"" + kind + "\",\"content\":\"" +
+    if (kind == "observation") content = "Observation: " + content;
+    std::string role = kind == "assistant" ? "assistant" : "user";
+    rows.push_back("{\"role\":\"" + role + "\",\"content\":\"" +
                    json_escape(content) + "\"}");
   }
   if (limit < 1) limit = 1;

@@ -102,10 +102,17 @@ bool missing_model_contract() {
   lkjai::CudaStatus cuda;
   auto models = lkjai::native_server_route({"GET", "/v1/models", ""},
                                            missing, cuda, cfg);
+  auto chat = lkjai::native_server_route(
+      {"POST", "/v1/chat/completions",
+       "{\"model\":\"missing\",\"messages\":[{\"role\":\"user\","
+       "\"content\":\"hello\"}]}"},
+      missing, cuda, cfg);
   auto health = lkjai::native_server_route({"GET", "/healthz", ""},
                                            missing, cuda, cfg);
   return expect(models.status == 503, "missing models status") &&
          expect(has(models.body, "missing artifact"), "missing error body") &&
+         expect(chat.status == 503, "missing chat status") &&
+         expect(!has(chat.body, "\"choices\""), "missing chat choices absent") &&
          expect(health.status == 200, "health still ok") &&
          expect(has(health.body, "\"loaded\":false"), "health loaded false");
 }

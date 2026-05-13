@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -22,8 +23,11 @@ bool expect(bool ok, const std::string& message) {
 lkjai::RuntimeConfig cfg(const std::string& name) {
   auto root = std::filesystem::path("/tmp") / name;
   std::filesystem::remove_all(root);
-  return {"127.0.0.1", 8080, root.string(),
-          "local-native-engine", "agent-model"};
+  std::filesystem::create_directories(root / "workspace");
+  lkjai::RuntimeConfig c{"127.0.0.1", 8080, root.string(),
+                         "local-native-engine", "agent-model"};
+  c.workspace_dir = (root / "workspace").string();
+  return c;
 }
 
 lkjai::NativeHttpResponse ok(const std::string& content) {
@@ -83,7 +87,7 @@ bool error_contracts() {
                      "{\"message\":\"hello\",\"run_id\":\"r4\"}");
   auto unsupported =
       run(cfg("lkjai-agent-tool"),
-          {ok("<action><tool>fs.read</tool><path>README.md</path></action>")},
+          {ok("<action><tool>memory.search</tool><query>x</query></action>")},
           "{\"message\":\"hello\",\"run_id\":\"r5\"}");
   return expect(has(invalid.body, "\"stop_reason\":\"invalid_action\""),
                 "invalid action") &&
@@ -91,11 +95,53 @@ bool error_contracts() {
                 "tool error");
 }
 
+bool filesystem_tool_contract() {
+  auto c = cfg("lkjai-agent-fs");
+  std::ofstream(std::filesystem::path(c.workspace_dir) / "note.txt") << "alpha";
+  auto resp = run(
+      c,
+      {ok("<action><tool>fs.list</tool><path>.</path></action>"),
+       ok("<action><tool>fs.read</tool><path>note.txt</path></action>"),
+       ok("<action><tool>agent.finish</tool><content>done</content></action>")},
+      "{\"message\":\"hello\",\"run_id\":\"r6\",\"max_steps\":3}");
+  auto escape = run(
+      c, {ok("<action><tool>fs.read</tool><path>../secret</path></action>"),
+          ok("<action><tool>agent.finish</tool><content>blocked</content></action>")},
+      "{\"message\":\"hello\",\"run_id\":\"r7\",\"max_steps\":2}");
+  return expect(has(resp.body, "\"stop_reason\":\"finish\""), "fs finish") &&
+         expect(has(resp.body, "\"kind\":\"tool_call\""), "tool call event") &&
+         expect(has(resp.body, "\"kind\":\"tool_result\""), "tool result event") &&
+         expect(has(resp.body, "\"kind\":\"observation\""), "observation event") &&
+         expect(has(resp.body, "\\\"entries\\\":[\\\"note.txt\\\"]"),
+                "list entries") &&
+         expect(has(resp.body, "\\\"content\\\":\\\"alpha\\\""),
+                "read content") &&
+         expect(has(escape.body, "\\\"status\\\":\\\"error\\\""),
+                "escape error result") &&
+         expect(has(escape.body, "path escapes workspace"),
+                "escape rejected");
+}
+
+bool tool_profile_contract() {
+  auto c = cfg("lkjai-agent-disabled-fs");
+  c.tool_profile = "disabled";
+  std::ofstream(std::filesystem::path(c.workspace_dir) / "note.txt") << "alpha";
+  auto resp = run(
+      c, {ok("<action><tool>fs.read</tool><path>note.txt</path></action>"),
+          ok("<action><tool>agent.finish</tool><content>blocked</content></action>")},
+      "{\"message\":\"hello\",\"run_id\":\"r8\",\"max_steps\":2}");
+  return expect(has(resp.body, "\\\"status\\\":\\\"error\\\""),
+                "disabled profile error result") &&
+         expect(has(resp.body, "tool profile is disabled"),
+                "disabled profile rejected before dispatch");
+}
+
 }  // namespace
 
 int main() {
   return finish_contract() && think_then_finish_contract() && repeat_contract() &&
-                 error_contracts()
+                 error_contracts() && filesystem_tool_contract() &&
+                 tool_profile_contract()
              ? 0
              : 1;
 }
