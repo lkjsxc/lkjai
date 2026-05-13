@@ -74,7 +74,7 @@ Public-import rows remain conservative and opt-in:
 
 ```bash
 docker compose --profile train up --build train
-lkjai-native-inspect --model-dir data/models/dense-40m-3070
+lkjai-native-inspect --model-dir data/models/decoder-40m-3070
 ```
 
 Expected: generated row metadata uses only allowed provenance and XML actions.

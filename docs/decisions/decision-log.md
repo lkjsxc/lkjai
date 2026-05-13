@@ -9,7 +9,7 @@
 - Sandbox runtime: native C++ service owns `/healthz` and `/api/*` and calls
   inference over Compose DNS.
 - Serving model family: local scratch decoder-only transformer.
-- Training scale: `dense-40m-3070` by default for the current corpus;
+- Training scale: `decoder-40m-3070` by default for the current corpus;
   `scratch-60m` remains a later target.
 - Training method: local native C++/CUDA from random initialization.
 - Tokenizer: local byte-level BPE with canonical XML-like tags added as single

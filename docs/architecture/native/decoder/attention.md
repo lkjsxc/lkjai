@@ -9,7 +9,8 @@ configured `heads`, `kv_heads`, and `head_dim`.
 
 - Q and K use RoPE before score computation.
 - The mask is strictly causal.
-- GQA maps each query head to `head % kv_heads`.
+- GQA maps each query head with grouped division:
+  `q_head / (heads / kv_heads)`.
 - Accumulation uses FP32 or a vendor-backed equivalent with documented parity.
 - Outputs match the host reference within the validation tolerance.
 - The first accepted backend may be

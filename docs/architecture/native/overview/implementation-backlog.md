@@ -66,9 +66,8 @@ profiling.
 
 ## Research-Informed Order
 
-The latest report, `tmp/deep-research-report (58).md`, modified
-`2026-05-13`, was written against snapshot `b23be0f`. Its durable order is
-active:
+The latest report, `tmp/deep-research-report (61).md`, modified
+`2026-05-13`, keeps this durable order active:
 
 1. Keep dense diagnostics and report fields truthful.
 2. Keep historical partial decoder fields fenced from accepted claims.

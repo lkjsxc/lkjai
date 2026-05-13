@@ -66,7 +66,7 @@ report, loaded 40M RTX 3070 decoder shape, and route evidence.
 - `INFERENCE_HOST=0.0.0.0`
 - `INFERENCE_PORT=8081`
 - `MODEL_ROOT=/models`
-- `MODEL_NAME=dense-40m-3070`
+- `MODEL_NAME=decoder-40m-3070`
 - `KJXLKJ_API_URL=http://127.0.0.1:8080`
 - `KJXLKJ_USER=default`
 - `KJXLKJ_BEARER_TOKEN=` leaves `/api/config` visibly degraded.

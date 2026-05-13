@@ -33,12 +33,14 @@ full-decoder training and CUDA KV-cache decode fields. A dry-run script,
 foundation server contract, or embedding/head-only CUDA slice is not accepted
 evidence.
 
-Current decoder smoke runs the full-decoder training contract on small
-dimensions. It must report `decoder_cuda_slice=full_decoder`,
-`decoder_backward_backend=cuda_full_decoder`,
-`non_embedding_weight_changed=true`, `decoder_block_weight_changed=true`, and
-`decode_supported=true`. It is smoke evidence only; the tracked acceptance lane
-is still the two-hour RTX 3070 run.
+Current decoder smoke still exercises the experimental host-reference fallback
+with CUDA forward probes. It must report non-accepted backend names such as
+`decoder_cuda_slice=cuda_forward_probe_host_training`,
+`decoder_backward_backend=host_reference`, and
+the non-accepted host-reference decode backend. It is regression evidence only; the
+tracked acceptance lane is still the two-hour RTX 3070 run after real CUDA
+forward, backward, optimizer, logits/export/server checks, and KV-cache decode
+execute.
 
 Use smoke mode for current CUDA work:
 

@@ -35,7 +35,7 @@ task instead of reading the tree linearly.
 - Direct OpenAI-compatible chat runs with
   `docker compose --profile inference up --build -d` and serves
   `http://127.0.0.1:8081/v1/chat/completions`. Set `MODEL_NAME` to an existing
-  decoder export such as `dense-40m-3070` for chat choices.
+  decoder export such as `decoder-40m-3070` for chat choices.
 - `train` runs the two-hour decoder 40M packed-cache training profile from
   scratch; smoke checks are explicit native trainer invocations.
 - Dense BF16 CUDA training is the accepted substrate. The decoder CUDA slice is

@@ -78,7 +78,7 @@ State: canonical Compose profile, mount, port, and verification contract.
 cp .env.example .env
 mkdir -p \
   data/models/dense-diagnostic-scratch-40m \
-  data/models/dense-40m-3070 \
+  data/models/decoder-40m-3070 \
   data/train data/agent data/workspace
 docker compose --profile inference up --build -d
 docker compose --profile sandbox up --build -d
@@ -100,7 +100,7 @@ docker compose --profile inference up --build -d
 For chat, `.env` must point `MODEL_NAME` at an existing decoder export:
 
 ```dotenv
-MODEL_NAME=dense-40m-3070
+MODEL_NAME=decoder-40m-3070
 ```
 
 Minimal API probes:
@@ -110,7 +110,7 @@ curl --fail http://127.0.0.1:8081/v1/models
 curl -sS -X POST http://127.0.0.1:8081/v1/chat/completions \
   -H 'content-type: application/json' \
   -d '{
-    "model": "dense-40m-3070",
+    "model": "decoder-40m-3070",
     "messages": [{"role": "user", "content": "hello"}],
     "max_tokens": 32,
     "temperature": 0
@@ -137,7 +137,7 @@ If `data/models/${MODEL_NAME}` is missing, `GET /v1/models` returns HTTP `503`.
 - The default Compose command is `--train --mode decoder`, a real decoder 40M
   training run bounded by the committed two-hour config.
 - `TRAIN_MODEL_NAME` selects the training export name and defaults to
-  `dense-40m-3070`; it is independent from serving `MODEL_NAME`.
+  `decoder-40m-3070`; it is independent from serving `MODEL_NAME`.
 - `TRAIN_CONFIG` selects the training-run JSON config.
 - `TRAIN_NATIVE_CONFIG` selects the native model-shape JSON config.
 - `TRAIN_TARGET_SECONDS` can override the committed wall-clock deadline.

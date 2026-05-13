@@ -63,7 +63,7 @@ Use one real native model engine and surface its health honestly.
 
 - Direct inference profile:
   `http://127.0.0.1:8081/v1/chat/completions`
-- `MODEL_NAME=dense-40m-3070`
+- `MODEL_NAME=decoder-40m-3070`
 - `MODEL_MAX_NEW_TOKENS=512`
 - `MODEL_TEMPERATURE=0.2`
 
@@ -72,7 +72,7 @@ Use one real native model engine and surface its health honestly.
 Set `.env` to an existing decoder artifact for chat:
 
 ```dotenv
-MODEL_NAME=dense-40m-3070
+MODEL_NAME=decoder-40m-3070
 ```
 
 Start inference without the web runtime:
@@ -88,7 +88,7 @@ curl --fail http://127.0.0.1:8081/v1/models
 curl -sS -X POST http://127.0.0.1:8081/v1/chat/completions \
   -H 'content-type: application/json' \
   -d '{
-    "model": "dense-40m-3070",
+    "model": "decoder-40m-3070",
     "messages": [{"role": "user", "content": "hello"}],
     "max_tokens": 32,
     "temperature": 0

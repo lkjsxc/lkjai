@@ -3,7 +3,7 @@
 ## Source
 
 This file distills decoder-relevant conclusions from ignored reports including
-`tmp/deep-research-report (58).md`, modified `2026-05-13`, plus older
+`tmp/deep-research-report (61).md`, modified `2026-05-13`, plus older
 research notes into durable canon. Reports under `tmp/` are source evidence,
 not canonical docs.
 
@@ -60,18 +60,23 @@ not canonical docs.
 
 1. Keep Compose verify green and strict under Docker.
 2. Keep report fields explicit so partial CUDA cannot look accepted.
-3. Keep the decoder block forward substrate wired into training.
-4. Implement full decoder backward and FP32 AdamW state for every trainable
+3. Keep the decoder block forward substrate wired into training without
+   promoting host fallback.
+4. Move decoder state, FP32 masters, gradients, AdamW moments, BF16 shadows,
+   token buffers, workspace, and tied-alias metadata onto the CUDA path.
+5. Add a decoder tape for layer activations, post-RoPE Q/K/V, attention saved
+   state, residuals, MLP intermediates, final norm, and logits-loss state.
+6. Implement full decoder backward and FP32 AdamW state for every trainable
    tensor.
-5. Preserve tied-embedding optimizer/export alias handling for the product
+7. Preserve tied-embedding optimizer/export alias handling for the product
    config.
-6. Implement contiguous BF16 KV-cache decode without per-token device
-   allocation.
-7. Add streaming output and continuous batching after accepted native decode
+8. Implement persistent contiguous BF16 KV-cache decode without per-token
+   device allocation.
+9. Add streaming output and continuous batching after accepted native decode
    exists.
-8. Run the two-hour RTX 3070 decoder acceptance gate.
-9. Add 1.5B-3B profile configs only after accepted 40M decoder evidence.
-10. Add 7B profile work only after multi-GPU training contracts are verified.
+10. Run the two-hour RTX 3070 decoder acceptance gate.
+11. Add 1.5B-3B profile configs only after accepted 40M decoder evidence.
+12. Add 7B profile work only after multi-GPU training contracts are verified.
 
 ## Acceptance Defaults
 

@@ -114,7 +114,7 @@ The active implementation target is the tied 40M decoder on RTX 3070:
 
 - native config: `configs/native/decoder_40m_bf16_3070.json`
 - training config: `configs/training/decoder_2h_40m_3070.json`
-- serving artifact target: `data/models/dense-40m-3070`
+- serving artifact target: `data/models/decoder-40m-3070`
 - required report fields include `implementation_status=accepted`,
   `accepted_cuda_training=true`, `decoder_cuda_slice=full_decoder`,
   `decoder_block_weight_changed=true`,
@@ -128,11 +128,12 @@ config. Code should validate truth fields and config shape, not treat
 
 ## Research Synthesis
 
-The latest distilled deep research input is `tmp/deep-research-report (60).md`,
-modified `2026-05-13`, was written against repository snapshot `b23be0f`.
-The report supports the active order: hard-fence historical partial decoder
-claims, land accepted native CUDA decode and full-decoder training evidence,
-and only then broaden streaming, batching, frontend, and multi-GPU work.
+The latest distilled deep research input is `tmp/deep-research-report (61).md`,
+modified `2026-05-13`. The report supports the active order: hard-fence
+historical partial decoder claims, replace host-reference decoder training with
+device-resident CUDA state and backward, land accepted native CUDA decode
+evidence, and only then broaden streaming, batching, frontend, and multi-GPU
+work.
 
 Durable conclusions now owned by docs:
 
@@ -149,9 +150,9 @@ Durable conclusions now owned by docs:
   Nsight reports, config, tokenizer digest, dataset manifest, and transcript.
 - Dense diagnostics order: keep local APIs, root browser diagnostics,
   checksum/top-k contract tests, and bounded pilot evidence green.
-- Serving order: request validation, prompt serialization, prefill, native
-  BF16 KV-cache decode, sampler, structured metrics, then optional `kjxlkj`
-  tool calls.
+- Serving order: request validation, prompt serialization, persistent prefill,
+  native BF16 KV-cache decode, sampler, allocation metrics, then optional
+  `kjxlkj` tool calls.
 - Kernel policy: keep GEMMs in cuBLASLt, use correctness-first custom CUDA for
-  RMSNorm, RoPE, attention glue, KV writes/reads, sampling, and cache
+  RMSNorm, RoPE, grouped attention, KV writes/reads, sampling, and cache
   bookkeeping, and consider cuDNN SDPA only after active-shape parity exists.

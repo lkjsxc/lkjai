@@ -7,12 +7,12 @@ Keep one coherent contract for training, export, and serving on a local RTX
 
 ## Defaults
 
-- Default serving name: `dense-40m-3070`.
+- Default serving name: `decoder-40m-3070`.
 - Default serving family: local scratch decoder-only Transformer.
 - Default serving scale: about `40M` parameters for the current corpus.
 - Long-term serving scale: about `60M` parameters after corpus growth and
   behavior gates justify the larger run.
-- Default artifact root: `data/models/dense-40m-3070/`.
+- Default artifact root: `data/models/decoder-40m-3070/`.
 - Default training starts from random initialization.
 - Default tokenizer is a local byte-level BPE tokenizer trained on the train
   split only, with canonical XML-like tags added as single tokens.
@@ -51,19 +51,19 @@ Keep one coherent contract for training, export, and serving on a local RTX
 
 ## Environment
 
-- `MODEL_NAME=dense-40m-3070`
+- `MODEL_NAME=decoder-40m-3070`
 - `MODEL_CONTEXT_TOKENS=1024`
 - `MODEL_MAX_NEW_TOKENS=512`
 - `MODEL_TEMPERATURE=0.2`
 - `TRAIN_CONFIG=/workspace/configs/training/decoder_2h_40m_3070.json`
 - `TRAIN_NATIVE_CONFIG=/workspace/configs/native/decoder_40m_bf16_3070.json`
-- `TRAIN_MODEL_PRESET=dense-40m-3070`
+- `TRAIN_MODEL_PRESET=decoder-40m-3070`
 - `TRAIN_OBJECTIVE=causal_lm_full`
 - `TRAIN_EXPORT_CHECKPOINT=best`
 
 ## 40M Agent Preset
 
-`dense-40m-3070` is the active chat artifact target. Dense 40M remains a
+`decoder-40m-3070` is the active chat artifact target. Dense 40M remains a
 diagnostic foundation, not a chat artifact.
 
 - Vocabulary: `8192`
@@ -72,6 +72,7 @@ diagnostic foundation, not a chat artifact.
 - Hidden size: `576`
 - Attention heads: `8`
 - KV heads: `2`
+- Head dimension: `72`
 - FFN size: `1536`
 - Approximate parameters: `39.6M`
 - Default optimizer steps: `400000`
