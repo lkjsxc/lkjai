@@ -30,7 +30,10 @@ std::vector<std::string> blocked_doc_terms() {
 }
 
 std::vector<std::string> stale_decoder_terms() {
-  return {"host recompute decode", "host prompt recompute"};
+  return {"host recompute decode", "host prompt recompute",
+          "host_reference_recompute", "synthetic gradient",
+          "synthetic-gradient", "accepted CUDA decoder is complete",
+          "accepted decoder is complete"};
 }
 
 bool historical_evidence_doc(const std::filesystem::path& repo,

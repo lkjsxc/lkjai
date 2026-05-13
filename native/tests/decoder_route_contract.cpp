@@ -110,20 +110,18 @@ bool decoder_route_contract() {
          "\"kv_cache_steady_state_token_allocations\":0}\n";
   auto promoted = lkjai::native_server_route(
       {"POST", "/v1/chat/completions", body}, artifact, cuda, runtime);
-  return ok && expect(promoted.status == 200, "accepted route status") &&
+  return ok && expect(promoted.status == 200, "sidecar-only route status") &&
+         expect(!has(promoted.body,
+                     "\"lkjai_decode_backend\":\"cuda_kv_cache\""),
+                "sidecar alone must not promote decode backend") &&
          expect(has(promoted.body,
-                    "\"lkjai_decode_backend\":\"cuda_kv_cache\""),
-                "accepted decode backend") &&
-         expect(has(promoted.body,
-                    "\"lkjai_kv_cache_backend\":\"cuda_contiguous_bf16\""),
-                "accepted kv backend") &&
-         expect(has(promoted.body, "\"lkjai_kv_prefill_allocated_bytes\":"),
-                "accepted prefill bytes") &&
+                    "\"lkjai_decode_backend\":\"cuda_reference_kv_cache\""),
+                "sidecar-only partial backend") &&
          expect(has(promoted.body,
                     "\"lkjai_kv_steady_state_token_allocations\":0"),
-                "accepted zero steady-state allocations") &&
-         expect(has(promoted.body, "\"lkjai_decode_accepted\":true"),
-                "accepted disclosure");
+                "sidecar-only zero steady-state allocations") &&
+         expect(has(promoted.body, "\"lkjai_decode_accepted\":false"),
+                "sidecar-only non-accepted disclosure");
 }
 
 }  // namespace

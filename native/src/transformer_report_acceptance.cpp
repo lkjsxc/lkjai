@@ -29,6 +29,27 @@ bool accepted_decode_support(const TransformerTrainReport& r) {
          r.kv_cache_steady_state_token_allocations == 0;
 }
 
+bool accepted_40m_3070_shape(const TransformerTrainReport& r) {
+  return r.config_path.filename() == "decoder_40m_bf16_3070.json" &&
+         r.train_config_path.filename() == "decoder_2h_40m_3070.json" &&
+         r.target_seconds >= 7200 && r.seq_len == 1024 &&
+         r.context == 1024 && r.layers == 10 && r.hidden_size == 576 &&
+         r.heads == 8 && r.kv_heads == 2 && r.head_dim == 72 &&
+         r.ffn_size == 1536;
+}
+
+bool route_report_shape_ok(std::string_view body) {
+  return json_int_value(body, "target_seconds", 0) >= 7200 &&
+         json_int_value(body, "seq_len", 0) == 1024 &&
+         json_int_value(body, "context", 0) == 1024 &&
+         json_int_value(body, "layers", 0) == 10 &&
+         json_int_value(body, "hidden_size", 0) == 576 &&
+         json_int_value(body, "heads", 0) == 8 &&
+         json_int_value(body, "kv_heads", 0) == 2 &&
+         json_int_value(body, "head_dim", 0) == 72 &&
+         json_int_value(body, "ffn_size", 0) == 1536;
+}
+
 double json_double_after(std::string_view text, std::string_view needle) {
   auto pos = text.find(needle);
   if (pos == std::string_view::npos) return 0.0;
@@ -61,7 +82,8 @@ bool transformer_report_shape_accepted_decoder(const TransformerTrainReport& r) 
          std::isfinite(r.loss) && r.steps > 0 && r.loss_tokens > 0 &&
          r.trainable_weight_changed && r.non_embedding_weight_changed &&
          r.decoder_block_weight_changed && positive_block_weight_evidence(r) &&
-         r.embedding_tying == "tok_embeddings:lm_head";
+         r.embedding_tying == "tok_embeddings:lm_head" &&
+         accepted_40m_3070_shape(r);
 }
 
 bool transformer_report_accepted_decoder(const TransformerTrainReport& r) {
@@ -117,6 +139,15 @@ bool transformer_emitted_decoder_evidence_accepted(
   }
   if (!contains_json_string(body, "status", "pass")) {
     *error = "train report missing passing logits status";
+    return false;
+  }
+  if (!route_report_shape_ok(body)) {
+    *error = "train report is not the 40M RTX 3070 acceptance shape";
+    return false;
+  }
+  auto device = json_first_string(body, "cuda_device_name");
+  if (device.find("RTX 3070") == std::string::npos) {
+    *error = "train report is not RTX 3070 evidence";
     return false;
   }
   return require_artifact(json_first_string(body, "checkpoint_path"),

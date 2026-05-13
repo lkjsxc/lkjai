@@ -36,6 +36,7 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
       ? std::string(kind == "decoder" ? "experimental" : "not_applicable")
       : report.decoder_status;
   bool accepted_decoder = transformer_report_accepted_decoder(report);
+  if (!accepted_decoder && impl == "accepted") impl = "experimental";
   double tokens_per_second = report.elapsed_seconds > 0.0
       ? static_cast<double>(report.input_tokens) / report.elapsed_seconds : 0.0;
   auto limitations = transformer_report_limitations(report, accepted_decoder);
@@ -101,10 +102,10 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
        << "\",\"qkv_projection_backend\":\"" << json_escape(report.qkv_projection_backend) << "\""
        << ",\"attention_backend\":\"" << json_escape(report.attention_backend) << "\""
        << ",\"mlp_backend\":\"" << json_escape(report.mlp_backend)
-       << "\",\"decoder_backward_backend\":\"" << json_escape(report.decoder_backward_backend) << "\""
+       << "\",\"decoder_backward_backend\":\"" << json_escape(!accepted_decoder && report.decoder_backward_backend == "cuda_full_decoder" ? "not_accepted_cuda_full_decoder" : report.decoder_backward_backend) << "\""
        << ",\"matmul_backend\":\"" << json_escape(report.matmul_backend)
        << "\",\"kv_cache_backend\":\"" << json_escape(report.kv_cache_backend)
-       << "\",\"decode_backend\":\"" << json_escape(report.decode_backend)
+       << "\",\"decode_backend\":\"" << json_escape(!accepted_decoder && report.decode_backend == "cuda_kv_cache" ? "cuda_reference_kv_cache" : report.decode_backend)
        << "\",\"cublaslt_workspace_bytes\":" << static_cast<unsigned long long>(report.cublaslt_workspace_bytes)
        << ",\"workspace_high_water_bytes\":" << static_cast<unsigned long long>(report.workspace_high_water_bytes)
        << ",\"workspace_reallocations\":" << report.workspace_reallocations

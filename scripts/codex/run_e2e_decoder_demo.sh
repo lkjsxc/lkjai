@@ -45,12 +45,34 @@ mkdir -p data/models
 cp -R "$SRC" "data/models/$MODEL_NAME"
 
 echo "[4/5] Start services"
-MODEL_NAME="$MODEL_NAME" docker compose --profile inference up -d inference
+MODEL_NAME="$MODEL_NAME" docker compose --profile inference up --build -d
 MODEL_NAME="$MODEL_NAME" docker compose --profile web up -d web
 
 echo "[5/5] Health checks"
 curl --fail http://127.0.0.1:${MODEL_PORT:-8081}/healthz
 curl --fail http://127.0.0.1:${MODEL_PORT:-8081}/v1/models
 curl --fail http://127.0.0.1:${APP_PORT:-8080}/healthz
+if [[ "${REQUIRE_ACCEPTED_CUDA:-0}" == "1" ]]; then
+  v1="/tmp/lkjai-decoder-v1-$RUN_ID.json"
+  api="/tmp/lkjai-decoder-api-chat-$RUN_ID.json"
+  curl --fail -sS -X POST "http://127.0.0.1:${MODEL_PORT:-8081}/v1/chat/completions" \
+    -H 'content-type: application/json' \
+    -d '{"model":"'"$MODEL_NAME"'","messages":[{"role":"user","content":"Return <action><tool>agent.finish</tool><content>ok</content></action>"}],"max_tokens":64,"temperature":0}' \
+    > "$v1"
+  grep -q '"choices"' "$v1"
+  grep -q '"lkjai_decode_backend":"cuda_kv_cache"' "$v1"
+  grep -q '"lkjai_kv_cache_backend":"cuda_contiguous_bf16"' "$v1"
+  grep -Eq '"lkjai_kv_prefill_allocated_bytes":[1-9][0-9]*' "$v1"
+  grep -q '"lkjai_kv_steady_state_token_allocations":0' "$v1"
+  grep -q '"lkjai_decode_accepted":true' "$v1"
+  ! grep -qi 'canned' "$v1"
+  curl --fail -sS -X POST "http://127.0.0.1:${APP_PORT:-8080}/api/chat" \
+    -H 'content-type: application/json' \
+    -d '{"message":"Return a valid agent.finish XML action with content ok.","max_steps":4}' \
+    > "$api"
+  grep -q '"stop_reason":"finish"' "$api"
+  grep -q '"kind":"finish"' "$api"
+  ! grep -qi 'canned' "$api"
+fi
 printf 'Run ID: %s\nModel: %s\nWeb: http://127.0.0.1:%s\n' \
   "$RUN_ID" "$MODEL_NAME" "${APP_PORT:-8080}"

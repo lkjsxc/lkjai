@@ -180,21 +180,20 @@ int main() {
   report.decoder_weight_change.decoder_block = {0.1, 1, 1};
   report.decoder_weight_change.changed_tensors = 2;
   report.logits_check_passed = true;
-  report.decode_supported = true;
-  report.loss = 1.0;
-  report.steps = 1;
-  report.loss_tokens = 1;
+  report.decode_supported = true; report.loss = 1.0;
+  report.steps = 1; report.loss_tokens = 1;
   report.kv_cache_backend = lkjai::kDecoderAcceptedKvCacheBackend; report.decode_backend = lkjai::kDecoderAcceptedDecodeBackend;
   report.kv_cache_prefill_allocated_bytes = 4096; report.kv_cache_steady_state_token_allocations = 0;
-  json = lkjai::transformer_train_report_json(report, lkjai::cuda_status(),
-                                              "decoder", "success", "");
-  if (!require_contains(json, "\"accepted_cuda_training\":true") ||
-      !require_contains(json, "\"implementation_status\":\"accepted\"") ||
+  json = lkjai::transformer_train_report_json(
+      report, lkjai::cuda_status(), "decoder", "success", "");
+  if (!require_contains(json, "\"accepted_cuda_training\":false") ||
+      !require_contains(json, "\"implementation_status\":\"experimental\"") ||
       !require_contains(json, "\"decoder_cuda_slice\":\"full_decoder\"") ||
+      !require_contains(json, "\"decoder_backward_backend\":\"not_accepted_cuda_full_decoder\"") ||
+      !require_contains(json, "\"decode_backend\":\"cuda_reference_kv_cache\"") ||
       !require_contains(json, "\"kv_cache_backend\":\"cuda_contiguous_bf16\"")) {
     return 1;
   }
-  std::cout << "{\"status\":\"pass\",\"decoder_block_backend\":"
-            << "\"cuda_forward_partial\"}\n";
+  std::cout << "{\"status\":\"pass\",\"decoder_block_backend\":\"cuda_forward_partial\"}\n";
   return 0;
 }

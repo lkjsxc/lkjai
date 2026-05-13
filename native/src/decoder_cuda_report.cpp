@@ -12,33 +12,32 @@ namespace lkjai {
 void decoder_fill_full_cuda_report(DenseCudaState& cuda,
                                    uint64_t registry_shadow_bytes,
                                    TransformerTrainReport* r) {
-  r->implementation_status = "accepted";
+  r->implementation_status = "experimental";
   r->transformer_status = "not_applicable";
-  r->decoder_status = "accepted";
+  r->decoder_status = "experimental";
   r->decoder_cuda_path = true;
-  r->decoder_cuda_slice = "full_decoder";
-  r->decoder_block_backend = "cuda_full_decoder";
-  r->forward_backend = "cuda_full_decoder";
-  r->backward_backend = "cuda_full_decoder";
-  r->optimizer_backend = "cuda_adamw_fp32_full_decoder";
-  r->rmsnorm_backend = "cuda_bf16_fp32_reduce";
-  r->rope_backend = "cuda_bf16";
-  r->qkv_projection_backend = "cuda_bf16_cublaslt";
-  r->attention_backend = "cuda_causal_gqa_bf16_reference";
-  r->mlp_backend = "cuda_swiglu";
-  r->decoder_backward_backend = "cuda_full_decoder";
-  r->matmul_backend = "cublaslt";
-  r->kv_cache_backend = kDecoderAcceptedKvCacheBackend;
-  r->decode_backend = kDecoderAcceptedDecodeBackend;
-  r->decode_supported = true;
+  r->decoder_cuda_slice = "cuda_forward_probe_host_training";
+  r->decoder_block_backend = "cuda_forward_probe";
+  r->forward_backend = "host_reference";
+  r->backward_backend = "host_reference";
+  r->optimizer_backend = "host_adamw_fp32";
+  r->rmsnorm_backend = "cuda_bf16_fp32_reduce_probe";
+  r->rope_backend = "cuda_bf16_probe";
+  r->qkv_projection_backend = "cuda_bf16_cublaslt_probe";
+  r->attention_backend = "cuda_causal_gqa_bf16_reference_probe";
+  r->mlp_backend = "cuda_swiglu_probe";
+  r->decoder_backward_backend = "host_reference";
+  r->matmul_backend = "host_reference";
+  r->kv_cache_backend = kDecoderNoKvCacheBackend;
+  r->decode_backend = kDecoderPartialDecodeBackend;
+  r->decode_supported = false;
   r->cublaslt_workspace_bytes = cuda.cublaslt_workspace_bytes();
   r->workspace_high_water_bytes =
       std::max<uint64_t>(r->workspace_high_water_bytes,
                          cuda.workspace_high_water_bytes() +
                              registry_shadow_bytes);
   r->workspace_reallocations = cuda.workspace_reallocations();
-  r->kv_cache_prefill_allocated_bytes =
-      std::max<uint64_t>(registry_shadow_bytes, 1);
+  r->kv_cache_prefill_allocated_bytes = 0;
   r->kv_cache_steady_state_token_allocations = 0;
 }
 
