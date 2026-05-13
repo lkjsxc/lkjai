@@ -26,10 +26,11 @@ This directory contains test helpers for native CTest cases.
   validation and repeat-action signature checks.
 - [runtime_agent_contract.cpp](runtime_agent_contract.cpp): `agent.finish`,
   `agent.think`, repeat-action, and unsupported-tool loop behavior.
-- [server_route_contract.cpp](server_route_contract.cpp): merged native route
-  dispatcher contract for model, health, and transcript routes.
-- [server_route_dense_contract.cpp](server_route_dense_contract.cpp): dense
-  diagnostic route contract for status and next-token responses.
+- [server_route_contract.cpp](server_route_contract.cpp): inference route
+  contract for model, health, CORS preflight, and rejected sandbox/frontend
+  routes.
+- [server_route_dense_contract.cpp](server_route_dense_contract.cpp): inference
+  rejection contract for removed dense API routes.
 - [decoder_acceptance_report_contract.cpp](decoder_acceptance_report_contract.cpp):
   decoder accepted-report guard for full CUDA training and KV-cache decode.
 

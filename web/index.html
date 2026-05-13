@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>lkjai operator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <h1>lkjai operator</h1>
+      <div id="status" class="status">loading</div>
+    </header>
+    <main class="layout">
+      <aside class="sidebar">
+        <div class="section-head">
+          <strong>Runs</strong>
+          <button id="newRun" class="secondary" type="button">New</button>
+        </div>
+        <p id="runState" class="muted">loading runs</p>
+        <div id="runs" class="runs"></div>
+      </aside>
+      <section class="chat">
+        <div class="section-head">
+          <div>
+            <strong id="title">Draft run</strong>
+            <div id="modelLine" class="muted">model pending</div>
+          </div>
+          <div id="chatState" class="muted">chat pending</div>
+        </div>
+        <div id="events" class="events"></div>
+        <form id="composer" class="composer">
+          <textarea id="message" rows="3" placeholder="Send an operator message"></textarea>
+          <button id="send" type="submit">Send</button>
+        </form>
+      </section>
+      <aside class="diagnostics">
+        <div class="section-head"><strong>Model</strong></div>
+        <pre id="modelJson">loading</pre>
+      </aside>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -3,11 +3,8 @@
 #include <sstream>
 
 #include "capability_json.hpp"
-#include "dense_demo.hpp"
 #include "decoder_decode.hpp"
 #include "json_min.hpp"
-#include "native_status_page.hpp"
-#include "runtime_agent.hpp"
 
 namespace lkjai {
 namespace {
@@ -30,34 +27,6 @@ std::string models_json(const std::string& model, const CudaStatus& cuda) {
   std::ostringstream out;
   out << "{\"data\":[{\"id\":\"" << json_escape(model)
       << "\",\"object\":\"model\"}]," << capability_json_fields(cuda) << "}";
-  return out.str();
-}
-
-std::string artifact_kind(const ArtifactStatus& artifact) {
-  if (!artifact.loaded) return "none";
-  auto manifest = read_text(artifact.model_dir / "manifest.json");
-  auto kind = json_first_string(manifest, "kind");
-  return kind.empty() ? "unknown" : kind;
-}
-
-std::string runtime_model_json(const std::string& model,
-                               const ArtifactStatus& artifact,
-                               const CudaStatus& cuda,
-                               const RuntimeConfig& runtime) {
-  bool ready = artifact.loaded;
-  auto kind = artifact_kind(artifact);
-  std::ostringstream out;
-  out << "{\"model\":\"" << json_escape(model)
-      << "\",\"api_url\":\"local-native-engine\",\"loaded\":"
-      << (ready ? "true" : "false") << ",\"reachable\":"
-      << (ready ? "true" : "false") << ",\"message\":\""
-      << (ready ? "model loaded" : json_escape(artifact.error))
-      << "\",\"probe_status\":" << (ready ? 200 : 503)
-      << ",\"artifact_kind\":\"" << json_escape(kind) << "\""
-      << ",\"chat_supported\":" << (ready && kind == "decoder" ? "true" : "false")
-      << ",\"dense_supported\":" << (ready && kind == "dense" ? "true" : "false")
-      << ",\"tool_profile\":\"" << json_escape(runtime.tool_profile) << "\","
-      << capability_json_fields(cuda) << "}";
   return out.str();
 }
 
@@ -87,20 +56,6 @@ HttpResponse openai_chat_json(const HttpRequest& request,
   return {422, error_json("native autoregressive decode is unsupported")};
 }
 
-HttpResponse runtime_chat_json(const RuntimeConfig& cfg,
-                               const HttpRequest& request,
-                               const ArtifactStatus& artifact) {
-  return runtime_chat_with_model_callback(
-      cfg, request, [&](const std::string& payload) {
-        if (!artifact.loaded) {
-          return NativeHttpResponse{503, error_json(artifact.error), ""};
-        }
-        HttpRequest model_request{"POST", "/v1/chat/completions", payload};
-        auto model_response = openai_chat_json(model_request, artifact);
-        return NativeHttpResponse{model_response.status, model_response.body, ""};
-      });
-}
-
 }  // namespace
 
 HttpResponse native_server_route(const HttpRequest& request,
@@ -108,10 +63,9 @@ HttpResponse native_server_route(const HttpRequest& request,
                                  const CudaStatus& cuda,
                                  const RuntimeConfig& runtime,
                                  const DenseDemoRuntime& dense) {
-  if (request.method == "GET" && request.path == "/") {
-    return {200, std::string(native_status_page_html()),
-            "text/html; charset=utf-8"};
-  }
+  (void)runtime;
+  (void)dense;
+  if (request.method == "OPTIONS") return {204, ""};
   if (request.method == "GET" && request.path == "/healthz") {
     return {200, health_json(artifact, cuda)};
   }
@@ -122,25 +76,6 @@ HttpResponse native_server_route(const HttpRequest& request,
   if (request.method == "POST" && request.path == "/v1/chat/completions") {
     if (!artifact.loaded) return {503, error_json(artifact.error)};
     return openai_chat_json(request, artifact);
-  }
-  if (request.method == "GET" && request.path == "/api/model") {
-    return {200, runtime_model_json(runtime.model, artifact, cuda, runtime)};
-  }
-  if (request.method == "GET" && request.path == "/api/config") {
-    return {200, runtime_config_status_json(runtime)};
-  }
-  if (request.method == "GET" && request.path == "/api/dense/status") {
-    return dense_demo_status_response(dense);
-  }
-  if (request.method == "POST" && request.path == "/api/dense/next-token") {
-    return dense_demo_next_token_response(dense, request);
-  }
-  if (request.method == "POST" && request.path == "/api/chat") {
-    return runtime_chat_json(runtime, request, artifact);
-  }
-  const std::string prefix = "/api/runs";
-  if (request.method == "GET" && request.path.rfind(prefix, 0) == 0) {
-    return runtime_route(runtime, request);
   }
   return {404, error_json("not found")};
 }

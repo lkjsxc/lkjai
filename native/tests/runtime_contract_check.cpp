@@ -4,6 +4,7 @@
 #include <string>
 
 #include "runtime_api.hpp"
+#include "runtime_events.hpp"
 
 namespace {
 
@@ -15,6 +16,16 @@ bool expect(bool ok, const std::string& message) {
   if (ok) return true;
   std::cerr << message << "\n";
   return false;
+}
+
+int count_runs(const std::string& text) {
+  int count = 0;
+  size_t pos = 0;
+  while ((pos = text.find("\"run_id\"", pos)) != std::string::npos) {
+    ++count;
+    pos += 8;
+  }
+  return count;
 }
 
 lkjai::RuntimeConfig cfg() {
@@ -111,12 +122,52 @@ bool run_id_guard_contract() {
          expect(run.status == 400, "bad route run id rejected");
 }
 
+bool route_boundary_contract() {
+  auto c = cfg();
+  auto health = lkjai::runtime_route(c, {"GET", "/healthz", ""});
+  auto v1 = lkjai::runtime_route(c, {"GET", "/v1/models", ""});
+  auto root = lkjai::runtime_route(c, {"GET", "/", ""});
+  auto preflight = lkjai::runtime_route(c, {"OPTIONS", "/api/chat", ""});
+  return expect(health.status == 200, "sandbox health") &&
+         expect(v1.status == 404, "sandbox rejects v1") &&
+         expect(root.status == 404, "sandbox rejects frontend") &&
+         expect(preflight.status == 204, "sandbox preflight");
+}
+
+bool runs_list_contract() {
+  auto c = cfg();
+  auto empty = lkjai::runtime_route(c, {"GET", "/api/runs", ""});
+  lkjai::runtime_append_event(c, "run-100", "user", "older prompt");
+  lkjai::runtime_append_event(c, "run-100", "assistant", "older answer");
+  lkjai::runtime_append_event(c, "run-200", "user", "newer prompt");
+  lkjai::runtime_append_event(c, "run-200", "error", "newer failure");
+  auto list = lkjai::runtime_route(c, {"GET", "/api/runs?limit=20", ""});
+  auto one = lkjai::runtime_route(c, {"GET", "/api/runs?limit=1", ""});
+  for (int i = 0; i < 105; ++i) {
+    lkjai::runtime_append_event(c, "run-extra-" + std::to_string(i),
+                                "user", "bulk");
+  }
+  auto clamped = lkjai::runtime_route(c, {"GET", "/api/runs?limit=500", ""});
+  return expect(empty.status == 200, "runs empty status") &&
+         expect(has(empty.body, "\"runs\":[]"), "runs empty body") &&
+         expect(list.status == 200, "runs list status") &&
+         expect(list.body.find("run-200") < list.body.find("run-100"),
+                "runs newest first") &&
+         expect(has(list.body, "\"event_count\":2"), "runs event count") &&
+         expect(has(list.body, "\"last_kind\":\"error\""), "runs last kind") &&
+         expect(has(list.body, "\"preview\":\"newer failure\""),
+                "runs preview") &&
+         expect(count_runs(one.body) == 1, "runs limit") &&
+         expect(count_runs(clamped.body) == 100, "runs clamp");
+}
+
 }  // namespace
 
 int main() {
 	  return chat_filter_contract() && chat_error_contract() &&
 	                 model_status_contract() && config_status_contract() &&
-	                 health_contract() && run_id_guard_contract()
+	                 health_contract() && run_id_guard_contract() &&
+	                 route_boundary_contract() && runs_list_contract()
 	             ? 0
 	             : 1;
 }

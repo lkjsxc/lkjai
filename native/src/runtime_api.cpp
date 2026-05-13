@@ -4,7 +4,6 @@
 #include <sstream>
 
 #include "json_min.hpp"
-#include "native_status_page.hpp"
 #include "runtime_agent.hpp"
 #include "runtime_events.hpp"
 
@@ -59,7 +58,7 @@ std::string runtime_model_status_json(const RuntimeConfig& cfg,
   std::ostringstream out;
   out << "{\"model\":\"" << json_escape(cfg.model)
       << "\",\"api_url\":\"" << json_escape(cfg.model_url)
-      << "\",\"loaded\":" << (!cfg.model_url.empty() ? "true" : "false")
+      << "\",\"loaded\":" << (ok ? "true" : "false")
       << ",\"reachable\":" << (ok ? "true" : "false")
       << ",\"message\":\"" << (ok ? "model server responding" : "model probe failed")
       << "\",\"device\":\"" << json_escape(json_first_string(probe.body, "device"))
@@ -82,10 +81,8 @@ std::string runtime_health_json(const RuntimeConfig& cfg) {
 }
 
 HttpResponse runtime_route(const RuntimeConfig& cfg, const HttpRequest& request) {
+  if (request.method == "OPTIONS") return {204, ""};
   if (request.method == "GET" && request.path == "/healthz") return {200, runtime_health_json(cfg)};
-  if (request.method == "GET" && request.path == "/") {
-    return {200, std::string(native_status_page_html()), "text/html; charset=utf-8"};
-  }
   if (request.method == "GET" && request.path == "/api/model") {
     auto probe = native_http_get(model_url_to_models_url(cfg.model_url));
     return {200, runtime_model_status_json(cfg, probe)};

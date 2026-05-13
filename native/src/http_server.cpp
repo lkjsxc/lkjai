@@ -51,6 +51,7 @@ size_t content_length(const std::string& raw) {
 }
 
 std::string reason(int status) {
+  if (status == 204) return "No Content";
   if (status == 200) return "OK";
   if (status == 400) return "Bad Request";
   if (status == 404) return "Not Found";
@@ -63,6 +64,10 @@ void write_response(int client, const HttpResponse& response) {
   std::string head = "HTTP/1.1 " + std::to_string(response.status) + " " +
                      reason(response.status) + "\r\n";
   head += "content-type: " + response.content_type + "\r\n";
+  head += "access-control-allow-origin: *\r\n";
+  head += "access-control-allow-methods: GET, POST, OPTIONS\r\n";
+  head += "access-control-allow-headers: content-type, authorization\r\n";
+  head += "access-control-max-age: 600\r\n";
   head += "content-length: " + std::to_string(response.body.size()) + "\r\n";
   head += "connection: close\r\n\r\n";
   auto wire = head + response.body;

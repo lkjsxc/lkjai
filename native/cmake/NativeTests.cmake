@@ -103,6 +103,8 @@ set_tests_properties(native_decoder_cuda_block_forward_substrate PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
 set_tests_properties(native_decoder_cuda_full_forward PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
+set_tests_properties(native_status_page_contract PROPERTIES
+  ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
 
 add_test(
   NAME native_smoke_export

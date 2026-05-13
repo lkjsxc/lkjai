@@ -117,11 +117,11 @@ artifact inspection, and CUDA capability probing.
   file size, and row-bound validation.
 - [packed_cache_main.cpp](packed_cache_main.cpp): packed-cache build and
   validation CLI.
-- [server_main.cpp](server_main.cpp): merged native server entrypoint for
-  OpenAI-compatible inference routes and local runtime API routes.
+- [server_main.cpp](server_main.cpp): native inference server entrypoint for
+  `/healthz` and OpenAI-compatible `/v1/*` routes.
 - [native_server_routes.cpp](native_server_routes.cpp) and
-  [native_server_routes.hpp](native_server_routes.hpp): testable merged route
-  dispatcher for `/`, `/healthz`, `/api/*`, and `/v1/*`.
+  [native_server_routes.hpp](native_server_routes.hpp): testable inference
+  route dispatcher.
 - [runtime_main.cpp](runtime_main.cpp), [runtime_api.cpp](runtime_api.cpp),
   [runtime_api.hpp](runtime_api.hpp), [runtime_action.cpp](runtime_action.cpp),
   [runtime_action.hpp](runtime_action.hpp), [runtime_agent.cpp](runtime_agent.cpp),

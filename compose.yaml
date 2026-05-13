@@ -16,7 +16,7 @@ services:
       INFERENCE_PORT: 8081
       LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
       MODEL_ROOT: /models
-      MODEL_NAME: ${MODEL_NAME:-lkjai-scratch-40m}
+      MODEL_NAME: ${MODEL_NAME:-decoder-2h-40m-3070}
     volumes:
       - ./data/models:/models
       - ./data:/app/data
@@ -44,29 +44,34 @@ services:
     profiles: ["web"]
     build:
       context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - "127.0.0.1:${APP_PORT:-8080}:8080"
+
+  sandbox:
+    profiles: ["sandbox"]
+    build:
+      context: .
       dockerfile: ops/docker/Dockerfile.native
       args:
         LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
         LKJAI_GIT_COMMIT: ${LKJAI_GIT_COMMIT:-unknown}
-    command: ["lkjai-native-server"]
+    command: ["lkjai-native-runtime"]
     entrypoint: []
     ports:
-      - "127.0.0.1:${APP_PORT:-8080}:8080"
+      - "127.0.0.1:${SANDBOX_PORT:-8082}:8082"
     environment:
-      APP_HOST: 0.0.0.0
-      APP_PORT: 8080
-      INFERENCE_HOST: 0.0.0.0
-      INFERENCE_PORT: 8080
+      SANDBOX_HOST: 0.0.0.0
+      SANDBOX_PORT: 8082
       DATA_DIR: ${DATA_DIR:-/app/data}
-      MODEL_ROOT: /models
-      MODEL_NAME: ${MODEL_NAME:-lkjai-scratch-40m}
+      MODEL_API_URL: ${MODEL_API_URL:-http://inference:8081/v1/chat/completions}
+      MODEL_NAME: ${MODEL_NAME:-decoder-2h-40m-3070}
       AGENT_TOOL_PROFILE: ${AGENT_TOOL_PROFILE:-readonly}
       TOOL_WORKSPACE_DIR: ${TOOL_WORKSPACE_DIR:-/app/data/workspace}
       KJXLKJ_API_URL: ${KJXLKJ_API_URL:-http://host.docker.internal:8080}
       KJXLKJ_USER: ${KJXLKJ_USER:-default}
       KJXLKJ_BEARER_TOKEN: ${KJXLKJ_BEARER_TOKEN:-}
     volumes:
-      - ./data/models:/models
       - ./data:/app/data
       - ./docs:/app/data/workspace/docs:ro
       - ./training:/app/data/workspace/training:ro
@@ -74,13 +79,6 @@ services:
       - ./configs:/app/data/workspace/configs:ro
       - ./README.md:/app/data/workspace/README.md:ro
       - ./compose.yaml:/app/data/workspace/compose.yaml:ro
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
   train:
     profiles: ["train"]
     build:
@@ -92,9 +90,10 @@ services:
     environment:
       DATA_DIR: ${TRAIN_DATA_DIR:-/app/data/train}
       LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
-      MODEL_NAME: ${TRAIN_MODEL_NAME:-dense-40m-3070}
-      TRAIN_CONFIG: ${TRAIN_CONFIG:-/workspace/configs/training/dense_40m_accepted_3070.json}
-      TRAIN_NATIVE_CONFIG: ${TRAIN_NATIVE_CONFIG:-/workspace/configs/native/native_dense_40m_bf16_3070.json}
+      MODEL_NAME: ${TRAIN_MODEL_NAME:-decoder-2h-40m-3070}
+      TRAIN_MODEL_KIND: ${TRAIN_MODEL_KIND:-decoder}
+      TRAIN_CONFIG: ${TRAIN_CONFIG:-/workspace/configs/training/decoder_2h_40m_3070.json}
+      TRAIN_NATIVE_CONFIG: ${TRAIN_NATIVE_CONFIG:-/workspace/configs/native/decoder_40m_bf16_3070.json}
       TRAIN_BEHAVIORAL_CHECKPOINT: ${TRAIN_BEHAVIORAL_CHECKPOINT:-export}
       TRAIN_COMMITTED_CORPUS_DIR: ${TRAIN_COMMITTED_CORPUS_DIR:-/workspace/corpus/generated/kimi-sft-60m}
       TRAIN_CORPUS_DIR: ${TRAIN_CORPUS_DIR:-/app/data/public-corpus}
@@ -102,7 +101,7 @@ services:
       TRAIN_PUBLIC_PRETRAIN_TOKENS: ${TRAIN_PUBLIC_PRETRAIN_TOKENS:-500000000}
       TRAIN_FIRST_PARTY_SFT_TOKENS: ${TRAIN_FIRST_PARTY_SFT_TOKENS:-60000000}
     entrypoint: ["lkjai-native-train"]
-    command: ["--train", "--mode", "dense"]
+    command: ["--train", "--mode", "decoder"]
     volumes:
       - ./data:/app/data
       - ./corpus:/workspace/corpus:ro
