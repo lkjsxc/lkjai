@@ -16,8 +16,8 @@ decode.
 - Native config:
   `configs/native/native_dense_40m_bf16_3070.json`.
 - Model name: `dense-40m-3070`.
-- Local routes: `GET /api/dense/status` and
-  `POST /api/dense/next-token`.
+- Local route claim: none. Dense diagnostics are native helper checks; sandbox
+  `/api/*` is reserved for agent runtime routes.
 
 ## Prerequisites
 

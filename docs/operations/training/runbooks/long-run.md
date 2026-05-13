@@ -5,31 +5,31 @@ State: canonical operator run contract.
 
 ## Goal
 
-Run one measurable long training job for the 3070-first dense 40M model.
+Run one measurable long training job for the 3070-first decoder 40M model.
 
 ## Default Behavior
 
-- `docker compose --profile train up --build train` runs the committed dense
+- `docker compose --profile train up --build train` runs the committed decoder
   40M profile with a two-hour wall-clock target.
-- `TRAIN_CONFIG=/workspace/configs/training/dense_40m_accepted_3070.json` is
+- `TRAIN_CONFIG=/workspace/configs/training/decoder_2h_40m_3070.json` is
   the default training-run config.
-- `TRAIN_NATIVE_CONFIG=/workspace/configs/native/native_dense_40m_bf16_3070.json`
+- `TRAIN_NATIVE_CONFIG=/workspace/configs/native/decoder_40m_bf16_3070.json`
   is the default model-shape config for the train service.
-- `TRAIN_MODEL_NAME=dense-40m-3070` is the default training export name and is
-  independent from serving `MODEL_NAME`.
+- `TRAIN_MODEL_NAME=decoder-2h-40m-3070` is the default training export name
+  and is independent from serving `MODEL_NAME`.
 - Training writes under `TRAIN_DATA_DIR`, default `/app/data/train`.
 - Training defaults to `TRAIN_OBJECTIVE=causal_lm_full`.
 - The current native trainer consumes an existing packed cache; tokenizer and
   cache construction are separate operations.
 - Validate or rebuild
   `data/train/datasets/packed/train-causal_lm_full-seq1024` before any long
-  dense run; this path previously held a stale seq16/vocab256 smoke cache.
-- Export writes the final dense artifact for the run.
+  decoder run; this path previously held a stale seq16/vocab256 smoke cache.
+- Export writes the final decoder artifact for the run.
 - Resume is explicit through `--resume DIR` and restores the dense FP32 master
   weights plus Adam moments from the checkpoint optimizer artifact.
 - The current native binary supports two modes:
   `lkjai-native-train --smoke --steps N` and `lkjai-native-train --train`.
-  Compose uses `--train --mode dense` as the service default. Smoke checks must
+  Compose uses `--train --mode decoder` as the service default. Smoke checks must
   override the command explicitly.
 
 ## Supported Native Knobs
@@ -37,7 +37,7 @@ Run one measurable long training job for the 3070-first dense 40M model.
 - `TRAIN_CONFIG`: training-run JSON config.
 - `TRAIN_NATIVE_CONFIG`: native model-shape JSON config; `--config` overrides it.
 - `TRAIN_MODEL_NAME`: Compose-only training artifact name; maps to container
-  `MODEL_NAME` and defaults to `dense-40m-3070`.
+  `MODEL_NAME` and defaults to `decoder-2h-40m-3070`.
 - `TRAIN_SEQUENCE_LEN`: sequence length; `--seq-len` overrides it.
 - `TRAIN_BATCH_SIZE`: microbatch size; `--batch-size` overrides it.
 - `TRAIN_GRADIENT_ACCUMULATION`: microsteps per AdamW step; `--grad-accum`

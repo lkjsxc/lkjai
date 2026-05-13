@@ -6,8 +6,8 @@ Observe runtime health without adding heavy telemetry dependencies.
 
 ## Contract
 
-- The merged server must verify the loaded artifact before claiming a model is
-  ready.
+- The inference server must verify the loaded artifact before claiming a model
+  is ready.
 - Compose health uses `/healthz` so clients can see missing model exports.
 - Model readiness failures must be exposed through `GET /api/model` and the
   web UI.
@@ -28,8 +28,8 @@ GET /v1/models
 
 ```json
 {
-  "model": "lkjai-scratch-40m",
-  "api_url": "local-native-engine",
+  "model": "decoder-2h-40m-3070",
+  "api_url": "http://inference:8081/v1/chat/completions",
   "loaded": true,
   "reachable": true,
   "message": "model loaded"
@@ -37,7 +37,7 @@ GET /v1/models
 ```
 
 - `loaded`: the artifact loaded successfully.
-- `reachable`: the local model engine is usable.
+- `reachable`: the sandbox can reach the inference service.
 - `message`: human-readable state.
 - `probe_status`: `200` when the artifact is loaded, otherwise `503`.
 
@@ -50,7 +50,7 @@ GET /v1/models
 ## Verification
 
 ```bash
-curl -sf http://127.0.0.1:8080/api/model | jq .
+curl -sf http://127.0.0.1:8082/api/model | jq .
 ```
 
 Expected: `reachable` matches the loaded artifact state.

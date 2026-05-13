@@ -2,13 +2,13 @@
 
 ## Stack
 
-- Native binary named `lkjai-native-server`.
-- Merged native HTTP server for `/api/*` and `/v1/*` routing.
-- Direct native model-engine calls are the product path.
-- `GET /` serves a no-build HTML/CSS/browser-JS chat-first operator page.
-- The same process serves `/healthz`, `/api/*`, and `/v1/*`.
-- JSON APIs for chat, transcript lists, transcript details, and dense logits.
-- OpenAI-compatible model routes for generation.
+- Static files under `web/`.
+- Static image built by `Dockerfile.web`; no Node, model mounts, data mounts,
+  or GPU access.
+- `GET /` serves the no-build HTML/CSS/browser-JS operator page.
+- Browser JavaScript calls `http://127.0.0.1:8082/api/*` for sandbox APIs.
+- Browser JavaScript calls `http://127.0.0.1:8081/v1/*` only for direct model
+  diagnostics.
 - Implemented transcripts label user, assistant, error, reasoning, plan, tool
   call, tool result, observation, and finish events.
 - Target transcripts also label memory and confirmation events.
@@ -18,8 +18,7 @@
 ## Bind Defaults
 
 - Compose binds the host port to `127.0.0.1`.
-- The container process listens on `INFERENCE_HOST=0.0.0.0` and
-  `INFERENCE_PORT=8080` for the merged server.
+- The container process listens on static HTTP port `8080`.
 - The runtime must not publish a host public network bind by default.
 
 ## Model Status
@@ -29,22 +28,21 @@
 - The page shows whether the loaded artifact supports chat and keeps dense
   logits in collapsed advanced diagnostics.
 - CPU fallback is visible as degraded, not hidden behind a healthy label.
-- `/healthz` returns JSON process, artifact, and CUDA capability state from the
-  merged server.
+- Model and CUDA status are read from sandbox `/api/model`, which probes the
+  inference service.
 
 ## No Node Rule
 
-- Runtime Docker image does not install Node.
+- Web Docker image does not install Node.
 - Browser verification does not use Node.
 - Frontend behavior is plain HTML, CSS, and browser JavaScript.
 
 ## Current Runtime Boundary
 
-- `/api/chat` validates `message`, optional `run_id`, `max_steps`, and
+- The web process does not own product API routes.
+- Sandbox `/api/chat` validates `message`, optional `run_id`, `max_steps`, and
   `visible_event_kinds`.
-- `/api/runs` lists JSONL transcripts newest first and clamps `limit` to `100`.
-- `/api/dense/status` and `/api/dense/next-token` validate dense demo readiness
-  and token-id payloads.
-- The runtime persists all events before response filtering.
-- XML action parsing and native read-only filesystem tool execution are
-  implemented. Memory writes and confirmation resume are target work.
+- Sandbox `/api/runs` lists JSONL transcripts newest first and clamps `limit`
+  to `100`.
+- XML action parsing and native read-only filesystem tool execution live in the
+  sandbox process. Memory writes and confirmation resume are target work.

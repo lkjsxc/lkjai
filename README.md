@@ -24,8 +24,10 @@ task instead of reading the tree linearly.
 
 ## Current Shape
 
-- Compose profiles: `inference`, `web`, `train`, `corpus`, `verify`.
-- `web` runs the native C++ agent API runtime.
+- Compose profiles: `inference`, `sandbox`, `web`, `train`, `corpus`,
+  `verify`.
+- `web` serves static files, `sandbox` runs the native C++ agent API runtime,
+  and `inference` runs the native decoder service.
 - `inference` loads native artifacts. Dense and transformer exports return
   explicit unsupported chat decode. Decoder exports may return choices through
   the current host-reference recompute bridge, but that is partial usability
@@ -34,13 +36,12 @@ task instead of reading the tree linearly.
   `docker compose --profile inference up --build -d` and serves
   `http://127.0.0.1:8081/v1/chat/completions`. Set `MODEL_NAME` to an existing
   decoder export such as `decoder-2h-40m-3070` for chat choices.
-- `train` runs the two-hour dense 40M packed-cache training profile from
+- `train` runs the two-hour decoder 40M packed-cache training profile from
   scratch; smoke checks are explicit native trainer invocations.
 - Dense BF16 CUDA training is the accepted substrate. The decoder CUDA slice is
   partial: embeddings and LM head train, block forward is forward-only, block
   weights are not trained, and full decoder backward is not implemented.
-- The dense 40M browser diagnostics expose local next-token logits, top-k
-  output, checksums, and benchmark provenance through the merged native server.
+- Dense 40M artifacts remain diagnostics only and are not chat artifacts.
 - The active implementation target is `decoder_2h_40m_3070` on RTX 3070
   with real block-weight updates and native KV-cache decode.
 - Competency acceptance is behavioral eval pass rate `>= 80%`.

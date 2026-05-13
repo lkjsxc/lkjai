@@ -67,7 +67,7 @@ Execute one user turn as a bounded multi-step loop.
 ## Verification
 
 ```bash
-curl -sf -X POST http://127.0.0.1:8080/api/chat \
+curl -sf -X POST http://127.0.0.1:8082/api/chat \
   -H 'content-type: application/json' \
   -d '{"message":"list files"}' | jq '.stop_reason'
 ```

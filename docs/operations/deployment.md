@@ -10,24 +10,26 @@
 
 ```bash
 cp .env.example .env
-mkdir -p data/models/lkjai-scratch-40m data/train data/agent data/workspace
+mkdir -p data/models/decoder-2h-40m-3070 data/train data/agent data/workspace
+docker compose --profile inference up --build -d
+docker compose --profile sandbox up --build -d
 docker compose --profile web up --build web
 ```
 
 ## Bootstrap Scratch Artifact
 
-- The default artifact root is `data/models/lkjai-scratch-40m/`.
+- The default artifact root is `data/models/decoder-2h-40m-3070/`.
 - Training export copies tokenizer, config, checkpoint, and serving manifests
   into that directory.
-- Compose web serves `/api/*` and `/v1/*` from one native process on
-  `http://127.0.0.1:8080`.
-- Host checks model readiness on `http://127.0.0.1:8080/v1/models`.
+- Compose web serves static files on `http://127.0.0.1:8080`.
+- Sandbox serves `/api/*` on `http://127.0.0.1:8082`.
+- Inference serves `/v1/*` on `http://127.0.0.1:8081`.
+- Host checks model readiness on `http://127.0.0.1:8081/v1/models`.
 - Runtime configuration and `kjxlkj` adapter status are visible at
-  `http://127.0.0.1:8080/api/config`.
+  `http://127.0.0.1:8082/api/config`.
 - Chat reports explicit model errors instead of dummy web-runtime responses.
 - Default inference is the native server. Dense artifacts provide readiness and
-  logits diagnostics; accepted decoder chat requires separate CUDA KV-cache
-  evidence.
+  diagnostics only; accepted decoder chat requires CUDA KV-cache evidence.
 
 ## Rejected Bootstrap
 

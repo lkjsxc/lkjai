@@ -41,7 +41,8 @@
 
 - Rejected for active serving.
 - Native C++/CUDA tensor decoding is the implementation direction.
-- The product path is one merged native server for `/`, `/api/*`, and `/v1/*`.
+- The product path is split across static web, sandbox `/api/*`, and inference
+  `/v1/*` services.
 
 ## Deterministic Inference Stub
 

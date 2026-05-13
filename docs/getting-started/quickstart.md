@@ -19,7 +19,7 @@ training path with Docker Compose.
 cp .env.example .env
 mkdir -p \
   data/models/lkjai-scratch-40m \
-  data/models/dense-40m-3070 \
+  data/models/decoder-2h-40m-3070 \
   data/train data/agent data/workspace
 ```
 
@@ -61,9 +61,8 @@ OpenAI-compatible `choices`. Dense and transformer artifacts start and report
 readiness when loadable, but `/v1/chat/completions` returns HTTP `422` with no
 `choices`. Missing artifacts make `GET /v1/models` return HTTP `503`.
 
-The default `MODEL_NAME=lkjai-scratch-40m` is not changed here. If that artifact
-is dense, the profile can still start, while chat honestly reports unsupported
-decode.
+The default `MODEL_NAME=decoder-2h-40m-3070` expects a decoder export. Dense
+artifacts can still start, while chat honestly reports unsupported decode.
 
 ## Run Web Runtime
 
@@ -71,24 +70,32 @@ decode.
 docker compose --profile web up --build web
 ```
 
-This starts one merged native server:
+Start the sandbox API beside inference for chat:
 
-- `web`: native C++ agent API runtime and OpenAI-compatible model routes.
+```bash
+docker compose --profile sandbox up --build -d
+```
+
+This starts three loopback services:
+
+- `web`: static frontend on `http://127.0.0.1:8080`.
+- `sandbox`: native agent API on `http://127.0.0.1:8082`.
+- `inference`: OpenAI-compatible model API on `http://127.0.0.1:8081`.
 
 Web app endpoint:
 
 - `http://127.0.0.1:8080`
 
-Merged model route checks:
+Route checks:
 
-- `curl --fail http://127.0.0.1:8080/v1/models`
-- `http://127.0.0.1:8080/v1/chat/completions`
+- `curl --fail http://127.0.0.1:8082/healthz`
+- `curl --fail http://127.0.0.1:8082/api/config`
+- `curl --fail http://127.0.0.1:8081/v1/models`
 
-The merged implementation loads exported scratch artifacts and exposes
-readiness plus logits-oriented native checks. Dense and transformer artifacts
-return HTTP `422` with no `choices` for `/v1/chat/completions`. Decoder
-artifacts can return chat choices only when the artifact includes the real local
-byte-level BPE `tokenizer.json`.
+The sandbox calls the inference service for `/api/chat`. Dense and transformer
+artifacts return HTTP `422` with no `choices` for `/v1/chat/completions`.
+Decoder artifacts can return chat choices only when the artifact includes the
+real local byte-level BPE `tokenizer.json`.
 
 ## Run Scratch Training
 
@@ -104,7 +111,7 @@ docker compose --profile corpus run --rm corpus build-public-pretrain-cache
 docker compose --profile train up --build train
 ```
 
-This starts the dense 40M RTX 3070 training profile with a two-hour
+This starts the decoder 40M RTX 3070 training profile with a two-hour
 wall-clock target. It fails fast if the packed cache is missing, incompatible,
 or still the seq16/vocab256 smoke fixture.
 
@@ -121,9 +128,9 @@ docker compose --profile train run --rm \
 Expected training artifacts:
 
 - `data/train/tokenizer/`: local byte-level BPE tokenizer.
-- `data/train/checkpoints/final/`: native dense checkpoint.
+- `data/train/checkpoints/final/`: native decoder checkpoint.
 - `data/train/runs/train-report.json`: native train report.
-- `data/train/exports/dense-40m-3070/`: serving artifact export.
+- `data/models/decoder-2h-40m-3070/`: serving artifact export.
 
 Behavioral chat evaluation is meaningful only for decoder artifacts. Dense
 exports remain training and diagnostics artifacts.

@@ -5,14 +5,15 @@ State: canonical product chat surface contract.
 
 ## Surface
 
-- `GET /` serves the static no-build native browser status/chat page.
-- `POST /api/chat` is the primary product chat surface.
+- `GET /` serves the static no-build browser status/chat page on port `8080`.
+- `POST /api/chat` on sandbox port `8082` is the primary product chat surface.
 - API clients receive transcript run id, model state, and tool results.
 - The implemented foundation persists user, assistant, error, reasoning, plan,
   tool, observation, and finish events.
 - Memory and confirmation events are the target agent-loop contract.
 - Visibility settings are client-side preferences sent with chat requests.
 - The app is local-only by default.
+- Browser calls use direct loopback CORS to the sandbox and inference ports.
 - There is no login in the current product.
 
 ## Current And Target Matrix
@@ -26,7 +27,7 @@ State: canonical product chat surface contract.
 
 ## Behavior
 
-- User prompts are sent to `POST /api/chat`.
+- User prompts are sent to sandbox `POST /api/chat`.
 - The implemented foundation runs a bounded XML-action loop.
 - The first loop executes `agent.finish`, `agent.think`, `fs.list`, and
   `fs.read`.
@@ -42,8 +43,8 @@ State: canonical product chat surface contract.
 - Resource, memory, confirmation, and shell tools remain target work until
   their profile gates pass.
 - Every run is persisted as JSONL under `data/agent/runs/`.
-- The runtime must use a real model endpoint; policy-file dummy responses are not
-  an accepted default.
+- The sandbox must use a real inference endpoint; policy-file dummy responses
+  are not an accepted default.
 - Current native dense and transformer artifacts do not produce chat responses.
   They return HTTP `422` unsupported decode with no `choices` field.
 - Native decoder artifacts are the same-model product target for accepted chat

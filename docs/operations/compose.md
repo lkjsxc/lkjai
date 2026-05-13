@@ -7,25 +7,29 @@ State: canonical Compose profile, mount, port, and verification contract.
 
 - `inference`: current native OpenAI-compatible scratch inference service on
   `http://127.0.0.1:8081`.
-- `web`: merged native server with `/api/*` runtime routes and `/v1/*`
-  inference routes.
+- `sandbox`: native agent API runtime on `http://127.0.0.1:8082`.
+- `web`: static frontend on `http://127.0.0.1:8080`.
 - `train`: native scratch training container.
 - `corpus`: isolated public corpus acquisition and JSONL preparation container.
 - `verify`: repository verification container.
 
 ## Data Mount
 
-- All runtime profiles mount `./data:/app/data`.
+- `sandbox`, `inference`, and `train` mount `./data:/app/data`.
+- `web` mounts no model, data, workspace, or GPU paths.
 - Inference mounts `./data/models` to `/models`.
 - Inference loads `/models/${MODEL_NAME}`.
 - Training exports under `/app/data/models/${TRAIN_MODEL_NAME}` by default;
   serving still selects artifacts with `MODEL_NAME`.
-- The `web` profile does not start a second model service.
+- The `web` profile serves static files only.
+- The `sandbox` profile calls `MODEL_API_URL`, default
+  `http://inference:8081/v1/chat/completions`.
 - The `inference` profile remains as the direct `/v1/*` OpenAI-compatible API
-  service. It does not require the browser UI or `/api/chat`.
-- The merged server process owns both `/api/*` and `/v1/*` routes.
-- Model readiness is reported separately through `/api/model` and
-  `GET /v1/models`.
+  service. It rejects `/api/*` and frontend routes.
+- The sandbox process owns `/api/*` routes and rejects `/v1/*` and frontend
+  routes.
+- Model readiness is reported through sandbox `/api/model` and direct
+  inference `GET /v1/models`.
 - Inference loads exported native artifacts. Dense and transformer artifacts
   return HTTP `422` unsupported with no `choices`; decoder artifacts can return
   OpenAI-compatible `choices` when exported with the real local tokenizer.
@@ -47,10 +51,10 @@ State: canonical Compose profile, mount, port, and verification contract.
   runs. Do not commit token values.
 - Hugging Face CLI, Python, and Arrow dependencies are allowed only in the
   `corpus` image, not in `train`, `web`, `inference`, or `verify`.
-- Web writes transcripts and memory under `/app/data/agent`.
-- Web uses `/app/data/workspace` as the only filesystem root for tools.
-- Web must not mount the host root.
-- The merged server uses `KJXLKJ_USER` and `KJXLKJ_BEARER_TOKEN` for typed
+- Sandbox writes transcripts and memory under `/app/data/agent`.
+- Sandbox uses `/app/data/workspace` as the only filesystem root for tools.
+- Sandbox must not mount the host root.
+- The sandbox uses `KJXLKJ_USER` and `KJXLKJ_BEARER_TOKEN` for typed
   `/api/users/{user}/resources/...` calls.
 - `GET /api/config` reports those settings and keeps mutable resource tools
   disabled until confirmation-gated tool execution is implemented.
@@ -63,7 +67,7 @@ State: canonical Compose profile, mount, port, and verification contract.
 - `/api/model` and the web UI must show CUDA availability and active device.
 - CPU fallback is acceptable for development but is not an acceptable quality or
   latency baseline.
-- `web` loads model weights through the merged native server and requests CUDA.
+- `web` never loads model weights and requests no GPU.
 
 ## Commands
 
@@ -71,9 +75,10 @@ State: canonical Compose profile, mount, port, and verification contract.
 cp .env.example .env
 mkdir -p \
   data/models/lkjai-scratch-40m \
-  data/models/dense-40m-3070 \
+  data/models/decoder-2h-40m-3070 \
   data/train data/agent data/workspace
 docker compose --profile inference up --build -d
+docker compose --profile sandbox up --build -d
 docker compose --profile web up --build web
 docker compose --profile corpus run --build --rm corpus download-public-pretrain
 docker compose --profile corpus run --build --rm corpus build-tokenizer
@@ -126,10 +131,10 @@ If `data/models/${MODEL_NAME}` is missing, `GET /v1/models` returns HTTP `503`.
 
 - The `train` service runs `lkjai-native-train`.
 - Training writes to `TRAIN_DATA_DIR`, default `/app/data/train`.
-- The default Compose command is `--train --mode dense`, a real dense 40M
+- The default Compose command is `--train --mode decoder`, a real decoder 40M
   training run bounded by the committed two-hour config.
 - `TRAIN_MODEL_NAME` selects the training export name and defaults to
-  `dense-40m-3070`; it is independent from serving `MODEL_NAME`.
+  `decoder-2h-40m-3070`; it is independent from serving `MODEL_NAME`.
 - `TRAIN_CONFIG` selects the training-run JSON config.
 - `TRAIN_NATIVE_CONFIG` selects the native model-shape JSON config.
 - `TRAIN_TARGET_SECONDS` can override the committed wall-clock deadline.

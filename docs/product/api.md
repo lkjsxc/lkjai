@@ -8,51 +8,20 @@ should link here instead of restating success and failure semantics.
 
 ## Routes
 
-- `GET /`: static no-build chat-first operator page.
-- `GET /healthz`: returns JSON process, artifact, and CUDA capability state.
-- `GET /api/dense/status`: returns dense demo readiness and artifact metadata.
-- `POST /api/dense/next-token`: returns dense next-token top-k logits summary.
-- `POST /api/chat`: runs one bounded agent turn.
-- `GET /api/runs`: lists persisted run transcripts.
-- `GET /api/runs/{id}`: returns one run transcript.
-- `GET /api/model`: returns model client status including reachability.
-- `GET /api/config`: returns local runtime, workspace, and future `kjxlkj`
+- Web `GET /`: static no-build chat-first operator page on port `8080`.
+- Sandbox `GET /healthz`: returns JSON process state on port `8082`.
+- Sandbox `POST /api/chat`: runs one bounded agent turn.
+- Sandbox `GET /api/runs`: lists persisted run transcripts.
+- Sandbox `GET /api/runs/{id}`: returns one run transcript.
+- Sandbox `GET /api/model`: returns model client status including reachability.
+- Sandbox `GET /api/config`: returns local runtime, workspace, and future `kjxlkj`
   adapter status.
-- `GET /v1/models`: OpenAI-compatible model readiness route.
-- `POST /v1/chat/completions`: OpenAI-compatible model generation route.
+- Inference `GET /healthz`: returns artifact and CUDA state on port `8081`.
+- Inference `GET /v1/models`: OpenAI-compatible model readiness route.
+- Inference `POST /v1/chat/completions`: OpenAI-compatible generation route.
 
 `/v1/*` is preserved only for OpenAI-compatible clients. New local APIs use
-unnumbered route names.
-
-## Dense Demo Request
-
-```json
-{
-  "tokens": [1, 2, 3],
-  "top_k": 8
-}
-```
-
-`tokens` is a required array of token ids. `top_k` is optional and defaults to
-`8`.
-
-## Dense Demo Response
-
-```json
-{
-  "status": "success",
-  "model_kind": "dense",
-  "decode_supported": false,
-  "checksum": "string",
-  "top_token": 42,
-  "top_k": [
-    {"id": 42, "logit": 1.25, "prob": 0.33}
-  ]
-}
-```
-
-Dense demo routes do not return chat `choices`. They expose logits evidence for
-the loaded artifact.
+unnumbered route names. Inference rejects `/api/*`; sandbox rejects `/v1/*`.
 
 ## `POST /api/chat` Request
 
@@ -86,10 +55,12 @@ the loaded artifact.
 ```
 
 `assistant` is populated only when the model emits an `agent.finish` action
-with user-facing content. Current native dense and transformer artifacts return
-unsupported decode from `/v1/chat/completions`. Decoder artifacts are the
-product target. Decoder choices use the native CUDA route and disclose accepted
-CUDA KV-cache decode only when the executed route evidence is present.
+with user-facing content. The sandbox calls the inference service configured by
+`MODEL_API_URL`; it does not synthesize assistant text. Current native dense and
+transformer artifacts return unsupported decode from `/v1/chat/completions`.
+Decoder artifacts are the product target. Decoder choices use the native CUDA
+route and disclose accepted CUDA KV-cache decode only when the executed route
+evidence is present.
 
 ## Direct OpenAI-Compatible Chat
 
@@ -137,8 +108,8 @@ runtime routes stay under unnumbered `/api/*` names.
 
 ```json
 {
-  "model": "lkjai-scratch-40m",
-  "api_url": "local-native-engine",
+  "model": "decoder-2h-40m-3070",
+  "api_url": "http://inference:8081/v1/chat/completions",
   "loaded": true,
   "reachable": true,
   "message": "model loaded",
@@ -146,15 +117,15 @@ runtime routes stay under unnumbered `/api/*` names.
   "cuda_available": true,
   "gpu_name": "NVIDIA GeForce RTX 3070",
   "warning": "",
-  "artifact_kind": "dense",
-  "chat_supported": false,
-  "dense_supported": true,
+  "artifact_kind": "decoder",
+  "chat_supported": true,
+  "dense_supported": false,
   "tool_profile": "readonly"
 }
 ```
 
 - `loaded`: a native artifact is loaded.
-- `reachable`: the merged native engine is ready to serve model routes.
+- `reachable`: sandbox can reach the inference service.
 - `device`: inference device reported by the model engine.
 - `cuda_available`: whether the inference server can use CUDA.
 - `gpu_name`: CUDA device name when available.
@@ -193,7 +164,7 @@ The optional `limit` query defaults to `20` and is clamped to `100`.
   "status": "degraded",
   "degraded": true,
   "degraded_reason": "KJXLKJ_BEARER_TOKEN not configured",
-  "bind": {"host": "127.0.0.1", "port": 8080, "local_only": true},
+  "bind": {"host": "127.0.0.1", "port": 8082, "local_only": true},
   "workspace_dir": "/app/data/workspace",
   "tool_profile": "readonly",
   "kjxlkj": {
@@ -248,9 +219,9 @@ content with `tool`, `status`, `path`, `entries` or `content`, and
 ## Verification
 
 ```bash
-curl -sf http://127.0.0.1:8080/healthz
-curl -sf http://127.0.0.1:8080/api/model | jq .
-curl -sf -X POST http://127.0.0.1:8080/api/chat \
+curl -sf http://127.0.0.1:8082/healthz
+curl -sf http://127.0.0.1:8082/api/model | jq .
+curl -sf -X POST http://127.0.0.1:8082/api/chat \
   -H 'content-type: application/json' \
   -d '{"message":"hello"}' | jq '.stop_reason'
 ```

@@ -21,7 +21,7 @@ preparation work.
 |---|---|---|---|
 | `dense` | accepted foundation and browser diagnostics | BF16 CUDA train, checkpoint/export, logits checks, packed-cache IO, local top-k demo | decoder blocks and KV-cache decode |
 | `decoder` | product acceptance target | tied artifacts, tokenizer copy, full-decoder train report fields, CUDA KV-cache route disclosure contract | accepted two-hour evidence on the RTX 3070 lane |
-| `runtime` | native agent loop | XML actions, transcript persistence, `agent.finish`, `agent.think`, `fs.list`, and `fs.read` | memory, resource, shell, and confirmation execution |
+| `runtime` | split web, sandbox, and inference services | XML actions, transcript persistence, `agent.finish`, `agent.think`, `fs.list`, and `fs.read` | memory, resource, shell, and confirmation execution |
 | `transformer` | diagnostic lane | host/reference checks and probe reports | not an accepted training or serving target |
 
 ## Decoder Limits
@@ -96,18 +96,16 @@ allocations, and supported decode.
 
 ## Dense Diagnostic Surface
 
-The dense 40M native browser diagnostics run on the merged server:
+Dense artifacts remain diagnostics and training artifacts only:
 
 - native config: `configs/native/native_dense_40m_bf16_3070.json`
 - training config: `configs/training/dense_40m_accepted_3070.json`
-- browser page: `GET /`
-- local APIs: `GET /api/dense/status` and `POST /api/dense/next-token`
 - evidence: bounded pilot checks, deterministic checksum, logits/top-k output,
   train-report provenance, and truthful unsupported chat decode
 
-This surface does not claim autoregressive chat. It uses dense logits and top-k
-output to keep the accepted dense substrate visible and testable from a browser
-while decoder-core work proceeds.
+This surface does not claim autoregressive chat. Dense exports can be inspected
+with native diagnostics and `/v1/models`, but they are not chat artifacts and
+`/v1/chat/completions` returns HTTP `422` without `choices`.
 
 ## Active Implementation Target
 
@@ -115,6 +113,7 @@ The active implementation target is the tied 40M decoder on RTX 3070:
 
 - native config: `configs/native/decoder_40m_bf16_3070.json`
 - training config: `configs/training/decoder_2h_40m_3070.json`
+- serving artifact target: `data/models/decoder-2h-40m-3070`
 - required report fields include `implementation_status=accepted`,
   `accepted_cuda_training=true`, `decoder_cuda_slice=full_decoder`,
   `decoder_block_weight_changed=true`,

@@ -3,13 +3,13 @@
 ## Accepted Defaults
 
 - Runtime orchestrator: native C++ HTTP service.
-- Target serving shape: one native process owns `/v1/*` model routes and
-  `/api/*` agent-runtime routes; loopback HTTP between native product
-  components is transitional only.
-- Inference runtime: merged native C++/CUDA service for `/api/*` and `/v1/*`;
-  the direct inference profile is diagnostics-only.
+- Target serving shape: split static web, native inference, and native sandbox
+  services on loopback ports.
+- Inference runtime: native C++/CUDA service owns only `/healthz` and `/v1/*`.
+- Sandbox runtime: native C++ service owns `/healthz` and `/api/*` and calls
+  inference over Compose DNS.
 - Serving model family: local scratch decoder-only transformer.
-- Training scale: `scratch-40m` by default for the current corpus;
+- Training scale: `decoder-2h-40m-3070` by default for the current corpus;
   `scratch-60m` remains a later target.
 - Training method: local native C++/CUDA from random initialization.
 - Tokenizer: local byte-level BPE with canonical XML-like tags added as single
@@ -32,6 +32,7 @@
 - Agent corpus default is 6,000 rows until reviewed non-LLM data exists.
 - DPO is the first preference optimization phase.
 - Runtime tool access is bounded to `TOOL_WORKSPACE_DIR`.
+- Static web has no data, model, workspace, or GPU mounts.
 - kjxlkj integration starts as lkjai docs, corpus, and eval coverage before
   kjxlkj runtime routes.
 - GPT/LLM-authored corpus packs are quarantined from default training.

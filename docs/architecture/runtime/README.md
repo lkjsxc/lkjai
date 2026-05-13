@@ -1,17 +1,18 @@
 # Runtime Architecture
 
-Use this subtree for the native C++ server that owns the agent API runtime,
-inference path, and persistent runtime state.
+Use this subtree for the three local runtime processes: static frontend,
+native inference, and native sandbox API.
 
 ## Read This Section When
 
-- You need native API route ownership.
-- You need direct model-engine or transitional model-client behavior.
+- You need local service route ownership.
+- You need direct model-engine or sandbox model-client behavior.
 - You need runtime data paths.
 
 ## Child Index
 
-- [web.md](web.md): native runtime server contract
-- [inference.md](inference.md): OpenAI-compatible model client behavior
+- [web.md](web.md): static frontend contract
+- [inference.md](inference.md): OpenAI-compatible model serving behavior
+- [sandbox.md](sandbox.md): native agent API and tool workspace contract
 - [storage.md](storage.md): data directory and transcript storage
 - [workspace.md](workspace.md): data-directory tool workspace boundary

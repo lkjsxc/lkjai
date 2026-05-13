@@ -9,7 +9,7 @@ directory instead of exposing the host root.
 
 - `TOOL_WORKSPACE_DIR` defaults to `/app/data/workspace`.
 - Compose mounts project `./data` to `/app/data`.
-- Compose must not mount host `/` into the web container.
+- Compose must not mount host `/` into the sandbox container.
 - Future `shell.exec` runs with current directory set to `TOOL_WORKSPACE_DIR`.
 - `fs.read` and `fs.list` resolve paths under
   `TOOL_WORKSPACE_DIR`.
@@ -17,6 +17,7 @@ directory instead of exposing the host root.
 - Absolute paths and `..` traversal that escape `TOOL_WORKSPACE_DIR` are
   rejected.
 - Tool results are still logged before and after execution.
+- The static web container does not mount `./data` or `TOOL_WORKSPACE_DIR`.
 
 ## Verification
 

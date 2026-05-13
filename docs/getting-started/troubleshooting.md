@@ -19,8 +19,7 @@ Fix:
 - Ensure `MODEL_NAME` points to an existing artifact under
   `data/models/${MODEL_NAME}`.
 - Ensure `data/models/${MODEL_NAME}` exists or run training/export first.
-- Run `docker compose --profile web up --build web` for the merged runtime and
-  model server.
+- Run `docker compose --profile sandbox up --build -d` for the agent API.
 - Run `docker compose --profile inference up --build -d` for direct
   OpenAI-compatible `/v1/*` checks.
 
@@ -35,8 +34,8 @@ MODEL_NAME=decoder-2h-40m-3070
 Symptom: Chat returns `model_error` events.
 
 Check:
-- `curl http://127.0.0.1:8080/api/model`.
-- `curl http://127.0.0.1:8080/v1/models`.
+- `curl http://127.0.0.1:8082/api/model`.
+- `curl http://127.0.0.1:8081/v1/models`.
 
 Fix:
 - Ensure `data/models/${MODEL_NAME}` exists.

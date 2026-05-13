@@ -81,9 +81,11 @@ Set `AGENT_TOOL_PROFILE=mutable` to expose confirmation and confirmed
   confirmation.
 - `kjxlkj` mutations require `AGENT_TOOL_PROFILE=mutable`,
   `agent.request_confirmation`, and a later user confirmation before execution.
-- Command execution is not sandboxed by the application.
-- File and shell tools are bounded to `TOOL_WORKSPACE_DIR`.
+- Command execution is not enabled in the current sandbox.
+- File tools are bounded to `TOOL_WORKSPACE_DIR`.
 - The container must not mount host `/` for agent tools.
+- The sandbox mounts `docs`, `training`, `corpus`, `configs`, `README.md`, and
+  `compose.yaml` read-only under `TOOL_WORKSPACE_DIR`.
 - Tool calls must be logged before execution.
 - Tool results must be logged after execution.
 - Memory writes must be logged.

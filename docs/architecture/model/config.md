@@ -44,26 +44,27 @@ Keep one coherent contract for training, export, and serving on a local RTX
 - FP16 fallback and AMP gradient scaling are backlog items, not accepted dense
   trainer behavior.
 - Activation checkpointing and auto-batch are backlog items.
-- Serving default: native OpenAI-compatible runtime with artifact load,
-  readiness, dense logits checks, and explicit unsupported chat decode.
+- Serving default: native OpenAI-compatible inference with artifact load,
+  readiness, and explicit unsupported chat decode for non-decoder artifacts.
 - Runtime quality must come from real generation. No supervised exact-match
   lookup is allowed in the default path.
 
 ## Environment
 
-- `MODEL_NAME=lkjai-scratch-40m`
+- `MODEL_NAME=decoder-2h-40m-3070`
 - `MODEL_CONTEXT_TOKENS=1024`
 - `MODEL_MAX_NEW_TOKENS=512`
 - `MODEL_TEMPERATURE=0.2`
-- `TRAIN_CONFIG=/workspace/configs/training/dense_40m_accepted_3070.json`
-- `TRAIN_NATIVE_CONFIG=/workspace/configs/native/native_dense_40m_bf16_3070.json`
-- `TRAIN_MODEL_PRESET=dense-40m-3070`
+- `TRAIN_CONFIG=/workspace/configs/training/decoder_2h_40m_3070.json`
+- `TRAIN_NATIVE_CONFIG=/workspace/configs/native/decoder_40m_bf16_3070.json`
+- `TRAIN_MODEL_PRESET=decoder-2h-40m-3070`
 - `TRAIN_OBJECTIVE=causal_lm_full`
 - `TRAIN_EXPORT_CHECKPOINT=best`
 
 ## 40M Agent Preset
 
-`dense-40m-3070` is the active dense training and browser-demo target.
+`decoder-2h-40m-3070` is the active chat artifact target. Dense 40M remains a
+diagnostic foundation, not a chat artifact.
 
 - Vocabulary: `8192`
 - Context: `1024`

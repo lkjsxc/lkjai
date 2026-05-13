@@ -2,15 +2,15 @@
 
 ## Goal
 
-Train and export the current dense BF16 CUDA foundation while preserving the
-40M XML-action pipeline as the target operating path.
+Train and export the current decoder 40M target while preserving the dense BF16
+CUDA foundation as diagnostics evidence.
 
 ## Commands
 
 - `docker compose --profile train up --build train`
 - `docker compose --progress quiet --profile verify run --build --rm verify`
 - `lkjai-native-train --smoke --steps 2`
-- `lkjai-native-inspect --model-dir data/models/dense-40m-3070`
+- `lkjai-native-inspect --model-dir data/models/decoder-2h-40m-3070`
 
 ## Pipeline Order
 
@@ -19,18 +19,18 @@ Train and export the current dense BF16 CUDA foundation while preserving the
 3. Serialize dialogue and assistant action targets.
 4. Train or load the byte-level BPE tokenizer.
 5. Write `lkjai-packed-cache` train, val, and holdout caches.
-6. Train the causal-LM dense foundation through native C++/CUDA.
-7. Save native dense checkpoints and `lkjai-native-artifact` exports.
-8. Run artifact inspect and dense logits checks.
+6. Train the causal-LM decoder through native C++/CUDA.
+7. Save native decoder checkpoints and `lkjai-native-artifact` exports.
+8. Run artifact inspect and decoder route checks.
 9. Confirm native server chat rejects dense/transformer decode and labels
    decoder partial decode honestly when a decoder artifact is present.
 10. Add XML-action SFT and behavioral eval only after decode lands.
 
 ## Defaults
 
-- `TRAIN_CONFIG=/workspace/configs/training/dense_40m_accepted_3070.json`
-- `TRAIN_NATIVE_CONFIG=/workspace/configs/native/native_dense_40m_bf16_3070.json`
-- `TRAIN_MODEL_NAME=dense-40m-3070`
+- `TRAIN_CONFIG=/workspace/configs/training/decoder_2h_40m_3070.json`
+- `TRAIN_NATIVE_CONFIG=/workspace/configs/native/decoder_40m_bf16_3070.json`
+- `TRAIN_MODEL_NAME=decoder-2h-40m-3070`
 - `TRAIN_SEQUENCE_LEN=1024`
 - `TRAIN_MAX_STEPS=400000` optimizer steps
 - `TRAIN_BATCH_SIZE=1`
@@ -74,7 +74,7 @@ decode requires the native route evidence gate.
   required intermediate gate. No deleted Kimi corpus is active.
 - Tokenizer: `data/train/tokenizer`
 - Checkpoints: `data/train/checkpoints`
-- Native exports: `data/models/dense-40m-3070`
+- Native exports: `data/models/decoder-2h-40m-3070`
 - Stable train report: `data/train/runs/train-report.json`
 
 ## Checkpoint Resume
