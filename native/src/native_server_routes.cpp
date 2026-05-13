@@ -15,18 +15,47 @@ std::string error_json(std::string_view error) {
 
 std::string health_json(const ArtifactStatus& artifact,
                         const CudaStatus& cuda) {
+  auto kind = artifact.kind.empty()
+                  ? json_first_string(read_text(artifact.model_dir / "manifest.json"),
+                                      "kind")
+                  : artifact.kind;
+  bool degraded = !artifact.loaded || !cuda.available;
   std::ostringstream out;
   out << "{\"status\":\"ok\",\"loaded\":"
       << (artifact.loaded ? "true" : "false") << ",\"artifact_error\":\""
-      << json_escape(artifact.error) << "\"," << capability_json_fields(cuda)
+      << json_escape(artifact.error) << "\",\"artifact_kind\":\""
+      << json_escape(kind) << "\",\"chat_supported\":"
+      << (kind == "decoder" ? "true" : "false")
+      << ",\"decode_supported\":" << (kind == "decoder" ? "true" : "false")
+      << ",\"degraded\":" << (degraded ? "true" : "false")
+      << ",\"degraded_reason\":\""
+      << json_escape(!artifact.loaded ? artifact.error
+                                      : (cuda.available ? "" : "cuda unavailable"))
+      << "\"," << capability_json_fields(cuda)
       << "}";
   return out.str();
 }
 
-std::string models_json(const std::string& model, const CudaStatus& cuda) {
+std::string models_json(const ArtifactStatus& artifact,
+                        const CudaStatus& cuda) {
+  auto kind = artifact.kind.empty()
+                  ? json_first_string(read_text(artifact.model_dir / "manifest.json"),
+                                      "kind")
+                  : artifact.kind;
+  bool chat = kind == "decoder";
+  bool degraded = !cuda.available;
   std::ostringstream out;
-  out << "{\"data\":[{\"id\":\"" << json_escape(model)
-      << "\",\"object\":\"model\"}]," << capability_json_fields(cuda) << "}";
+  out << "{\"data\":[{\"id\":\"" << json_escape(artifact.model_name)
+      << "\",\"object\":\"model\",\"artifact_kind\":\"" << json_escape(kind)
+      << "\",\"chat_supported\":" << (chat ? "true" : "false")
+      << ",\"decode_supported\":" << (chat ? "true" : "false")
+      << "}],\"artifact_kind\":\"" << json_escape(kind)
+      << "\",\"chat_supported\":" << (chat ? "true" : "false")
+      << ",\"decode_supported\":" << (chat ? "true" : "false")
+      << ",\"degraded\":" << (degraded ? "true" : "false")
+      << ",\"degraded_reason\":\""
+      << json_escape(cuda.available ? "" : "cuda unavailable") << "\","
+      << capability_json_fields(cuda) << "}";
   return out.str();
 }
 
@@ -71,7 +100,7 @@ HttpResponse native_server_route(const HttpRequest& request,
   }
   if (request.method == "GET" && request.path == "/v1/models") {
     if (!artifact.loaded) return {503, error_json(artifact.error)};
-    return {200, models_json(artifact.model_name, cuda)};
+    return {200, models_json(artifact, cuda)};
   }
   if (request.method == "POST" && request.path == "/v1/chat/completions") {
     if (!artifact.loaded) return {503, error_json(artifact.error)};

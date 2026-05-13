@@ -72,7 +72,7 @@ curl --fail http://127.0.0.1:8081/v1/models
 curl -sS -X POST http://127.0.0.1:8081/v1/chat/completions \
   -H 'content-type: application/json' \
   -d '{
-    "model": "decoder-2h-40m-3070",
+    "model": "dense-40m-3070",
     "messages": [{"role": "user", "content": "hello"}],
     "max_tokens": 32,
     "temperature": 0
@@ -80,7 +80,7 @@ curl -sS -X POST http://127.0.0.1:8081/v1/chat/completions \
 ```
 
 For that curl to return `choices`, `.env` must set `MODEL_NAME` to an existing
-decoder export such as `decoder-2h-40m-3070`. Dense and transformer artifacts
+decoder export such as `dense-40m-3070`. Dense and transformer artifacts
 return HTTP `422` without `choices`; missing artifacts make `GET /v1/models`
 return HTTP `503`. This path does not require `GET /` or `/api/chat`.
 
@@ -108,7 +108,7 @@ runtime routes stay under unnumbered `/api/*` names.
 
 ```json
 {
-  "model": "decoder-2h-40m-3070",
+  "model": "dense-40m-3070",
   "api_url": "http://inference:8081/v1/chat/completions",
   "loaded": true,
   "reachable": true,

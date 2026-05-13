@@ -13,7 +13,7 @@ lkjai::RuntimeConfig config_from_env() {
       lkjai::env_string("DATA_DIR", "/app/data"),
       lkjai::env_string("MODEL_API_URL",
                          "http://127.0.0.1:8081/v1/chat/completions"),
-      lkjai::env_string("MODEL_NAME", "lkjai-scratch-40m"),
+      lkjai::env_string("MODEL_NAME", "dense-40m-3070"),
       lkjai::env_string("AGENT_TOOL_PROFILE", "readonly"),
       lkjai::env_string("TOOL_WORKSPACE_DIR", "/app/data/workspace"),
       lkjai::env_string("KJXLKJ_API_URL", "http://127.0.0.1:8080"),

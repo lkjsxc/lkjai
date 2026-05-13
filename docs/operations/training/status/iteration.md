@@ -7,7 +7,7 @@ behavioral reports.
 
 ## Baseline
 
-- Artifact root: `data/models/lkjai-scratch-40m/`.
+- Artifact root: `data/models/dense-diagnostic-scratch-40m/`.
 - Training summary: `data/train/checkpoints/training-summary.json`.
 - Active default parameter target: about `40M`.
 - Current behavioral report: `data/train/runs/behavioral-eval.json`.

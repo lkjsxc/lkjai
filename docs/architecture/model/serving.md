@@ -33,7 +33,7 @@ artifacts prove load and logits, while raw generation belongs to the native
 For OpenAI-compatible chat, select an existing decoder export in `.env`:
 
 ```dotenv
-MODEL_NAME=decoder-2h-40m-3070
+MODEL_NAME=dense-40m-3070
 ```
 
 Then start the API-only inference profile:
@@ -78,7 +78,7 @@ curl --fail http://127.0.0.1:8081/v1/models
 curl -sS -X POST http://127.0.0.1:8081/v1/chat/completions \
   -H 'content-type: application/json' \
   -d '{
-    "model": "decoder-2h-40m-3070",
+    "model": "dense-40m-3070",
     "messages": [{"role": "user", "content": "hello"}],
     "max_tokens": 32,
     "temperature": 0

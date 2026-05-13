@@ -3,7 +3,7 @@
   "name": "scratch_40m_12h",
   "description": "Default RTX 3070 8GB dense BF16 causal-LM run estimate.",
   "preset": "agent",
-  "model_name": "lkjai-scratch-40m",
+  "model_name": "dense-diagnostic-scratch-40m",
   "native_config": "configs/native/native_40m_bf16.json",
   "packed_cache_dir": "/app/data/train/datasets/packed/train-causal_lm_full-seq1024",
   "objective": "causal_lm_full",

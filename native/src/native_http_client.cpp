@@ -119,4 +119,14 @@ std::string model_url_to_models_url(const std::string& chat_url) {
   return chat_url;
 }
 
+std::string model_url_to_health_url(const std::string& chat_url) {
+  const std::string suffix = "/v1/chat/completions";
+  if (chat_url.size() >= suffix.size() &&
+      chat_url.compare(chat_url.size() - suffix.size(), suffix.size(),
+                       suffix) == 0) {
+    return chat_url.substr(0, chat_url.size() - suffix.size()) + "/healthz";
+  }
+  return chat_url;
+}
+
 }  // namespace lkjai

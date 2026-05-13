@@ -87,6 +87,16 @@ ArtifactStatus load_artifact(const std::filesystem::path& root,
     status.error = error;
     return status;
   }
+  auto manifest = read_text(status.model_dir / "manifest.json");
+  auto config = read_text(status.model_dir / "config.json");
+  auto tokenizer = read_text(status.model_dir / "tokenizer.json");
+  status.kind = json_first_string(manifest, "kind");
+  validate_manifest(manifest, config, tokenizer, &status.storage_kind,
+                    &status.error);
+  if (status.model_name == "dense-40m-3070" && status.kind != "decoder") {
+    status.error = "dense-40m-3070 must be a decoder artifact";
+    return status;
+  }
   status.loaded = true;
   return status;
 }

@@ -85,6 +85,13 @@ target_link_libraries(lkjai-native-runtime-agent-contract PRIVATE
   lkjai_native_core
 )
 
+add_executable(lkjai-native-runtime-tools-contract
+  tests/runtime_tools_contract.cpp
+)
+target_link_libraries(lkjai-native-runtime-tools-contract PRIVATE
+  lkjai_native_core
+)
+
 add_executable(lkjai-native-server-route-contract
   tests/server_route_contract.cpp
 )

@@ -82,12 +82,33 @@ bool model_status_contract() {
   lkjai::NativeHttpResponse probe;
   probe.status = 200;
   probe.body = "{\"data\":[],\"device\":\"cuda\",\"cuda_available\":true,"
-               "\"gpu_name\":\"NVIDIA\",\"warning\":\"\"}";
+               "\"gpu_name\":\"NVIDIA\",\"warning\":\"\","
+               "\"artifact_kind\":\"decoder\",\"chat_supported\":true,"
+               "\"decode_supported\":true,\"degraded\":false}";
   auto body = lkjai::runtime_model_status_json(c, probe);
   return expect(has(body, "\"reachable\":true"), "reachable true") &&
          expect(has(body, "\"device\":\"cuda\""), "device field") &&
          expect(has(body, "\"cuda_available\":true"), "cuda field") &&
+         expect(has(body, "\"artifact_kind\":\"decoder\""), "artifact kind") &&
+         expect(has(body, "\"chat_supported\":true"), "chat supported") &&
          expect(has(body, "\"probe_status\":200"), "probe status");
+}
+
+bool degraded_model_status_contract() {
+  auto c = cfg();
+  lkjai::NativeHttpResponse probe;
+  probe.status = 503;
+  probe.body = "{\"loaded\":false,\"artifact_kind\":\"dense\","
+               "\"chat_supported\":false,\"decode_supported\":false,"
+               "\"degraded\":true,\"degraded_reason\":\"wrong kind\","
+               "\"device\":\"cuda\",\"cuda_available\":true}";
+  auto body = lkjai::runtime_model_status_json(c, probe);
+  return expect(has(body, "\"reachable\":true"), "degraded reachable") &&
+         expect(has(body, "\"loaded\":false"), "degraded unloaded") &&
+         expect(has(body, "\"artifact_kind\":\"dense\""), "degraded kind") &&
+         expect(has(body, "\"chat_supported\":false"), "degraded chat") &&
+         expect(has(body, "\"degraded_reason\":\"wrong kind\""),
+                "degraded reason");
 }
 
 bool config_status_contract() {
@@ -165,7 +186,9 @@ bool runs_list_contract() {
 
 int main() {
 	  return chat_filter_contract() && chat_error_contract() &&
-	                 model_status_contract() && config_status_contract() &&
+	                 model_status_contract() &&
+	                 degraded_model_status_contract() &&
+	                 config_status_contract() &&
 	                 health_contract() && run_id_guard_contract() &&
 	                 route_boundary_contract() && runs_list_contract()
 	             ? 0

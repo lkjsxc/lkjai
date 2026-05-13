@@ -10,7 +10,7 @@ CUDA foundation as diagnostics evidence.
 - `docker compose --profile train up --build train`
 - `docker compose --progress quiet --profile verify run --build --rm verify`
 - `lkjai-native-train --smoke --steps 2`
-- `lkjai-native-inspect --model-dir data/models/decoder-2h-40m-3070`
+- `lkjai-native-inspect --model-dir data/models/dense-40m-3070`
 
 ## Pipeline Order
 
@@ -30,7 +30,7 @@ CUDA foundation as diagnostics evidence.
 
 - `TRAIN_CONFIG=/workspace/configs/training/decoder_2h_40m_3070.json`
 - `TRAIN_NATIVE_CONFIG=/workspace/configs/native/decoder_40m_bf16_3070.json`
-- `TRAIN_MODEL_NAME=decoder-2h-40m-3070`
+- `TRAIN_MODEL_NAME=dense-40m-3070`
 - `TRAIN_SEQUENCE_LEN=1024`
 - `TRAIN_MAX_STEPS=400000` optimizer steps
 - `TRAIN_BATCH_SIZE=1`
@@ -74,7 +74,7 @@ decode requires the native route evidence gate.
   required intermediate gate. No deleted Kimi corpus is active.
 - Tokenizer: `data/train/tokenizer`
 - Checkpoints: `data/train/checkpoints`
-- Native exports: `data/models/decoder-2h-40m-3070`
+- Native exports: `data/models/dense-40m-3070`
 - Stable train report: `data/train/runs/train-report.json`
 
 ## Checkpoint Resume

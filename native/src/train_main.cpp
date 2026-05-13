@@ -78,7 +78,7 @@ void prepare_smoke_fixture(const std::filesystem::path& root,
 
 lkjai::DenseTrainReport run_smoke_training(int steps) {
   auto data = std::filesystem::path(lkjai::env_string("DATA_DIR", "/tmp/lkjai-native-smoke"));
-  auto model = lkjai::env_string("MODEL_NAME", "lkjai-scratch-40m");
+  auto model = lkjai::env_string("MODEL_NAME", "dense-40m-3070");
   std::filesystem::path cache;
   std::filesystem::path config;
   prepare_smoke_fixture(data, &cache, &config);

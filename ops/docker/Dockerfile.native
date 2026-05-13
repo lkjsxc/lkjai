@@ -44,7 +44,7 @@ COPY --from=build /build/lkjai-native-repo-check /usr/local/bin/lkjai-native-rep
 COPY --from=build /build/lkjai-native-packed-cache-reader-check /usr/local/bin/lkjai-native-packed-cache-reader-check
 
 ENV MODEL_ROOT=/models
-ENV MODEL_NAME=lkjai-scratch-40m
+ENV MODEL_NAME=dense-40m-3070
 ENV INFERENCE_HOST=0.0.0.0
 ENV INFERENCE_PORT=8081
 

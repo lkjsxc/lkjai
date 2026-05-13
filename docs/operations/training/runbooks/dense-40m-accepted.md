@@ -15,7 +15,7 @@ decode.
   `configs/training/dense_40m_accepted_3070.json`.
 - Native config:
   `configs/native/native_dense_40m_bf16_3070.json`.
-- Model name: `dense-40m-3070`.
+- Model name: `dense-diagnostic-40m-3070`.
 - Local route claim: none. Dense diagnostics are native helper checks; sandbox
   `/api/*` is reserved for agent runtime routes.
 
@@ -46,8 +46,8 @@ The config uses warmup plus cosine decay, `target_seconds=7200`, and
 - `checkpoints/latest/`
 - `checkpoints/best/`
 - `checkpoints/final/`
-- `exports/dense-40m-3070/`
-- `../models/dense-40m-3070/`
+- `exports/dense-diagnostic-40m-3070/`
+- `../models/dense-diagnostic-40m-3070/`
 - `runs/train-report.json`
 
 The report must include `stop_reason`, `deadline_hit`, `lr_schedule`,

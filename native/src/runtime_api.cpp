@@ -54,22 +54,34 @@ std::vector<std::string> runtime_visible_event_kinds(std::string_view body) {
 
 std::string runtime_model_status_json(const RuntimeConfig& cfg,
                                       const NativeHttpResponse& probe) {
-  bool ok = probe.status == 200;
+  bool loaded = probe.status == 200;
+  bool reachable = probe.status > 0;
   std::ostringstream out;
   out << "{\"model\":\"" << json_escape(cfg.model)
       << "\",\"api_url\":\"" << json_escape(cfg.model_url)
-      << "\",\"loaded\":" << (ok ? "true" : "false")
-      << ",\"reachable\":" << (ok ? "true" : "false")
-      << ",\"message\":\"" << (ok ? "model server responding" : "model probe failed")
+      << "\",\"loaded\":" << (loaded ? "true" : "false")
+      << ",\"reachable\":" << (reachable ? "true" : "false")
+      << ",\"message\":\""
+      << (loaded ? "model loaded"
+                 : (reachable ? "model server reachable" : "model probe failed"))
       << "\",\"device\":\"" << json_escape(json_first_string(probe.body, "device"))
       << "\",\"cuda_available\":"
       << (json_bool_value(probe.body, "cuda_available", false) ? "true" : "false")
       << ",\"gpu_name\":\"" << json_escape(json_first_string(probe.body, "gpu_name"))
       << "\",\"warning\":\"" << json_escape(json_first_string(probe.body, "warning"))
       << "\",\"probe_status\":" << probe.status
-      << ",\"artifact_kind\":\"remote\""
-      << ",\"chat_supported\":" << (ok ? "true" : "false")
-      << ",\"dense_supported\":false"
+      << ",\"artifact_kind\":\""
+      << json_escape(json_first_string(probe.body, "artifact_kind")) << "\""
+      << ",\"chat_supported\":"
+      << (json_bool_value(probe.body, "chat_supported", false) ? "true" : "false")
+      << ",\"decode_supported\":"
+      << (json_bool_value(probe.body, "decode_supported", false) ? "true" : "false")
+      << ",\"dense_supported\":"
+      << (json_first_string(probe.body, "artifact_kind") == "dense" ? "true" : "false")
+      << ",\"degraded\":"
+      << (json_bool_value(probe.body, "degraded", !loaded) ? "true" : "false")
+      << ",\"degraded_reason\":\""
+      << json_escape(json_first_string(probe.body, "degraded_reason")) << "\""
       << ",\"tool_profile\":\"" << json_escape(cfg.tool_profile) << "\"}";
   return out.str();
 }
@@ -85,6 +97,13 @@ HttpResponse runtime_route(const RuntimeConfig& cfg, const HttpRequest& request)
   if (request.method == "GET" && request.path == "/healthz") return {200, runtime_health_json(cfg)};
   if (request.method == "GET" && request.path == "/api/model") {
     auto probe = native_http_get(model_url_to_models_url(cfg.model_url));
+    if (probe.status != 200) {
+      auto health = native_http_get(model_url_to_health_url(cfg.model_url));
+      if (health.status == 200) {
+        health.status = probe.status;
+        probe = health;
+      }
+    }
     return {200, runtime_model_status_json(cfg, probe)};
   }
   if (request.method == "GET" && request.path == "/api/config") {

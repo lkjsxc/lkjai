@@ -26,7 +26,7 @@ Fix:
 For direct chat, use a decoder export, for example:
 
 ```dotenv
-MODEL_NAME=decoder-2h-40m-3070
+MODEL_NAME=dense-40m-3070
 ```
 
 ## Chat Returns Model Errors

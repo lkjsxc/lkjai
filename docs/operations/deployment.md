@@ -10,7 +10,7 @@
 
 ```bash
 cp .env.example .env
-mkdir -p data/models/decoder-2h-40m-3070 data/train data/agent data/workspace
+mkdir -p data/models/dense-40m-3070 data/train data/agent data/workspace
 docker compose --profile inference up --build -d
 docker compose --profile sandbox up --build -d
 docker compose --profile web up --build web
@@ -18,7 +18,7 @@ docker compose --profile web up --build web
 
 ## Bootstrap Scratch Artifact
 
-- The default artifact root is `data/models/decoder-2h-40m-3070/`.
+- The default artifact root is `data/models/dense-40m-3070/`.
 - Training export copies tokenizer, config, checkpoint, and serving manifests
   into that directory.
 - Compose web serves static files on `http://127.0.0.1:8080`.

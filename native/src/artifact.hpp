@@ -11,6 +11,8 @@ struct ArtifactStatus {
   bool loaded = false;
   std::string model_name;
   std::filesystem::path model_dir;
+  std::string kind;
+  std::string storage_kind;
   std::string error;
   std::vector<std::string> missing;
 };

@@ -3,7 +3,7 @@
   "name": "dense_40m_accepted_3070",
   "description": "RTX 3070 accepted dense BF16 40M browser-demo target.",
   "preset": "agent",
-  "model_name": "dense-40m-3070",
+  "model_name": "dense-diagnostic-40m-3070",
   "model_kind": "dense",
   "native_config": "configs/native/native_dense_40m_bf16_3070.json",
   "packed_cache_dir": "/app/data/train/datasets/packed/train-causal_lm_full-seq1024",

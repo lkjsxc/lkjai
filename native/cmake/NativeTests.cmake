@@ -77,6 +77,8 @@ add_test(NAME native_runtime_action_contract
   COMMAND lkjai-native-runtime-action-contract)
 add_test(NAME native_runtime_agent_contract
   COMMAND lkjai-native-runtime-agent-contract)
+add_test(NAME native_runtime_tools_contract
+  COMMAND lkjai-native-runtime-tools-contract)
 add_test(NAME native_server_route_contract
   COMMAND lkjai-native-server-route-contract)
 add_test(NAME native_server_route_dense_contract

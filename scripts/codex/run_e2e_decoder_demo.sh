@@ -2,12 +2,12 @@
 set -euo pipefail
 
 RUN_ID="${RUN_ID:-decoder-2h-$(date +%Y%m%d-%H%M%S)}"
-MODEL_NAME="${MODEL_NAME:-decoder-2h-40m-3070}"
+MODEL_NAME="${MODEL_NAME:-dense-40m-3070}"
 TARGET_SECONDS="${TARGET_SECONDS:-7200}"
 SEQ_LEN="${SEQ_LEN:-1024}"
 
 echo "[1/5] Build native and runtime images"
-docker compose --profile inference --profile web --profile train build
+docker compose --profile inference --profile sandbox --profile web --profile train build
 
 echo "[2/5] Run decoder benchmark"
 PHASE="smoke"
@@ -46,12 +46,15 @@ cp -R "$SRC" "data/models/$MODEL_NAME"
 
 echo "[4/5] Start services"
 MODEL_NAME="$MODEL_NAME" docker compose --profile inference up --build -d
+MODEL_NAME="$MODEL_NAME" docker compose --profile sandbox up --build -d
 MODEL_NAME="$MODEL_NAME" docker compose --profile web up -d web
 
 echo "[5/5] Health checks"
 curl --fail http://127.0.0.1:${MODEL_PORT:-8081}/healthz
 curl --fail http://127.0.0.1:${MODEL_PORT:-8081}/v1/models
-curl --fail http://127.0.0.1:${APP_PORT:-8080}/healthz
+curl --fail http://127.0.0.1:${SANDBOX_PORT:-8082}/healthz
+curl --fail http://127.0.0.1:${SANDBOX_PORT:-8082}/api/model
+curl --fail http://127.0.0.1:${APP_PORT:-8080}/
 if [[ "${REQUIRE_ACCEPTED_CUDA:-0}" == "1" ]]; then
   v1="/tmp/lkjai-decoder-v1-$RUN_ID.json"
   api="/tmp/lkjai-decoder-api-chat-$RUN_ID.json"
@@ -66,7 +69,7 @@ if [[ "${REQUIRE_ACCEPTED_CUDA:-0}" == "1" ]]; then
   grep -q '"lkjai_kv_steady_state_token_allocations":0' "$v1"
   grep -q '"lkjai_decode_accepted":true' "$v1"
   ! grep -qi 'canned' "$v1"
-  curl --fail -sS -X POST "http://127.0.0.1:${APP_PORT:-8080}/api/chat" \
+  curl --fail -sS -X POST "http://127.0.0.1:${SANDBOX_PORT:-8082}/api/chat" \
     -H 'content-type: application/json' \
     -d '{"message":"Return a valid agent.finish XML action with content ok.","max_steps":4}' \
     > "$api"

@@ -28,7 +28,7 @@ GET /v1/models
 
 ```json
 {
-  "model": "decoder-2h-40m-3070",
+  "model": "dense-40m-3070",
   "api_url": "http://inference:8081/v1/chat/completions",
   "loaded": true,
   "reachable": true,

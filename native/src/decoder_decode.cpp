@@ -8,8 +8,42 @@
 #include "transformer_report_acceptance.hpp"
 #include "transformer_state.hpp"
 
+#include <memory>
+#include <mutex>
+
 namespace lkjai {
 namespace {
+
+struct CachedDecoderArtifact {
+  std::filesystem::path model_dir;
+  TransformerState state;
+  NativeTokenizer tokenizer;
+};
+
+bool load_cached_decoder(const std::filesystem::path& model_dir,
+                         CachedDecoderArtifact** out, std::string* error) {
+  static std::mutex mutex;
+  static std::unique_ptr<CachedDecoderArtifact> cached;
+  std::lock_guard<std::mutex> lock(mutex);
+  if (cached && cached->model_dir == model_dir) {
+    *out = cached.get();
+    return true;
+  }
+  auto next = std::make_unique<CachedDecoderArtifact>();
+  next->model_dir = model_dir;
+  if (!load_transformer_artifact(model_dir, &next->state, error)) return false;
+  if (!load_native_tokenizer(model_dir / "tokenizer.json", &next->tokenizer,
+                             error)) {
+    return false;
+  }
+  if (!validate_decoder_tokenizer(next->tokenizer, next->state.cfg.vocab_size,
+                                  error)) {
+    return false;
+  }
+  cached = std::move(next);
+  *out = cached.get();
+  return true;
+}
 
 bool accepted_decode_artifact(const std::filesystem::path& model_dir) {
   auto sidecar = read_text(model_dir / "decoder_acceptance.json");
@@ -42,15 +76,10 @@ bool decoder_chat_json(const std::filesystem::path& model_dir,
                        int* http_status,
                        std::string* error) {
   *http_status = 500;
-  TransformerState state;
-  if (!load_transformer_artifact(model_dir, &state, error)) return false;
-  NativeTokenizer tokenizer;
-  if (!load_native_tokenizer(model_dir / "tokenizer.json", &tokenizer, error)) {
-    return false;
-  }
-  if (!validate_decoder_tokenizer(tokenizer, state.cfg.vocab_size, error)) {
-    return false;
-  }
+  CachedDecoderArtifact* cached = nullptr;
+  if (!load_cached_decoder(model_dir, &cached, error)) return false;
+  const auto& state = cached->state;
+  const auto& tokenizer = cached->tokenizer;
   std::string prompt;
   if (!serialize_chat_prompt(request_body, &prompt, error)) {
     *http_status = 400;
@@ -93,7 +122,11 @@ bool decoder_chat_json(const std::filesystem::path& model_dir,
           "\",\"lkjai_kv_prefill_allocated_bytes\":" +
           std::to_string(cache.allocated_bytes) +
           ",\"lkjai_kv_steady_state_token_allocations\":" +
-          std::to_string(generated.steady_state_token_allocations) + ","
+          std::to_string(generated.steady_state_token_allocations) +
+          ",\"lkjai_decode_cuda_kv_cache_used\":" +
+          std::string(generated.cuda_kv_cache_used ? "true" : "false") +
+          ",\"lkjai_decode_workspace_bytes\":" +
+          std::to_string(generated.workspace_bytes) + ","
           "\"lkjai_decode_supported\":true"
           ",\"lkjai_decode_accepted\":" +
           std::string(accepted_decode ? "true" : "false") + "}],"

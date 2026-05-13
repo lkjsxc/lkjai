@@ -18,8 +18,8 @@ training path with Docker Compose.
 ```bash
 cp .env.example .env
 mkdir -p \
-  data/models/lkjai-scratch-40m \
-  data/models/decoder-2h-40m-3070 \
+  data/models/dense-diagnostic-scratch-40m \
+  data/models/dense-40m-3070 \
   data/train data/agent data/workspace
 ```
 
@@ -29,7 +29,7 @@ For chat, `.env` must select an existing decoder export under
 `data/models/${MODEL_NAME}`:
 
 ```dotenv
-MODEL_NAME=decoder-2h-40m-3070
+MODEL_NAME=dense-40m-3070
 ```
 
 Then start the API-only inference profile:
@@ -49,7 +49,7 @@ Minimal chat probe:
 curl -sS -X POST http://127.0.0.1:8081/v1/chat/completions \
   -H 'content-type: application/json' \
   -d '{
-    "model": "decoder-2h-40m-3070",
+    "model": "dense-40m-3070",
     "messages": [{"role": "user", "content": "hello"}],
     "max_tokens": 32,
     "temperature": 0
@@ -61,7 +61,7 @@ OpenAI-compatible `choices`. Dense and transformer artifacts start and report
 readiness when loadable, but `/v1/chat/completions` returns HTTP `422` with no
 `choices`. Missing artifacts make `GET /v1/models` return HTTP `503`.
 
-The default `MODEL_NAME=decoder-2h-40m-3070` expects a decoder export. Dense
+The default `MODEL_NAME=dense-40m-3070` expects a decoder export. Dense
 artifacts can still start, while chat honestly reports unsupported decode.
 
 ## Run Web Runtime
@@ -130,7 +130,7 @@ Expected training artifacts:
 - `data/train/tokenizer/`: local byte-level BPE tokenizer.
 - `data/train/checkpoints/final/`: native decoder checkpoint.
 - `data/train/runs/train-report.json`: native train report.
-- `data/models/decoder-2h-40m-3070/`: serving artifact export.
+- `data/models/dense-40m-3070/`: serving artifact export.
 
 Behavioral chat evaluation is meaningful only for decoder artifacts. Dense
 exports remain training and diagnostics artifacts.

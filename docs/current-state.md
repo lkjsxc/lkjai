@@ -100,6 +100,7 @@ Dense artifacts remain diagnostics and training artifacts only:
 
 - native config: `configs/native/native_dense_40m_bf16_3070.json`
 - training config: `configs/training/dense_40m_accepted_3070.json`
+- diagnostic export name: `dense-diagnostic-40m-3070`
 - evidence: bounded pilot checks, deterministic checksum, logits/top-k output,
   train-report provenance, and truthful unsupported chat decode
 
@@ -113,7 +114,7 @@ The active implementation target is the tied 40M decoder on RTX 3070:
 
 - native config: `configs/native/decoder_40m_bf16_3070.json`
 - training config: `configs/training/decoder_2h_40m_3070.json`
-- serving artifact target: `data/models/decoder-2h-40m-3070`
+- serving artifact target: `data/models/dense-40m-3070`
 - required report fields include `implementation_status=accepted`,
   `accepted_cuda_training=true`, `decoder_cuda_slice=full_decoder`,
   `decoder_block_weight_changed=true`,
@@ -127,7 +128,7 @@ config. Code should validate truth fields and config shape, not treat
 
 ## Research Synthesis
 
-The latest deep research report under `tmp/deep-research-report (58).md`,
+The latest distilled deep research input is `tmp/deep-research-report (60).md`,
 modified `2026-05-13`, was written against repository snapshot `b23be0f`.
 The report supports the active order: hard-fence historical partial decoder
 claims, land accepted native CUDA decode and full-decoder training evidence,

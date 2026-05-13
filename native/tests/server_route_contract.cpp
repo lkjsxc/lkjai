@@ -63,6 +63,10 @@ bool route_contracts() {
                                               dense, cuda, cfg);
   return expect(models.status == 200, "models status") &&
          expect(has(models.body, "\"id\":\"dense-model\""), "models body") &&
+         expect(has(models.body, "\"artifact_kind\":\"dense\""),
+                "dense model kind") &&
+         expect(has(models.body, "\"chat_supported\":false"),
+                "dense chat unsupported metadata") &&
          expect(dense_chat.status == 422, "dense chat unsupported") &&
          expect(!has(dense_chat.body, "\"choices\""), "dense choices absent") &&
          expect(api_model.status == 404, "inference rejects api") &&
@@ -90,7 +94,8 @@ bool missing_model_contract() {
          expect(chat.status == 503, "missing chat status") &&
          expect(!has(chat.body, "\"choices\""), "missing chat choices absent") &&
          expect(health.status == 200, "health still ok") &&
-         expect(has(health.body, "\"loaded\":false"), "health loaded false");
+         expect(has(health.body, "\"loaded\":false"), "health loaded false") &&
+         expect(has(health.body, "\"degraded\":true"), "health degraded");
 }
 
 }  // namespace

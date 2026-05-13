@@ -88,7 +88,11 @@ bool decoder_route_contract() {
             expect(has(resp.body, "\"lkjai_decode_accepted\":false"),
                    "non-accepted disclosure") &&
             expect(has(resp.body, "\"lkjai_kv_steady_state_token_allocations\":0"),
-                   "zero steady-state allocations");
+                   "zero steady-state allocations") &&
+            expect(has(resp.body, "\"lkjai_decode_cuda_kv_cache_used\":true"),
+                   "cuda kv-cache executed") &&
+            expect(has(resp.body, "\"lkjai_decode_workspace_bytes\":"),
+                   "workspace metadata");
   std::ofstream(model_dir / "decoder_acceptance.json")
       << "{\"decode_supported\":true,\"decode_backend\":\"cuda_kv_cache\","
          "\"kv_cache_backend\":\"cuda_contiguous_bf16\"}\n";
