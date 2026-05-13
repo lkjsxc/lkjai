@@ -28,7 +28,9 @@ Use one real native model engine and surface its health honestly.
   quality gates require decoder exports with the real tokenizer.
 - Decoder choices report either accepted `cuda_kv_cache` plus
   `cuda_contiguous_bf16`, or explicit non-accepted CUDA reference names.
-  Accepted disclosure requires zero steady-state token allocation.
+  Accepted disclosure requires zero steady-state token allocation, accepted
+  train-report evidence beside the artifact, and the loaded 40M RTX 3070
+  decoder shape.
 - Every accepted future model step must return one XML action.
 - The runtime system prompt is tracked in native runtime configuration and must
   use the same XML-like serialization as training data.
@@ -62,3 +64,35 @@ Use one real native model engine and surface its health honestly.
 - `MODEL_NAME=lkjai-scratch-40m`
 - `MODEL_MAX_NEW_TOKENS=512`
 - `MODEL_TEMPERATURE=0.2`
+
+## Direct OpenAI-Compatible Chat
+
+Set `.env` to an existing decoder artifact for chat:
+
+```dotenv
+MODEL_NAME=decoder-2h-40m-3070
+```
+
+Start inference without the web runtime:
+
+```bash
+docker compose --profile inference up --build -d
+```
+
+Probe the OpenAI-compatible routes:
+
+```bash
+curl --fail http://127.0.0.1:8081/v1/models
+curl -sS -X POST http://127.0.0.1:8081/v1/chat/completions \
+  -H 'content-type: application/json' \
+  -d '{
+    "model": "decoder-2h-40m-3070",
+    "messages": [{"role": "user", "content": "hello"}],
+    "max_tokens": 32,
+    "temperature": 0
+  }'
+```
+
+Decoder artifacts return `choices` and decode disclosure fields. Dense and
+transformer artifacts return HTTP `422` without `choices`; the server must not
+fall back to canned or pretrained replies.

@@ -20,7 +20,8 @@ preparation work.
 | Lane | State | Accepted Evidence | Blocked Capability |
 |---|---|---|---|
 | `dense` | accepted foundation and browser diagnostics | BF16 CUDA train, checkpoint/export, logits checks, packed-cache IO, local top-k demo | decoder blocks and KV-cache decode |
-| `decoder` | product acceptance target | tied artifacts, tokenizer copy, full-decoder train report fields, CUDA KV-cache route disclosure contract | long-run accepted evidence on the RTX 3070 lane |
+| `decoder` | product acceptance target | tied artifacts, tokenizer copy, full-decoder train report fields, CUDA KV-cache route disclosure contract | accepted two-hour evidence on the RTX 3070 lane |
+| `runtime` | native agent loop | XML actions, transcript persistence, `agent.finish`, `agent.think`, `fs.list`, and `fs.read` | memory, resource, shell, and confirmation execution |
 | `transformer` | diagnostic lane | host/reference checks and probe reports | not an accepted training or serving target |
 
 ## Decoder Limits
@@ -36,14 +37,19 @@ The `decoder` model kind is the product target. Accepted reports must use:
 Partial or historical training reports remain non-claims and must avoid
 accepted backend names. Decoder route responses may still disclose
 `cuda_reference_kv_cache` when the served artifact lacks accepted runtime
-evidence. Accepted route disclosure requires the executed CUDA KV-cache path and
-the accepted sidecar fields.
+evidence. Accepted route disclosure requires the executed CUDA KV-cache path,
+accepted sidecar fields, an adjacent accepted train report, and the loaded
+40M RTX 3070 decoder shape.
 
 The current decoder implementation target is the accepted path: full decoder
 training state updates, optimizer moments for every trainable tensor,
 checkpoint/export coverage, logits checks, and CUDA KV-cache generation. The
-remaining blocker is generated evidence from the documented RTX 3070
-acceptance lane.
+current code stage is still experimental because training uses host-reference
+forward/backward with CUDA probes, and serving uses non-accepted decode
+disclosure. The blockers are real device-resident full decoder backward,
+accepted CUDA KV-cache route evidence, and generated two-hour evidence from the
+documented RTX 3070 acceptance lane. Smaller or random decoder tests prove
+plumbing only.
 
 ## Data Readiness
 
@@ -122,13 +128,11 @@ config. Code should validate truth fields and config shape, not treat
 
 ## Research Synthesis
 
-The latest deep research report under `tmp/deep-research-report (56).md`,
-modified `2026-05-12`, was written against repository snapshot `193ab03`.
-Current `main` has later work, including chat-first operator surface changes,
-but the report still supports the active order: hard-fence historical partial
-decoder claims, land accepted native CUDA decode and full-decoder training
-evidence, and only then broaden streaming, batching, frontend, and multi-GPU
-work.
+The latest deep research report under `tmp/deep-research-report (58).md`,
+modified `2026-05-13`, was written against repository snapshot `b23be0f`.
+The report supports the active order: hard-fence historical partial decoder
+claims, land accepted native CUDA decode and full-decoder training evidence,
+and only then broaden streaming, batching, frontend, and multi-GPU work.
 
 Durable conclusions now owned by docs:
 

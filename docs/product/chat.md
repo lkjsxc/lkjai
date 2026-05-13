@@ -8,9 +8,9 @@ State: canonical product chat surface contract.
 - `GET /` serves the static no-build native browser status/chat page.
 - `POST /api/chat` is the primary product chat surface.
 - API clients receive transcript run id, model state, and tool results.
-- The implemented foundation persists user, assistant, and error events.
-- Reasoning, plan, tool, observation, memory, finish, and confirmation events
-  are the target agent-loop contract.
+- The implemented foundation persists user, assistant, error, reasoning, plan,
+  tool, observation, and finish events.
+- Memory and confirmation events are the target agent-loop contract.
 - Visibility settings are client-side preferences sent with chat requests.
 - The app is local-only by default.
 - There is no login in the current product.
@@ -20,15 +20,16 @@ State: canonical product chat surface contract.
 | Layer | Current accepted behavior | Target behavior |
 |---|---|---|
 | Dense artifact | Browser diagnostics, status, logits, top-k, checksum | Stay non-chat and support demo evidence |
-| Chat route | Bounded XML-action loop for `agent.finish` and `agent.think` | Read-only tools, memory, summaries, and confirmations |
+| Chat route | Bounded XML-action loop for `agent.finish`, `agent.think`, `fs.list`, and `fs.read` | Memory, summaries, and confirmations |
 | Decoder route | CUDA decoder choices with truthful accepted/non-accepted disclosure | Broader streaming and batching metrics |
-| Tools | Core agent actions only in the first loop | Read-only filesystem and `kjxlkj` resource tools |
+| Tools | Native read-only filesystem tools | `kjxlkj` resource tools |
 
 ## Behavior
 
 - User prompts are sent to `POST /api/chat`.
 - The implemented foundation runs a bounded XML-action loop.
-- The first loop executes `agent.finish` and `agent.think`.
+- The first loop executes `agent.finish`, `agent.think`, `fs.list`, and
+  `fs.read`.
 - Unsupported tools stop as `tool_error` until their contracts land.
 - Non-tool prompts use the same HTTP path as later tool prompts.
 - Model-status strings are not valid assistant replies.
@@ -38,8 +39,8 @@ State: canonical product chat surface contract.
 - Repeated identical non-terminal model actions stop as `repeat_action`.
 - Visible `<reasoning>`, `plan`, `finish`, and `assistant` events are persisted
   when produced by the implemented core agent tools.
-- Filesystem, resource, memory, confirmation, and shell tools remain target
-  work until their profile gates pass.
+- Resource, memory, confirmation, and shell tools remain target work until
+  their profile gates pass.
 - Every run is persisted as JSONL under `data/agent/runs/`.
 - The runtime must use a real model endpoint; policy-file dummy responses are not
   an accepted default.

@@ -16,12 +16,19 @@ curl -v http://127.0.0.1:8081/v1/models
 ```
 
 Fix:
-- Ensure `MODEL_NAME=lkjai-scratch-40m` unless testing another artifact.
+- Ensure `MODEL_NAME` points to an existing artifact under
+  `data/models/${MODEL_NAME}`.
 - Ensure `data/models/${MODEL_NAME}` exists or run training/export first.
 - Run `docker compose --profile web up --build web` for the merged runtime and
   model server.
-- Run `docker compose --profile inference up --build inference` only for direct
-  `/v1/*` checks.
+- Run `docker compose --profile inference up --build -d` for direct
+  OpenAI-compatible `/v1/*` checks.
+
+For direct chat, use a decoder export, for example:
+
+```dotenv
+MODEL_NAME=decoder-2h-40m-3070
+```
 
 ## Chat Returns Model Errors
 
@@ -33,8 +40,10 @@ Check:
 
 Fix:
 - Ensure `data/models/${MODEL_NAME}` exists.
-- Use a decoder artifact for CUDA choices. Accepted chat disclosure requires
-  CUDA KV-cache decode evidence.
+- Use a decoder artifact for OpenAI-compatible `choices` on
+  `http://127.0.0.1:8081/v1/chat/completions`. Dense and transformer artifacts
+  return HTTP `422` without `choices`.
+- Accepted chat disclosure requires CUDA KV-cache decode evidence.
 
 ## Training Finishes Instantly
 

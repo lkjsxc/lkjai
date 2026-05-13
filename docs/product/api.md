@@ -69,9 +69,10 @@ the loaded artifact.
 - When omitted, the server returns all events for API clients.
 - When present, the response `events` array contains only matching event kinds.
 - Filtering never changes what is persisted to the run transcript.
-- The implemented core loop executes `agent.finish` and `agent.think`.
+- The implemented core loop executes `agent.finish`, `agent.think`,
+  `fs.list`, and `fs.read`.
 - `max_steps` bounds model/action attempts in one user turn.
-- Filesystem, memory, resource, shell, and website tools remain target work.
+- Memory, resource, shell, and website tools remain target work.
 
 ## `POST /api/chat` Response
 
@@ -90,6 +91,28 @@ unsupported decode from `/v1/chat/completions`. Decoder artifacts are the
 product target. Decoder choices use the native CUDA route and disclose accepted
 CUDA KV-cache decode only when the executed route evidence is present.
 
+## Direct OpenAI-Compatible Chat
+
+The direct chat path is API-only:
+
+```bash
+docker compose --profile inference up --build -d
+curl --fail http://127.0.0.1:8081/v1/models
+curl -sS -X POST http://127.0.0.1:8081/v1/chat/completions \
+  -H 'content-type: application/json' \
+  -d '{
+    "model": "decoder-2h-40m-3070",
+    "messages": [{"role": "user", "content": "hello"}],
+    "max_tokens": 32,
+    "temperature": 0
+  }'
+```
+
+For that curl to return `choices`, `.env` must set `MODEL_NAME` to an existing
+decoder export such as `decoder-2h-40m-3070`. Dense and transformer artifacts
+return HTTP `422` without `choices`; missing artifacts make `GET /v1/models`
+return HTTP `503`. This path does not require `GET /` or `/api/chat`.
+
 ## Decode Capability Matrix
 
 | Artifact kind | `/v1/chat/completions` result | Product role |
@@ -100,7 +123,9 @@ CUDA KV-cache decode only when the executed route evidence is present.
 
 Accepted decoder chat requires `decode_backend=cuda_kv_cache`,
 `kv_cache_backend=cuda_contiguous_bf16`, and KV allocation accounting in the
-response. Non-accepted decoder route responses report
+response. Accepted disclosure also requires the accepted train report copied
+beside the artifact and a loaded 40M RTX 3070 decoder shape; a sidecar alone
+does not promote the response. Non-accepted decoder route responses report
 `lkjai_decode_backend=cuda_reference_kv_cache`,
 `lkjai_kv_cache_backend=cuda_contiguous_bf16_partial`,
 `lkjai_decode_supported=true`, and `lkjai_decode_accepted=false`.
@@ -196,6 +221,12 @@ executing resource mutations.
 
 `reasoning` events come from the model's `<reasoning>` child tag. They are
 visible brief rationales and must not contain hidden chain-of-thought detail.
+
+`fs.list` accepts optional `<path>` and defaults to `.`. `fs.read` requires
+`<path>`. Both reject absolute paths and workspace escapes, append
+`tool_call`, `tool_result`, and `observation` events, and return JSON result
+content with `tool`, `status`, `path`, `entries` or `content`, and
+`truncated`.
 
 ## Error Contract
 

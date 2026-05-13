@@ -59,7 +59,8 @@ The current non-accepted decoder runtime reports
 `lkjai_decode_supported=true`, and `lkjai_decode_accepted=false`.
 
 Accepted runtime disclosure must not be driven by `decoder_acceptance.json`
-alone. It requires real CUDA KV-cache decode and route evidence.
+alone. It requires real CUDA KV-cache decode, an adjacent accepted train
+report, loaded 40M RTX 3070 decoder shape, and route evidence.
 
 ## Environment
 

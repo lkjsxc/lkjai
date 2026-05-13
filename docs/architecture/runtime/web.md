@@ -9,9 +9,9 @@
 - The same process serves `/healthz`, `/api/*`, and `/v1/*`.
 - JSON APIs for chat, transcript lists, transcript details, and dense logits.
 - OpenAI-compatible model routes for generation.
-- Implemented transcripts label user, assistant, and error events.
-- Target transcripts also label reasoning, plan, tool call, tool result,
-  observation, memory, finish, and confirmation events.
+- Implemented transcripts label user, assistant, error, reasoning, plan, tool
+  call, tool result, observation, and finish events.
+- Target transcripts also label memory and confirmation events.
 - Client visibility controls are API fields and never alter persisted run
   transcripts.
 
@@ -46,5 +46,5 @@
 - `/api/dense/status` and `/api/dense/next-token` validate dense demo readiness
   and token-id payloads.
 - The runtime persists all events before response filtering.
-- Full XML action parsing, tool execution, memory writes, and confirmation
-  resume are target work.
+- XML action parsing and native read-only filesystem tool execution are
+  implemented. Memory writes and confirmation resume are target work.

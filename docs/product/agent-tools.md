@@ -8,12 +8,15 @@ State: canonical tool profile and confirmation contract.
 The default runtime profile is `readonly`. It exposes only tools that can run
 without changing project, memory, or `kjxlkj` state.
 
-Enabled by default:
+Implemented by default:
 
 - `agent.think`
 - `agent.finish`
 - `fs.read`
 - `fs.list`
+
+Named but not implemented yet:
+
 - `memory.search`
 - `resource.search`
 - `resource.fetch`

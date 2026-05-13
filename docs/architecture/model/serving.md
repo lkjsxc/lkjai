@@ -28,6 +28,23 @@ artifacts prove load and logits, while raw generation belongs to the native
 - Decoder artifacts with the real local tokenizer may return `choices`; dense
   and transformer artifacts must not.
 
+## Direct Compose Path
+
+For OpenAI-compatible chat, select an existing decoder export in `.env`:
+
+```dotenv
+MODEL_NAME=decoder-2h-40m-3070
+```
+
+Then start the API-only inference profile:
+
+```bash
+docker compose --profile inference up --build -d
+```
+
+The route is `http://127.0.0.1:8081/v1/chat/completions`. No browser UI and no
+`/api/chat` route are required for this path.
+
 ## Runtime Rules
 
 - Required files: `manifest.json`, `config.json`, `tokenizer.json`,
@@ -56,9 +73,18 @@ artifacts prove load and logits, while raw generation belongs to the native
 ## Verification
 
 ```bash
-docker compose --profile inference up -d --build inference
-sleep 5
-curl -sf http://127.0.0.1:8081/v1/models | jq '.data[0].id'
+docker compose --profile inference up --build -d
+curl --fail http://127.0.0.1:8081/v1/models
+curl -sS -X POST http://127.0.0.1:8081/v1/chat/completions \
+  -H 'content-type: application/json' \
+  -d '{
+    "model": "decoder-2h-40m-3070",
+    "messages": [{"role": "user", "content": "hello"}],
+    "max_tokens": 32,
+    "temperature": 0
+  }'
 ```
 
-Expected: `lkjai-scratch-40m` when exported artifacts are readable.
+Expected: decoder artifacts return `choices`; dense and transformer artifacts
+return HTTP `422` with no `choices`. Missing artifacts make `GET /v1/models`
+return HTTP `503`.

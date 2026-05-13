@@ -10,9 +10,10 @@ directory instead of exposing the host root.
 - `TOOL_WORKSPACE_DIR` defaults to `/app/data/workspace`.
 - Compose mounts project `./data` to `/app/data`.
 - Compose must not mount host `/` into the web container.
-- `shell.exec` runs with current directory set to `TOOL_WORKSPACE_DIR`.
-- `fs.read`, `fs.write`, and `fs.list` resolve paths under
+- Future `shell.exec` runs with current directory set to `TOOL_WORKSPACE_DIR`.
+- `fs.read` and `fs.list` resolve paths under
   `TOOL_WORKSPACE_DIR`.
+- `fs.write` is disabled in the default profile.
 - Absolute paths and `..` traversal that escape `TOOL_WORKSPACE_DIR` are
   rejected.
 - Tool results are still logged before and after execution.

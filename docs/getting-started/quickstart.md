@@ -2,8 +2,8 @@
 
 ## Goal
 
-Bring up the local agent runtime and run the scratch training path with Docker
-Compose.
+Bring up the direct OpenAI-compatible inference route and run the scratch
+training path with Docker Compose.
 
 ## Prerequisites
 
@@ -22,6 +22,48 @@ mkdir -p \
   data/models/dense-40m-3070 \
   data/train data/agent data/workspace
 ```
+
+## Run OpenAI-Compatible Inference
+
+For chat, `.env` must select an existing decoder export under
+`data/models/${MODEL_NAME}`:
+
+```dotenv
+MODEL_NAME=decoder-2h-40m-3070
+```
+
+Then start the API-only inference profile:
+
+```bash
+docker compose --profile inference up --build -d
+```
+
+OpenAI-compatible routes:
+
+- `curl --fail http://127.0.0.1:8081/v1/models`
+- `http://127.0.0.1:8081/v1/chat/completions`
+
+Minimal chat probe:
+
+```bash
+curl -sS -X POST http://127.0.0.1:8081/v1/chat/completions \
+  -H 'content-type: application/json' \
+  -d '{
+    "model": "decoder-2h-40m-3070",
+    "messages": [{"role": "user", "content": "hello"}],
+    "max_tokens": 32,
+    "temperature": 0
+  }'
+```
+
+Decoder artifacts with the real local byte-level BPE `tokenizer.json` return
+OpenAI-compatible `choices`. Dense and transformer artifacts start and report
+readiness when loadable, but `/v1/chat/completions` returns HTTP `422` with no
+`choices`. Missing artifacts make `GET /v1/models` return HTTP `503`.
+
+The default `MODEL_NAME=lkjai-scratch-40m` is not changed here. If that artifact
+is dense, the profile can still start, while chat honestly reports unsupported
+decode.
 
 ## Run Web Runtime
 
@@ -47,14 +89,6 @@ readiness plus logits-oriented native checks. Dense and transformer artifacts
 return HTTP `422` with no `choices` for `/v1/chat/completions`. Decoder
 artifacts can return chat choices only when the artifact includes the real local
 byte-level BPE `tokenizer.json`.
-
-## Run Inference Alone
-
-```bash
-docker compose --profile inference up --build inference
-```
-
-Use this only when probing model routes without the web UI.
 
 ## Run Scratch Training
 

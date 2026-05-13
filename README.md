@@ -30,6 +30,10 @@ task instead of reading the tree linearly.
   explicit unsupported chat decode. Decoder exports may return choices through
   the current host-reference recompute bridge, but that is partial usability
   only and not accepted CUDA KV-cache serving.
+- Direct OpenAI-compatible chat runs with
+  `docker compose --profile inference up --build -d` and serves
+  `http://127.0.0.1:8081/v1/chat/completions`. Set `MODEL_NAME` to an existing
+  decoder export such as `decoder-2h-40m-3070` for chat choices.
 - `train` runs the two-hour dense 40M packed-cache training profile from
   scratch; smoke checks are explicit native trainer invocations.
 - Dense BF16 CUDA training is the accepted substrate. The decoder CUDA slice is

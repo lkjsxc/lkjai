@@ -5,7 +5,8 @@ State: canonical Compose profile, mount, port, and verification contract.
 
 ## Profiles
 
-- `inference`: current native OpenAI-compatible scratch inference service.
+- `inference`: current native OpenAI-compatible scratch inference service on
+  `http://127.0.0.1:8081`.
 - `web`: merged native server with `/api/*` runtime routes and `/v1/*`
   inference routes.
 - `train`: native scratch training container.
@@ -20,14 +21,15 @@ State: canonical Compose profile, mount, port, and verification contract.
 - Training exports under `/app/data/models/${TRAIN_MODEL_NAME}` by default;
   serving still selects artifacts with `MODEL_NAME`.
 - The `web` profile does not start a second model service.
-- The `inference` profile remains as a direct `/v1/*` diagnostic service.
+- The `inference` profile remains as the direct `/v1/*` OpenAI-compatible API
+  service. It does not require the browser UI or `/api/chat`.
 - The merged server process owns both `/api/*` and `/v1/*` routes.
 - Model readiness is reported separately through `/api/model` and
   `GET /v1/models`.
 - Inference loads exported native artifacts. Dense and transformer artifacts
   return HTTP `422` unsupported with no `choices`; decoder artifacts can return
-  CUDA choices when exported with the real local tokenizer. Accepted CUDA decode
-  disclosure requires the decoder evidence gate.
+  OpenAI-compatible `choices` when exported with the real local tokenizer.
+  Accepted CUDA decode disclosure requires the decoder evidence gate.
 - Inference must not use exact supervised lookup, prompt matching, or canned
   response tables.
 - Training writes datasets, tokenizer, checkpoints, exports, and logs under
@@ -71,7 +73,7 @@ mkdir -p \
   data/models/lkjai-scratch-40m \
   data/models/dense-40m-3070 \
   data/train data/agent data/workspace
-docker compose --profile inference up --build inference
+docker compose --profile inference up --build -d
 docker compose --profile web up --build web
 docker compose --profile corpus run --build --rm corpus download-public-pretrain
 docker compose --profile corpus run --build --rm corpus build-tokenizer
@@ -80,6 +82,36 @@ docker compose --profile corpus run --rm corpus build-public-pretrain-cache
 docker compose --profile train up --build train
 docker compose --progress quiet --profile verify run --build --rm verify
 ```
+
+Use this detached command for direct OpenAI-compatible chat:
+
+```bash
+docker compose --profile inference up --build -d
+```
+
+For chat, `.env` must point `MODEL_NAME` at an existing decoder export:
+
+```dotenv
+MODEL_NAME=decoder-2h-40m-3070
+```
+
+Minimal API probes:
+
+```bash
+curl --fail http://127.0.0.1:8081/v1/models
+curl -sS -X POST http://127.0.0.1:8081/v1/chat/completions \
+  -H 'content-type: application/json' \
+  -d '{
+    "model": "decoder-2h-40m-3070",
+    "messages": [{"role": "user", "content": "hello"}],
+    "max_tokens": 32,
+    "temperature": 0
+  }'
+```
+
+Expected chat result depends on the artifact kind: decoder artifacts return
+`choices`; dense and transformer artifacts return HTTP `422` without `choices`.
+If `data/models/${MODEL_NAME}` is missing, `GET /v1/models` returns HTTP `503`.
 
 ## Compact Output
 

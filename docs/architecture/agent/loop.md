@@ -28,7 +28,11 @@ Execute one user turn as a bounded multi-step loop.
 - `agent.finish`: append `finish` and `assistant` events and stop with
   `finish`.
 - `agent.think`: append a visible `plan` event and continue the loop.
-- Any other tool stops as `tool_error` until the read-only tool runner lands.
+- `fs.list`: list a workspace directory and append `tool_result` plus
+  `observation`.
+- `fs.read`: read a workspace file and append `tool_result` plus
+  `observation`.
+- Any other tool stops as `tool_error` until its runner lands.
 
 ## Model Unreachable Guard
 

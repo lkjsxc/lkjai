@@ -3,9 +3,9 @@
 ## Source
 
 This file distills decoder-relevant conclusions from ignored reports including
-`tmp/deep-research-report (56).md`, modified `2026-05-12`,
-`tmp/deep-research-report (52).md`, and older research notes into durable
-canon. Reports under `tmp/` are source evidence, not canonical docs.
+`tmp/deep-research-report (58).md`, modified `2026-05-13`, plus older
+research notes into durable canon. Reports under `tmp/` are source evidence,
+not canonical docs.
 
 ## Canon Decision
 
