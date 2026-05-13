@@ -93,8 +93,8 @@ add_test(NAME native_decoder_route_contract
   COMMAND lkjai-native-decoder-route-contract)
 add_test(NAME native_decoder_acceptance_report_contract
   COMMAND lkjai-native-decoder-acceptance-report-contract)
-add_test(NAME native_status_page_contract
-  COMMAND lkjai-native-status-page-contract)
+add_test(NAME native_static_web_contract
+  COMMAND lkjai-native-static-web-contract)
 add_test(NAME native_decoder_cuda_attention_plan
   COMMAND lkjai-native-decoder-cuda-attention-plan-check)
 
@@ -105,7 +105,7 @@ set_tests_properties(native_decoder_cuda_block_forward_substrate PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
 set_tests_properties(native_decoder_cuda_full_forward PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
-set_tests_properties(native_status_page_contract PROPERTIES
+set_tests_properties(native_static_web_contract PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
 
 add_test(

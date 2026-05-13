@@ -17,8 +17,7 @@ bool positive_block_weight_evidence(const TransformerTrainReport& r) {
 }
 
 bool accepted_attention_backend(const TransformerTrainReport& r) {
-  return r.attention_backend == "cuda_causal_gqa_bf16_reference" ||
-         r.attention_backend == "cudnn_sdpa";
+  return r.attention_backend == "cuda_causal_gqa_bf16_reference";
 }
 
 bool accepted_decode_support(const TransformerTrainReport& r) {
@@ -63,9 +62,10 @@ double json_double_after(std::string_view text, std::string_view needle) {
 
 bool require_artifact(const std::filesystem::path& dir, std::string_view label,
                       std::string* error) {
-  if (std::filesystem::is_regular_file(dir / "manifest.json")) return true;
-  *error = std::string(label) + " artifact manifest missing";
-  return false;
+  if (!std::filesystem::is_regular_file(dir / "manifest.json")) {
+    *error = std::string(label) + " artifact manifest missing"; return false;
+  }
+  return true;
 }
 
 }  // namespace
@@ -126,6 +126,16 @@ bool transformer_emitted_decoder_evidence_accepted(
     *error = "train report missing positive decoder quantitative deltas";
     return false;
   }
+  if (!contains_json_string(body, "attention_backend",
+                            "cuda_causal_gqa_bf16_reference") ||
+      !contains_json_string(body, "decoder_cuda_slice", "full_decoder") ||
+      !contains_json_string(body, "forward_backend", "cuda_full_decoder") ||
+      !contains_json_string(body, "backward_backend", "cuda_full_decoder") ||
+      !contains_json_string(body, "decoder_backward_backend",
+                            "cuda_full_decoder")) {
+    *error = "train report missing accepted CUDA decoder backends";
+    return false;
+  }
   if (!contains_json_string(body, "decode_backend", kDecoderAcceptedDecodeBackend) ||
       !contains_json_string(body, "kv_cache_backend",
                             kDecoderAcceptedKvCacheBackend)) {
@@ -170,28 +180,20 @@ std::vector<std::string> transformer_report_limitations(
                                     : "host_reference_forward");
   out.push_back(r.decoder_cuda_path ? "decoder_forward_partial"
                                     : "host_surrogate_backward");
-  if (r.forward_backend != "cuda_full_decoder") {
+  if (r.forward_backend != "cuda_full_decoder")
     out.push_back("full_forward_not_accepted");
-  }
-  if (r.backward_backend != "cuda_full_decoder") {
+  if (r.backward_backend != "cuda_full_decoder")
     out.push_back("full_backward_not_accepted");
-  }
-  if (r.attention_backend == "not_implemented") {
+  if (r.attention_backend == "not_implemented")
     out.push_back("attention_not_implemented");
-  }
-  if (r.decoder_backward_backend == "not_implemented") {
+  if (r.decoder_backward_backend == "not_implemented")
     out.push_back("decoder_backward_not_implemented");
-  }
-  if (r.model_kind == "decoder" && !r.decoder_block_weight_changed) {
+  if (r.model_kind == "decoder" && !r.decoder_block_weight_changed)
     out.push_back("decoder_block_weights_not_updated");
-  }
-  if (r.model_kind == "decoder" && r.decoder_cuda_slice != "full_decoder") {
+  if (r.model_kind == "decoder" && r.decoder_cuda_slice != "full_decoder")
     out.push_back("decoder_block_optimizer_not_implemented");
-  }
   if (r.kv_cache_backend == "none") out.push_back("kv_cache_not_implemented");
-  if (!accepted_decode_support(r)) {
-    out.push_back("autoregressive_decode_unsupported");
-  }
+  if (!accepted_decode_support(r)) out.push_back("autoregressive_decode_unsupported");
   return out;
 }
 

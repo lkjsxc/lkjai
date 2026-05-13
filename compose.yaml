@@ -2,7 +2,7 @@ name: lkjai
 
 services:
   inference:
-    profiles: ["inference"]
+    profiles: ["inference", "sandbox"]
     build:
       context: .
       dockerfile: ops/docker/Dockerfile.native
@@ -16,7 +16,7 @@ services:
       INFERENCE_PORT: 8081
       LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
       MODEL_ROOT: /models
-      MODEL_NAME: ${MODEL_NAME:-dense-40m-3070}
+      MODEL_NAME: ${MODEL_NAME:-decoder-40m-3070}
     volumes:
       - ./data/models:/models
       - ./data:/app/data
@@ -74,7 +74,7 @@ services:
       SANDBOX_PORT: 8082
       DATA_DIR: ${DATA_DIR:-/app/data}
       MODEL_API_URL: ${MODEL_API_URL:-http://inference:8081/v1/chat/completions}
-      MODEL_NAME: ${MODEL_NAME:-dense-40m-3070}
+      MODEL_NAME: ${MODEL_NAME:-decoder-40m-3070}
       AGENT_TOOL_PROFILE: ${AGENT_TOOL_PROFILE:-readonly}
       TOOL_WORKSPACE_DIR: ${TOOL_WORKSPACE_DIR:-/app/data/workspace}
       KJXLKJ_API_URL: ${KJXLKJ_API_URL:-http://host.docker.internal:8080}
@@ -110,7 +110,7 @@ services:
     environment:
       DATA_DIR: ${TRAIN_DATA_DIR:-/app/data/train}
       LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
-      MODEL_NAME: ${TRAIN_MODEL_NAME:-dense-40m-3070}
+      MODEL_NAME: ${TRAIN_MODEL_NAME:-decoder-40m-3070}
       TRAIN_MODEL_KIND: ${TRAIN_MODEL_KIND:-decoder}
       TRAIN_CONFIG: ${TRAIN_CONFIG:-/workspace/configs/training/decoder_2h_40m_3070.json}
       TRAIN_NATIVE_CONFIG: ${TRAIN_NATIVE_CONFIG:-/workspace/configs/native/decoder_40m_bf16_3070.json}

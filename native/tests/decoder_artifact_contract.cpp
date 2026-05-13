@@ -55,7 +55,7 @@ bool artifact_contract() {
   lkjai::TransformerState state;
   init_transformer_state(cfg(), &state);
   std::string checksum;
-  auto export_dir = root / "dense-40m-3070";
+  auto export_dir = root / "decoder-40m-3070";
   auto checkpoint_dir = root / "checkpoint";
   if (!write_transformer_artifact(export_dir, state, 2, 2, 1, 4, 1, 1.0,
                                   false, &checksum, tokenizer)) {
@@ -94,7 +94,7 @@ bool artifact_contract() {
                 error) &&
          expect(lkjai::contains_json_string(logits_json, "status", "pass"),
                 "logits check status") &&
-         expect(lkjai::load_artifact(root, "dense-40m-3070").loaded,
+         expect(lkjai::load_artifact(root, "decoder-40m-3070").loaded,
                 "product decoder artifact loads");
 }
 

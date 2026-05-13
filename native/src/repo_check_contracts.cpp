@@ -161,13 +161,13 @@ void check_decoder_train_compose_contract(const std::filesystem::path& repo,
                                           RepoCheckResult* result) {
   auto compose = repo / "compose.yaml";
   auto train = repo / "configs/training/decoder_2h_40m_3070.json";
-  for (auto needle : {"MODEL_NAME: ${TRAIN_MODEL_NAME:-dense-40m-3070}",
+  for (auto needle : {"MODEL_NAME: ${TRAIN_MODEL_NAME:-decoder-40m-3070}",
                       "TRAIN_CONFIG: ${TRAIN_CONFIG:-/workspace/configs/training/decoder_2h_40m_3070.json}",
                       "TRAIN_NATIVE_CONFIG: ${TRAIN_NATIVE_CONFIG:-/workspace/configs/native/decoder_40m_bf16_3070.json}",
                       "command: [\"--train\", \"--mode\", \"decoder\"]"})
     require_contains(compose, needle, result);
   for (auto needle : {"\"target_seconds\": 7200", "\"save_latest_every_optimizer_steps\": 512",
-                      "\"model_name\": \"dense-40m-3070\""})
+                      "\"model_name\": \"decoder-40m-3070\""})
     require_contains(train, needle, result);
 }
 }  // namespace

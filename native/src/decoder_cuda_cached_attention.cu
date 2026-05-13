@@ -17,7 +17,7 @@ __global__ void cached_attention_kernel(
   int d = i % head_dim;
   int h = (i / head_dim) % heads;
   int b = i / (head_dim * heads);
-  int kv_h = h % kv_heads;
+  int kv_h = h / (heads / kv_heads);
   size_t q_base = (static_cast<size_t>(b) * heads + h) * head_dim;
   float scale = rsqrtf(static_cast<float>(head_dim));
   float max_score = -INFINITY;

@@ -21,7 +21,7 @@ std::vector<float> cpu_attention(const std::vector<float>& q,
   for (int b = 0; b < batch; ++b) {
     for (int t = 0; t < seq; ++t) {
       for (int h = 0; h < heads; ++h) {
-        int kv_h = h % kv_heads;
+        int kv_h = h / (heads / kv_heads);
         size_t qb = ((size_t(b) * seq + t) * heads + h) * head_dim;
         float max_score = -INFINITY;
         std::vector<float> score(t + 1);

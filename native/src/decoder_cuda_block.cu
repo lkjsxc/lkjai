@@ -64,7 +64,7 @@ __global__ void causal_gqa_attention_bf16_kernel(
   int h = (i / head_dim) % heads;
   int t = (i / (head_dim * heads)) % seq;
   int b = i / (head_dim * heads * seq);
-  int kv_h = h % kv_heads;
+  int kv_h = h / (heads / kv_heads);
   size_t q_base =
       ((static_cast<size_t>(b) * seq + t) * heads + h) * head_dim;
   float scale = rsqrtf(static_cast<float>(head_dim));

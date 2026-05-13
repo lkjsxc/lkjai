@@ -46,6 +46,7 @@ bool static_web_contract() {
          expect(!has(app, "fetch(\"/api"), "no local api fetch double") &&
          expect(!has(app, "fetch('/v1"), "no local v1 fetch") &&
          expect(!has(app, "fetch(\"/v1"), "no local v1 fetch double") &&
+         expect(!has(app, "innerHTML"), "web app avoids html injection") &&
          expect(has(nginx, "listen 8080"), "web listens on 8080");
 }
 

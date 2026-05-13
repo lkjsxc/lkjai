@@ -130,8 +130,8 @@ bool acceptance_contract() {
 bool cudnn_attention_contract() {
   auto r = accepted_report();
   r.attention_backend = "cudnn_sdpa";
-  return expect(lkjai::transformer_report_accepted_decoder(r),
-                "cudnn accepted attention");
+  return expect(!lkjai::transformer_report_accepted_decoder(r),
+                "cudnn attention remains future work");
 }
 
 bool emitted_evidence_contract() {

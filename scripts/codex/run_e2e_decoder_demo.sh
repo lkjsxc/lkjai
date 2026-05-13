@@ -2,7 +2,7 @@
 set -euo pipefail
 
 RUN_ID="${RUN_ID:-decoder-2h-$(date +%Y%m%d-%H%M%S)}"
-MODEL_NAME="${MODEL_NAME:-dense-40m-3070}"
+MODEL_NAME="${MODEL_NAME:-decoder-40m-3070}"
 TARGET_SECONDS="${TARGET_SECONDS:-7200}"
 SEQ_LEN="${SEQ_LEN:-1024}"
 

@@ -141,10 +141,10 @@ target_link_libraries(lkjai-native-decoder-acceptance-report-contract PRIVATE
   lkjai_native_core
 )
 
-add_executable(lkjai-native-status-page-contract
-  tests/status_page_contract.cpp
+add_executable(lkjai-native-static-web-contract
+  tests/static_web_contract.cpp
 )
-target_link_libraries(lkjai-native-status-page-contract PRIVATE
+target_link_libraries(lkjai-native-static-web-contract PRIVATE
   lkjai_native_core
 )
 

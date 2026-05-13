@@ -36,7 +36,7 @@ Vec attention(const std::vector<Vec>& q, const std::vector<Vec>& k,
   Vec out(static_cast<size_t>(c.hidden_size), 0.0f);
   float inv_scale = 1.0f / std::sqrt(static_cast<float>(c.head_dim));
   for (int h = 0; h < c.heads; ++h) {
-    int kvh = h % c.kv_heads;
+    int kvh = h / (c.heads / c.kv_heads);
     Vec scores(static_cast<size_t>(pos + 1));
     float mx = -INFINITY;
     for (int t = 0; t <= pos; ++t) {

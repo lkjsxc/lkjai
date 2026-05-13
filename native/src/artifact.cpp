@@ -93,8 +93,8 @@ ArtifactStatus load_artifact(const std::filesystem::path& root,
   status.kind = json_first_string(manifest, "kind");
   validate_manifest(manifest, config, tokenizer, &status.storage_kind,
                     &status.error);
-  if (status.model_name == "dense-40m-3070" && status.kind != "decoder") {
-    status.error = "dense-40m-3070 must be a decoder artifact";
+  if (status.model_name == "decoder-40m-3070" && status.kind != "decoder") {
+    status.error = "decoder-40m-3070 must be a decoder artifact";
     return status;
   }
   status.loaded = true;

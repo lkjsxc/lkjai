@@ -31,7 +31,7 @@ bool fs_read_contract() {
   std::ofstream(root / "docs" / "current-state.md") << "decoder target\n";
   lkjai::RuntimeConfig cfg{"127.0.0.1", 8082, root.string(),
                            "http://inference:8081/v1/chat/completions",
-                           "dense-40m-3070", "readonly", root.string()};
+                           "decoder-40m-3070", "readonly", root.string()};
   auto read = lkjai::runtime_run_tool(cfg, action("fs.read",
                                                   "docs/current-state.md"));
   auto escape = lkjai::runtime_run_tool(cfg, action("fs.read", "../secret"));

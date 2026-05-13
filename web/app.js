@@ -25,7 +25,7 @@ function shown(event) {
 
 function renderEvents() {
   const box = $('events');
-  box.innerHTML = '';
+  box.replaceChildren();
   const list = events.filter(shown);
   if (!list.length) {
     const empty = document.createElement('p');
@@ -78,15 +78,21 @@ function runButton(run, active) {
   const button = document.createElement('button');
   button.className = `run${active ? ' active' : ''}`;
   button.type = 'button';
-  button.innerHTML =
-    `<strong>${run.run_id}</strong><br><span class="muted">${run.last_kind || 'empty'}: ${(run.preview || '').slice(0, 72)}</span>`;
+  const title = document.createElement('strong');
+  title.textContent = run.run_id || '';
+  const lineBreak = document.createElement('br');
+  const preview = document.createElement('span');
+  preview.className = 'muted';
+  preview.textContent =
+    `${run.last_kind || 'empty'}: ${(run.preview || '').slice(0, 72)}`;
+  button.append(title, lineBreak, preview);
   button.onclick = () => loadRun(run.run_id);
   return button;
 }
 
 async function loadRuns(active) {
   const data = await json(`${SANDBOX_API_BASE}/runs?limit=20`).catch(() => ({ runs: [] }));
-  $('runs').innerHTML = '';
+  $('runs').replaceChildren();
   $('runState').textContent = data.runs && data.runs.length ? 'Recent runs' : 'No persisted runs';
   for (const run of data.runs || []) {
     $('runs').appendChild(runButton(run, run.run_id === active));

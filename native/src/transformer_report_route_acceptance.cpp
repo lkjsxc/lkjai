@@ -26,6 +26,13 @@ bool route_report_fields_ok(std::string_view body, std::string* error) {
     *error = "route report missing accepted decode backends";
     return false;
   }
+  if (!contains_json_string(body, "attention_backend",
+                            "cuda_causal_gqa_bf16_reference") ||
+      !contains_json_string(body, "decoder_backward_backend",
+                            "cuda_full_decoder")) {
+    *error = "route report missing accepted decoder CUDA backends";
+    return false;
+  }
   if (json_int_value(body, "kv_cache_prefill_allocated_bytes", 0) <= 0 ||
       json_int_value(body, "kv_cache_steady_state_token_allocations", -1) != 0) {
     *error = "route report missing KV allocation accounting";

@@ -11,7 +11,7 @@ std::filesystem::path model_dir(int argc, char** argv) {
   for (int i = 1; i + 1 < argc; ++i) {
     if (std::string(argv[i]) == "--model-dir") return argv[i + 1];
   }
-  return "/models/dense-40m-3070";
+  return "/models/decoder-40m-3070";
 }
 
 }  // namespace
