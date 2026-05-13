@@ -1,6 +1,7 @@
 #include "decoder_cuda_state.hpp"
 
 #include <algorithm>
+#include <string>
 
 namespace lkjai {
 namespace {
@@ -23,16 +24,23 @@ DeviceTensor bf16_tensor(cudaStream_t stream, const Parameter& p) {
                       stream);
 }
 
-void append_param(Parameter* p, cudaStream_t stream,
+void append_param(Parameter* p, const std::string& name,
+                  const std::string& role, const std::string& tied_alias,
+                  cudaStream_t stream,
                   std::vector<DecoderCudaState::RegistryTensor>* registry,
                   uint64_t* shadow_bytes) {
   DecoderCudaState::RegistryTensor t;
   t.param = p;
+  t.name = name;
+  t.role = role;
+  t.tied_alias = tied_alias;
   t.weight = f32_tensor(stream, *p);
+  t.grad = f32_tensor(stream, *p);
   t.moment_m = f32_tensor(stream, *p);
   t.moment_v = f32_tensor(stream, *p);
   t.shadow = bf16_tensor(stream, *p);
   t.weight.copy_from_host_f32(p->w, stream);
+  t.grad.copy_from_host_f32(p->g, stream);
   t.moment_m.copy_from_host_f32(p->m, stream);
   t.moment_v.copy_from_host_f32(p->v, stream);
   t.shadow.copy_from_host_f32(p->w, stream);
@@ -92,28 +100,37 @@ void DecoderCudaState::record_weight_change(const TransformerState& before,
 void DecoderCudaState::build_registry() {
   registry_.clear();
   registry_shadow_bytes_ = 0;
-  for (auto& layer : state_.layers) {
-    append_param(&layer.attn_norm, ctx_.stream(), &registry_,
-                 &registry_shadow_bytes_);
-    append_param(&layer.q_proj, ctx_.stream(), &registry_,
-                 &registry_shadow_bytes_);
-    append_param(&layer.k_proj, ctx_.stream(), &registry_,
-                 &registry_shadow_bytes_);
-    append_param(&layer.v_proj, ctx_.stream(), &registry_,
-                 &registry_shadow_bytes_);
-    append_param(&layer.o_proj, ctx_.stream(), &registry_,
-                 &registry_shadow_bytes_);
-    append_param(&layer.mlp_norm, ctx_.stream(), &registry_,
-                 &registry_shadow_bytes_);
-    append_param(&layer.gate_proj, ctx_.stream(), &registry_,
-                 &registry_shadow_bytes_);
-    append_param(&layer.up_proj, ctx_.stream(), &registry_,
-                 &registry_shadow_bytes_);
-    append_param(&layer.down_proj, ctx_.stream(), &registry_,
-                 &registry_shadow_bytes_);
+  append_param(&state_.tok_embeddings, "tok_embeddings", "embedding",
+               state_.cfg.tie_embeddings ? "lm_head" : "", ctx_.stream(),
+               &registry_, &registry_shadow_bytes_);
+  for (size_t i = 0; i < state_.layers.size(); ++i) {
+    auto prefix = "layers." + std::to_string(i) + ".";
+    auto& layer = state_.layers[i];
+    append_param(&layer.attn_norm, prefix + "attn_norm", "decoder_block", "",
+                 ctx_.stream(), &registry_, &registry_shadow_bytes_);
+    append_param(&layer.q_proj, prefix + "q_proj", "decoder_block", "",
+                 ctx_.stream(), &registry_, &registry_shadow_bytes_);
+    append_param(&layer.k_proj, prefix + "k_proj", "decoder_block", "",
+                 ctx_.stream(), &registry_, &registry_shadow_bytes_);
+    append_param(&layer.v_proj, prefix + "v_proj", "decoder_block", "",
+                 ctx_.stream(), &registry_, &registry_shadow_bytes_);
+    append_param(&layer.o_proj, prefix + "o_proj", "decoder_block", "",
+                 ctx_.stream(), &registry_, &registry_shadow_bytes_);
+    append_param(&layer.mlp_norm, prefix + "mlp_norm", "decoder_block", "",
+                 ctx_.stream(), &registry_, &registry_shadow_bytes_);
+    append_param(&layer.gate_proj, prefix + "gate_proj", "decoder_block", "",
+                 ctx_.stream(), &registry_, &registry_shadow_bytes_);
+    append_param(&layer.up_proj, prefix + "up_proj", "decoder_block", "",
+                 ctx_.stream(), &registry_, &registry_shadow_bytes_);
+    append_param(&layer.down_proj, prefix + "down_proj", "decoder_block", "",
+                 ctx_.stream(), &registry_, &registry_shadow_bytes_);
   }
-  append_param(&state_.final_norm, ctx_.stream(), &registry_,
-               &registry_shadow_bytes_);
+  append_param(&state_.final_norm, "final_norm", "final_norm", "",
+               ctx_.stream(), &registry_, &registry_shadow_bytes_);
+  if (!state_.cfg.tie_embeddings) {
+    append_param(&state_.lm_head, "lm_head", "lm_head", "", ctx_.stream(),
+                 &registry_, &registry_shadow_bytes_);
+  }
 }
 
 void DecoderCudaState::copy_registry_to_host() {
@@ -121,12 +138,14 @@ void DecoderCudaState::copy_registry_to_host() {
     t.param->w = t.weight.copy_to_host_f32(ctx_.stream());
     t.param->m = t.moment_m.copy_to_host_f32(ctx_.stream());
     t.param->v = t.moment_v.copy_to_host_f32(ctx_.stream());
+    t.param->g = t.grad.copy_to_host_f32(ctx_.stream());
   }
 }
 
 void DecoderCudaState::sync_registry_from_host() {
   for (auto& t : registry_) {
     t.weight.copy_from_host_f32(t.param->w, ctx_.stream());
+    t.grad.copy_from_host_f32(t.param->g, ctx_.stream());
     t.moment_m.copy_from_host_f32(t.param->m, ctx_.stream());
     t.moment_v.copy_from_host_f32(t.param->v, ctx_.stream());
     t.shadow.copy_from_host_f32(t.param->w, ctx_.stream());

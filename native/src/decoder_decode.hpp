@@ -17,6 +17,10 @@ inline constexpr const char* kDecoderNoKvCacheBackend = "none";
 inline constexpr const char* kDecoderAcceptedDecodeBackend = "cuda_kv_cache";
 inline constexpr const char* kDecoderAcceptedKvCacheBackend =
     "cuda_contiguous_bf16";
+inline constexpr const char* kDecoderAcceptedAttentionBackend =
+    "cudnn_sdpa_bf16_gqa";
+inline constexpr const char* kDecoderReferenceAttentionBackend =
+    "cuda_causal_gqa_bf16_reference";
 
 bool decoder_chat_json(const std::filesystem::path& model_dir,
                        const std::string& model_name,

@@ -13,11 +13,10 @@ the product path. Accepted chat comes after real CUDA KV-cache decode evidence.
 Accepted full decoder CUDA training requires:
 
 - cuBLASLt owns QKV, output, MLP, and LM-head GEMMs.
-- First acceptance may use `attention_backend=cuda_causal_gqa_bf16_reference`,
-  a correctness-first CUDA causal GQA path with FP32 score and softmax
-  accumulation.
-- cuDNN SDPA remains the later performance backend when frontend integration and
-  parity are complete for the active shape.
+- Accepted reports use `attention_backend=cudnn_sdpa_bf16_gqa` for BF16
+  causal grouped-query attention.
+- `cuda_causal_gqa_bf16_reference` remains a diagnostic fallback and parity
+  oracle, not an accepted attention backend.
 - Custom kernels own RMSNorm/residual fusion, RoPE, SwiGLU glue, CE loss,
   BF16/FP32 casts, AdamW helpers, KV writes, logits filtering, and sampling.
 - FP32 master weights and Adam moments are the optimizer state.
@@ -100,7 +99,8 @@ Decoder reports use stable schema with additive fields:
 
 Reports are accepted only when `accepted_cuda_training=true`,
 `implementation_status=accepted`, `decoder_cuda_slice=full_decoder`, CUDA
-forward/backward/attention backends are present, `decode_supported=true`,
+forward/backward backends are present, `attention_backend=cudnn_sdpa_bf16_gqa`,
+`decode_supported=true`,
 `logits_check_passed=true`, finite loss, `steps > 0`, `loss_tokens > 0`,
 `trainable_weight_changed=true`, nonzero non-embedding block/final-norm weight
 change, `decoder_block_weight_changed=true`, checkpoint/export/logits/server
@@ -112,6 +112,7 @@ passes. LM-head-only updates do not satisfy decoder block-training acceptance.
 No report may emit `implementation_status=accepted`,
 `decoder_cuda_slice=full_decoder`,
 `decoder_backward_backend=cuda_full_decoder`,
+`attention_backend=cudnn_sdpa_bf16_gqa`,
 `decode_backend=cuda_kv_cache`, or
 `kv_cache_backend=cuda_contiguous_bf16` unless block backward, optimizer
 coverage for all trainable decoder tensors, accepted logits/export/server

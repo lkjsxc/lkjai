@@ -127,7 +127,7 @@ int main() {
   report.rmsnorm_backend = "cuda_bf16_fp32_reduce";
   report.rope_backend = "cuda_bf16";
   report.qkv_projection_backend = "cuda_bf16_cublaslt";
-  report.attention_backend = "cuda_causal_gqa_bf16_reference";
+  report.attention_backend = lkjai::kDecoderReferenceAttentionBackend;
   report.mlp_backend = "cuda_swiglu_partial";
   report.decoder_backward_backend = "not_implemented";
   report.kv_cache_backend = lkjai::kDecoderNoKvCacheBackend;
@@ -170,7 +170,7 @@ int main() {
   report.decoder_block_backend = "cuda_full_decoder";
   report.forward_backend = "cuda_full_decoder";
   report.backward_backend = "cuda_full_decoder";
-  report.attention_backend = "cuda_causal_gqa_bf16_reference";
+  report.attention_backend = lkjai::kDecoderReferenceAttentionBackend;
   report.mlp_backend = "cuda_full_swiglu";
   report.decoder_backward_backend = "cuda_full_decoder";
   report.non_embedding_weight_changed = true;

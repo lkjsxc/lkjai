@@ -12,8 +12,8 @@ decoder-only transformer backlog.
   and explicit unsupported chat decode for dense artifacts.
 - Decoder reference backend:
   `cuda_causal_gqa_bf16_reference` is a correctness-first CUDA attention path
-  that may satisfy first full-decoder acceptance; it is not the dense
-  foundation and not the preferred performance endpoint.
+  for fallback and parity evidence; it is not the dense foundation and not an
+  accepted attention backend.
 - Product decoder target: `configs/native/decoder_40m_bf16_3070.json` with
   `configs/training/decoder_2h_40m_3070.json`.
 - Host-reference recompute decode is partial serving evidence only; accepted
@@ -58,10 +58,10 @@ autoregressive decode in the accepted product path yet.
 - QKV/O projections, MLP projections, and norms are target transformer tensors.
 - QKV, output, and FFN projections are target transformer work and will use
   cuBLASLt first when that path becomes accepted CUDA training.
-- First full decoder acceptance may use the correctness-first
-  `cuda_causal_gqa_bf16_reference` backend.
-- cuDNN SDPA is the later performance backend when frontend integration, dtype,
-  capability, head dimension, and mask-mode parity are complete.
+- Accepted full decoder attention uses `cudnn_sdpa_bf16_gqa` once frontend
+  integration, dtype, capability, head dimension, and mask-mode parity are
+  complete.
+- The custom CUDA GQA backend remains diagnostic fallback and parity oracle.
 - The active `head_dim=72` is BF16 SDPA-eligible because it is a multiple of `8`.
 - CUTLASS, CUDA Graphs, TensorRT, TensorRT-LLM, and NCCL are profiling,
   serving, or later scale tracks after native single-GPU decoder acceptance.

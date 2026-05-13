@@ -69,7 +69,7 @@ Record under ignored `artifacts/benchmarks/<run-id>/`:
   `implementation_status=accepted`,
   `accepted_cuda_training=true`,
   `decoder_cuda_slice=full_decoder`,
-  `attention_backend=cuda_causal_gqa_bf16_reference`,
+  `attention_backend=cudnn_sdpa_bf16_gqa`,
   `decoder_backward_backend=cuda_full_decoder`,
   `kv_cache_backend=cuda_contiguous_bf16`, and
   `decode_backend=cuda_kv_cache`.

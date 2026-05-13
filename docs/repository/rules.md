@@ -30,3 +30,12 @@
   runtime fields like `cuda_driver_version` are allowed only where exact names
   are required.
 - New local APIs use unnumbered route names.
+
+## Docs Maintenance Checklist
+
+- Update docs before code for contract or behavior changes.
+- Keep one `README.md` table of contents per docs directory.
+- Keep docs files at `<= 300` lines and source files at `<= 200` lines.
+- Link to the owning contract instead of repeating long field lists.
+- Require evidence before accepted claims.
+- Avoid repo-owned numbered labels outside literal external names.

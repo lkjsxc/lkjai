@@ -31,6 +31,7 @@ The `decoder` model kind is the product target. Accepted reports must use:
 - `implementation_status=accepted`
 - `decoder_cuda_slice=full_decoder`
 - `decoder_backward_backend=cuda_full_decoder`
+- `attention_backend=cudnn_sdpa_bf16_gqa`
 - `kv_cache_backend=cuda_contiguous_bf16`
 - `decode_backend=cuda_kv_cache`
 
@@ -45,11 +46,12 @@ The current decoder implementation target is the accepted path: full decoder
 training state updates, optimizer moments for every trainable tensor,
 checkpoint/export coverage, logits checks, and CUDA KV-cache generation. The
 current code stage is still experimental because training uses host-reference
-forward/backward with CUDA probes, and serving uses non-accepted decode
-disclosure. The blockers are real device-resident full decoder backward,
-accepted CUDA KV-cache route evidence, and generated two-hour evidence from the
-documented RTX 3070 acceptance lane. Smaller or random decoder tests prove
-plumbing only.
+forward/backward with CUDA probes, accepted attention requires cuDNN SDPA GQA,
+and serving uses non-accepted decode disclosure. The blockers are
+device-resident full decoder tape/backward, device optimizer coverage for every
+trainable tensor, logits/export/server checks from that path, accepted CUDA
+KV-cache route evidence, and generated two-hour evidence from the documented
+RTX 3070 acceptance lane. Smaller or random decoder tests prove plumbing only.
 
 ## Data Readiness
 
@@ -83,6 +85,7 @@ sorted `*.jsonl` shards and streams rows instead of loading the full source.
 - Historical partial decoder CUDA is not accepted decoder CUDA training.
 - Tied embedding or LM-head updates are not decoder block training.
 - `cuda_reference_kv_cache` decode is not accepted CUDA KV-cache serving.
+- `cuda_causal_gqa_bf16_reference` attention is fallback/oracle evidence only.
 - Larger GPU profile results do not relax the RTX 3070 acceptance lane.
 - A seq1024 path name is not evidence of a real seq1024 public cache; strict
   packed-cache validation must pass against the exact source, tokenizer, and
@@ -118,6 +121,7 @@ The active implementation target is the tied 40M decoder on RTX 3070:
 - required report fields include `implementation_status=accepted`,
   `accepted_cuda_training=true`, `decoder_cuda_slice=full_decoder`,
   `decoder_block_weight_changed=true`,
+  `attention_backend=cudnn_sdpa_bf16_gqa`,
   `decoder_backward_backend=cuda_full_decoder`,
   `kv_cache_backend=cuda_contiguous_bf16`, and
   `decode_backend=cuda_kv_cache`
@@ -153,6 +157,7 @@ Durable conclusions now owned by docs:
 - Serving order: request validation, prompt serialization, persistent prefill,
   native BF16 KV-cache decode, sampler, allocation metrics, then optional
   `kjxlkj` tool calls.
-- Kernel policy: keep GEMMs in cuBLASLt, use correctness-first custom CUDA for
-  RMSNorm, RoPE, grouped attention, KV writes/reads, sampling, and cache
-  bookkeeping, and consider cuDNN SDPA only after active-shape parity exists.
+- Kernel policy: keep GEMMs in cuBLASLt, use cuDNN SDPA first for accepted
+  BF16 GQA attention, retain custom CUDA GQA as fallback/oracle evidence, and
+  use custom CUDA for RMSNorm, RoPE, KV writes/reads, sampling, and cache
+  bookkeeping.

@@ -163,8 +163,8 @@ Each contract record uses these fields:
 - canonical_source: backend priority and later scale features.
 - state: `future`.
 - supersedes: none.
-- acceptance: cuBLASLt is the default GEMM owner; first decoder acceptance may
-  use `attention_backend=cuda_causal_gqa_bf16_reference`; cuDNN SDPA is the
-  later attention performance backend after parity.
+- acceptance: cuBLASLt is the default GEMM owner; accepted decoder reports use
+  `attention_backend=cudnn_sdpa_bf16_gqa`; the custom CUDA GQA kernel remains
+  fallback and parity-oracle evidence.
 - non_claims: CUTLASS, CUDA Graphs, TensorRT, TensorRT-LLM, NCCL, and
   activation checkpointing are not first acceptance requirements.

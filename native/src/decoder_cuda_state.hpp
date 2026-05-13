@@ -14,11 +14,47 @@ struct DecoderCudaStepResult {
   std::vector<float> logits;
 };
 
+struct DecoderCudaLayerTape {
+  DeviceTensor norm_input;
+  DeviceTensor q_rope;
+  DeviceTensor k_rope;
+  DeviceTensor v;
+  DeviceTensor attention_state;
+  DeviceTensor attention_residual;
+  DeviceTensor mlp_norm_input;
+  DeviceTensor gate;
+  DeviceTensor up;
+  DeviceTensor swiglu;
+  DeviceTensor block_residual;
+};
+
+struct DecoderCudaTape {
+  DeviceTensor tokens;
+  DeviceTensor labels;
+  DeviceTensor loss_mask;
+  DeviceTensor embeddings;
+  std::vector<DecoderCudaLayerTape> layers;
+  DeviceTensor final_norm_input;
+  DeviceTensor final_norm;
+  DeviceTensor logits;
+  DeviceTensor loss;
+};
+
+class DecoderCudaLayerBackward {
+ public:
+  bool available() const { return false; }
+  const char* backend_name() const { return "not_implemented"; }
+};
+
 class DecoderCudaState {
  public:
   struct RegistryTensor {
     Parameter* param = nullptr;
+    std::string name;
+    std::string role;
+    std::string tied_alias;
     DeviceTensor weight;
+    DeviceTensor grad;
     DeviceTensor moment_m;
     DeviceTensor moment_v;
     DeviceTensor shadow;

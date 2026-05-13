@@ -45,11 +45,9 @@ not canonical docs.
   narrower replacement.
 - Custom CUDA kernels own RMSNorm, RoPE, residual paths, SwiGLU glue, loss,
   BF16/FP32 casts, AdamW helpers, KV-cache writes, filtering, and sampling.
-- First full decoder acceptance may use
-  `attention_backend=cuda_causal_gqa_bf16_reference`, the correctness-first CUDA
-  causal GQA path.
-- cuDNN SDPA is the preferred performance attention backend after parity and
-  timing are proven for the active GQA shape.
+- Accepted decoder attention uses `attention_backend=cudnn_sdpa_bf16_gqa`.
+- `cuda_causal_gqa_bf16_reference` remains the correctness-first fallback and
+  parity oracle for active GQA shapes.
 - CUTLASS and CUDA Graphs are measured native optimizations after correctness.
 - TensorRT-family engines are optional inference accelerators only; they never
   replace the canonical native BF16 artifact, trainer, or KV-cache decoder.

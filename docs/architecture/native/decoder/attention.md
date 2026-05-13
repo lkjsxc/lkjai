@@ -2,8 +2,8 @@
 
 ## Acceptance Target
 
-Accepted decoder attention is BF16 causal grouped-query attention for the
-configured `heads`, `kv_heads`, and `head_dim`.
+Accepted decoder attention is cuDNN SDPA BF16 causal grouped-query attention
+for the configured `heads`, `kv_heads`, and `head_dim`.
 
 ## Required Behavior
 
@@ -13,14 +13,14 @@ configured `heads`, `kv_heads`, and `head_dim`.
   `q_head / (heads / kv_heads)`.
 - Accumulation uses FP32 or a vendor-backed equivalent with documented parity.
 - Outputs match the host reference within the validation tolerance.
-- The first accepted backend may be
-  `cuda_causal_gqa_bf16_reference`; cuDNN SDPA is a later performance backend,
-  not a blocker for first single-GPU acceptance.
+- Accepted reports use `attention_backend=cudnn_sdpa_bf16_gqa`.
+- `cuda_causal_gqa_bf16_reference` remains reportable only as diagnostic
+  fallback and parity oracle evidence.
 
 ## Current Status
 
-The host reference implements causal GQA with RoPE. The CUDA forward substrate
-now runs BF16 causal GQA attention between RoPE and the O projection, and CTest
-checks deterministic MHA and GQA shapes against the host reference. Trainer
-reports still stay `accepted_cuda_training=false` until full decoder forward and
-backward training uses this path.
+The host reference implements causal GQA with RoPE. The custom CUDA forward
+substrate runs BF16 causal GQA attention between RoPE and the O projection, and
+CTest checks deterministic MHA and GQA shapes against the host reference.
+Trainer reports still stay `accepted_cuda_training=false` until full decoder
+forward and backward training uses cuDNN SDPA for accepted attention.

@@ -26,7 +26,7 @@ lkjai::TransformerTrainReport accepted_report() {
   r.forward_backend = "cuda_full_decoder";
   r.backward_backend = "cuda_full_decoder";
   r.decoder_backward_backend = "cuda_full_decoder";
-  r.attention_backend = "cuda_causal_gqa_bf16_reference";
+  r.attention_backend = lkjai::kDecoderAcceptedAttentionBackend;
   r.non_embedding_weight_changed = true;
   r.decoder_block_weight_changed = true;
   r.trainable_weight_changed = true;
@@ -127,11 +127,11 @@ bool acceptance_contract() {
          expect(!limits.empty(), "partial limitations present");
 }
 
-bool cudnn_attention_contract() {
+bool reference_attention_contract() {
   auto r = accepted_report();
-  r.attention_backend = "cudnn_sdpa";
+  r.attention_backend = lkjai::kDecoderReferenceAttentionBackend;
   return expect(!lkjai::transformer_report_accepted_decoder(r),
-                "cudnn attention remains future work");
+                "custom reference attention is fallback only");
 }
 
 bool emitted_evidence_contract() {
@@ -195,6 +195,6 @@ bool emitted_evidence_contract() {
 }  // namespace
 
 int main() {
-  return acceptance_contract() && cudnn_attention_contract() &&
+  return acceptance_contract() && reference_attention_contract() &&
       emitted_evidence_contract() ? 0 : 1;
 }

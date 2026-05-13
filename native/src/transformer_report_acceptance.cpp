@@ -17,7 +17,7 @@ bool positive_block_weight_evidence(const TransformerTrainReport& r) {
 }
 
 bool accepted_attention_backend(const TransformerTrainReport& r) {
-  return r.attention_backend == "cuda_causal_gqa_bf16_reference";
+  return r.attention_backend == kDecoderAcceptedAttentionBackend;
 }
 
 bool accepted_decode_support(const TransformerTrainReport& r) {
@@ -127,7 +127,7 @@ bool transformer_emitted_decoder_evidence_accepted(
     return false;
   }
   if (!contains_json_string(body, "attention_backend",
-                            "cuda_causal_gqa_bf16_reference") ||
+                            kDecoderAcceptedAttentionBackend) ||
       !contains_json_string(body, "decoder_cuda_slice", "full_decoder") ||
       !contains_json_string(body, "forward_backend", "cuda_full_decoder") ||
       !contains_json_string(body, "backward_backend", "cuda_full_decoder") ||
