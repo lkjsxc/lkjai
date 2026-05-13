@@ -179,6 +179,13 @@ Decoder reports declare `model_kind=decoder` and use additive fields from
 `lm_head_weight_changed`, `logits_check_passed`,
 `non_embedding_weight_changed`, and `decoder_block_weight_changed` so
 LM-head-only updates cannot satisfy decoder block-training acceptance.
+The current experimental decoder slice reports
+`decoder_cuda_slice=cuda_full_forward_host_backward`,
+`forward_backend=cuda_full_decoder`, `backward_backend=host_reference`,
+`decoder_backward_backend=host_reference`, and
+`attention_backend=cuda_causal_gqa_bf16_reference`. It computes full decoder
+forward logits and CE loss on CUDA, but backward and optimizer updates are
+host-reference, so it must keep `accepted_cuda_training=false`.
 
 Transformer reports declare `accepted_cuda_training=false`,
 `implementation_status=experimental`, `transformer_status=experimental`,

@@ -40,6 +40,13 @@ target_link_libraries(lkjai-native-decoder-full-forward-check
   PRIVATE lkjai_native_core
 )
 
+add_executable(lkjai-native-decoder-train-forward-check
+  tests/decoder_cuda_train_forward_check.cpp
+)
+target_link_libraries(lkjai-native-decoder-train-forward-check
+  PRIVATE lkjai_native_core
+)
+
 add_executable(lkjai-native-decoder-backward-primitives-check
   tests/decoder_cuda_backward_primitives_check.cpp
 )

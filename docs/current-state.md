@@ -45,10 +45,17 @@ accepted sidecar fields, an adjacent accepted train report, and the loaded
 The current decoder implementation target is the accepted path: full decoder
 training state updates, optimizer moments for every trainable tensor,
 checkpoint/export coverage, logits checks, and CUDA KV-cache generation. The
-current code stage is still experimental because training uses host-reference
-forward/backward with CUDA probes, accepted attention requires cuDNN SDPA GQA,
-and serving uses non-accepted decode disclosure. The blockers are
-device-resident full decoder tape/backward, device optimizer coverage for every
+current code stage is still experimental. Decoder training stages tokens and
+masks to CUDA buffers, runs the full decoder forward stack and CE loss/logit
+capture on device, then uses host-reference backward and host FP32 AdamW as the
+gradient and optimizer source. Reports for this stage use
+`decoder_cuda_slice=cuda_full_forward_host_backward`,
+`forward_backend=cuda_full_decoder`, `backward_backend=host_reference`,
+`decoder_backward_backend=host_reference`, and
+`attention_backend=cuda_causal_gqa_bf16_reference`, while keeping
+`accepted_cuda_training=false`. Accepted attention still requires cuDNN SDPA
+GQA, and serving uses non-accepted decode disclosure. The blockers are
+device-resident full decoder backward, device optimizer coverage for every
 trainable tensor, logits/export/server checks from that path, accepted CUDA
 KV-cache route evidence, and generated two-hour evidence from the documented
 RTX 3070 acceptance lane. Smaller or random decoder tests prove plumbing only.

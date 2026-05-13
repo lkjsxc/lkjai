@@ -24,7 +24,6 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/decoder_cuda_block_project.cu
   src/decoder_cuda_block_shape.cpp
   src/decoder_cuda_backward.cpp
-  src/decoder_cuda_forward.cpp
   src/decoder_cuda_full_forward.cpp
   src/decoder_cuda_layer_forward.cpp
   src/decoder_cuda_norm.cu
@@ -35,6 +34,8 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/decoder_cuda_slice.cpp
   src/decoder_cuda_slice_util.cpp
   src/decoder_cuda_state.cpp
+  src/decoder_cuda_tape.cpp
+  src/decoder_cuda_train_forward.cpp
   src/decoder_weight_change.cpp
   src/dense_checkpoint.cpp
   src/dense_cuda.cu

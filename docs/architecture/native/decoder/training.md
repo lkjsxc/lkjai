@@ -30,6 +30,15 @@ The decoder path owns registry tensors, BF16 shadows, AdamW moments, and
 diagnostic CUDA buffers for every trainable decoder tensor. Smoke reports prove
 the contract shape; accepted evidence still requires the documented RTX 3070
 run and route checks.
+The current experimental training slice uses CUDA for the full decoder forward
+stack, FP32 logits, CE loss, grad-logits, and supervised-row logit capture. It
+then runs host-reference backward and host FP32 AdamW. Its truthful report
+fields are `implementation_status=experimental`,
+`accepted_cuda_training=false`,
+`decoder_cuda_slice=cuda_full_forward_host_backward`,
+`forward_backend=cuda_full_decoder`, `backward_backend=host_reference`,
+`decoder_backward_backend=host_reference`, and
+`attention_backend=cuda_causal_gqa_bf16_reference`.
 The implementation must prefer correctness evidence over kernel cleverness:
 cuBLASLt remains the GEMM owner, while custom CUDA covers pointwise kernels,
 attention glue, loss, optimizer helpers, sampling, and KV-cache operations.

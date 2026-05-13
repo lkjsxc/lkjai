@@ -41,7 +41,7 @@ artifact inspection, and CUDA capability probing.
 - [decoder_cuda_slice.cpp](decoder_cuda_slice.cpp),
   [decoder_cuda_state.hpp](decoder_cuda_state.hpp),
   [decoder_cuda_state.cpp](decoder_cuda_state.cpp),
-  [decoder_cuda_forward.cpp](decoder_cuda_forward.cpp),
+  [decoder_cuda_train_forward.cpp](decoder_cuda_train_forward.cpp),
   [decoder_cuda_backward.cpp](decoder_cuda_backward.cpp),
   [decoder_cuda_optimizer.cpp](decoder_cuda_optimizer.cpp),
   [decoder_cuda_slice_internal.hpp](decoder_cuda_slice_internal.hpp), and

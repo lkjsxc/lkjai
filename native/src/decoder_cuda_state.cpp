@@ -74,8 +74,10 @@ DecoderCudaState::DecoderCudaState(const TransformerConfig& cfg,
     : state_(initial),
       ctx_(),
       dense_host_(decoder_dense_state(decoder_dense_cfg(cfg), initial)),
-      dense_cuda_(dense_host_.cfg, dense_host_, &ctx_) {
+      dense_cuda_(dense_host_.cfg, dense_host_, &ctx_),
+      workspace_(ctx_.stream()) {
   build_registry();
+  refresh_layer_forwards();
 }
 
 TransformerState DecoderCudaState::copy_to_host() {
@@ -88,6 +90,7 @@ void DecoderCudaState::fill_report(TransformerTrainReport* report) {
   report->workspace_high_water_bytes =
       std::max<uint64_t>(report->workspace_high_water_bytes,
                          dense_cuda_.workspace_high_water_bytes() +
+                             workspace_.high_water_bytes() +
                              registry_shadow_bytes_);
 }
 
