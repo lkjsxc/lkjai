@@ -78,6 +78,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/runtime_api.cpp
   src/runtime_config_status.cpp
   src/runtime_events.cpp
+  src/runtime_tools.cpp
   src/train_data.cpp
   src/train_report_digest.cpp
   src/train_real.cpp
@@ -93,6 +94,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/transformer_optim.cpp
   src/transformer_report.cpp
   src/transformer_report_acceptance.cpp
+  src/transformer_report_route_acceptance.cpp
   src/transformer_report_io.cpp
   src/transformer_train.cpp
   src/transformer_util.cpp
