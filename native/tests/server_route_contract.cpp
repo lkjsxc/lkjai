@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 
+#include "json_contract.hpp"
 #include "native_server_routes.hpp"
 
 namespace {
@@ -62,12 +63,14 @@ bool route_contracts() {
   auto preflight = lkjai::native_server_route({"OPTIONS", "/v1/models", ""},
                                               dense, cuda, cfg);
   return expect(models.status == 200, "models status") &&
+         expect(lkjai_test::valid_json(models.body), "models valid json") &&
          expect(has(models.body, "\"id\":\"dense-model\""), "models body") &&
          expect(has(models.body, "\"artifact_kind\":\"dense\""),
                 "dense model kind") &&
          expect(has(models.body, "\"chat_supported\":false"),
                 "dense chat unsupported metadata") &&
          expect(dense_chat.status == 422, "dense chat unsupported") &&
+         expect(lkjai_test::valid_json(dense_chat.body), "chat valid json") &&
          expect(!has(dense_chat.body, "\"choices\""), "dense choices absent") &&
          expect(api_model.status == 404, "inference rejects api") &&
          expect(root_page.status == 404, "inference rejects frontend") &&
@@ -90,10 +93,13 @@ bool missing_model_contract() {
   auto health = lkjai::native_server_route({"GET", "/healthz", ""},
                                            missing, cuda, cfg);
   return expect(models.status == 503, "missing models status") &&
+         expect(lkjai_test::valid_json(models.body), "missing models json") &&
          expect(has(models.body, "missing artifact"), "missing error body") &&
          expect(chat.status == 503, "missing chat status") &&
+         expect(lkjai_test::valid_json(chat.body), "missing chat json") &&
          expect(!has(chat.body, "\"choices\""), "missing chat choices absent") &&
          expect(health.status == 200, "health still ok") &&
+         expect(lkjai_test::valid_json(health.body), "health valid json") &&
          expect(has(health.body, "\"loaded\":false"), "health loaded false") &&
          expect(has(health.body, "\"degraded\":true"), "health degraded");
 }

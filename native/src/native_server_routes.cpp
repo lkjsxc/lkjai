@@ -46,6 +46,7 @@ std::string health_json(const ArtifactStatus& artifact,
       << ",\"decode_backend\":\"" << json_escape(decoder.decode_backend)
       << "\",\"kv_cache_backend\":\"" << json_escape(decoder.kv_cache_backend)
       << "\",\"attention_backend\":\"" << json_escape(decoder.attention_backend)
+      << "\""
       << ",\"degraded\":" << (degraded ? "true" : "false")
       << ",\"degraded_reason\":\""
       << json_escape(degraded_reason)
@@ -76,7 +77,7 @@ std::string models_json(const ArtifactStatus& artifact,
       << (decoder.decode_accepted ? "true" : "false")
       << ",\"decode_backend\":\"" << json_escape(decoder.decode_backend)
       << "\",\"kv_cache_backend\":\"" << json_escape(decoder.kv_cache_backend)
-      << "}],\"artifact_kind\":\"" << json_escape(kind)
+      << "\"}],\"artifact_kind\":\"" << json_escape(kind)
       << "\",\"chat_supported\":" << (chat ? "true" : "false")
       << ",\"decode_supported\":" << (chat ? "true" : "false")
       << ",\"decoder_artifact_loadable\":"
@@ -92,6 +93,7 @@ std::string models_json(const ArtifactStatus& artifact,
       << ",\"decode_backend\":\"" << json_escape(decoder.decode_backend)
       << "\",\"kv_cache_backend\":\"" << json_escape(decoder.kv_cache_backend)
       << "\",\"attention_backend\":\"" << json_escape(decoder.attention_backend)
+      << "\""
       << ",\"degraded\":" << (degraded ? "true" : "false")
       << ",\"degraded_reason\":\""
       << json_escape(degraded_reason) << "\","

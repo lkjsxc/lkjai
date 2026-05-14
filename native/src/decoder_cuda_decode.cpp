@@ -65,6 +65,7 @@ class DecodeRun {
               std::string* error) {
     const auto& cfg = state_.cfg;
     int rows = static_cast<int>(tokens.size());
+    allocation_events_ += static_cast<uint64_t>(cfg.layers) + 4u;
     DeviceTensor hidden = bf16(ctx_.stream(), rows, cfg.hidden_size);
     hidden.copy_from_host_f32(embeddings(state_, tokens), ctx_.stream());
     for (size_t i = 0; i < layers_.size(); ++i) {
@@ -93,6 +94,7 @@ class DecodeRun {
   }
 
   uint64_t workspace_bytes() const { return workspace_.high_water_bytes(); }
+  uint64_t allocation_events() const { return allocation_events_; }
 
  private:
   const TransformerState& state_;
@@ -101,6 +103,7 @@ class DecodeRun {
   DeviceTensor final_w_;
   DeviceTensor lm_head_;
   std::vector<std::unique_ptr<DecoderCudaLayerForward>> layers_;
+  uint64_t allocation_events_ = 0;
 };
 
 int choose_next(const std::vector<float>& logits, const DecoderSampler& sampler,
@@ -127,7 +130,9 @@ bool decoder_cuda_generate(const TransformerState& state,
                                  prompt_tokens.end());
     std::vector<float> logits;
     run.logits(window, 0, false, cache, &logits, error);
+    local.prefill_allocated_bytes = cache->allocated_bytes;
     local.cuda_kv_cache_used = cache->allocated_bytes > 0;
+    uint64_t prefill_events = run.allocation_events();
     int eos = tokenizer_id(tokenizer, "<eos>", tokenizer.eos_id);
     int end_action = tokenizer_id(tokenizer, "</action>", -1);
     for (int i = 0; i < sampler.max_tokens; ++i) {
@@ -146,6 +151,8 @@ bool decoder_cuda_generate(const TransformerState& state,
       run.logits(one, cache->next_position[0], true, cache, &logits, error);
       local.cuda_kv_cache_used = true;
     }
+    local.steady_state_token_allocations =
+        static_cast<int>(run.allocation_events() - prefill_events);
     local.workspace_bytes = run.workspace_bytes();
     *result = std::move(local);
     return true;

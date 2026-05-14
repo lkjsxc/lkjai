@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 
+#include "json_contract.hpp"
+#include "json_min.hpp"
 #include "native_server_routes.hpp"
 #include "native_tokenizer_build.hpp"
 #include "transformer_state.hpp"
@@ -78,6 +80,7 @@ bool decoder_route_contract() {
   auto models = lkjai::native_server_route({"GET", "/v1/models", ""}, artifact,
                                            cuda, runtime);
   bool ok = expect(resp.status == 200, "decoder route status") &&
+            expect(lkjai_test::valid_json(resp.body), "decoder chat json") &&
             expect(has(resp.body, "\"choices\""), "decoder choices present") &&
             expect(!has(resp.body, "\"lkjai_decode_backend\":\"cuda_kv_cache\""),
                    "host decode must not claim CUDA KV-cache") &&
@@ -91,6 +94,9 @@ bool decoder_route_contract() {
                    "partial decode disclosure") &&
             expect(has(resp.body, "\"lkjai_decode_accepted\":false"),
                    "non-accepted disclosure") &&
+            expect(lkjai::json_int_value(
+                       resp.body, "lkjai_kv_prefill_allocated_bytes", 0) > 0,
+                   "positive prefill allocation") &&
             expect(has(resp.body, "\"lkjai_kv_steady_state_token_allocations\":0"),
                    "zero steady-state allocations") &&
             expect(has(resp.body, "\"lkjai_decode_cuda_kv_cache_used\":true"),
@@ -98,6 +104,7 @@ bool decoder_route_contract() {
             expect(has(resp.body, "\"lkjai_decode_workspace_bytes\":"),
                    "workspace metadata") &&
             expect(health.status == 200, "decoder health status") &&
+            expect(lkjai_test::valid_json(health.body), "decoder health json") &&
             expect(has(health.body, "\"decoder_artifact_loadable\":true"),
                    "decoder artifact loadable") &&
             expect(has(health.body,
@@ -113,6 +120,7 @@ bool decoder_route_contract() {
                        "\"kv_cache_backend\":\"cuda_contiguous_bf16_partial\""),
                    "health partial kv backend") &&
             expect(models.status == 200, "decoder models status") &&
+            expect(lkjai_test::valid_json(models.body), "decoder models json") &&
             expect(has(models.body,
                        "\"decoder_partial_decode_supported\":true"),
                    "models partial decode support") &&
@@ -128,6 +136,7 @@ bool decoder_route_contract() {
   auto accepted = lkjai::native_server_route(
       {"POST", "/v1/chat/completions", body}, artifact, cuda, runtime);
   ok = ok && expect(accepted.status == 200, "sidecar route status") &&
+         expect(lkjai_test::valid_json(accepted.body), "sidecar route json") &&
          expect(!has(accepted.body,
                      "\"lkjai_decode_backend\":\"cuda_kv_cache\""),
                 "sidecar must not promote incomplete CUDA KV-cache") &&
@@ -144,6 +153,7 @@ bool decoder_route_contract() {
   auto promoted = lkjai::native_server_route(
       {"POST", "/v1/chat/completions", body}, artifact, cuda, runtime);
   return ok && expect(promoted.status == 200, "sidecar-only route status") &&
+         expect(lkjai_test::valid_json(promoted.body), "sidecar-only json") &&
          expect(!has(promoted.body,
                      "\"lkjai_decode_backend\":\"cuda_kv_cache\""),
                 "sidecar alone must not promote decode backend") &&

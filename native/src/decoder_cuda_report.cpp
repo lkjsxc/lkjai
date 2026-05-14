@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
+#include <string>
 
 #include "decoder_decode.hpp"
 #include "transformer_report_acceptance.hpp"
@@ -54,6 +55,8 @@ bool decoder_write_acceptance_sidecars(const TransformerTrainReport& report,
       std::string(kDecoderAcceptedDecodeBackend) + "\",\"kv_cache_backend\":\"" +
       std::string(kDecoderAcceptedKvCacheBackend) +
       "\",\"runtime_path\":\"accepted_cuda_kv_cache\","
+      "\"kv_cache_prefill_allocated_bytes\":" +
+      std::to_string(report.kv_cache_prefill_allocated_bytes) + ","
       "\"kv_cache_steady_state_token_allocations\":0}\n";
   for (const auto& dir :
        {report.checkpoint_dir, report.export_dir, report.served_dir}) {
