@@ -1,5 +1,9 @@
 # Training Status
 
+Owner: `docs/operations/training/status/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for current corpus status and iteration logs.
 
 ## Read This Section When

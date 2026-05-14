@@ -1,5 +1,9 @@
 # Preference Pairs
 
+Owner: `corpus/generated/preference-pairs/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 This directory stores pairwise preference data for later SimPO or DPO work.

@@ -1,5 +1,9 @@
 # Native Tests
 
+Owner: `native/tests/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 This directory contains test helpers for native CTest cases.

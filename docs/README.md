@@ -1,5 +1,9 @@
 # Documentation Canon
 
+Owner: `docs/README.md`.
+State: canonical documentation.
+
+
 `docs/` is the only active canon for `lkjai`.
 
 ## Read This Section When

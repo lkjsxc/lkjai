@@ -1,5 +1,9 @@
 # Artifacts
 
+Owner: `artifacts/README.md`.
+State: canonical documentation.
+
+
 This directory is reserved for generated diagnostics, benchmark logs, plots, raw
 telemetry, and patch snapshots produced by the performance tooling.
 

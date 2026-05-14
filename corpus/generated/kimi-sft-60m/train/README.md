@@ -1,5 +1,9 @@
 # Kimi SFT 60M Train Split
 
+Owner: `corpus/generated/kimi-sft-60m/train/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 Training rows for the rebuilt XML-action SFT corpus live here after validator

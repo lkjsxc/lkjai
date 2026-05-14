@@ -1,5 +1,9 @@
 # Generated Corpus
 
+Owner: `corpus/generated/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 Validated generated corpus artifacts that are part of the active project state

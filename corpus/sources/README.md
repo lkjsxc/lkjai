@@ -1,5 +1,9 @@
 # Corpus Sources
 
+Owner: `corpus/sources/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 Reviewed JSON source files live here. Training code expands these sources into

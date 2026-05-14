@@ -1,5 +1,9 @@
 # Repository Rules
 
+Owner: `docs/repository/rules.md`.
+State: canonical documentation.
+
+
 ## Line Limits
 
 - Docs files stay at `<= 300` lines.

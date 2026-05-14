@@ -1,5 +1,9 @@
 # Performance
 
+Owner: `docs/operations/performance/README.md`.
+State: canonical documentation.
+
+
 This subtree is the canonical performance contract for `lkjai`.
 
 ## Read This Section When

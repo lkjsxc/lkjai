@@ -1,5 +1,9 @@
 # Docker
 
+Owner: `ops/docker/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 Dockerfiles define reproducible containers for each execution mode.

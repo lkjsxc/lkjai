@@ -1,5 +1,9 @@
 # Native CMake
 
+Owner: `native/cmake/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 This directory holds small CMake fragments used by the native CUDA build.

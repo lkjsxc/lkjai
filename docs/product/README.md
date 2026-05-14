@@ -1,5 +1,9 @@
 # Product
 
+Owner: `docs/product/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for user-visible behavior: dense demo, chat, agent tools,
 memory, and HTTP API contracts.
 

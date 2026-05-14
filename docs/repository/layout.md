@@ -1,5 +1,9 @@
 # Repository Layout
 
+Owner: `docs/repository/layout.md`.
+State: canonical documentation.
+
+
 ## Root Entries
 
 - `README.md`

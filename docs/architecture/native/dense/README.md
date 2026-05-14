@@ -1,5 +1,9 @@
 # Native Dense
 
+Owner: `docs/architecture/native/dense/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for the accepted dense CUDA substrate. Dense remains the CUDA
 regression harness; it is not the product chat lane.
 

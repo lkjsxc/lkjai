@@ -1,5 +1,9 @@
 # Dense BF16 CUDA Foundation
 
+Owner: `docs/operations/training/runbooks/dense-foundation.md`.
+State: canonical documentation.
+
+
 This is the canonical operator runbook for the accepted native target.
 Dense means the BF16 CUDA token-embedding plus LM-head path. It is not
 decoder-only transformer training, autoregressive chat, or model competency.

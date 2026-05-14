@@ -1,5 +1,9 @@
 # Host Ops
 
+Owner: `ops/host/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 This directory contains host setup helpers for machines that run Docker Compose

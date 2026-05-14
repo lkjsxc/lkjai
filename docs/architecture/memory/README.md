@@ -1,5 +1,9 @@
 # Memory Architecture
 
+Owner: `docs/architecture/memory/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for transcript, summary, durable memory, and retrieval behavior.
 
 ## Read This Section When

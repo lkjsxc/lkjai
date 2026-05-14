@@ -1,5 +1,9 @@
 # Operations
 
+Owner: `docs/operations/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for Compose profiles, scratch training operations, deployment,
 performance, and quality gates.
 

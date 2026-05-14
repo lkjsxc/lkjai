@@ -1,5 +1,9 @@
 # Training Data
 
+Owner: `docs/architecture/training/data/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for corpus, dataset, tokenizer, provenance, and packed-cache
 contracts.
 

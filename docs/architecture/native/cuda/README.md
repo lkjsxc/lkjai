@@ -1,5 +1,9 @@
 # Native CUDA
 
+Owner: `docs/architecture/native/cuda/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for CUDA libraries, tensors, kernels, and diagnostic
 transformer CUDA plans.
 

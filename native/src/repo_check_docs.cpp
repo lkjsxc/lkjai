@@ -130,26 +130,8 @@ int check_docs_contract_owners(const std::filesystem::path& repo) {
     }
   }
 
-  for (auto relative : {
-           "docs/architecture/native/contracts/contract-inventory.md",
-           "docs/architecture/native/decoder/config.md",
-	           "docs/architecture/native/decoder/training.md",
-	           "docs/architecture/native/decoder/decode.md",
-	           "docs/architecture/native/contracts/runtime.md",
-	           "docs/architecture/training/data/packed-cache.md",
-	           "docs/architecture/training/data/dataset.md",
-	           "docs/architecture/training/data/provenance.md",
-	           "docs/architecture/agent/schema.md",
-	           "docs/architecture/agent/loop.md",
-	           "docs/architecture/model/serving.md",
-	           "docs/product/api.md",
-	           "docs/product/agent-tools.md",
-	           "docs/product/chat.md",
-	           "docs/operations/compose.md",
-	           "docs/operations/training/runbooks/long-run.md",
-	           "docs/operations/performance/measurement/benchmarking.md",
-	       }) {
-    auto path = repo / relative;
+  for (const auto& path : collect_tracked_files(repo)) {
+    if (path.extension() != ".md") continue;
     auto contract = text(path);
     if (contract.find("Owner:") == std::string::npos) {
       result.fail(path.string() + " missing Owner marker");

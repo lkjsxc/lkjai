@@ -1,5 +1,9 @@
 # Training
 
+Owner: `training/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 Training is a retired product-code location kept only to make the native

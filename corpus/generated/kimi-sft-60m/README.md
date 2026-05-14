@@ -1,5 +1,9 @@
 # Kimi SFT 60M
 
+Owner: `corpus/generated/kimi-sft-60m/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 This directory is the accepted destination for the rebuilt first-party

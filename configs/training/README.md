@@ -1,5 +1,9 @@
 # Training Configs
 
+Owner: `configs/training/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 Training configs pin long-running scratch model settings.

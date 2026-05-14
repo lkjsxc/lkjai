@@ -1,5 +1,9 @@
 # Kimi SFT 60M Validation Split
 
+Owner: `corpus/generated/kimi-sft-60m/val/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 Validation rows for the rebuilt XML-action SFT corpus live here after validator

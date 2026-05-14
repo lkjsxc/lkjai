@@ -1,5 +1,9 @@
 # Production BF16 Native Training
 
+Owner: `docs/operations/training/runbooks/production-bf16-native.md`.
+State: canonical documentation.
+
+
 ## Architecture
 
 The active accepted native CUDA path is dense BF16 CUDA. It consumes

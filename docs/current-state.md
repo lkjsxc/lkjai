@@ -24,163 +24,55 @@ preparation work.
 | `runtime` | split web, sandbox, and inference services | XML actions, transcript persistence, `agent.finish`, `agent.think`, `fs.list`, and `fs.read` | memory, resource, shell, and confirmation execution |
 | `transformer` | diagnostic lane | host/reference checks and probe reports | not an accepted training or serving target |
 
-## Decoder Limits
+## Decoder Map
 
-The `decoder` model kind is the product target. Accepted reports must use:
+The decoder lane is the first product acceptance target. Current truth is:
 
-- `implementation_status=accepted`
-- `decoder_cuda_slice=full_decoder`
-- `decoder_backward_backend=cuda_full_decoder`
-- `attention_backend=cudnn_sdpa_bf16_gqa`
-- `kv_cache_backend=cuda_contiguous_bf16`
-- `decode_backend=cuda_kv_cache`
+- Full decoder forward, CE loss, logits capture, and grad-logits run on CUDA.
+- Backward gradients still come from the host reference.
+- Registry CUDA AdamW updates device FP32 masters, Adam moments, gradients, and
+  BF16 shadows for decoder tensors.
+- Attention uses `cuda_causal_gqa_bf16_reference` as fallback/oracle evidence.
+- KV-cache route disclosure is partial until accepted route evidence exists.
 
-Partial or historical training reports remain non-claims and must avoid
-accepted backend names. Decoder route responses may still disclose
-`cuda_reference_kv_cache` when the served artifact lacks accepted runtime
-evidence. Accepted route disclosure requires the executed CUDA KV-cache path,
-accepted sidecar fields, an adjacent accepted train report, and the loaded
-40M RTX 3070 decoder shape.
+Detailed decoder acceptance blockers are owned by
+[training.md](architecture/native/decoder/training.md),
+[backward.md](architecture/native/decoder/backward.md),
+[attention.md](architecture/native/decoder/attention.md), and
+[kv-cache.md](architecture/native/decoder/kv-cache.md).
 
-The current decoder implementation target is the accepted path: full decoder
-training state updates, optimizer moments for every trainable tensor,
-checkpoint/export coverage, logits checks, and CUDA KV-cache generation. The
-current code stage is still experimental. Decoder training stages tokens and
-masks to CUDA buffers, runs the full decoder forward stack and CE loss/logit
-capture on device, then uses host-reference backward to produce gradients.
-Registry-wide CUDA AdamW updates device FP32 masters and BF16 shadows for every
-trainable decoder tensor, but the gradient source remains non-accepted. Reports
-for this stage use
-`decoder_cuda_slice=cuda_full_forward_host_backward`,
-`forward_backend=cuda_full_decoder`, `backward_backend=host_reference`,
-`decoder_backward_backend=host_reference`, and
-`attention_backend=cuda_causal_gqa_bf16_reference`, while keeping
-`accepted_cuda_training=false`. Accepted attention still requires cuDNN SDPA
-GQA, and serving uses non-accepted decode disclosure. The blockers are
-device-resident full decoder backward, logits/export/server checks from that
-path, accepted CUDA KV-cache route evidence, and generated two-hour evidence
-from the documented RTX 3070 acceptance lane. Smaller or random decoder tests
-prove plumbing only.
+Partial reports must keep `accepted_cuda_training=false`, avoid accepted
+backend names, and avoid accepted decode names. Accepted route disclosure
+requires accepted train report evidence, an accepted sidecar, the loaded 40M
+RTX 3070 decoder shape, and an executed CUDA KV-cache path.
 
-## Current Decoder Blocker Checklist
+## Data Map
 
-- Full decoder backward: replace host-reference gradients with CUDA block,
-  final-norm, LM-head, and tied-embedding backward.
-- Attention: execute cuDNN SDPA BF16 GQA before reporting
-  `attention_backend=cudnn_sdpa_bf16_gqa`.
-- Optimizer: keep registry-wide CUDA AdamW covered by tests, then feed it only
-  device-origin gradients for acceptance.
-- KV-cache decode: keep contiguous BF16 cache as the first accepted target,
-  prove positive prefill allocation and zero steady-state token allocation.
-- Route evidence: expose accepted decode names only with accepted train report,
-  sidecar, loaded 40M RTX 3070 shape, and executed CUDA KV-cache route.
-- Reports: keep partial paths experimental and free of accepted backend names.
+Decoder data-prep details are owned by
+[packed-cache.md](architecture/training/data/packed-cache.md),
+[source-corpus.md](architecture/training/data/source-corpus.md), and
+[tokenizer.md](architecture/training/data/tokenizer.md). A path named
+`seq1024` is not evidence; strict packed-cache validation must prove the
+source, tokenizer, config, sequence length, and checksums.
 
-## Data Readiness
+## Dense Map
 
-Decoder acceptance is also blocked on real local data inputs. A fresh checkout
-does not contain `data/train/tokenizer/tokenizer.json`, and any seq1024 cache
-path must be treated as unproven until strict validation shows it was built
-from public-pretrain JSONL with the decoder tokenizer and
-`configs/native/decoder_40m_bf16_3070.json`.
+Dense artifacts remain diagnostics and training artifacts only. The dense 40M
+surface proves BF16 CUDA foundation behavior, checkpoint/export/logits checks,
+packed-cache IO, and truthful unsupported chat decode. It does not claim
+autoregressive chat.
 
-Required data-prep order:
-
-```bash
-docker compose --profile corpus run --build --rm corpus build-tokenizer
-docker compose --profile corpus run --rm corpus validate-public-pretrain
-docker compose --profile corpus run --rm corpus build-public-pretrain-cache
-docker compose --profile corpus run --rm corpus \
-  lkjai-native-packed-cache validate \
-    --cache /app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
-    --source /app/data/public-corpus/train \
-    --tokenizer /app/data/train/tokenizer/tokenizer.json \
-    --config /workspace/configs/native/decoder_40m_bf16_3070.json
-```
-
-The tokenizer builder writes a deterministic byte-level BPE-compatible
-`tokenizer.json` whose canonical XML-like prompt and action tags are atomic
-tokens. The packed-cache builder accepts one JSONL file or a directory of
-sorted `*.jsonl` shards and streams rows instead of loading the full source.
-
-## Do Not Claim
-
-- Historical partial decoder CUDA is not accepted decoder CUDA training.
-- Tied embedding or LM-head updates are not decoder block training.
-- `cuda_reference_kv_cache` decode is not accepted CUDA KV-cache serving.
-- `cuda_causal_gqa_bf16_reference` attention is fallback/oracle evidence only.
-- Larger GPU profile results do not relax the RTX 3070 acceptance lane.
-- A seq1024 path name is not evidence of a real seq1024 public cache; strict
-  packed-cache validation must pass against the exact source, tokenizer, and
-  decoder config.
-
-Accepted decoder reports must prove block-weight updates, full block backward,
-FP32 optimizer coverage for every trainable decoder tensor, export/logits/server
-checks, finite loss, passing logits checks, positive steps and loss-token
-counts, contiguous CUDA BF16 KV-cache decode, zero steady-state token
-allocations, and supported decode.
-
-## Dense Diagnostic Surface
-
-Dense artifacts remain diagnostics and training artifacts only:
-
-- native config: `configs/native/native_dense_40m_bf16_3070.json`
-- training config: `configs/training/dense_40m_accepted_3070.json`
-- diagnostic export name: `dense-diagnostic-40m-3070`
-- evidence: bounded pilot checks, deterministic checksum, logits/top-k output,
-  train-report provenance, and truthful unsupported chat decode
-
-This surface does not claim autoregressive chat. Dense exports can be inspected
-with native diagnostics and `/v1/models`, but they are not chat artifacts and
-`/v1/chat/completions` returns HTTP `422` without `choices`.
-
-## Active Implementation Target
+## Acceptance Map
 
 The active implementation target is the tied 40M decoder on RTX 3070:
 
 - native config: `configs/native/decoder_40m_bf16_3070.json`
 - training config: `configs/training/decoder_2h_40m_3070.json`
 - serving artifact target: `data/models/decoder-40m-3070`
-- required report fields include `implementation_status=accepted`,
-  `accepted_cuda_training=true`, `decoder_cuda_slice=full_decoder`,
-  `decoder_block_weight_changed=true`,
-  `attention_backend=cudnn_sdpa_bf16_gqa`,
-  `decoder_backward_backend=cuda_full_decoder`,
-  `kv_cache_backend=cuda_contiguous_bf16`, and
-  `decode_backend=cuda_kv_cache`
 
-The two-hour RTX 3070 target is the acceptance lane documented by the training
-config. Code should validate truth fields and config shape, not treat
-`target_seconds > 0` as a promotion shortcut.
+The two-hour RTX 3070 target is the acceptance lane. Code should validate truth
+fields and config shape, not treat `target_seconds > 0` as a promotion shortcut.
 
-## Research Synthesis
-
-The latest distilled deep research input is `tmp/deep-research-report (61).md`,
-modified `2026-05-13`. The report supports the active order: hard-fence
-historical partial decoder claims, replace host-reference decoder training with
-device-resident CUDA state and backward, land accepted native CUDA decode
-evidence, and only then broaden streaming, batching, frontend, and multi-GPU
-work.
-
-Durable conclusions now owned by docs:
-
-- Distributed training order: tensor parallelism, activation checkpointing,
-  pipeline staging, communication overlap, then optimizer sharding.
-- Large-profile gates: memory accounting, dataset lineage, and profile-only
-  status until the local decoder lane passes.
-- KV-cache decode gates: allocation accounting and stop-token behavior.
-- Evidence package pattern: dated tracked evidence page plus generated
-  benchmark manifest under ignored `artifacts/`.
-- Kimi SFT flow: generate into quarantine, validate schema/provenance/replay,
-  then promote only passing shards into `corpus/generated/kimi-sft-60m`.
-- Promoted-run bundle: include train report, metrics, plots, GPU capability,
-  Nsight reports, config, tokenizer digest, dataset manifest, and transcript.
-- Dense diagnostics order: keep local APIs, root browser diagnostics,
-  checksum/top-k contract tests, and bounded pilot evidence green.
-- Serving order: request validation, prompt serialization, persistent prefill,
-  native BF16 KV-cache decode, sampler, allocation metrics, then optional
-  `kjxlkj` tool calls.
-- Kernel policy: keep GEMMs in cuBLASLt, use cuDNN SDPA first for accepted
-  BF16 GQA attention, retain custom CUDA GQA as fallback/oracle evidence, and
-  use custom CUDA for RMSNorm, RoPE, KV writes/reads, sampling, and cache
-  bookkeeping.
+Research synthesis is owned by
+[native-decoder-plan.md](research/native-decoder-plan.md). Reports under
+`tmp/` are source inputs only, not tracked contract owners.

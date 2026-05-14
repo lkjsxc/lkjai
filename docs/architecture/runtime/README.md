@@ -1,5 +1,9 @@
 # Runtime Architecture
 
+Owner: `docs/architecture/runtime/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for the three local runtime processes: static frontend,
 native inference, and native sandbox API.
 

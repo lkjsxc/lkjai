@@ -1,5 +1,9 @@
 # Model-Pure Chat Recovery
 
+Owner: `docs/operations/training/recovery/model-pure-recovery.md`.
+State: canonical documentation.
+
+
 ## Goal
 
 Restore smooth chat without adding canned replies, exact prompt lookup, XML

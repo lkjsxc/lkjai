@@ -1,5 +1,9 @@
 # Training Runbooks
 
+Owner: `docs/operations/training/runbooks/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for operator procedures for long runs and dense CUDA training.
 
 ## Read This Section When

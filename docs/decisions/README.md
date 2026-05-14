@@ -1,5 +1,9 @@
 # Decisions
 
+Owner: `docs/decisions/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for durable design decisions and rejected alternatives.
 
 ## Read This Section When

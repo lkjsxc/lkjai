@@ -1,5 +1,9 @@
 # Training Iteration Log
 
+Owner: `docs/operations/training/status/iteration.md`.
+State: canonical documentation.
+
+
 ## Goal
 
 Keep model-improvement claims tied to real artifacts, commands, and raw

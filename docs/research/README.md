@@ -1,5 +1,9 @@
 # Research References
 
+Owner: `docs/research/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for references that inform scratch model design, datasets, and
 future baselines.
 

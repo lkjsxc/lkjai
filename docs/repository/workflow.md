@@ -1,5 +1,9 @@
 # Workflow
 
+Owner: `docs/repository/workflow.md`.
+State: canonical documentation.
+
+
 ## Sequence
 
 1. Update documentation canon.

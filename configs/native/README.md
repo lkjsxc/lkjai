@@ -1,5 +1,9 @@
 # Native Configs
 
+Owner: `configs/native/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 Native model-shape configs live here. They are intentionally small JSON files

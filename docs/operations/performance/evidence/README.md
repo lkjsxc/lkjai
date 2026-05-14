@@ -1,5 +1,9 @@
 # Performance Evidence
 
+Owner: `docs/operations/performance/evidence/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for dated performance proof records and evidence rules.
 
 ## Read This Section When

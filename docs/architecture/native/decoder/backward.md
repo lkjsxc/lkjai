@@ -37,8 +37,13 @@ embeddings and the LM head.
 
 ## Current Status
 
-The decoder training path updates embeddings, the tied LM head, block norms,
-attention projections, MLP projections, final norm, and Adam moments through
-the full decoder state. Reports use `decoder_backward_backend=cuda_full_decoder`
-only with positive block-delta evidence and optimizer coverage for every
-trainable decoder tensor.
+Full decoder CUDA backward is future acceptance work. The current experimental
+path runs the full decoder forward, CE loss, logits capture, and grad-logits on
+CUDA, then uses host-reference backward to produce gradients. Registry CUDA
+AdamW updates device FP32 masters, Adam moments, gradients, and BF16 shadows
+for decoder tensors, but the gradient source remains non-accepted.
+
+Reports for this stage must keep `decoder_backward_backend=host_reference` and
+`accepted_cuda_training=false`. They may not emit
+`decoder_backward_backend=cuda_full_decoder` until every registered tensor gets
+device-origin gradients and positive block/final-norm update evidence.

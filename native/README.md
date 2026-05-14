@@ -1,5 +1,9 @@
 # Native Product Runtime
 
+Owner: `native/README.md`.
+State: canonical documentation.
+
+
 This directory owns the C++/CUDA product path.
 
 ## Contents

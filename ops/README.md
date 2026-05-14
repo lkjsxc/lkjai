@@ -1,5 +1,9 @@
 # Ops
 
+Owner: `ops/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 Operational files for building, running, and verifying the project live here.

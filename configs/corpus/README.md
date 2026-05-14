@@ -1,5 +1,9 @@
 # Corpus Configs
 
+Owner: `configs/corpus/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 Corpus configs define generated corpus targets and debug variants.

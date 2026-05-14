@@ -1,5 +1,9 @@
 # Agent Assessment
 
+Owner: `docs/operations/training/gates/agent-assessment.md`.
+State: canonical documentation.
+
+
 ## Current Artifact State
 
 - Latest behavioral report: `data/train/runs/behavioral-eval.json`.

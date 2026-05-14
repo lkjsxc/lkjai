@@ -1,5 +1,9 @@
 # Public Pretrain Tool Modules
 
+Owner: `ops/corpus/public_pretrain/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 Small Python modules for the corpus-only public pretraining helper.

@@ -1,5 +1,9 @@
 # Troubleshooting
 
+Owner: `docs/getting-started/troubleshooting.md`.
+State: canonical documentation.
+
+
 ## Goal
 
 Recover from common setup and runtime failures.

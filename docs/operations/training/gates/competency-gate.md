@@ -1,5 +1,9 @@
 # Agent Competency Gate Contract
 
+Owner: `docs/operations/training/gates/competency-gate.md`.
+State: canonical documentation.
+
+
 ## Canonical Rule
 
 An accepted model must pass fixed eval and beat the previous shipped model or

@@ -1,5 +1,9 @@
 # Vision
 
+Owner: `docs/vision/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for the intent that explains why `lkjai` exists and why the
 repository is shaped for LLM-first development.
 

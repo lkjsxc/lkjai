@@ -1,5 +1,9 @@
 # Quickstart
 
+Owner: `docs/getting-started/quickstart.md`.
+State: canonical documentation.
+
+
 ## Goal
 
 Bring up the direct OpenAI-compatible inference route and run the scratch

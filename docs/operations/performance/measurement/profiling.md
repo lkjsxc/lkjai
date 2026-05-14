@@ -1,5 +1,9 @@
 # Profiling Protocol
 
+Owner: `docs/operations/performance/measurement/profiling.md`.
+State: canonical documentation.
+
+
 ## Goal
 
 Keep native CUDA optimization evidence-based.

@@ -1,5 +1,9 @@
 # Training Operations
 
+Owner: `docs/operations/training/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for scratch tokenizer/model training behavior, competency
 gating, and operator-facing acceptance flow.
 

@@ -1,5 +1,9 @@
 # Agent Architecture
 
+Owner: `docs/architecture/agent/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for the runtime loop that turns chat into multi-step agent work.
 
 ## Read This Section When

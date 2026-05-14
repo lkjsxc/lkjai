@@ -1,5 +1,9 @@
 # Native Source
 
+Owner: `native/src/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 Native C++ and CUDA sources implement scratch training, inference serving,

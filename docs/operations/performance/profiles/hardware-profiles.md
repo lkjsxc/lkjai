@@ -1,5 +1,9 @@
 # Hardware Profiles
 
+Owner: `docs/operations/performance/profiles/hardware-profiles.md`.
+State: canonical documentation.
+
+
 ## Acceptance Gate
 
 RTX 3070 is the hard validation gate for accepted native CUDA work. A change

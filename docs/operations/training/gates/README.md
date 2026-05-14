@@ -1,5 +1,9 @@
 # Training Gates
 
+Owner: `docs/operations/training/gates/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for competency and quality acceptance gates.
 
 ## Read This Section When

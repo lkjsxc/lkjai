@@ -1,5 +1,9 @@
 # Decoder CUDA Forward Substrate 2026-05-05
 
+Owner: `docs/operations/performance/evidence/decoder-cuda-forward-substrate-20260505.md`.
+State: canonical documentation.
+
+
 ## Baseline
 
 Baseline commits referenced by this substrate batch:

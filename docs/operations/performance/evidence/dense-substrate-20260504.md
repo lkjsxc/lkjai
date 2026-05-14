@@ -1,5 +1,9 @@
 # Dense Substrate Evidence 2026-05-04
 
+Owner: `docs/operations/performance/evidence/dense-substrate-20260504.md`.
+State: canonical documentation.
+
+
 This record captures the RTX 3070 evidence for the dense CUDA substrate
 tuning patch set. Raw artifacts are intentionally left under ignored
 `artifacts/` and `data/perf-runs/`; this file keeps only the curated facts.

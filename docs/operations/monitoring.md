@@ -1,5 +1,9 @@
 # Monitoring and Health
 
+Owner: `docs/operations/monitoring.md`.
+State: canonical documentation.
+
+
 ## Goal
 
 Observe runtime health without adding heavy telemetry dependencies.

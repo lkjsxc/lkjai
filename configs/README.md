@@ -1,5 +1,9 @@
 # Configs
 
+Owner: `configs/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 Project configuration files that are intended to be committed live here.

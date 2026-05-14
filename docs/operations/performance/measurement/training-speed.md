@@ -1,5 +1,9 @@
 # Training Speed Contract
 
+Owner: `docs/operations/performance/measurement/training-speed.md`.
+State: canonical documentation.
+
+
 ## Goal
 
 Maximize tokens/sec for the existing `scratch-40m` model shape on the RTX 3070

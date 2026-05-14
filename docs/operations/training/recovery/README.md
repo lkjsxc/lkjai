@@ -1,5 +1,9 @@
 # Training Recovery
 
+Owner: `docs/operations/training/recovery/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for recovery paths for broken chat artifacts and action
 generation.
 

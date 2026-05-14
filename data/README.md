@@ -1,5 +1,9 @@
 # Data
 
+Owner: `data/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 This ignored runtime tree stores generated corpora, checkpoints, model exports,

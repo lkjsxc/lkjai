@@ -1,5 +1,9 @@
 # Native Overview
 
+Owner: `docs/architecture/native/overview/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for native strategy, capability shape, failure behavior, and
 backlog orientation.
 

@@ -1,5 +1,9 @@
 # Dense BF16 CUDA Training Report
 
+Owner: `docs/operations/performance/evidence/dense-bf16-cuda-training-report.md`.
+State: canonical documentation.
+
+
 This record captures the RTX 3070 dense BF16 CUDA acceptance run produced on
 2026-05-04.
 

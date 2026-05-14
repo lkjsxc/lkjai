@@ -1,5 +1,9 @@
 # Dense Learning Control: 2026-05-03
 
+Owner: `docs/operations/training/evidence/dense-learning-control-20260503.md`.
+State: canonical documentation.
+
+
 ## Result
 
 Controlled dense BF16 CUDA learning is proven for the dense embedding plus

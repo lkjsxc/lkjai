@@ -1,5 +1,9 @@
 # Training Evaluation
 
+Owner: `docs/architecture/training/evaluation/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for fixed evaluation, competency gates, and preference data.
 
 ## Read This Section When

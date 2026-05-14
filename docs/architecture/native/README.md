@@ -1,5 +1,9 @@
 # Native Architecture
 
+Owner: `docs/architecture/native/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for native C++/CUDA train, serve, artifact, and acceptance
 contracts.
 

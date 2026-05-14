@@ -1,5 +1,9 @@
 # Performance Profiles
 
+Owner: `docs/operations/performance/profiles/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for hardware acceptance profiles and larger model planning.
 
 ## Read This Section When

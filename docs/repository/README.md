@@ -1,5 +1,9 @@
 # Repository
 
+Owner: `docs/repository/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for layout, workflow, and authoring rules.
 
 ## Read This Section When

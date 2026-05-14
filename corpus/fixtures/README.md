@@ -1,5 +1,9 @@
 # Corpus Fixtures
 
+Owner: `corpus/fixtures/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 Fixture files describe grounded source snippets used by generated SFT and

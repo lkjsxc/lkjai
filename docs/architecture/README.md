@@ -1,5 +1,9 @@
 # Architecture
 
+Owner: `docs/architecture/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for the agent, memory, model, native runtime, and training
 contracts.
 

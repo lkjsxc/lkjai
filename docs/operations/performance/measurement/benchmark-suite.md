@@ -1,5 +1,9 @@
 # Benchmark Suite
 
+Owner: `docs/operations/performance/measurement/benchmark-suite.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 Define the required measurement layers for native CUDA changes.

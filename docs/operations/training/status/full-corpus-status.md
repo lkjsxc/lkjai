@@ -1,5 +1,9 @@
 # Full Corpus Status
 
+Owner: `docs/operations/training/status/full-corpus-status.md`.
+State: canonical documentation.
+
+
 ## Deleted Kimi Chunks
 
 - Path: `corpus/generated/kimi-full/`.

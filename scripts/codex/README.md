@@ -1,5 +1,9 @@
 # Codex Scripts
 
+Owner: `scripts/codex/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 These scripts provide single-entry commands for Codex agents running repository

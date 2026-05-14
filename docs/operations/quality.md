@@ -1,5 +1,9 @@
 # Quality Gates
 
+Owner: `docs/operations/quality.md`.
+State: canonical documentation.
+
+
 ## Mandatory Gates
 
 1. `cmake -S native -B /tmp/lkjai-native-build -G Ninja`

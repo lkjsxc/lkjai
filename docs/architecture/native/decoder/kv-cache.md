@@ -42,7 +42,10 @@ The decoder bridge can disclose either accepted CUDA KV-cache decode or
 `cuda_reference_kv_cache` plus partial KV-cache metadata. The accepted name is
 allowed only when the sidecar and executed route path agree.
 
-The native implementation has the accepted contiguous BF16 K/V memory contract,
-CUDA append, cached attention consumption, allocation accounting, and route
-contracts. Future batching work must preserve zero steady-state token
-allocations.
+The native implementation has partial contiguous BF16 K/V allocation evidence,
+CUDA append plumbing, allocation counters, and route disclosure fields. This is
+not accepted KV-cache serving yet. Acceptance still requires proving prompt
+prefill allocation is positive, token-loop device allocations stay at zero, and
+the decode path consumes the cache without full-prompt host recompute.
+
+Future batching work must preserve zero steady-state token allocations.

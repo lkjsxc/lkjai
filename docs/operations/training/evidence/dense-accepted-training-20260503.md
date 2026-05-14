@@ -1,5 +1,9 @@
 # Dense Accepted Training 20260503
 
+Owner: `docs/operations/training/evidence/dense-accepted-training-20260503.md`.
+State: canonical documentation.
+
+
 Canonical run id: `dense-accepted-training-20260503`
 
 ## Result

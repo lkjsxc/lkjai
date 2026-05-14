@@ -1,5 +1,9 @@
 # Getting Started
 
+Owner: `docs/getting-started/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for the fastest reliable path to:
 
 - start a real local LLM-backed web runtime,

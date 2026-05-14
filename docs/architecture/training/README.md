@@ -1,5 +1,9 @@
 # Training Architecture
 
+Owner: `docs/architecture/training/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for tokenizer training, scratch model training, agent
 trajectory supervision, CUDA behavior, and export behavior.
 

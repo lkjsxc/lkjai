@@ -1,5 +1,9 @@
 # Performance Contracts
 
+Owner: `docs/operations/performance/contracts/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for report schemas, benchmark artifacts, and promotion gates.
 
 ## Read This Section When

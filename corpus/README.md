@@ -1,5 +1,9 @@
 # Corpus
 
+Owner: `corpus/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 Corpus data that is intentionally part of the repository lives here. Local

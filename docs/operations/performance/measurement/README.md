@@ -1,5 +1,9 @@
 # Performance Measurement
 
+Owner: `docs/operations/performance/measurement/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for benchmark procedures, profiling, validation, and kernel
 planning.
 

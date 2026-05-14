@@ -1,5 +1,9 @@
 # Kimi SFT 60M Holdout Split
 
+Owner: `corpus/generated/kimi-sft-60m/holdout/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 Holdout rows for the rebuilt XML-action SFT corpus live here after validator

@@ -1,5 +1,9 @@
 # Training Pipeline
 
+Owner: `docs/architecture/training/pipeline/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for scratch training pipeline and CUDA behavior.
 
 ## Read This Section When

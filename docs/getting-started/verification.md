@@ -1,5 +1,9 @@
 # Verification
 
+Owner: `docs/getting-started/verification.md`.
+State: canonical documentation.
+
+
 ## Goal
 
 Verification proves:

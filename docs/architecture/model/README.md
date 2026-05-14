@@ -1,5 +1,9 @@
 # Model Architecture
 
+Owner: `docs/architecture/model/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for scratch model selection, serving, and scale policy.
 
 ## Read This Section When

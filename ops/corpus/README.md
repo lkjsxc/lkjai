@@ -1,5 +1,9 @@
 # Corpus Ops
 
+Owner: `ops/corpus/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 This directory contains isolated public corpus acquisition and validation

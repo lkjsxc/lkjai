@@ -1,5 +1,9 @@
 # Dense Evidence Record
 
+Owner: `docs/operations/performance/evidence/dense-evidence-record.md`.
+State: canonical documentation.
+
+
 Use this format when documenting a dense CUDA throughput change. Generated raw
 outputs stay under ignored `artifacts/` and `data/perf-runs/`; committed docs
 contain only curated evidence.

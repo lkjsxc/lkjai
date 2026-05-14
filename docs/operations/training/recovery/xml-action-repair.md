@@ -1,5 +1,9 @@
 # XML Action Repair
 
+Owner: `docs/operations/training/recovery/xml-action-repair.md`.
+State: canonical documentation.
+
+
 ## Goal
 
 Create a short, focused SFT pass that teaches the model to emit complete XML

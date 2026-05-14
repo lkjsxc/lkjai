@@ -1,5 +1,9 @@
 # Training Evidence
 
+Owner: `docs/operations/training/evidence/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for dated training proof records.
 
 ## Read This Section When

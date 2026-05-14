@@ -1,5 +1,9 @@
 # Curriculum Configs
 
+Owner: `configs/curriculum/README.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 Curriculum configs describe ordered training mixtures for scratch model runs.

@@ -1,5 +1,9 @@
 # lkjai
 
+Owner: `README.md`.
+State: canonical documentation.
+
+
 `lkjai` is a docs-first CUDA C++ agent research system for RTX 3070 8GB:
 train dense BF16 scratch models locally, serve native artifacts through an
 OpenAI-compatible endpoint, and run the agent API, tools, memory, summaries,
@@ -30,8 +34,8 @@ task instead of reading the tree linearly.
   and `inference` runs the native decoder service.
 - `inference` loads native artifacts. Dense and transformer exports return
   explicit unsupported chat decode. Decoder exports may return choices through
-  the current host-reference recompute bridge, but that is partial usability
-  only and not accepted CUDA KV-cache serving.
+  the current CUDA KV-cache bridge, but accepted CUDA KV-cache serving names
+  require accepted sidecar, report, shape, and route evidence.
 - Direct OpenAI-compatible chat runs with
   `docker compose --profile inference up --build -d` and serves
   `http://127.0.0.1:8081/v1/chat/completions`. Set `MODEL_NAME` to an existing
@@ -39,8 +43,9 @@ task instead of reading the tree linearly.
 - `train` runs the two-hour decoder 40M packed-cache training profile from
   scratch; smoke checks are explicit native trainer invocations.
 - Dense BF16 CUDA training is the accepted substrate. The decoder CUDA slice is
-  partial: embeddings and LM head train, block forward is forward-only, block
-  weights are not trained, and full decoder backward is not implemented.
+  experimental: full decoder forward runs on CUDA, gradients come from the
+  host reference, registry tensors update through CUDA AdamW, attention is the
+  custom CUDA reference path, and route disclosure remains partial.
 - Dense 40M artifacts remain diagnostics only and are not chat artifacts.
 - The active implementation target is `decoder_2h_40m_3070` on RTX 3070
   with real block-weight updates and native KV-cache decode.

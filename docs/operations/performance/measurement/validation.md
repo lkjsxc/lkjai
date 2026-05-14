@@ -1,5 +1,9 @@
 # CUDA Validation Matrix
 
+Owner: `docs/operations/performance/measurement/validation.md`.
+State: canonical documentation.
+
+
 ## Purpose
 
 Native CUDA work is accepted by parity, stability, and runtime-contract tests,

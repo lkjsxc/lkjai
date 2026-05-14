@@ -1,5 +1,9 @@
 # Local Deployment
 
+Owner: `docs/operations/deployment.md`.
+State: canonical documentation.
+
+
 ## Scope
 
 - current deployment is a local workstation deployment.

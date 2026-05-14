@@ -1,5 +1,9 @@
 # kjxlkj Integration
 
+Owner: `docs/product/kjxlkj-integration.md`.
+State: canonical documentation.
+
+
 ## Goal
 
 Make `lkjai` ready to act as the server-side assistant for `kjxlkj` through

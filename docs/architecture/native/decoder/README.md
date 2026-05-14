@@ -1,5 +1,9 @@
 # Decoder Native Path
 
+Owner: `docs/architecture/native/decoder/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for the native `decoder` product target.
 
 ## Read This Section When

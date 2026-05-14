@@ -1,5 +1,9 @@
 # Native Contracts
 
+Owner: `docs/architecture/native/contracts/README.md`.
+State: canonical documentation.
+
+
 Use this subtree for native contract ownership and stable train, runtime, and
 artifact surfaces.
 
