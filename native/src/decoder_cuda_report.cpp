@@ -28,6 +28,7 @@ void decoder_fill_full_cuda_report(DenseCudaState& cuda,
   r->attention_backend = "cuda_causal_gqa_bf16_reference";
   r->mlp_backend = "cuda_swiglu";
   r->decoder_backward_backend = "host_reference";
+  r->decoder_gradient_source = "host_reference";
   r->matmul_backend = "cublaslt";
   r->kv_cache_backend = kDecoderNoKvCacheBackend;
   r->decode_backend = kDecoderPartialDecodeBackend;

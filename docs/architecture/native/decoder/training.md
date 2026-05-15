@@ -113,6 +113,7 @@ Decoder reports use stable schema with additive fields:
 - `attention_backend`
 - `mlp_backend`
 - `decoder_backward_backend`
+- `decoder_gradient_source`
 - `matmul_backend`
 - `optimizer_backend`
 - `decode_supported`
@@ -129,6 +130,7 @@ Decoder reports use stable schema with additive fields:
 Reports are accepted only when `accepted_cuda_training=true`,
 `implementation_status=accepted`, `decoder_cuda_slice=full_decoder`, CUDA
 forward/backward backends are present, `attention_backend=cudnn_sdpa_bf16_gqa`,
+`decoder_gradient_source=cuda_device`,
 `decode_supported=true`,
 `logits_check_passed=true`, finite loss, `steps > 0`, `loss_tokens > 0`,
 `trainable_weight_changed=true`, nonzero non-embedding block/final-norm weight

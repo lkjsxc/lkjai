@@ -78,6 +78,7 @@ bool transformer_report_shape_accepted_decoder(const TransformerTrainReport& r) 
          r.forward_backend == "cuda_full_decoder" &&
          r.backward_backend == "cuda_full_decoder" &&
          r.decoder_backward_backend == "cuda_full_decoder" &&
+         r.decoder_gradient_source == "cuda_device" &&
          accepted_decode_support(r) && r.logits_check_passed &&
          std::isfinite(r.loss) && r.steps > 0 && r.loss_tokens > 0 &&
          r.trainable_weight_changed && r.non_embedding_weight_changed &&
@@ -86,9 +87,7 @@ bool transformer_report_shape_accepted_decoder(const TransformerTrainReport& r) 
          accepted_40m_3070_shape(r);
 }
 
-bool transformer_report_accepted_decoder(const TransformerTrainReport& r) {
-  return transformer_report_shape_accepted_decoder(r);
-}
+bool transformer_report_accepted_decoder(const TransformerTrainReport& r) { return transformer_report_shape_accepted_decoder(r); }
 
 bool transformer_emitted_decoder_evidence_accepted(
     const std::filesystem::path& train_report, std::string* error) {
@@ -132,7 +131,8 @@ bool transformer_emitted_decoder_evidence_accepted(
       !contains_json_string(body, "forward_backend", "cuda_full_decoder") ||
       !contains_json_string(body, "backward_backend", "cuda_full_decoder") ||
       !contains_json_string(body, "decoder_backward_backend",
-                            "cuda_full_decoder")) {
+                            "cuda_full_decoder") ||
+      !contains_json_string(body, "decoder_gradient_source", "cuda_device")) {
     *error = "train report missing accepted CUDA decoder backends";
     return false;
   }
@@ -171,9 +171,7 @@ bool transformer_emitted_decoder_evidence_accepted(
 std::vector<std::string> transformer_report_limitations(
     const TransformerTrainReport& r, bool accepted_decoder) {
   std::vector<std::string> out;
-  if (r.run_purpose == "bounded_diagnostic_start_check") {
-    out.push_back("bounded_diagnostic_start_check");
-  }
+  if (r.run_purpose == "bounded_diagnostic_start_check") out.push_back("bounded_diagnostic_start_check");
   if (accepted_decoder) return out;
   out.push_back("experimental_not_accepted_cuda_training");
   out.push_back(r.decoder_cuda_path ? "partial_cuda_decoder_slice"
@@ -188,6 +186,7 @@ std::vector<std::string> transformer_report_limitations(
     out.push_back("attention_not_implemented");
   if (r.decoder_backward_backend == "not_implemented")
     out.push_back("decoder_backward_not_implemented");
+  if (r.decoder_gradient_source != "cuda_device") out.push_back("decoder_gradients_not_device_origin");
   if (r.model_kind == "decoder" && !r.decoder_block_weight_changed)
     out.push_back("decoder_block_weights_not_updated");
   if (r.model_kind == "decoder" && r.decoder_cuda_slice != "full_decoder")

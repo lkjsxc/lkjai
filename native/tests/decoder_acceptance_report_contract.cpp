@@ -26,6 +26,7 @@ lkjai::TransformerTrainReport accepted_report() {
   r.forward_backend = "cuda_full_decoder";
   r.backward_backend = "cuda_full_decoder";
   r.decoder_backward_backend = "cuda_full_decoder";
+  r.decoder_gradient_source = "cuda_device";
   r.attention_backend = lkjai::kDecoderAcceptedAttentionBackend;
   r.non_embedding_weight_changed = true;
   r.decoder_block_weight_changed = true;
@@ -39,9 +40,7 @@ lkjai::TransformerTrainReport accepted_report() {
   r.logits_check_json =
       "{\"status\":\"pass\",\"validation_target\":\"exported_bf16_weights\","
       "\"checksum\":\"abc\"}";
-  r.loss = 1.0;
-  r.steps = 1;
-  r.loss_tokens = 1;
+  r.loss = 1.0; r.steps = 1; r.loss_tokens = 1;
   r.seq_len = 1024; r.context = 1024; r.layers = 10; r.hidden_size = 576;
   r.heads = 8; r.kv_heads = 2; r.head_dim = 72; r.ffn_size = 1536;
   r.target_seconds = 7200;
@@ -173,7 +172,7 @@ bool emitted_evidence_contract() {
   host.implementation_status = "experimental";
   host.forward_backend = "host_reference";
   host.backward_backend = "host_reference";
-  host.decoder_backward_backend = "host_reference";
+  host.decoder_backward_backend = "host_reference"; host.decoder_gradient_source = "host_reference";
   std::ofstream(report) << lkjai::transformer_train_report_json(
       host, cuda, "train", "success", "");
   ok = ok && expect(!lkjai::transformer_emitted_decoder_evidence_accepted(

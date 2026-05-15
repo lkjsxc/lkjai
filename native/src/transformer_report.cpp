@@ -103,6 +103,7 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
        << ",\"attention_backend\":\"" << json_escape(report.attention_backend) << "\""
        << ",\"mlp_backend\":\"" << json_escape(report.mlp_backend)
        << "\",\"decoder_backward_backend\":\"" << json_escape(!accepted_decoder && report.decoder_backward_backend == "cuda_full_decoder" ? "not_accepted_cuda_full_decoder" : report.decoder_backward_backend) << "\""
+       << ",\"decoder_gradient_source\":\"" << json_escape(report.decoder_gradient_source) << "\""
        << ",\"matmul_backend\":\"" << json_escape(report.matmul_backend)
        << "\",\"kv_cache_backend\":\"" << json_escape(report.kv_cache_backend)
        << "\",\"decode_backend\":\"" << json_escape(!accepted_decoder && report.decode_backend == "cuda_kv_cache" ? "cuda_reference_kv_cache" : report.decode_backend)

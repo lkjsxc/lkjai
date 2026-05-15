@@ -129,7 +129,7 @@ int main() {
   report.qkv_projection_backend = "cuda_bf16_cublaslt";
   report.attention_backend = lkjai::kDecoderReferenceAttentionBackend;
   report.mlp_backend = "cuda_swiglu_partial";
-  report.decoder_backward_backend = "not_implemented";
+  report.decoder_backward_backend = "not_implemented"; report.decoder_gradient_source = "none";
   report.kv_cache_backend = lkjai::kDecoderNoKvCacheBackend;
   report.decode_backend = lkjai::kDecoderPartialDecodeBackend;
   report.decode_supported = false;
@@ -173,6 +173,7 @@ int main() {
   report.attention_backend = lkjai::kDecoderReferenceAttentionBackend;
   report.mlp_backend = "cuda_full_swiglu";
   report.decoder_backward_backend = "cuda_full_decoder";
+  report.decoder_gradient_source = "cuda_device";
   report.non_embedding_weight_changed = true;
   report.decoder_block_weight_changed = true;
   report.trainable_weight_changed = true;

@@ -72,7 +72,7 @@ Decoder reports also include `decoder_status`, `embedding_tying`,
 `decoder_block_forward_in_training`, `decoder_block_forward_steps`,
 `decoder_forward_probe`, `rmsnorm_backend`, `rope_backend`,
 `qkv_projection_backend`, `mlp_backend`, `decoder_backward_backend`,
-`workspace_high_water_bytes`, `workspace_reallocations`,
+`decoder_gradient_source`, `workspace_high_water_bytes`, `workspace_reallocations`,
 `decode_supported`, `embedding_weight_changed`,
 `lm_head_weight_changed`, `non_embedding_weight_changed`,
 `decoder_block_weight_changed`, and `decoder_weight_change`.
@@ -85,6 +85,7 @@ accepted training status false.
 Decoder reports must not emit `implementation_status=accepted`,
 `decoder_cuda_slice=full_decoder`,
 `decoder_backward_backend=cuda_full_decoder`,
+`decoder_gradient_source=cuda_device`,
 `decode_backend=cuda_kv_cache`, or
 `kv_cache_backend=cuda_contiguous_bf16` until real full decoder backward and
 real CUDA KV-cache decode are implemented and verified. Sidecars such as

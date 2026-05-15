@@ -143,6 +143,7 @@ struct TransformerTrainReport {
   std::string qkv_projection_backend = "host_reference";
   std::string mlp_backend = "host_reference";
   std::string decoder_backward_backend = "not_applicable";
+  std::string decoder_gradient_source = "none";
   std::string kv_cache_backend = "none";
   std::string decode_backend = "unsupported";
   std::string decoder_cuda_slice = "none";
