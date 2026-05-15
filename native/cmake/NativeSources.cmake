@@ -25,6 +25,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/decoder_cuda_generate.cpp
   src/decoder_cuda_block_probe.cpp
   src/decoder_cuda_block_project.cu
+  src/decoder_cuda_project_backward.cu
   src/decoder_cuda_block_shape.cpp
   src/decoder_cuda_backward.cpp
   src/decoder_cuda_full_forward.cpp

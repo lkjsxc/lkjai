@@ -5,6 +5,7 @@
 #include "cuda_probe.hpp"
 #include "decoder_cuda_block.hpp"
 #include "decoder_cuda_block_check_ref.hpp"
+#include "decoder_cuda_block_internal.hpp"
 #include "decoder_cuda_residual.hpp"
 #include "runtime_device.hpp"
 
@@ -86,6 +87,71 @@ bool check_swiglu(lkjai::CudaExecutionContext* ctx) {
                       "SwiGLU d_up");
 }
 
+std::vector<float> projection_dx(const std::vector<float>& dy,
+                                 const std::vector<float>& w, int rows,
+                                 int in, int out) {
+  std::vector<float> dx(static_cast<size_t>(rows) * in);
+  for (int r = 0; r < rows; ++r) {
+    for (int i = 0; i < in; ++i) {
+      float sum = 0.0f;
+      for (int o = 0; o < out; ++o) {
+        sum += f32(bf16(dy[static_cast<size_t>(r) * out + o])) *
+               f32(bf16(w[static_cast<size_t>(o) * in + i]));
+      }
+      dx[static_cast<size_t>(r) * in + i] = sum;
+    }
+  }
+  return dx;
+}
+
+std::vector<float> projection_dw(const std::vector<float>& x,
+                                 const std::vector<float>& dy, int rows,
+                                 int in, int out) {
+  std::vector<float> dw(static_cast<size_t>(out) * in);
+  for (int o = 0; o < out; ++o) {
+    for (int i = 0; i < in; ++i) {
+      float sum = 0.0f;
+      for (int r = 0; r < rows; ++r) {
+        sum += f32(bf16(dy[static_cast<size_t>(r) * out + o])) *
+               f32(bf16(x[static_cast<size_t>(r) * in + i]));
+      }
+      dw[static_cast<size_t>(o) * in + i] = sum;
+    }
+  }
+  return dw;
+}
+
+bool check_projection_backward(lkjai::CudaExecutionContext* ctx) {
+  constexpr int rows = 5;
+  constexpr int in = 7;
+  constexpr int out = 6;
+  auto x = values(rows * in, 0.2f);
+  auto w = values(out * in, 0.6f);
+  auto dy = values(rows * out, 1.1f);
+  lkjai::DeviceTensor dx({lkjai::DeviceDType::f32, {rows, in}},
+                         ctx->stream());
+  lkjai::DeviceTensor dw({lkjai::DeviceDType::f32, {out, in}},
+                         ctx->stream());
+  lkjai::DeviceTensor x_dev({lkjai::DeviceDType::bf16, {rows, in}},
+                            ctx->stream());
+  lkjai::DeviceTensor w_dev({lkjai::DeviceDType::bf16, {out, in}},
+                            ctx->stream());
+  lkjai::DeviceTensor dy_dev({lkjai::DeviceDType::bf16, {rows, out}},
+                             ctx->stream());
+  x_dev.copy_from_host_f32(x, ctx->stream());
+  w_dev.copy_from_host_f32(w, ctx->stream());
+  dy_dev.copy_from_host_f32(dy, ctx->stream());
+  lkjai::decoder_cuda_project_backward_bf16(
+      ctx->cublaslt(), ctx->stream(), x_dev.data(), w_dev.data(),
+      dy_dev.data(), dx.data(), dw.data(), rows, in, out, nullptr, 0, 0.0f);
+  return close_enough(dx.copy_to_host_f32(ctx->stream()),
+                      projection_dx(dy, w, rows, in, out), 0.006, 0.002,
+                      "projection dX") &&
+         close_enough(dw.copy_to_host_f32(ctx->stream()),
+                      projection_dw(x, dy, rows, in, out), 0.006, 0.002,
+                      "projection dW");
+}
+
 }  // namespace
 
 int main() {
@@ -97,7 +163,10 @@ int main() {
   }
   try {
     lkjai::CudaExecutionContext ctx;
-    if (!check_residual(&ctx) || !check_swiglu(&ctx)) return 1;
+    if (!check_residual(&ctx) || !check_swiglu(&ctx) ||
+        !check_projection_backward(&ctx)) {
+      return 1;
+    }
   } catch (const std::exception& e) {
     std::cerr << e.what() << "\n";
     return 1;
