@@ -54,6 +54,13 @@ target_link_libraries(lkjai-native-decoder-backward-primitives-check
   PRIVATE lkjai_native_core
 )
 
+add_executable(lkjai-native-decoder-rope-backward-check
+  tests/decoder_cuda_rope_backward_check.cpp
+)
+target_link_libraries(lkjai-native-decoder-rope-backward-check
+  PRIVATE lkjai_native_core
+)
+
 add_executable(lkjai-native-decoder-tokenizer-contract
   tests/decoder_tokenizer_contract.cpp
 )

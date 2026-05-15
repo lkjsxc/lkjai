@@ -20,7 +20,9 @@ This directory contains test helpers for native CTest cases.
 - [decoder_kv_cache_contract.cpp](decoder_kv_cache_contract.cpp): contiguous
   BF16 K/V cache offset and size contract for the tied 40M decoder.
 - [decoder_cuda_norm_check.cpp](decoder_cuda_norm_check.cpp): BF16 CUDA
-  RMSNorm parity against a CPU reference.
+  RMSNorm forward and backward parity against a CPU reference.
+- [decoder_cuda_rope_backward_check.cpp](decoder_cuda_rope_backward_check.cpp):
+  BF16 RoPE inverse-gradient parity against a CPU reference.
 - [../src/decoder_cuda_block_check.cpp](../src/decoder_cuda_block_check.cpp):
   decoder forward-substrate CTest for RMSNorm, RoPE, projection metadata,
   finite BF16 projection outputs, and truthful partial report fields.

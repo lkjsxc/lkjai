@@ -68,6 +68,8 @@ add_test(NAME native_decoder_cuda_train_forward
   COMMAND lkjai-native-decoder-train-forward-check)
 add_test(NAME native_decoder_cuda_backward_primitives
   COMMAND lkjai-native-decoder-backward-primitives-check)
+add_test(NAME native_decoder_cuda_rope_backward
+  COMMAND lkjai-native-decoder-rope-backward-check)
 add_test(NAME native_decoder_tokenizer_contract
   COMMAND lkjai-native-decoder-tokenizer-contract)
 add_test(NAME native_decoder_artifact_contract

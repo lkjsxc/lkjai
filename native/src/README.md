@@ -33,12 +33,18 @@ artifact inspection, and CUDA capability probing.
 - [decoder_cuda_block.cu](decoder_cuda_block.cu),
   [decoder_cuda_block_probe.cpp](decoder_cuda_block_probe.cpp),
   [decoder_cuda_block_project.cu](decoder_cuda_block_project.cu),
+  [decoder_cuda_project_backward.cu](decoder_cuda_project_backward.cu),
+  [decoder_cuda_rope_backward.cu](decoder_cuda_rope_backward.cu),
   [decoder_cuda_layer_forward.cpp](decoder_cuda_layer_forward.cpp),
   [decoder_cuda_full_forward.cpp](decoder_cuda_full_forward.cpp),
   [decoder_cuda_block.hpp](decoder_cuda_block.hpp), and
   [decoder_cuda_block_internal.hpp](decoder_cuda_block_internal.hpp): stateful
   decoder forward substrate covering RMSNorm, RoPE, BF16 cuBLASLt projections,
-  residual adds, down projection, SwiGLU glue, and debug full-forward parity.
+  projection backward, RoPE backward, residual adds, down projection, SwiGLU
+  glue, and debug full-forward parity.
+- [decoder_cuda_norm.cu](decoder_cuda_norm.cu) and
+  [decoder_cuda_norm.hpp](decoder_cuda_norm.hpp): BF16 RMSNorm forward and
+  FP32-gradient RMSNorm backward kernels.
 - [decoder_cuda_residual.cu](decoder_cuda_residual.cu) and
   [decoder_cuda_residual.hpp](decoder_cuda_residual.hpp): BF16 residual-add
   and residual-backward helpers for decoder probes and later backward wiring.

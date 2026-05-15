@@ -80,6 +80,11 @@ void decoder_launch_rope_bf16(void* tensor_bf16, int batch, int seq, int heads,
 void decoder_launch_rope_bf16_at(void* tensor_bf16, int batch, int seq,
                                  int heads, int head_dim, int position_offset,
                                  float theta, cudaStream_t stream);
+void decoder_launch_rope_backward_bf16_at(const void* d_output_bf16,
+                                          void* d_input_bf16, int batch,
+                                          int seq, int heads, int head_dim,
+                                          int position_offset, float theta,
+                                          cudaStream_t stream);
 
 void decoder_launch_swiglu_bf16(const void* gate_bf16, const void* up_bf16,
                                 void* out_bf16, int elements,

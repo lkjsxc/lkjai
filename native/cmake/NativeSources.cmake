@@ -20,6 +20,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/decoder_kv_cache_lifetime.cpp
   src/decoder_cuda_block.cu
   src/decoder_cuda_cached_attention.cu
+  src/decoder_cuda_rope_backward.cu
   src/decoder_cuda_decode.cpp
   src/decoder_cuda_decode_kernels.cu
   src/decoder_cuda_generate.cpp
