@@ -79,6 +79,9 @@ HTTP `400` with no `choices`.
 
 ## Decode Loop
 
+- The loaded artifact owns one cached `DecoderCudaInferenceSession`; requests
+  allocate their own KV cache and reuse the session's device weights,
+  execution context, and workspace.
 - Prefill consumes the prompt up to the configured context.
 - Incremental decode appends one token at a time.
 - Accepted decode uses a native-owned contiguous BF16 KV cache.
@@ -86,6 +89,9 @@ HTTP `400` with no `choices`.
 - Steady-state accepted decode must not allocate device memory per token.
 - CUDA reference choices are usability only and do not satisfy accepted decode
   until full metrics and acceptance evidence exist.
+
+Session lifecycle and allocation counter ownership are defined in
+[inference-session.md](inference-session.md).
 
 ## Sampling
 

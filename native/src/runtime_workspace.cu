@@ -44,17 +44,20 @@ void* DeviceWorkspace::allocate(size_t bytes) {
   } else {
     require_cuda(cudaMalloc(&data_, bytes), "cudaMalloc");
   }
+  device_allocation_account_alloc(bytes);
   return data_;
 }
 
 void DeviceWorkspace::reset() {
   if (!data_) return;
+  size_t bytes = bytes_reserved_;
   if (async_supported_) {
     cudaFreeAsync(data_, stream_);
     cudaStreamSynchronize(stream_);
   } else {
     cudaFree(data_);
   }
+  device_allocation_account_free(bytes);
   data_ = nullptr;
   bytes_reserved_ = 0;
 }

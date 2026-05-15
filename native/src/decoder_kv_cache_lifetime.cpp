@@ -4,12 +4,20 @@
 
 #include <cuda_runtime.h>
 
+#include "runtime_device.hpp"
+
 namespace lkjai {
 namespace {
 
 void free_cache(DecoderKvCache* cache) {
-  if (cache->key_device) cudaFree(cache->key_device);
-  if (cache->value_device) cudaFree(cache->value_device);
+  if (cache->key_device) {
+    cudaFree(cache->key_device);
+    device_allocation_account_free(cache->layout.bytes_per_tensor);
+  }
+  if (cache->value_device) {
+    cudaFree(cache->value_device);
+    device_allocation_account_free(cache->layout.bytes_per_tensor);
+  }
   cache->key_device = nullptr;
   cache->value_device = nullptr;
   cache->allocated_bytes = 0;

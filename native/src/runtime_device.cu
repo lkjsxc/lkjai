@@ -38,16 +38,18 @@ void* allocate_temp(size_t bytes, cudaStream_t stream, bool* async) {
   } else {
     require_cuda(cudaMalloc(&ptr, bytes), "cudaMalloc temp");
   }
+  device_allocation_account_alloc(bytes);
   return ptr;
 }
 
-void free_temp(void* ptr, cudaStream_t stream, bool async) {
+void free_temp(void* ptr, size_t bytes, cudaStream_t stream, bool async) {
   if (async) {
     require_cuda(cudaFreeAsync(ptr, stream), "cudaFreeAsync temp");
   } else {
     require_cuda(cudaStreamSynchronize(stream), "temp sync");
     cudaFree(ptr);
   }
+  device_allocation_account_free(bytes);
 }
 
 }  // namespace
@@ -66,6 +68,7 @@ size_t DeviceTensorSpec::bytes() const { return elements() * dtype_size(dtype); 
 DeviceTensor::DeviceTensor(DeviceTensorSpec spec) : spec_(std::move(spec)) {
   if (spec_.bytes() > 0) {
     require_cuda(cudaMalloc(&data_, spec_.bytes()), "cudaMalloc");
+    device_allocation_account_alloc(spec_.bytes());
   }
 }
 
@@ -80,6 +83,7 @@ DeviceTensor::DeviceTensor(DeviceTensorSpec spec, cudaStream_t stream)
     } else {
       require_cuda(cudaMalloc(&data_, spec_.bytes()), "cudaMalloc");
     }
+    device_allocation_account_alloc(spec_.bytes());
   }
 }
 
@@ -108,12 +112,14 @@ DeviceTensor& DeviceTensor::operator=(DeviceTensor&& other) noexcept {
 DeviceTensor::~DeviceTensor() { reset(); }
 
 void DeviceTensor::reset() {
+  size_t bytes = spec_.bytes();
   if (data_ && async_alloc_) {
     cudaFreeAsync(data_, alloc_stream_);
     cudaStreamSynchronize(alloc_stream_);
   } else if (data_) {
     cudaFree(data_);
   }
+  if (data_) device_allocation_account_free(bytes);
   data_ = nullptr;
   alloc_stream_ = nullptr;
   async_alloc_ = false;
@@ -138,8 +144,8 @@ void DeviceTensor::copy_from_host_f32(const std::vector<float>& host,
   }
   float* temp = nullptr;
   bool async = false;
-  temp = static_cast<float*>(allocate_temp(host.size() * sizeof(float), stream,
-                                          &async));
+  size_t temp_bytes = host.size() * sizeof(float);
+  temp = static_cast<float*>(allocate_temp(temp_bytes, stream, &async));
   require_cuda(cudaMemcpyAsync(temp, host.data(), host.size() * sizeof(float),
                                cudaMemcpyHostToDevice, stream),
                "cudaMemcpyAsync H2D temp");
@@ -147,7 +153,7 @@ void DeviceTensor::copy_from_host_f32(const std::vector<float>& host,
                 stream>>>(
       temp, static_cast<__nv_bfloat16*>(data_), host.size());
   require_cuda(cudaGetLastError(), "f32_to_bf16");
-  free_temp(temp, stream, async);
+  free_temp(temp, temp_bytes, stream, async);
 }
 
 std::vector<float> DeviceTensor::copy_to_host_f32() const {
@@ -166,8 +172,8 @@ std::vector<float> DeviceTensor::copy_to_host_f32(cudaStream_t stream) const {
   }
   float* temp = nullptr;
   bool async = false;
-  temp = static_cast<float*>(allocate_temp(host.size() * sizeof(float), stream,
-                                          &async));
+  size_t temp_bytes = host.size() * sizeof(float);
+  temp = static_cast<float*>(allocate_temp(temp_bytes, stream, &async));
   bf16_to_f32<<<static_cast<unsigned>((host.size() + 255) / 256), 256, 0,
                 stream>>>(
       static_cast<const __nv_bfloat16*>(data_), temp, host.size());
@@ -175,7 +181,7 @@ std::vector<float> DeviceTensor::copy_to_host_f32(cudaStream_t stream) const {
   require_cuda(cudaMemcpyAsync(host.data(), temp, host.size() * sizeof(float),
                                cudaMemcpyDeviceToHost, stream),
                "cudaMemcpyAsync D2H temp");
-  free_temp(temp, stream, async);
+  free_temp(temp, temp_bytes, stream, async);
   require_cuda(cudaStreamSynchronize(stream), "D2H bf16 sync");
   return host;
 }

@@ -74,6 +74,8 @@ add_test(NAME native_decoder_artifact_contract
   COMMAND lkjai-native-decoder-artifact-contract)
 add_test(NAME native_decoder_kv_cache_contract
   COMMAND lkjai-native-decoder-kv-cache-contract)
+add_test(NAME native_decoder_inference_session_contract
+  COMMAND lkjai-native-decoder-inference-session-contract)
 add_test(NAME native_runtime_contract COMMAND lkjai-native-runtime-contract)
 add_test(NAME native_runtime_action_contract
   COMMAND lkjai-native-runtime-action-contract)
@@ -108,6 +110,8 @@ set_tests_properties(native_decoder_cuda_block_forward_substrate PROPERTIES
 set_tests_properties(native_decoder_cuda_full_forward PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
 set_tests_properties(native_decoder_cuda_train_forward PROPERTIES
+  ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
+set_tests_properties(native_decoder_inference_session_contract PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
 set_tests_properties(native_static_web_contract PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")

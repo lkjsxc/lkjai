@@ -33,7 +33,9 @@ The decoder lane is the first product acceptance target. Current truth is:
 - Registry CUDA AdamW updates device FP32 masters, Adam moments, gradients, and
   BF16 shadows for decoder tensors.
 - Attention uses `cuda_causal_gqa_bf16_reference` as fallback/oracle evidence.
-- KV-cache route disclosure is partial until accepted route evidence exists.
+- Decode owns a cached `DecoderCudaInferenceSession` per loaded artifact and
+  measured device allocation counters, but KV-cache route disclosure remains
+  partial until accepted route evidence exists.
 
 Detailed decoder acceptance blockers are owned by
 [training.md](architecture/native/decoder/training.md),

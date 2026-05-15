@@ -18,6 +18,7 @@ struct CachedDecoderArtifact {
   std::filesystem::path model_dir;
   TransformerState state;
   NativeTokenizer tokenizer;
+  std::unique_ptr<DecoderCudaInferenceSession> session;
 };
 
 bool load_cached_decoder(const std::filesystem::path& model_dir,
@@ -40,6 +41,7 @@ bool load_cached_decoder(const std::filesystem::path& model_dir,
                                   error)) {
     return false;
   }
+  next->session = std::make_unique<DecoderCudaInferenceSession>(next->state);
   cached = std::move(next);
   *out = cached.get();
   return true;
@@ -127,8 +129,8 @@ bool decoder_chat_json(const std::filesystem::path& model_dir,
                               state.cfg.context, state.cfg.head_dim};
   if (!decoder_kv_cache_allocate(kv_cfg, &cache, error)) return false;
   DecoderCudaGenerateResult generated;
-  if (!decoder_cuda_generate(state, tokenizer, tokens, sampler, &cache,
-                             &generated, error)) {
+  if (!cached->session->generate(tokenizer, tokens, sampler, &cache, &generated,
+                                 error)) {
     return false;
   }
   bool accepted_decode =

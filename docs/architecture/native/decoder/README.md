@@ -19,6 +19,8 @@ Use this subtree for the native `decoder` product target.
 - [artifact.md](artifact.md): decoder artifact tensors and manifest behavior
 - [training.md](training.md): CUDA training ownership, wall-clock stop, and reports
 - [decode.md](decode.md): native autoregressive decode, sampler, KV cache, and API
+- [inference-session.md](inference-session.md): cached CUDA decode session and
+  allocation accounting ownership
 - [attention.md](attention.md): full attention acceptance requirements
 - [backward.md](backward.md): decoder backward and optimizer acceptance
 - [kv-cache.md](kv-cache.md): accepted contiguous BF16 KV-cache decode contract

@@ -1,5 +1,6 @@
 set(LKJAI_CUDA_SOURCES
   src/cuda_probe.cu
+  src/runtime_allocation.cpp
   src/runtime_errors.cu
   src/runtime_context.cu
   src/runtime_device.cu
@@ -20,6 +21,8 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/decoder_cuda_block.cu
   src/decoder_cuda_cached_attention.cu
   src/decoder_cuda_decode.cpp
+  src/decoder_cuda_decode_kernels.cu
+  src/decoder_cuda_generate.cpp
   src/decoder_cuda_block_probe.cpp
   src/decoder_cuda_block_project.cu
   src/decoder_cuda_block_shape.cpp

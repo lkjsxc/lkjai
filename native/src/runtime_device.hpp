@@ -13,6 +13,15 @@ namespace lkjai {
 
 enum class DeviceDType { f32, bf16 };
 
+struct DeviceAllocationStats {
+  uint64_t allocation_count = 0;
+  uint64_t free_count = 0;
+  uint64_t allocated_bytes = 0;
+  uint64_t freed_bytes = 0;
+  uint64_t live_bytes = 0;
+  uint64_t high_water_live_bytes = 0;
+};
+
 struct DeviceTensorSpec {
   DeviceDType dtype = DeviceDType::f32;
   std::vector<int64_t> shape;
@@ -97,6 +106,11 @@ class CudaExecutionContext {
 };
 
 const char* dtype_name(DeviceDType dtype);
+DeviceAllocationStats device_allocation_stats();
+uint64_t device_allocation_count_delta(const DeviceAllocationStats& before,
+                                       const DeviceAllocationStats& after);
+void device_allocation_account_alloc(size_t bytes);
+void device_allocation_account_free(size_t bytes);
 void require_cuda(cudaError_t status, const char* label);
 void require_cublaslt(cublasStatus_t status, const char* label);
 void require_cudnn(cudnnStatus_t status, const char* label);

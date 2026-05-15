@@ -2,6 +2,8 @@
 
 #include <cuda_runtime.h>
 
+#include "runtime_device.hpp"
+
 namespace lkjai {
 namespace {
 
@@ -22,8 +24,14 @@ bool cuda_ok(cudaError_t status, const char* label, std::string* error) {
 }
 
 void release_devices(DecoderKvCache* cache) {
-  if (cache->key_device) cudaFree(cache->key_device);
-  if (cache->value_device) cudaFree(cache->value_device);
+  if (cache->key_device) {
+    cudaFree(cache->key_device);
+    device_allocation_account_free(cache->layout.bytes_per_tensor);
+  }
+  if (cache->value_device) {
+    cudaFree(cache->value_device);
+    device_allocation_account_free(cache->layout.bytes_per_tensor);
+  }
   cache->key_device = nullptr;
   cache->value_device = nullptr;
   cache->allocated_bytes = 0;
@@ -104,11 +112,13 @@ bool decoder_kv_cache_allocate(const DecoderKvCacheConfig& cfg,
     release_devices(cache);
     return false;
   }
+  device_allocation_account_alloc(layout.bytes_per_tensor);
   if (!cuda_ok(cudaMalloc(&cache->value_device, layout.bytes_per_tensor),
                "decoder KV cudaMalloc value", error)) {
     release_devices(cache);
     return false;
   }
+  device_allocation_account_alloc(layout.bytes_per_tensor);
   if (!cuda_ok(cudaMemset(cache->key_device, 0, layout.bytes_per_tensor),
                "decoder KV cudaMemset key", error) ||
       !cuda_ok(cudaMemset(cache->value_device, 0, layout.bytes_per_tensor),

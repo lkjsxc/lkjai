@@ -75,6 +75,13 @@ target_link_libraries(lkjai-native-decoder-kv-cache-contract
   PRIVATE lkjai_native_core
 )
 
+add_executable(lkjai-native-decoder-inference-session-contract
+  tests/decoder_inference_session_contract.cpp
+)
+target_link_libraries(lkjai-native-decoder-inference-session-contract
+  PRIVATE lkjai_native_core
+)
+
 add_executable(lkjai-native-runtime-contract tests/runtime_contract_check.cpp)
 target_link_libraries(lkjai-native-runtime-contract PRIVATE lkjai_native_core)
 
