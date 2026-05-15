@@ -12,6 +12,10 @@ embeddings and the LM head.
 
 - Backward covers attention projections, output projection, MLP projections,
   RMSNorm weights, token embeddings, and LM head.
+- Gradients are produced from CUDA-resident tape tensors and device loss
+  gradients.
+- Host reference code may run only as a parity oracle during tests or
+  diagnostics, not as the gradient source for accepted optimizer steps.
 - FP32 master weights and AdamW moments exist for every trainable tensor.
 - BF16 shadows are refreshed from FP32 masters after AdamW updates.
 - Checkpoint optimizer indexes include `master.NAME`, `adam_m.NAME`, and
@@ -34,6 +38,21 @@ embeddings and the LM head.
    tests are stable.
 5. Add checkpoint/resume coverage for every block tensor and optimizer slot.
 6. Promote reports only after all trainable tensors have update evidence.
+
+## Gradient Path
+
+The backward pass runs in reverse decoder order:
+
+1. CE grad logits into tied LM-head and final hidden gradients.
+2. Final RMSNorm gradients into final norm weight and pre-norm hidden.
+3. Per layer from last to first: final residual split, down projection,
+   SwiGLU, gate/up projections, MLP RMSNorm, attention residual split,
+   O projection, attention backward, inverse RoPE gradient, Q/K/V projection,
+   and attention RMSNorm.
+4. Embedding scatter-add into the tied token embedding registry tensor.
+
+cuBLASLt owns projection gradients. Custom CUDA owns RMSNorm, RoPE, residual,
+SwiGLU, embedding scatter, reductions, and BF16/FP32 conversion glue.
 
 ## Current Status
 

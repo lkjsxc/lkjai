@@ -45,6 +45,24 @@ The implementation must prefer correctness evidence over kernel cleverness:
 cuBLASLt remains the GEMM owner, while custom CUDA covers pointwise kernels,
 attention glue, loss, optimizer helpers, sampling, and KV-cache operations.
 
+## Device-Origin Gradient Rule
+
+Accepted decoder gradients must originate from the CUDA backward path that
+consumes the recorded decoder tape. Copying block gradients from
+`transformer_backward(...)`, host parity helpers, or diagnostic probes is not
+accepted evidence even when CUDA AdamW updates the registry afterward.
+
+The CUDA backward path must populate FP32 gradient buffers for:
+
+- tied token embedding and LM-head rows,
+- final RMSNorm,
+- every layer RMSNorm,
+- Q, K, V, and O projections,
+- gate, up, and down MLP projections.
+
+Reports may claim `decoder_backward_backend=cuda_full_decoder` only after the
+training step uses those device-origin gradients for optimizer input.
+
 ## Public Invocation
 
 ```bash

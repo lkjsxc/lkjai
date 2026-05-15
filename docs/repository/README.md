@@ -14,6 +14,8 @@ Use this subtree for layout, workflow, and authoring rules.
 
 ## Child Index
 
-- [layout.md](layout.md): root, docs, source, training, and data layout
+- [layout/README.md](layout/README.md): root, source, ignored output, and
+  durable directory layout
 - [workflow.md](workflow.md): docs-first implementation sequence and commits
-- [rules.md](rules.md): authoring, line limit, and no-Node rules
+- [rules/README.md](rules/README.md): authoring, line limit, naming, topology,
+  and native-only rules

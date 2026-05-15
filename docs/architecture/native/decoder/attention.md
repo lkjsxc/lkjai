@@ -20,6 +20,18 @@ for the configured `heads`, `kv_heads`, and `head_dim`.
 - `cuda_causal_gqa_bf16_reference` remains reportable only as diagnostic
   fallback and parity oracle evidence.
 
+## Library Fit
+
+The accepted 40M shape is compatible with the cuDNN SDPA constraints used by
+the repo:
+
+- cuDNN SDPA supports grouped-query attention.
+- BF16 head dimensions are multiples of `8`.
+- Ampere and Ada support decode and backward for head dimension `<= 128`.
+- The 40M RTX 3070 shape has `head_dim=72`, `heads=8`, and `kv_heads=2`.
+
+Reference: <https://docs.nvidia.com/deeplearning/cudnn/frontend/latest/operations/Attention.html>
+
 ## Current Status
 
 The host reference implements causal GQA with RoPE. The custom CUDA forward
