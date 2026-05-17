@@ -101,14 +101,14 @@ double DecoderCudaState::forward_backward(
   DeviceTensor* hidden = &tape_.embeddings;
   for (int i = 0; i < cfg.layers; ++i) {
     DecoderCudaForwardSubstrateReport layer_report;
-    DeviceTensor out;
-    layer_forwards_[static_cast<size_t>(i)].run(
-        *hidden, batch.batch_size, batch.sequence_len, &out, &layer_report);
+    auto& layer_tape = tape_.layers[static_cast<size_t>(i)];
+    layer_forwards_[static_cast<size_t>(i)].run_train(
+        *hidden, batch.batch_size, batch.sequence_len, &layer_tape,
+        &layer_report);
     if (!layer_report.outputs_finite) {
       throw std::runtime_error("decoder CUDA training layer forward failed");
     }
-    tape_.layers[static_cast<size_t>(i)].block_residual = std::move(out);
-    hidden = &tape_.layers[static_cast<size_t>(i)].block_residual;
+    hidden = &layer_tape.block_residual;
   }
   require_cuda(cudaMemcpyAsync(tape_.final_norm_input.data(), hidden->data(),
                                static_cast<size_t>(rows) * cfg.hidden_size *

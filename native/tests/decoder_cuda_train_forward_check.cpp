@@ -36,6 +36,22 @@ bool finite_all(const std::vector<float>& values) {
                      [](float value) { return std::isfinite(value); });
 }
 
+bool any_nonzero(const std::vector<float>& values) {
+  return std::any_of(values.begin(), values.end(),
+                     [](float value) { return value != 0.0f; });
+}
+
+size_t expected_tape_elements(const lkjai::TransformerConfig& cfg,
+                              const std::string& name, int rows) {
+  if (name == "k_rope" || name == "v") {
+    return static_cast<size_t>(rows) * cfg.kv_heads * cfg.head_dim;
+  }
+  if (name == "gate" || name == "up" || name == "swiglu") {
+    return static_cast<size_t>(rows) * cfg.ffn_size;
+  }
+  return static_cast<size_t>(rows) * cfg.hidden_size;
+}
+
 }  // namespace
 
 int main() {
@@ -76,6 +92,44 @@ int main() {
     std::cerr << "decoder CUDA train-forward parity failed loss_diff="
               << loss_diff << " logits_max=" << logits_max
               << " logits_mean=" << logits_mean << "\n";
+    return 1;
+  }
+  std::vector<std::string> tape_names = {
+      "attn_norm_input",    "attn_norm", "q_rope",   "k_rope",
+      "v",                  "attention_state",       "o_proj",
+      "attention_residual", "mlp_norm_input",        "mlp_norm",
+      "gate",               "up",        "swiglu",   "down",
+      "block_residual"};
+  std::vector<std::string> nonzero_names = {
+      "attn_norm", "q_rope", "k_rope", "v", "attention_state",
+      "gate",      "up",     "swiglu", "block_residual"};
+  int rows = batch.batch_size * batch.sequence_len;
+  for (int layer = 0; layer < cfg.layers; ++layer) {
+    for (const auto& name : tape_names) {
+      size_t got = cuda_state.debug_last_layer_tape_elements(layer, name);
+      size_t want = expected_tape_elements(cfg, name, rows);
+      if (got != want) {
+        std::cerr << "decoder CUDA layer tape shape failed layer=" << layer
+                  << " name=" << name << " got=" << got
+                  << " want=" << want << "\n";
+        return 1;
+      }
+    }
+    for (const auto& name : nonzero_names) {
+      auto values = cuda_state.debug_last_layer_tape(layer, name);
+      if (!finite_all(values) || !any_nonzero(values)) {
+        std::cerr << "decoder CUDA layer tape content failed layer=" << layer
+                  << " name=" << name << "\n";
+        return 1;
+      }
+    }
+  }
+  auto final_norm_input = cuda_state.debug_last_final_norm_input();
+  auto last_block =
+      cuda_state.debug_last_layer_tape(cfg.layers - 1, "block_residual");
+  if (final_norm_input.size() != last_block.size() ||
+      max_abs_diff(final_norm_input, last_block) > 0.0) {
+    std::cerr << "decoder CUDA final norm input tape mismatch\n";
     return 1;
   }
 

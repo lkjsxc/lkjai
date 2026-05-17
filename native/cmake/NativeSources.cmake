@@ -32,6 +32,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/decoder_cuda_backward.cpp
   src/decoder_cuda_full_forward.cpp
   src/decoder_cuda_layer_forward.cpp
+  src/decoder_cuda_layer_train.cpp
   src/decoder_cuda_norm.cu
   src/decoder_cuda_optimizer.cpp
   src/decoder_cuda_report.cpp

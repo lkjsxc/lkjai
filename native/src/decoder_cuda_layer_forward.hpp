@@ -11,6 +11,8 @@
 
 namespace lkjai {
 
+struct DecoderCudaLayerTape;
+
 struct DecoderCudaLayerCacheView {
   DecoderKvCache* cache = nullptr;
   int layer = 0;
@@ -31,6 +33,9 @@ class DecoderCudaLayerForward {
   void run(const DeviceTensor& x, int batch, int seq, DeviceTensor* out,
            DecoderCudaForwardSubstrateReport* report,
            const DecoderCudaLayerCacheView* cache);
+  void run_train(const DeviceTensor& x, int batch, int seq,
+                 DecoderCudaLayerTape* tape,
+                 DecoderCudaForwardSubstrateReport* report);
   uint64_t workspace_high_water_bytes() const;
 
  private:
