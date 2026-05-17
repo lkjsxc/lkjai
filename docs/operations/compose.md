@@ -33,7 +33,8 @@ State: canonical Compose profile, mount, port, and verification contract.
 - Inference loads exported native artifacts. Dense and transformer artifacts
   return HTTP `422` unsupported with no `choices`; decoder artifacts can return
   OpenAI-compatible `choices` when exported with the real local tokenizer.
-  Accepted CUDA decode disclosure requires the decoder evidence gate.
+  Accepted CUDA decode disclosure requires the decoder evidence gate in
+  [decoder/acceptance.md](../architecture/native/decoder/acceptance.md).
 - Inference must not use exact supervised lookup, prompt matching, or canned
   response tables.
 - Training writes datasets, tokenizer, checkpoints, exports, and logs under

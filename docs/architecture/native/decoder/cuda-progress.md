@@ -37,10 +37,12 @@ First CUDA progress after foundation:
   compares final hidden/logits against the host reference on
   `decoder_debug_bf16`.
 - Current training hook: decoder training uses the full CUDA forward stack,
-  CUDA CE/loss-gradient helper, device-origin registry gradients, and
+  CUDA CE/loss-gradient helper, diagnostic CUDA registry gradients, and
   registry-wide CUDA AdamW for every decoder tensor. Reports name
-  `decoder_cuda_slice=full_decoder`, but remain non-accepted until SDPA,
-  decode, route, and RTX 3070 evidence gates pass.
+  `decoder_cuda_slice=full_decoder`,
+  `decoder_backward_backend=cuda_diagnostic_synthetic`, and
+  `decoder_gradient_source=cuda_device_diagnostic`, and remain non-accepted
+  until real backward, SDPA, decode, route, and RTX 3070 evidence gates pass.
 - Current backward substrate hook: residual-add backward and SwiGLU backward
   kernels have direct parity tests, but they are not wired into training
   reports or optimizer evidence.
@@ -68,8 +70,9 @@ projects Q/K/V, applies RoPE, runs causal GQA attention, projects the attention
 output through O, adds the attention residual, runs MLP RMSNorm, applies
 `silu(gate) * up`, projects through the down matrix, adds the final residual,
 applies final RMSNorm, computes LM-head logits, and computes CE loss and
-grad-logits on device. The registry-gradient path now provides block optimizer
-evidence, while full acceptance still waits on SDPA and route gates.
+grad-logits on device. The registry-gradient path is diagnostic update
+plumbing, while full acceptance still waits on real backward, SDPA, and route
+gates.
 The training-slice block test now verifies the composed first-block output
 against a host reference; that is still forward correctness evidence, not
 backward or optimizer acceptance.
@@ -88,6 +91,8 @@ Current reports must prove:
 - `decoder_cuda_slice=full_decoder`
 - `decoder_block_backend=cuda_full_decoder`
 - `decoder_backward_backend=cuda_full_decoder`
+- `decoder_gradient_source=cuda_device`
+- `attention_backend=cudnn_sdpa_bf16_gqa`
 - `decoder_block_weight_changed=true`
 - `kv_cache_backend=cuda_contiguous_bf16`
 - `decode_backend=cuda_kv_cache`

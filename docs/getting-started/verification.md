@@ -65,5 +65,6 @@ VERIFY_TAIL_LINES=80 docker compose --progress quiet --profile verify run --buil
 - Verify requires NVIDIA GPU access, but remains bounded compared with long
   training runs.
 - Verify does not prove final model quality by itself.
-- Scratch training acceptance is governed by the training runbook and eval
-  artifacts.
+- Decoder acceptance is governed by the native decoder
+  [acceptance matrix](../architecture/native/decoder/acceptance.md) plus the
+  two-hour RTX 3070 run; verify only proves the repository gate.

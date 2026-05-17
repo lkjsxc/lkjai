@@ -29,8 +29,9 @@ preparation work.
 The decoder lane is the first product acceptance target. Current truth is:
 
 - Full decoder forward, CE loss, logits capture, and grad-logits run on CUDA.
-- Decoder registry gradients are populated from CUDA-resident loss/tape data;
-  host backward is now parity-only evidence.
+- Decoder registry gradients are currently diagnostic CUDA helper gradients,
+  reported as `cuda_diagnostic_synthetic` and `cuda_device_diagnostic`; host
+  backward is parity-only evidence.
 - Registry CUDA AdamW updates device FP32 masters, Adam moments, gradients, and
   BF16 shadows for decoder tensors.
 - Attention uses `cuda_causal_gqa_bf16_reference` as fallback/oracle evidence.
@@ -40,6 +41,7 @@ The decoder lane is the first product acceptance target. Current truth is:
 
 Detailed decoder acceptance blockers are owned by
 [training.md](architecture/native/decoder/training.md),
+[acceptance.md](architecture/native/decoder/acceptance.md),
 [backward.md](architecture/native/decoder/backward.md),
 [attention.md](architecture/native/decoder/attention.md), and
 [kv-cache.md](architecture/native/decoder/kv-cache.md).

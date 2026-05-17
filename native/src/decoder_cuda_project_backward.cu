@@ -81,4 +81,25 @@ void decoder_cuda_project_backward_bf16(
          "decoder projection backward dW");
 }
 
+void decoder_cuda_project_backward_param_layout_bf16(
+    cublasLtHandle_t handle, cudaStream_t stream, const void* x_bf16,
+    const void* w_forward_bf16, const void* dy_bf16, void* dx_f32,
+    void* dw_param_f32, int rows, int in_features, int out_features,
+    void* workspace, size_t workspace_bytes, float dw_beta) {
+  Desc dx_desc(CUBLAS_OP_N, CUBLAS_OP_N);
+  Layout dy(CUDA_R_16BF, rows, out_features);
+  Layout w(CUDA_R_16BF, out_features, in_features);
+  Layout dx(CUDA_R_32F, rows, in_features);
+  matmul(handle, stream, dx_desc.value, dy_bf16, dy.value, w_forward_bf16,
+         w.value, dx_f32, dx.value, workspace, workspace_bytes, 0.0f,
+         "decoder projection backward param-layout dX");
+
+  Desc dw_desc(CUBLAS_OP_T, CUBLAS_OP_N);
+  Layout x(CUDA_R_16BF, rows, in_features);
+  Layout dw(CUDA_R_32F, in_features, out_features);
+  matmul(handle, stream, dw_desc.value, x_bf16, x.value, dy_bf16, dy.value,
+         dw_param_f32, dw.value, workspace, workspace_bytes, dw_beta,
+         "decoder projection backward param-layout dW");
+}
+
 }  // namespace lkjai

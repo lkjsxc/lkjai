@@ -101,15 +101,15 @@ Each contract record uses these fields:
 ### First Decoder Acceptance Target
 
 - contract_id: `decoder-40m-3070-acceptance`.
-- owner: `docs/architecture/native/decoder/training.md`.
+- owner: `docs/architecture/native/decoder/acceptance.md`.
 - canonical_source: `configs/native/decoder_40m_bf16_3070.json` with
   `configs/training/decoder_2h_40m_3070.json`.
 - state: `future`.
 - supersedes: none.
 - acceptance: governed by
-  [decoder/training.md](../decoder/training.md), including full-decoder CUDA
-  training, logits/export/server evidence, block-weight deltas, and accepted
-  KV-cache decode names.
+  [decoder/acceptance.md](../decoder/acceptance.md), including full-decoder CUDA
+  training, cuDNN SDPA, logits/export/server evidence, block-weight deltas, and
+  accepted KV-cache decode names.
 - non_claims: historical partial decoder scaffolding, absent block gradients,
   non-cache decode paths, and `native_dense_40m_bf16_3070.json` are not
   same-model decoder acceptance.
@@ -152,9 +152,10 @@ Each contract record uses these fields:
 - supersedes: none.
 - acceptance: reports may include driver build number, device count, selected device,
   total memory, SM count, CUDA architecture flags, async allocation support,
-  cuBLASLt, cuDNN, and SDPA eligibility while staying stable schema.
+  cuBLASLt, cuDNN, SDPA eligibility, and shape-specific decoder SDPA fields
+  while staying stable schema.
 - non_claims: `sdpa_eligible` is device/library-level until shape-specific
-  parity and timing are proven.
+  parity, forward/backward integration, and timing are proven.
 
 ### Backend Plan
 

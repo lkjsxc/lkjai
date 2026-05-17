@@ -39,6 +39,21 @@ std::string capability_json_fields(const CudaStatus& status) {
       << ",\"cudnn_available\":"
       << (status.cudnn_available ? "true" : "false")
       << ",\"sdpa_eligible\":" << (status.sdpa_eligible ? "true" : "false")
+      << ",\"decoder_sdpa_shape_available\":"
+      << (status.sdpa_shape_available ? "true" : "false")
+      << ",\"decoder_sdpa_forward_supported\":"
+      << (status.sdpa_shape_forward_supported ? "true" : "false")
+      << ",\"decoder_sdpa_backward_supported\":"
+      << (status.sdpa_shape_backward_supported ? "true" : "false")
+      << ",\"decoder_sdpa_decode_supported\":"
+      << (status.sdpa_shape_decode_supported ? "true" : "false")
+      << ",\"decoder_sdpa_cudnn_runtime_version\":"
+      << status.cudnn_version
+      << ",\"decoder_sdpa_head_dim\":" << status.sdpa_shape_head_dim
+      << ",\"decoder_sdpa_layout\":\""
+      << json_escape(status.sdpa_shape_layout)
+      << "\",\"decoder_sdpa_reason\":\""
+      << json_escape(status.sdpa_shape_reason) << "\""
       << ",\"async_alloc_supported\":"
       << (status.async_alloc_supported ? "true" : "false")
       << ",\"warning\":\"" << json_escape(status.warning)

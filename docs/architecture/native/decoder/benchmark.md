@@ -72,6 +72,7 @@ Record under ignored `artifacts/benchmarks/<run-id>/`:
   `decoder_cuda_slice=full_decoder`,
   `attention_backend=cudnn_sdpa_bf16_gqa`,
   `decoder_backward_backend=cuda_full_decoder`,
+  `decoder_gradient_source=cuda_device`,
   `kv_cache_backend=cuda_contiguous_bf16`, and
   `decode_backend=cuda_kv_cache`.
 

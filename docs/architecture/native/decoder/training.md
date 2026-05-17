@@ -1,7 +1,7 @@
 # Decoder Training
 
 Owner: `docs/architecture/native/decoder/training.md`.
-State: acceptance contract.
+State: acceptance contract; field matrix in [acceptance.md](acceptance.md).
 
 ## Goal
 
@@ -33,13 +33,14 @@ documented RTX 3070 run and route checks.
 
 The current experimental training slice uses CUDA for the full decoder forward
 stack, FP32 logits, CE loss, grad-logits, supervised-row logit capture,
-device-origin registry gradients, and registry-wide CUDA AdamW over device FP32
+registry-gradient diagnostics, and registry-wide CUDA AdamW over device FP32
 masters, AdamW moments, gradients, and BF16 shadows. Its truthful report fields
 are `implementation_status=experimental`, `accepted_cuda_training=false`,
 `decoder_cuda_slice=full_decoder`, `forward_backend=cuda_full_decoder`,
-`backward_backend=cuda_full_decoder`,
+`backward_backend=cuda_diagnostic_synthetic`,
 `optimizer_backend=cuda_adamw_fp32_registry`,
-`decoder_gradient_source=cuda_device`, and
+`decoder_backward_backend=cuda_diagnostic_synthetic`,
+`decoder_gradient_source=cuda_device_diagnostic`, and
 `attention_backend=cuda_causal_gqa_bf16_reference`.
 The implementation must prefer correctness evidence over kernel cleverness:
 cuBLASLt remains the GEMM owner, while custom CUDA covers pointwise kernels,
@@ -61,7 +62,10 @@ The CUDA backward path must populate FP32 gradient buffers for:
 - gate, up, and down MLP projections.
 
 Reports may claim `decoder_backward_backend=cuda_full_decoder` only after the
-training step uses those device-origin gradients for optimizer input.
+training step uses chain-rule device gradients from the recorded decoder tape
+for optimizer input. Diagnostic CUDA helper gradients must keep
+`decoder_backward_backend=cuda_diagnostic_synthetic` and
+`decoder_gradient_source=cuda_device_diagnostic`.
 
 ## Public Invocation
 
@@ -127,7 +131,8 @@ Decoder reports use stable schema with additive fields:
 - `embedding_tying`
 - `trainable_tensor_count`
 
-Reports are accepted only when `accepted_cuda_training=true`,
+Reports are accepted only when [acceptance.md](acceptance.md) passes:
+`accepted_cuda_training=true`,
 `implementation_status=accepted`, `decoder_cuda_slice=full_decoder`, CUDA
 forward/backward backends are present, `attention_backend=cudnn_sdpa_bf16_gqa`,
 `decoder_gradient_source=cuda_device`,
@@ -153,7 +158,8 @@ report solely because `target_seconds > 0`.
 
 ## Current Status
 
-The decoder lane is promoted only through this document's acceptance contract.
+The decoder lane is promoted only through the acceptance matrix and this
+document's training contract.
 Historical partial reports remain useful regression evidence. Any future
 partial report must keep `accepted_cuda_training=false`, avoid accepted
 attention names, and avoid accepted decode backend names.

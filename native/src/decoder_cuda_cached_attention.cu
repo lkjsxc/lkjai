@@ -1,5 +1,7 @@
 #include "decoder_cuda_block.hpp"
 
+#include <stdexcept>
+
 #include <cuda_bf16.h>
 
 #include "runtime_device.hpp"

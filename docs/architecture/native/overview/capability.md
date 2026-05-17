@@ -26,6 +26,15 @@ Capability JSON includes:
 - `cublaslt_available`: cuBLASLt handle creation succeeded.
 - `cudnn_available`: cuDNN handle creation succeeded.
 - `sdpa_eligible`: BF16 plus cuDNN availability in this foundation phase.
+- `decoder_sdpa_shape_available`: shape-specific accepted decoder SDPA path is
+  integrated for the active 40M shape.
+- `decoder_sdpa_forward_supported`: cuDNN SDPA forward wrapper support.
+- `decoder_sdpa_backward_supported`: cuDNN SDPA backward wrapper support.
+- `decoder_sdpa_decode_supported`: cuDNN SDPA decode wrapper support.
+- `decoder_sdpa_cudnn_runtime_version`: cuDNN runtime number used for probing.
+- `decoder_sdpa_head_dim`: probed decoder head dimension.
+- `decoder_sdpa_layout`: probed SDPA tensor layout.
+- `decoder_sdpa_reason`: why shape-specific SDPA is accepted or unavailable.
 - `async_alloc_supported`: CUDA memory-pool allocation is usable.
 - `warning`: human-readable degraded-mode reason.
 - `error`: hard failure reason for capability check executables.

@@ -18,6 +18,8 @@ Use this subtree for the native `decoder` product target.
 - [config.md](config.md): model-kind, shape, precision, and preset defaults
 - [artifact.md](artifact.md): decoder artifact tensors and manifest behavior
 - [training.md](training.md): CUDA training ownership, wall-clock stop, and reports
+- [acceptance.md](acceptance.md): canonical accepted, diagnostic, and rejected
+  report-field matrix
 - [decode.md](decode.md): native autoregressive decode, sampler, KV cache, and API
 - [inference-session.md](inference-session.md): cached CUDA decode session and
   allocation accounting ownership
@@ -33,7 +35,7 @@ Use this subtree for the native `decoder` product target.
 | Mode | Status | Boundary |
 |---|---|---|
 | `dense` | Foundation | Accepted CUDA BF16 dense trainer and CUDA benchmark substrate. |
-| `decoder` | Product target | Requires real tokenizer artifacts, decoder-shaped weights, native prompt serialization, full CUDA decoder evidence, and accepted route evidence. |
+| `decoder` | Product target | Requires real tokenizer artifacts, decoder-shaped weights, native prompt serialization, full CUDA decoder evidence, accepted cuDNN SDPA attention, and accepted route evidence. |
 | `transformer` | Reference-only | CPU/host parity source while decoder pieces are migrated; not a product training mode. |
 
 The decoder implementation exports decoder artifacts with the repo byte-level

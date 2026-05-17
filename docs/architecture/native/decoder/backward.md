@@ -66,12 +66,13 @@ SwiGLU, embedding scatter, reductions, and BF16/FP32 conversion glue.
 ## Current Status
 
 The current experimental path runs full decoder forward, CE loss, logits
-capture, grad-logits, and registry-gradient population on CUDA. It fills FP32
-registry gradients for the LM head or tied embedding table, token embeddings,
-decoder block tensors, and final norm, then registry CUDA AdamW consumes those
-device gradients.
+capture, grad-logits, and diagnostic registry-gradient population on CUDA. It
+fills FP32 registry gradients for the LM head or tied embedding table, token
+embeddings, decoder block tensors, and final norm so registry CUDA AdamW can
+exercise update plumbing.
 
-Reports may identify the backward source as CUDA device-origin, but they still
-keep `accepted_cuda_training=false` until cuDNN SDPA, accepted decode evidence,
-the 40M RTX 3070 shape gate, logits/export/server checks, and report promotion
-gates all pass.
+Reports must identify this as `decoder_backward_backend=cuda_diagnostic_synthetic`
+and `decoder_gradient_source=cuda_device_diagnostic`. They must keep
+`accepted_cuda_training=false` until real chain-rule backward, cuDNN SDPA,
+accepted decode evidence, the 40M RTX 3070 shape gate, logits/export/server
+checks, and report promotion gates all pass.

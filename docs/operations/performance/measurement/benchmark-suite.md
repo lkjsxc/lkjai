@@ -45,7 +45,10 @@ report before any performance claim is treated as product evidence:
 
 - `implementation_status=accepted`
 - `accepted_cuda_training=true`
-- `decoder_backward_backend` naming the CUDA block backward path
+- `decoder_cuda_slice=full_decoder`
+- `attention_backend=cudnn_sdpa_bf16_gqa`
+- `decoder_backward_backend=cuda_full_decoder`
+- `decoder_gradient_source=cuda_device`
 - `optimizer_backend` naming FP32 AdamW coverage for every trainable tensor
 - `kv_cache_backend=cuda_contiguous_bf16`
 - `decode_backend=cuda_kv_cache`

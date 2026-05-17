@@ -2,6 +2,7 @@
 
 Owner: `docs/architecture/native/decoder/kv-cache.md`.
 State: partial implementation contract.
+Accepted field requirements are centralized in [acceptance.md](acceptance.md).
 
 ## Acceptance Target
 

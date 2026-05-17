@@ -2,6 +2,7 @@
 
 Owner: `docs/architecture/native/decoder/attention.md`.
 State: acceptance target.
+Canonical promotion fields are listed in [acceptance.md](acceptance.md).
 
 ## Acceptance Target
 

@@ -47,12 +47,13 @@ target_link_libraries(lkjai-native-decoder-train-forward-check
   PRIVATE lkjai_native_core
 )
 
-add_executable(lkjai-native-decoder-backward-primitives-check
-  tests/decoder_cuda_backward_primitives_check.cpp
-)
+add_executable(lkjai-native-decoder-backward-primitives-check tests/decoder_cuda_backward_primitives_check.cpp)
 target_link_libraries(lkjai-native-decoder-backward-primitives-check
   PRIVATE lkjai_native_core
 )
+
+add_executable(lkjai-native-decoder-projection-layout-check tests/decoder_cuda_projection_layout_check.cpp)
+target_link_libraries(lkjai-native-decoder-projection-layout-check PRIVATE lkjai_native_core)
 
 add_executable(lkjai-native-decoder-rope-backward-check
   tests/decoder_cuda_rope_backward_check.cpp

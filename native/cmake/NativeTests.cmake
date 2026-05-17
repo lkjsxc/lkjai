@@ -73,7 +73,7 @@ add_test(NAME native_decoder_cuda_rope_backward
 add_test(NAME decoder_cuda_full_backward_check
   COMMAND lkjai-native-decoder-full-backward-check)
 add_test(NAME decoder_cuda_projection_layout_check
-  COMMAND lkjai-native-decoder-backward-primitives-check)
+  COMMAND lkjai-native-decoder-projection-layout-check)
 add_test(NAME decoder_cuda_embedding_scatter_check
   COMMAND lkjai-native-decoder-full-backward-check)
 add_test(NAME decoder_cuda_sdpa_parity_check

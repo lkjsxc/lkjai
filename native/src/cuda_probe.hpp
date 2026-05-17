@@ -21,6 +21,13 @@ struct CudaStatus {
   bool cublaslt_available = false;
   bool cudnn_available = false;
   bool sdpa_eligible = false;
+  bool sdpa_shape_available = false;
+  bool sdpa_shape_forward_supported = false;
+  bool sdpa_shape_backward_supported = false;
+  bool sdpa_shape_decode_supported = false;
+  int sdpa_shape_head_dim = 72;
+  std::string sdpa_shape_layout = "BSHD";
+  std::string sdpa_shape_reason = "not_probed";
   bool async_alloc_supported = false;
   std::string warning;
   std::string error;

@@ -20,17 +20,12 @@ lkjai::TransformerTrainReport accepted_report() {
   lkjai::TransformerTrainReport r;
   r.model_kind = "decoder";
   r.implementation_status = "accepted";
-  r.decoder_cuda_path = true;
-  r.decoder_cuda_slice = "full_decoder";
-  r.decoder_block_backend = "cuda_full_decoder";
-  r.forward_backend = "cuda_full_decoder";
-  r.backward_backend = "cuda_full_decoder";
+  r.decoder_cuda_path = true; r.decoder_cuda_slice = "full_decoder";
+  r.decoder_block_backend = "cuda_full_decoder"; r.forward_backend = "cuda_full_decoder"; r.backward_backend = "cuda_full_decoder";
   r.decoder_backward_backend = "cuda_full_decoder";
   r.decoder_gradient_source = "cuda_device";
   r.attention_backend = lkjai::kDecoderAcceptedAttentionBackend;
-  r.non_embedding_weight_changed = true;
-  r.decoder_block_weight_changed = true;
-  r.trainable_weight_changed = true;
+  r.non_embedding_weight_changed = true; r.decoder_block_weight_changed = true; r.trainable_weight_changed = true;
   r.decoder_weight_change.embedding = {0.1, 2, 1};
   r.decoder_weight_change.lm_head = {0.1, 2, 1};
   r.decoder_weight_change.non_embedding = {0.2, 2, 1};
@@ -47,9 +42,7 @@ lkjai::TransformerTrainReport accepted_report() {
   r.config_path = "configs/native/decoder_40m_bf16_3070.json";
   r.train_config_path = "configs/training/decoder_2h_40m_3070.json";
   r.embedding_tying = "tok_embeddings:lm_head";
-  r.kv_cache_backend = lkjai::kDecoderAcceptedKvCacheBackend;
-  r.decode_backend = lkjai::kDecoderAcceptedDecodeBackend;
-  r.decode_supported = true;
+  r.kv_cache_backend = lkjai::kDecoderAcceptedKvCacheBackend; r.decode_backend = lkjai::kDecoderAcceptedDecodeBackend; r.decode_supported = true;
   r.kv_cache_prefill_allocated_bytes = 4096;
   r.kv_cache_steady_state_token_allocations = 0;
   return r;
@@ -60,13 +53,9 @@ bool acceptance_contract() {
   auto untied = r;
   untied.embedding_tying = "none";
   auto partial = r;
-  partial.decoder_cuda_slice = "embedding_lm_head";
-  partial.decoder_backward_backend = "not_implemented";
-  partial.kv_cache_backend = "none";
-  partial.decode_backend = lkjai::kDecoderPartialDecodeBackend;
-  partial.decode_supported = false;
-  partial.decoder_block_weight_changed = false;
-  partial.non_embedding_weight_changed = false;
+  partial.decoder_cuda_slice = "embedding_lm_head"; partial.decoder_backward_backend = "not_implemented";
+  partial.kv_cache_backend = "none"; partial.decode_backend = lkjai::kDecoderPartialDecodeBackend; partial.decode_supported = false;
+  partial.decoder_block_weight_changed = false; partial.non_embedding_weight_changed = false;
   partial.target_seconds = 7200;
   auto head_only = r;
   head_only.decoder_block_weight_changed = false;
@@ -80,9 +69,7 @@ bool acceptance_contract() {
   auto bad_kv_steady = r;
   bad_kv_steady.kv_cache_steady_state_token_allocations = 1;
   auto bad_partial_decode_claim = r;
-  bad_partial_decode_claim.decode_backend = lkjai::kDecoderPartialDecodeBackend;
-  bad_partial_decode_claim.kv_cache_backend = lkjai::kDecoderPartialKvCacheBackend;
-  bad_partial_decode_claim.decode_supported = true;
+  bad_partial_decode_claim.decode_backend = lkjai::kDecoderPartialDecodeBackend; bad_partial_decode_claim.kv_cache_backend = lkjai::kDecoderPartialKvCacheBackend; bad_partial_decode_claim.decode_supported = true;
   auto bad_loss = r;
   bad_loss.loss = INFINITY;
   auto no_steps = r;
@@ -178,11 +165,23 @@ bool emitted_evidence_contract() {
   ok = ok && expect(!lkjai::transformer_emitted_decoder_evidence_accepted(
                         report, &error),
                     "host/reference training rejected");
+  auto diag = accepted_report();
+  diag.backward_backend = "cuda_diagnostic_synthetic"; diag.decoder_backward_backend = "cuda_diagnostic_synthetic"; diag.decoder_gradient_source = "cuda_device_diagnostic";
+  std::ofstream(report) << lkjai::transformer_train_report_json(
+      diag, cuda, "train", "success", "");
+  ok = ok && expect(!lkjai::transformer_emitted_decoder_evidence_accepted(
+                        report, &error), "diagnostic gradients rejected");
   auto route_report = root / "decoder_train_report.json";
   std::ofstream(route_report)
       << lkjai::transformer_train_report_json(r, cuda, "train", "success", "");
   ok = ok && expect(lkjai::transformer_emitted_decoder_route_report_accepted(
       route_report, &error), error);
+  auto bad_context = r;
+  bad_context.context = 2048;
+  std::ofstream(route_report) << lkjai::transformer_train_report_json(
+      bad_context, cuda, "train", "success", "");
+  ok = ok && expect(!lkjai::transformer_emitted_decoder_route_report_accepted(
+      route_report, &error), "bad route context rejected");
   cuda.device = "NVIDIA GeForce RTX 5090";
   std::ofstream(route_report)
       << lkjai::transformer_train_report_json(r, cuda, "train", "success", "");

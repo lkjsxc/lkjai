@@ -67,6 +67,13 @@ CudaStatus cuda_status() {
     status.async_alloc_supported = supported != 0;
   }
   status.sdpa_eligible = status.bf16_supported && status.cudnn_available;
+  status.sdpa_shape_available = false;
+  status.sdpa_shape_forward_supported = false;
+  status.sdpa_shape_backward_supported = false;
+  status.sdpa_shape_decode_supported = false;
+  status.sdpa_shape_reason = status.sdpa_eligible
+      ? "cudnn_frontend_sdpa_not_integrated"
+      : "cuda_bf16_or_cudnn_unavailable";
   if (!cuda_required_ok(status)) {
     status.warning = status.error.empty() ? "CUDA capability incomplete"
                                           : status.error;

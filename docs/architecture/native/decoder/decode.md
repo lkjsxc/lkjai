@@ -1,7 +1,8 @@
 # Decoder Decode
 
 Owner: `docs/architecture/native/decoder/decode.md`.
-State: accepted when `decode_backend=cuda_kv_cache`.
+State: accepted only with the training and route evidence in
+[acceptance.md](acceptance.md).
 
 ## API
 

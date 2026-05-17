@@ -29,8 +29,18 @@ bool route_report_fields_ok(std::string_view body, std::string* error) {
   if (!contains_json_string(body, "attention_backend",
                             kDecoderAcceptedAttentionBackend) ||
       !contains_json_string(body, "decoder_backward_backend",
-                            "cuda_full_decoder")) {
+                            "cuda_full_decoder") ||
+      !contains_json_string(body, "decoder_gradient_source", "cuda_device")) {
     *error = "route report missing accepted decoder CUDA backends";
+    return false;
+  }
+  auto actual_backward = json_first_string(body, "decoder_backward_backend");
+  auto actual_gradient = json_first_string(body, "decoder_gradient_source");
+  auto actual_attention = json_first_string(body, "attention_backend");
+  auto actual_decode = json_first_string(body, "decode_backend");
+  if (actual_backward == "cuda_diagnostic_synthetic" || actual_gradient == "cuda_device_diagnostic" ||
+      actual_attention == kDecoderReferenceAttentionBackend || actual_decode == kDecoderRuntimePartialDecodeBackend) {
+    *error = "route report contains diagnostic or partial decoder evidence";
     return false;
   }
   if (json_int_value(body, "kv_cache_prefill_allocated_bytes", 0) <= 0 ||
@@ -44,6 +54,7 @@ bool route_report_fields_ok(std::string_view body, std::string* error) {
 bool route_report_shape_ok(std::string_view body) {
   return json_int_value(body, "target_seconds", 0) >= 7200 &&
          json_int_value(body, "seq_len", 0) == 1024 &&
+         json_int_value(body, "context", 0) == 1024 &&
          json_int_value(body, "layers", 0) == 10 &&
          json_int_value(body, "hidden_size", 0) == 576 &&
          json_int_value(body, "heads", 0) == 8 &&
