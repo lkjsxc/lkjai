@@ -80,6 +80,9 @@ void DecoderCudaState::ensure_tape_capacity(int rows, int vocab, int hidden,
   tape_.layers.resize(static_cast<size_t>(tape_.layer_capacity));
   tape_.final_norm_input = bf16(ctx_.stream(), r, h);
   tape_.final_norm = bf16(ctx_.stream(), r, h);
+  tape_.grad_final_norm = f32(ctx_.stream(), r, h);
+  tape_.grad_final_norm_input = f32(ctx_.stream(), r, h);
+  tape_.lm_head_f32 = f32(ctx_.stream(), v, h);
   tape_.logits_bf16 = bf16(ctx_.stream(), r, v);
   tape_.logits = f32(ctx_.stream(), r, v);
   tape_.grad_logits = f32(ctx_.stream(), r, v);
@@ -88,6 +91,22 @@ void DecoderCudaState::ensure_tape_capacity(int rows, int vocab, int hidden,
 
 std::vector<float> DecoderCudaState::debug_last_grad_logits() {
   return tape_.grad_logits.copy_to_host_f32(ctx_.stream());
+}
+
+std::vector<float> DecoderCudaState::debug_last_final_norm_input() {
+  return tape_.final_norm_input.copy_to_host_f32(ctx_.stream());
+}
+
+std::vector<float> DecoderCudaState::debug_last_final_norm() {
+  return tape_.final_norm.copy_to_host_f32(ctx_.stream());
+}
+
+std::vector<float> DecoderCudaState::debug_last_grad_final_norm() {
+  return tape_.grad_final_norm.copy_to_host_f32(ctx_.stream());
+}
+
+std::vector<float> DecoderCudaState::debug_last_grad_final_norm_input() {
+  return tape_.grad_final_norm_input.copy_to_host_f32(ctx_.stream());
 }
 
 }  // namespace lkjai

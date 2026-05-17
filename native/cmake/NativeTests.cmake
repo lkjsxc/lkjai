@@ -49,7 +49,13 @@ set_tests_properties(native_inspect_missing PROPERTIES WILL_FAIL TRUE)
 
 add_test(
   NAME native_train_smoke
-  COMMAND sh -c "$<TARGET_FILE:lkjai-native-train> --smoke --steps 2 > /tmp/lkjai-native-smoke.json && grep -q '\"dense_cuda_path\":true' /tmp/lkjai-native-smoke.json && grep -q '\"copy_compute_overlap_enabled\":false' /tmp/lkjai-native-smoke.json && grep -q '\"status\":\"success\"' /tmp/lkjai-native-smoke.json"
+  COMMAND sh -c [=[
+set -e
+$<TARGET_FILE:lkjai-native-train> --smoke --steps 2 > /tmp/lkjai-native-smoke.json
+grep -q '"dense_cuda_path":true' /tmp/lkjai-native-smoke.json
+grep -q '"copy_compute_overlap_enabled":false' /tmp/lkjai-native-smoke.json
+grep -q '"status":"success"' /tmp/lkjai-native-smoke.json
+]=]
 )
 add_test(NAME native_device_tensor_check COMMAND lkjai-native-device-check)
 add_test(NAME native_packed_cache_reader_check
@@ -72,6 +78,8 @@ add_test(NAME native_decoder_cuda_rope_backward
   COMMAND lkjai-native-decoder-rope-backward-check)
 add_test(NAME decoder_cuda_full_backward_check
   COMMAND lkjai-native-decoder-full-backward-check)
+add_test(NAME decoder_cuda_lm_head_final_norm_backward_check
+  COMMAND lkjai-native-decoder-lm-head-final-norm-backward-check)
 add_test(NAME decoder_cuda_projection_layout_check
   COMMAND lkjai-native-decoder-projection-layout-check)
 add_test(NAME decoder_cuda_embedding_scatter_check
@@ -116,9 +124,12 @@ add_test(NAME native_static_web_contract
 add_test(NAME native_decoder_cuda_attention_plan
   COMMAND lkjai-native-decoder-cuda-attention-plan-check)
 
+set(DECODER_TOKENIZER_ENV
+  "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}"
+  "LKJAI_TOKENIZER_BUILD=$<TARGET_FILE:lkjai-native-tokenizer-build>"
+)
 set_tests_properties(native_decoder_tokenizer_contract PROPERTIES
-  ENVIRONMENT
-    "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT};LKJAI_TOKENIZER_BUILD=$<TARGET_FILE:lkjai-native-tokenizer-build>")
+  ENVIRONMENT "${DECODER_TOKENIZER_ENV}")
 set_tests_properties(native_decoder_cuda_block_forward_substrate PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
 set_tests_properties(native_decoder_cuda_full_forward PROPERTIES
@@ -126,6 +137,8 @@ set_tests_properties(native_decoder_cuda_full_forward PROPERTIES
 set_tests_properties(native_decoder_cuda_train_forward PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
 set_tests_properties(decoder_cuda_full_backward_check PROPERTIES
+  ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
+set_tests_properties(decoder_cuda_lm_head_final_norm_backward_check PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
 set_tests_properties(decoder_cuda_embedding_scatter_check PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
@@ -140,7 +153,15 @@ set_tests_properties(native_static_web_contract PROPERTIES
 
 add_test(
   NAME native_smoke_export
-  COMMAND sh -c "rm -rf /tmp/lkjai-native-ctest && DATA_DIR=/tmp/lkjai-native-ctest MODEL_NAME=smoke ./lkjai-native-train --smoke --steps 2 && ./lkjai-native-inspect --model-dir /tmp/lkjai-native-ctest/exports/smoke && ./lkjai-native-logits-check --model-dir /tmp/lkjai-native-ctest/exports/smoke --tokens 1,2,3"
+  COMMAND sh -c [=[
+set -e
+rm -rf /tmp/lkjai-native-ctest
+DATA_DIR=/tmp/lkjai-native-ctest MODEL_NAME=smoke \
+  ./lkjai-native-train --smoke --steps 2
+./lkjai-native-inspect --model-dir /tmp/lkjai-native-ctest/exports/smoke
+./lkjai-native-logits-check \
+  --model-dir /tmp/lkjai-native-ctest/exports/smoke --tokens 1,2,3
+]=]
 )
 add_test(
   NAME native_decoder_cli_smoke

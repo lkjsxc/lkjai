@@ -12,5 +12,9 @@ void decoder_launch_rmsnorm_backward_bf16(
     const void* input_bf16, const float* weight_f32, const void* d_output_bf16,
     float* d_input_f32, float* d_weight_f32, int rows, int hidden, float eps,
     float d_weight_beta, cudaStream_t stream);
+void decoder_launch_rmsnorm_backward_bf16_f32_dout(
+    const void* input_bf16, const float* weight_f32, const float* d_output_f32,
+    float* d_input_f32, float* d_weight_f32, int rows, int hidden, float eps,
+    float d_weight_beta, cudaStream_t stream);
 
 }  // namespace lkjai

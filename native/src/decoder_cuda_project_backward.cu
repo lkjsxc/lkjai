@@ -102,4 +102,17 @@ void decoder_cuda_project_backward_param_layout_bf16(
          "decoder projection backward param-layout dW");
 }
 
+void decoder_cuda_lm_head_dhidden_f32(
+    cublasLtHandle_t handle, cudaStream_t stream, const void* grad_logits_f32,
+    const void* lm_head_f32, void* d_hidden_f32, int rows, int vocab,
+    int hidden, void* workspace, size_t workspace_bytes) {
+  Desc desc(CUBLAS_OP_N, CUBLAS_OP_N);
+  Layout grad_logits(CUDA_R_32F, rows, vocab);
+  Layout lm_head(CUDA_R_32F, vocab, hidden);
+  Layout d_hidden(CUDA_R_32F, rows, hidden);
+  matmul(handle, stream, desc.value, grad_logits_f32, grad_logits.value,
+         lm_head_f32, lm_head.value, d_hidden_f32, d_hidden.value, workspace,
+         workspace_bytes, 0.0f, "decoder LM-head dHidden");
+}
+
 }  // namespace lkjai

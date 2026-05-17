@@ -65,7 +65,9 @@ int main() {
   cuda_state.forward_backward(zero, nullptr, nullptr, nullptr, nullptr, 1.0f,
                               true);
   auto cleared = cuda_state.copy_to_host();
-  if (any_nonzero(cleared.lm_head.g) || any_nonzero(cleared.layers[0].q_proj.g)) {
+  if (any_nonzero(cleared.lm_head.g) ||
+      any_nonzero(cleared.final_norm.g) ||
+      any_nonzero(cleared.layers[0].q_proj.g)) {
     std::cerr << "reset_grads did not clear decoder CUDA gradients\n";
     return 1;
   }

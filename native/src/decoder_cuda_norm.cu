@@ -74,6 +74,35 @@ __global__ void rmsnorm_backward_bf16_kernel(
   }
 }
 
+__global__ void rmsnorm_backward_f32_dout_kernel(
+    const __nv_bfloat16* input, const float* weight, const float* d_output,
+    float* d_input, float* d_weight, int rows, int hidden, float eps) {
+  extern __shared__ float scratch[];
+  int row = blockIdx.x;
+  if (row >= rows) return;
+  const auto* x = input + static_cast<size_t>(row) * hidden;
+  const auto* dy = d_output + static_cast<size_t>(row) * hidden;
+  auto* dx = d_input + static_cast<size_t>(row) * hidden;
+  float local_ss = 0.0f;
+  float local_dot = 0.0f;
+  for (int h = threadIdx.x; h < hidden; h += blockDim.x) {
+    float xv = __bfloat162float(x[h]);
+    float dyv = dy[h];
+    local_ss += xv * xv;
+    local_dot += dyv * weight[h] * xv;
+  }
+  float ss = block_sum(local_ss, scratch);
+  float dot = block_sum(local_dot, scratch);
+  float inv = rsqrtf(ss / static_cast<float>(hidden) + eps);
+  float coeff = inv * inv * inv * dot / static_cast<float>(hidden);
+  for (int h = threadIdx.x; h < hidden; h += blockDim.x) {
+    float xv = __bfloat162float(x[h]);
+    float dyv = dy[h];
+    dx[h] = dyv * weight[h] * inv - xv * coeff;
+    atomicAdd(d_weight + h, dyv * xv * inv);
+  }
+}
+
 }  // namespace
 
 void decoder_launch_rmsnorm_bf16(const void* input_bf16,
@@ -105,6 +134,27 @@ void decoder_launch_rmsnorm_backward_bf16(
       static_cast<const __nv_bfloat16*>(d_output_bf16), d_input_f32,
       d_weight_f32, rows, hidden, eps);
   require_cuda(cudaGetLastError(), "decoder_rmsnorm_backward_bf16_kernel");
+}
+
+void decoder_launch_rmsnorm_backward_bf16_f32_dout(
+    const void* input_bf16, const float* weight_f32, const float* d_output_f32,
+    float* d_input_f32, float* d_weight_f32, int rows, int hidden, float eps,
+    float d_weight_beta, cudaStream_t stream) {
+  if (rows <= 0 || hidden <= 0) return;
+  if (d_weight_beta == 0.0f) {
+    require_cuda(cudaMemsetAsync(d_weight_f32, 0,
+                                 static_cast<size_t>(hidden) * sizeof(float),
+                                 stream),
+                 "decoder rmsnorm f32 dout d_weight zero");
+  } else if (d_weight_beta != 1.0f) {
+    throw std::runtime_error(
+        "decoder RMSNorm f32 dout backward supports beta 0 or 1");
+  }
+  rmsnorm_backward_f32_dout_kernel<<<rows, 256, 256 * sizeof(float), stream>>>(
+      static_cast<const __nv_bfloat16*>(input_bf16), weight_f32, d_output_f32,
+      d_input_f32, d_weight_f32, rows, hidden, eps);
+  require_cuda(cudaGetLastError(),
+               "decoder_rmsnorm_backward_f32_dout_kernel");
 }
 
 }  // namespace lkjai

@@ -50,6 +50,9 @@ struct DecoderCudaTape {
   std::vector<DecoderCudaLayerTape> layers;
   DeviceTensor final_norm_input;
   DeviceTensor final_norm;
+  DeviceTensor grad_final_norm;
+  DeviceTensor grad_final_norm_input;
+  DeviceTensor lm_head_f32;
   DeviceTensor logits_bf16;
   DeviceTensor logits;
   DeviceTensor grad_logits;
@@ -90,6 +93,10 @@ class DecoderCudaState {
   void record_weight_change(const TransformerState& before,
                             TransformerTrainReport* report);
   DenseCudaState& dense_cuda() { return dense_cuda_; }
+  std::vector<float> debug_last_final_norm_input();
+  std::vector<float> debug_last_final_norm();
+  std::vector<float> debug_last_grad_final_norm();
+  std::vector<float> debug_last_grad_final_norm_input();
 
  private:
   void build_registry();
