@@ -31,6 +31,12 @@ buffers, and diagnostic CUDA buffers for every trainable decoder tensor. Smoke
 reports prove the contract shape; accepted evidence still requires the
 documented RTX 3070 run and route checks.
 
+Training tape population is the next blocker before chain-rule block backward.
+The forward pass must persist the per-layer tensors that backward consumes:
+`attn_norm_input` for the pre-attention RMSNorm input, `attn_norm` for its
+output, `q_rope` and `k_rope` after RoPE, `mlp_norm_input` for the pre-MLP
+RMSNorm input, and `mlp_norm` for its output.
+
 The current experimental training slice uses CUDA for the full decoder forward
 stack, FP32 logits, CE loss, grad-logits, supervised-row logit capture,
 registry-gradient diagnostics, and registry-wide CUDA AdamW over device FP32

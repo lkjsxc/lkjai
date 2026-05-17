@@ -50,6 +50,8 @@ artifact inspection, and CUDA capability probing.
   and residual-backward helpers for decoder probes and later backward wiring.
 - [decoder_cuda_slice.cpp](decoder_cuda_slice.cpp),
   [decoder_cuda_state.hpp](decoder_cuda_state.hpp),
+  [decoder_cuda_tape.hpp](decoder_cuda_tape.hpp),
+  [decoder_cuda_tape.cpp](decoder_cuda_tape.cpp),
   [decoder_cuda_state.cpp](decoder_cuda_state.cpp),
   [decoder_cuda_train_forward.cpp](decoder_cuda_train_forward.cpp),
   [decoder_cuda_backward.cpp](decoder_cuda_backward.cpp),
@@ -173,6 +175,19 @@ artifact inspection, and CUDA capability probing.
   [transformer_train.hpp](transformer_train.hpp), and
   [transformer_util.cpp](transformer_util.cpp): experimental transformer
   training, artifact, checkpoint, report, and logits-check implementation.
+
+## Decoder CUDA Training Routing
+
+- Training activation ownership lives in [decoder_cuda_tape.hpp](decoder_cuda_tape.hpp)
+  and [decoder_cuda_tape.cpp](decoder_cuda_tape.cpp).
+- Per-layer training forward writes tape tensors through
+  [decoder_cuda_layer_forward.cpp](decoder_cuda_layer_forward.cpp) and focused
+  companion files when source limits require them.
+- Full training orchestration starts in
+  [decoder_cuda_train_forward.cpp](decoder_cuda_train_forward.cpp); backward
+  consumes the recorded tape in [decoder_cuda_backward.cpp](decoder_cuda_backward.cpp).
+- Report and route promotion stay outside this source path until the decoder
+  acceptance docs allow accepted backend names.
 
 ## Rules
 

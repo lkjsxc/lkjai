@@ -23,6 +23,13 @@ This directory contains test helpers for native CTest cases.
   RMSNorm forward and backward parity against a CPU reference.
 - [decoder_cuda_rope_backward_check.cpp](decoder_cuda_rope_backward_check.cpp):
   BF16 RoPE inverse-gradient parity against a CPU reference.
+- [decoder_cuda_train_forward_check.cpp](decoder_cuda_train_forward_check.cpp):
+  full decoder CUDA training-forward parity, tape population, final-norm input,
+  and registry optimizer coverage.
+- [decoder_cuda_backward_primitives_check.cpp](decoder_cuda_backward_primitives_check.cpp):
+  CUDA backward primitive parity for block-backward wiring.
+- [decoder_cuda_projection_layout_check.cpp](decoder_cuda_projection_layout_check.cpp):
+  projection-gradient layout coverage for registry-compatible block updates.
 - [../src/decoder_cuda_block_check.cpp](../src/decoder_cuda_block_check.cpp):
   decoder forward-substrate CTest for RMSNorm, RoPE, projection metadata,
   finite BF16 projection outputs, and truthful partial report fields.

@@ -28,10 +28,22 @@ embeddings and the LM head.
 
 Training forward stores the tensors needed by CUDA backward in
 `DecoderCudaTape`, not in private layer scratch. The tape owns token/mask
-device inputs, embeddings, per-layer residual outputs, final norm input,
+device inputs, embeddings, per-layer activation outputs, final norm input,
 final norm output, logits, grad logits, loss, and host capture buffers used for
 report evidence. Layer-forward scratch remains an inference implementation
 detail and is not the source of accepted optimizer gradients.
+
+Per-layer tape names follow the forward dataflow precisely:
+
+- `attn_norm_input`: pre-attention RMSNorm input.
+- `attn_norm`: post-attention RMSNorm output.
+- `mlp_norm_input`: pre-MLP RMSNorm input.
+- `mlp_norm`: post-MLP RMSNorm output.
+- `q_rope` and `k_rope`: Q/K after RoPE, not raw projection outputs.
+
+The next blocker is training tape population before chain-rule block backward.
+Backward kernels may only consume tensors written into `DecoderCudaTape` during
+the training forward pass.
 
 ## Implementation Order
 
