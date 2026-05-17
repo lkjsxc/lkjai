@@ -64,8 +64,10 @@ optimizer step metadata.
 
 ## Serving Load
 
-The native server may return `200` from `/v1/models` only after the artifact
-loads, checksums match, and tensor ranges validate. Decoder artifacts also load
-and validate the tokenizer before `/v1/chat/completions` can produce choices.
+The native server may return model readiness only after the artifact loads,
+checksums match, and tensor ranges validate. Decoder artifacts also load and
+validate the tokenizer before the OpenAI-compatible inference route can produce
+choices. Exact external route names are owned by
+[product/api.md](../../../product/api.md).
 Dense and transformer artifacts may still load for diagnostics, but they do
 not produce chat choices.

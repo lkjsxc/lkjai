@@ -1,7 +1,7 @@
 # Decoder Backward
 
 Owner: `docs/architecture/native/decoder/backward.md`.
-State: acceptance target.
+State: partial implementation, acceptance target.
 
 ## Acceptance Target
 
@@ -23,6 +23,15 @@ embeddings and the LM head.
 - Resume restores counters, optimizer state, and tensor checksums.
 - Acceptance tests must prove a non-embedding block weight changes on a tiny
   deterministic batch.
+
+## Tape Ownership
+
+Training forward stores the tensors needed by CUDA backward in
+`DecoderCudaTape`, not in private layer scratch. The tape owns token/mask
+device inputs, embeddings, per-layer residual outputs, final norm input,
+final norm output, logits, grad logits, loss, and host capture buffers used for
+report evidence. Layer-forward scratch remains an inference implementation
+detail and is not the source of accepted optimizer gradients.
 
 ## Implementation Order
 
@@ -56,13 +65,13 @@ SwiGLU, embedding scatter, reductions, and BF16/FP32 conversion glue.
 
 ## Current Status
 
-Full decoder CUDA backward is future acceptance work. The current experimental
-path runs the full decoder forward, CE loss, logits capture, and grad-logits on
-CUDA, then uses host-reference backward to produce gradients. Registry CUDA
-AdamW updates device FP32 masters, Adam moments, gradients, and BF16 shadows
-for decoder tensors, but the gradient source remains non-accepted.
+The current experimental path runs full decoder forward, CE loss, logits
+capture, grad-logits, and registry-gradient population on CUDA. It fills FP32
+registry gradients for the LM head or tied embedding table, token embeddings,
+decoder block tensors, and final norm, then registry CUDA AdamW consumes those
+device gradients.
 
-Reports for this stage must keep `decoder_backward_backend=host_reference` and
-`accepted_cuda_training=false`. They may not emit
-`decoder_backward_backend=cuda_full_decoder` until every registered tensor gets
-device-origin gradients and positive block/final-norm update evidence.
+Reports may identify the backward source as CUDA device-origin, but they still
+keep `accepted_cuda_training=false` until cuDNN SDPA, accepted decode evidence,
+the 40M RTX 3070 shape gate, logits/export/server checks, and report promotion
+gates all pass.

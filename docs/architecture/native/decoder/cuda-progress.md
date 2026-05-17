@@ -36,12 +36,11 @@ First CUDA progress after foundation:
   device-resident layer weights and intermediates, and a full-forward probe
   compares final hidden/logits against the host reference on
   `decoder_debug_bf16`.
-- Current training hook: decoder training uses the full CUDA forward stack and
-  CUDA CE/loss-gradient helper for loss and captured logits, while backward and
-  gradient source remain host-reference. Registry-wide CUDA AdamW updates
-  device FP32 masters, moments, and BF16 shadows for every decoder tensor.
-  Reports name the slice `cuda_full_forward_host_backward` and remain
-  non-accepted.
+- Current training hook: decoder training uses the full CUDA forward stack,
+  CUDA CE/loss-gradient helper, device-origin registry gradients, and
+  registry-wide CUDA AdamW for every decoder tensor. Reports name
+  `decoder_cuda_slice=full_decoder`, but remain non-accepted until SDPA,
+  decode, route, and RTX 3070 evidence gates pass.
 - Current backward substrate hook: residual-add backward and SwiGLU backward
   kernels have direct parity tests, but they are not wired into training
   reports or optimizer evidence.
@@ -62,14 +61,15 @@ existing dense CUDA substrate:
   gradients, and AdamW updates.
 - Reusable CUDA workspace and report fields for workspace usage.
 
-The decoder full-forward substrate now runs inside decoder training before the
-host-reference backward pass. It validates decoder metadata, launches RMSNorm,
+The decoder full-forward substrate now runs inside decoder training before
+device-origin registry gradients are populated. It validates decoder metadata,
+launches RMSNorm,
 projects Q/K/V, applies RoPE, runs causal GQA attention, projects the attention
 output through O, adds the attention residual, runs MLP RMSNorm, applies
 `silu(gate) * up`, projects through the down matrix, adds the final residual,
 applies final RMSNorm, computes LM-head logits, and computes CE loss and
-grad-logits on device. It is forward/loss evidence and does not train block
-tensors.
+grad-logits on device. The registry-gradient path now provides block optimizer
+evidence, while full acceptance still waits on SDPA and route gates.
 The training-slice block test now verifies the composed first-block output
 against a host reference; that is still forward correctness evidence, not
 backward or optimizer acceptance.
@@ -97,10 +97,10 @@ Decoder chat serving may still disclose `cuda_reference_kv_cache` plus
 Accepted disclosure requires the sidecar and executed CUDA KV-cache path to
 agree.
 
-Before tracked acceptance, the repo still needs full decoder CUDA backward,
-accepted cuDNN SDPA attention, a real two-hour RTX acceptance run with full
-decoder weight deltas, logits/export checks, route transcript, positive prefill
-allocation, and zero steady-state token allocations.
+Before tracked acceptance, the repo still needs accepted cuDNN SDPA attention,
+a real two-hour RTX acceptance run with full decoder weight deltas,
+logits/export checks, route transcript, positive prefill allocation, and zero
+steady-state token allocations.
 
 ## Hardware Implications
 

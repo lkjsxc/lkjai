@@ -9,7 +9,8 @@ State: canonical.
 - Artifact manifest `kind`: `decoder`
 - Training objective: `causal_lm_full` first, followed by
   `assistant_masked_sft` when that native objective is implemented.
-- Serving target: OpenAI-compatible `/v1/chat/completions`.
+- Serving target: OpenAI-compatible inference route; exact external route
+  names are owned by [product/api.md](../../../product/api.md).
 
 ## Architecture
 

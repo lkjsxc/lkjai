@@ -71,7 +71,7 @@ void DecoderCudaLayerForward::upload_projection(DeviceTensor* dst,
 }
 
 void DecoderCudaLayerForward::allocate_scratch(int rows) {
-  if (scratch_rows_ == rows) return;
+  if (scratch_rows_ >= rows) return;
   auto stream = ctx_->stream();
   norm_ = bf16(stream, rows, cfg_.hidden_size);
   q_ = bf16(stream, rows, cfg_.hidden_size);
@@ -98,14 +98,20 @@ void DecoderCudaLayerForward::run(
     const DeviceTensor& x, int batch, int seq, DeviceTensor* out,
     DecoderCudaForwardSubstrateReport* report,
     const DecoderCudaLayerCacheView* cache) {
+  DecoderCudaForwardSubstrateReport local_report;
+  bool verify = report != nullptr;
+  if (!report) report = &local_report;
+  auto checked = [&](const DeviceTensor& tensor) {
+    return verify ? finite(tensor, ctx_->stream()) : true;
+  };
   int rows = batch * seq;
   allocate_scratch(rows);
-  *out = bf16(ctx_->stream(), rows, cfg_.hidden_size);
+  if (!out->data()) *out = bf16(ctx_->stream(), rows, cfg_.hidden_size);
   void* ws = workspace_->allocate(workspace_bytes_);
   decoder_launch_rmsnorm_bf16(x.data(), static_cast<float*>(attn_w_.data()),
                               norm_.data(), rows, cfg_.hidden_size,
                               cfg_.rms_norm_eps, ctx_->stream());
-  report->rmsnorm_checked = finite(norm_, ctx_->stream());
+  report->rmsnorm_checked = checked(norm_);
   decoder_cuda_project_bf16(ctx_->cublaslt(), ctx_->stream(), norm_.data(),
                             wq_.data(), q_.data(), rows, cfg_.hidden_size,
                             cfg_.hidden_size, ws, workspace_bytes_);
@@ -115,16 +121,14 @@ void DecoderCudaLayerForward::run(
   decoder_cuda_project_bf16(ctx_->cublaslt(), ctx_->stream(), norm_.data(),
                             wv_.data(), v_.data(), rows, cfg_.hidden_size,
                             kv_width_, ws, workspace_bytes_);
-  report->qkv_projection_checked = finite(q_, ctx_->stream()) &&
-                                   finite(k_, ctx_->stream()) &&
-                                   finite(v_, ctx_->stream());
+  report->qkv_projection_checked = checked(q_) && checked(k_) && checked(v_);
   int pos = cache ? cache->start_position : 0;
   decoder_launch_rope_bf16_at(q_.data(), batch, seq, cfg_.heads, cfg_.head_dim,
                               pos, cfg_.rope_theta, ctx_->stream());
   decoder_launch_rope_bf16_at(k_.data(), batch, seq, cfg_.kv_heads,
                               cfg_.head_dim, pos, cfg_.rope_theta,
                               ctx_->stream());
-  report->rope_checked = finite(q_, ctx_->stream()) && finite(k_, ctx_->stream());
+  report->rope_checked = checked(q_) && checked(k_);
   if (cache && cache->cache) {
     std::string error;
     if (!decoder_kv_cache_append_device_layer(cache->cache, cache->layer, pos,
@@ -144,19 +148,19 @@ void DecoderCudaLayerForward::run(
         q_.data(), k_.data(), v_.data(), attn_.data(), batch, seq, cfg_.heads,
         cfg_.kv_heads, cfg_.head_dim, ctx_->stream());
   }
-  report->attention_checked = finite(attn_, ctx_->stream());
+  report->attention_checked = checked(attn_);
   decoder_cuda_project_bf16(ctx_->cublaslt(), ctx_->stream(), attn_.data(),
                             wo_.data(), o_.data(), rows, cfg_.hidden_size,
                             cfg_.hidden_size, ws, workspace_bytes_);
-  report->o_projection_checked = finite(o_, ctx_->stream());
+  report->o_projection_checked = checked(o_);
   decoder_launch_residual_add_bf16(x.data(), o_.data(), attn_resid_.data(),
                                    rows * cfg_.hidden_size, ctx_->stream());
-  report->attention_residual_checked = finite(attn_resid_, ctx_->stream());
+  report->attention_residual_checked = checked(attn_resid_);
   decoder_launch_rmsnorm_bf16(attn_resid_.data(),
                               static_cast<float*>(mlp_w_.data()),
                               mlp_norm_.data(), rows, cfg_.hidden_size,
                               cfg_.rms_norm_eps, ctx_->stream());
-  report->mlp_norm_checked = finite(mlp_norm_, ctx_->stream());
+  report->mlp_norm_checked = checked(mlp_norm_);
   decoder_cuda_project_bf16(ctx_->cublaslt(), ctx_->stream(), mlp_norm_.data(),
                             wg_.data(), gate_.data(), rows, cfg_.hidden_size,
                             cfg_.ffn_size, ws, workspace_bytes_);
@@ -165,15 +169,15 @@ void DecoderCudaLayerForward::run(
                             cfg_.ffn_size, ws, workspace_bytes_);
   decoder_launch_swiglu_bf16(gate_.data(), up_.data(), swiglu_.data(),
                              rows * cfg_.ffn_size, ctx_->stream());
-  report->swiglu_checked = finite(swiglu_, ctx_->stream());
+  report->swiglu_checked = checked(swiglu_);
   decoder_cuda_project_bf16(ctx_->cublaslt(), ctx_->stream(), swiglu_.data(),
                             wd_.data(), down_.data(), rows, cfg_.ffn_size,
                             cfg_.hidden_size, ws, workspace_bytes_);
-  report->down_projection_checked = finite(down_, ctx_->stream());
+  report->down_projection_checked = checked(down_);
   decoder_launch_residual_add_bf16(attn_resid_.data(), down_.data(),
                                    out->data(), rows * cfg_.hidden_size,
                                    ctx_->stream());
-  report->block_residual_checked = finite(*out, ctx_->stream());
+  report->block_residual_checked = checked(*out);
   report->outputs_finite = report->rmsnorm_checked && report->rope_checked &&
                            report->qkv_projection_checked &&
                            report->attention_checked &&

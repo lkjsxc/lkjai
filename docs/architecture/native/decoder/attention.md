@@ -14,9 +14,14 @@ for the configured `heads`, `kv_heads`, and `head_dim`.
 - The mask is strictly causal.
 - GQA maps each query head with grouped division:
   `q_head / (heads / kv_heads)`.
+- The cuDNN wrapper owns eligibility checks, workspace sizing, shape-plan
+  caching, forward, and backward entry points.
+- Eligibility requires BF16, causal masking, `heads % kv_heads == 0`,
+  `head_dim % 8 == 0`, and supported Ampere/Ada head-dimension limits.
 - Accumulation uses FP32 or a vendor-backed equivalent with documented parity.
 - Outputs match the host reference within the validation tolerance.
-- Accepted reports use `attention_backend=cudnn_sdpa_bf16_gqa`.
+- Accepted reports use `attention_backend=cudnn_sdpa_bf16_gqa` only when the
+  cuDNN path actually executes.
 - `cuda_causal_gqa_bf16_reference` remains reportable only as diagnostic
   fallback and parity oracle evidence.
 
@@ -34,8 +39,7 @@ Reference: <https://docs.nvidia.com/deeplearning/cudnn/frontend/latest/operation
 
 ## Current Status
 
-The host reference implements causal GQA with RoPE. The custom CUDA forward
-substrate runs BF16 causal GQA attention between RoPE and the O projection, and
-CTest checks deterministic MHA and GQA shapes against the host reference.
-Trainer reports still stay `accepted_cuda_training=false` until full decoder
-forward and backward training uses cuDNN SDPA for accepted attention.
+The custom CUDA reference forward runs BF16 causal GQA attention between RoPE
+and the O projection, and CTest checks deterministic MHA/GQA shapes against the
+host reference. Trainer reports still stay `accepted_cuda_training=false` until
+forward and backward training execute cuDNN SDPA for accepted attention.

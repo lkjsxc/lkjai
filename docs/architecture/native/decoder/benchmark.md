@@ -36,15 +36,12 @@ full-decoder training and CUDA KV-cache decode fields. A dry-run script,
 foundation server contract, or embedding/head-only CUDA slice is not accepted
 evidence.
 
-Current decoder smoke exercises the experimental CUDA full-forward and CE/loss
-path with host-reference backward and optimizer. It must report non-accepted
-backend names such as
-`decoder_cuda_slice=cuda_full_forward_host_backward`,
-`backward_backend=host_reference`,
-`decoder_backward_backend=host_reference`, and the non-accepted host-reference
-decode backend. It is regression evidence only; the tracked acceptance lane is
-still the two-hour RTX 3070 run after real CUDA backward, device optimizer,
-logits/export/server checks, and KV-cache decode execute.
+Current decoder smoke exercises the experimental CUDA full-forward, CE/loss,
+device-gradient, and registry-optimizer path. It must still report
+`accepted_cuda_training=false`, fallback attention, and non-accepted decode
+backend names. It is regression evidence only; the tracked acceptance lane is
+still the two-hour RTX 3070 run after cuDNN SDPA, logits/export/server checks,
+and KV-cache decode execute.
 
 Use smoke mode for current CUDA work:
 
@@ -68,7 +65,7 @@ Record under ignored `artifacts/benchmarks/<run-id>/`:
 - GPU, driver, CUDA, cuDNN, and CUDA architecture flags,
 - cuBLASLt and cuDNN backend selections,
 - checkpoint/export/logits checksums,
-- `/v1/chat/completions` transcript smoke.
+- OpenAI-compatible inference route transcript smoke.
 - report fields:
   `implementation_status=accepted`,
   `accepted_cuda_training=true`,

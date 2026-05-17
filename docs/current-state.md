@@ -29,13 +29,14 @@ preparation work.
 The decoder lane is the first product acceptance target. Current truth is:
 
 - Full decoder forward, CE loss, logits capture, and grad-logits run on CUDA.
-- Backward gradients still come from the host reference.
+- Decoder registry gradients are populated from CUDA-resident loss/tape data;
+  host backward is now parity-only evidence.
 - Registry CUDA AdamW updates device FP32 masters, Adam moments, gradients, and
   BF16 shadows for decoder tensors.
 - Attention uses `cuda_causal_gqa_bf16_reference` as fallback/oracle evidence.
 - Decode owns a cached `DecoderCudaInferenceSession` per loaded artifact and
-  measured device allocation counters, but KV-cache route disclosure remains
-  partial until accepted route evidence exists.
+  reuses one-token buffers in the steady token loop. KV-cache route disclosure
+  remains partial until accepted route evidence exists.
 
 Detailed decoder acceptance blockers are owned by
 [training.md](architecture/native/decoder/training.md),
@@ -43,10 +44,10 @@ Detailed decoder acceptance blockers are owned by
 [attention.md](architecture/native/decoder/attention.md), and
 [kv-cache.md](architecture/native/decoder/kv-cache.md).
 
-Partial reports must keep `accepted_cuda_training=false`, avoid accepted
-backend names, and avoid accepted decode names. Accepted route disclosure
-requires accepted train report evidence, an accepted sidecar, the loaded 40M
-RTX 3070 decoder shape, and an executed CUDA KV-cache path.
+Partial reports must keep `accepted_cuda_training=false` and avoid accepted
+attention or decode names. Accepted route disclosure requires accepted train
+report evidence, an accepted sidecar, the loaded 40M RTX 3070 decoder shape,
+and an executed CUDA KV-cache path.
 
 ## Data Map
 

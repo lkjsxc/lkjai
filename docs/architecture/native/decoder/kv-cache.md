@@ -1,7 +1,7 @@
 # Decoder KV Cache
 
 Owner: `docs/architecture/native/decoder/kv-cache.md`.
-State: future acceptance contract.
+State: partial implementation contract.
 
 ## Acceptance Target
 
@@ -42,10 +42,11 @@ The decoder bridge can disclose either accepted CUDA KV-cache decode or
 `cuda_reference_kv_cache` plus partial KV-cache metadata. The accepted name is
 allowed only when the sidecar and executed route path agree.
 
-The native implementation has partial contiguous BF16 K/V allocation evidence,
-CUDA append plumbing, allocation counters, and route disclosure fields. This is
-not accepted KV-cache serving yet. Acceptance still requires proving prompt
-prefill allocation is positive, token-loop device allocations stay at zero, and
-the decode path consumes the cache without full-prompt host recompute.
+The native implementation has contiguous BF16 K/V allocation evidence, CUDA
+append plumbing, cache-consuming attention, allocation counters, and route
+disclosure fields. The session reuses one-token decode buffers so the measured
+steady token loop can remain allocation-free. Accepted route disclosure still
+requires accepted train report evidence, sidecar agreement, the 40M RTX 3070
+shape gate, positive prefill bytes, and zero steady-state token allocations.
 
 Future batching work must preserve zero steady-state token allocations.

@@ -17,6 +17,8 @@ against a per-request KV cache.
 - Request handling allocates a fresh contiguous BF16 KV cache for the request.
 - Session construction preloads token embeddings, final norm, LM-head, and
   layer weights to device memory.
+- Session construction also preallocates one-token hidden, final-norm, logits,
+  and reusable workspace buffers for steady decode.
 - Generation reports measured device allocation deltas from the device
   substrate, not hand-authored allocation counters.
 - Partial decode may return generated choices, but it must keep
@@ -37,6 +39,7 @@ Accepted decode requires:
 - CUDA KV-cache use on the executed route,
 - no accepted backend names from sidecar metadata alone.
 
-The current partial route proves prefill allocation and per-request session
-lifecycle. It is not accepted until multi-token steady-state reuse and accepted
-training evidence satisfy the training and route report gates.
+The current partial route proves prefill allocation, per-request KV-cache
+lifecycle, CUDA cache consumption, and zero measured steady token allocations.
+It is not accepted until training evidence, report fields, sidecar evidence,
+and route report gates all pass.

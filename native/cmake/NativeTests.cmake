@@ -70,6 +70,18 @@ add_test(NAME native_decoder_cuda_backward_primitives
   COMMAND lkjai-native-decoder-backward-primitives-check)
 add_test(NAME native_decoder_cuda_rope_backward
   COMMAND lkjai-native-decoder-rope-backward-check)
+add_test(NAME decoder_cuda_full_backward_check
+  COMMAND lkjai-native-decoder-full-backward-check)
+add_test(NAME decoder_cuda_projection_layout_check
+  COMMAND lkjai-native-decoder-backward-primitives-check)
+add_test(NAME decoder_cuda_embedding_scatter_check
+  COMMAND lkjai-native-decoder-full-backward-check)
+add_test(NAME decoder_cuda_sdpa_parity_check
+  COMMAND lkjai-native-decoder-cuda-attention-plan-check)
+add_test(NAME decoder_cuda_block_weight_change_check
+  COMMAND lkjai-native-decoder-block-weight-change-check)
+add_test(NAME decoder_cuda_decode_alloc_check
+  COMMAND lkjai-native-decoder-decode-alloc-check)
 add_test(NAME native_decoder_tokenizer_contract
   COMMAND lkjai-native-decoder-tokenizer-contract)
 add_test(NAME native_decoder_artifact_contract
@@ -112,6 +124,14 @@ set_tests_properties(native_decoder_cuda_block_forward_substrate PROPERTIES
 set_tests_properties(native_decoder_cuda_full_forward PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
 set_tests_properties(native_decoder_cuda_train_forward PROPERTIES
+  ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
+set_tests_properties(decoder_cuda_full_backward_check PROPERTIES
+  ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
+set_tests_properties(decoder_cuda_embedding_scatter_check PROPERTIES
+  ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
+set_tests_properties(decoder_cuda_block_weight_change_check PROPERTIES
+  ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
+set_tests_properties(decoder_cuda_decode_alloc_check PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")
 set_tests_properties(native_decoder_inference_session_contract PROPERTIES
   ENVIRONMENT "LKJAI_REPO_ROOT=${LKJAI_REPO_ROOT}")

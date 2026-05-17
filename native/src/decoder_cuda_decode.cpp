@@ -49,7 +49,11 @@ struct DecoderCudaInferenceSession::Impl {
                       state.cfg.hidden_size)),
         token_device_({DeviceDType::bf16, {state.cfg.context}}, ctx_.stream()),
         logits_f32_({DeviceDType::f32, {state.cfg.context, state.cfg.vocab_size}},
-                    ctx_.stream()) {
+                    ctx_.stream()),
+        one_hidden_a_(bf16(ctx_.stream(), 1, state.cfg.hidden_size)),
+        one_hidden_b_(bf16(ctx_.stream(), 1, state.cfg.hidden_size)),
+        one_final_(bf16(ctx_.stream(), 1, state.cfg.hidden_size)),
+        one_logits_(bf16(ctx_.stream(), 1, state.cfg.vocab_size)) {
     tok_embeddings_.copy_from_host_f32(state.tok_embeddings.w, ctx_.stream());
     final_w_.copy_from_host_f32(state.final_norm.w, ctx_.stream());
     lm_head_.copy_from_host_f32(state.lm_head.w, ctx_.stream());
@@ -73,30 +77,56 @@ struct DecoderCudaInferenceSession::Impl {
                                  tokens.size() * sizeof(uint16_t),
                                  cudaMemcpyHostToDevice, ctx_.stream()),
                  "decoder tokens H2D");
-    DeviceTensor hidden = bf16(ctx_.stream(), rows, cfg.hidden_size);
-    gather_embeddings(tok_embeddings_, token_device_, &hidden, rows,
+    DeviceTensor dynamic_hidden;
+    DeviceTensor dynamic_hidden_b;
+    DeviceTensor* hidden = nullptr;
+    bool one_token = cached && rows == 1;
+    if (one_token) {
+      hidden = &one_hidden_a_;
+    } else {
+      dynamic_hidden = bf16(ctx_.stream(), rows, cfg.hidden_size);
+      dynamic_hidden_b = bf16(ctx_.stream(), rows, cfg.hidden_size);
+      hidden = &dynamic_hidden;
+    }
+    gather_embeddings(tok_embeddings_, token_device_, hidden, rows,
                       cfg.hidden_size, cfg.vocab_size, ctx_.stream());
     for (size_t i = 0; i < layers_.size(); ++i) {
-      DecoderCudaForwardSubstrateReport report;
       DecoderCudaLayerCacheView view{cache, static_cast<int>(i),
                                      start_position, cached};
-      DeviceTensor next;
-      layers_[i]->run(hidden, 1, rows, &next, &report, &view);
-      hidden = std::move(next);
+      DeviceTensor* next = nullptr;
+      if (one_token) {
+        next = hidden == &one_hidden_a_ ? &one_hidden_b_ : &one_hidden_a_;
+      } else {
+        next = hidden == &dynamic_hidden ? &dynamic_hidden_b : &dynamic_hidden;
+      }
+      layers_[i]->run(*hidden, 1, rows, next, nullptr, &view);
+      hidden = next;
     }
-    DeviceTensor final = bf16(ctx_.stream(), rows, cfg.hidden_size);
-    decoder_launch_rmsnorm_bf16(hidden.data(),
+    DeviceTensor dynamic_final;
+    DeviceTensor* final = &dynamic_final;
+    if (one_token) {
+      final = &one_final_;
+    } else {
+      dynamic_final = bf16(ctx_.stream(), rows, cfg.hidden_size);
+    }
+    decoder_launch_rmsnorm_bf16(hidden->data(),
                                 static_cast<float*>(final_w_.data()),
-                                final.data(), rows, cfg.hidden_size,
+                                final->data(), rows, cfg.hidden_size,
                                 cfg.rms_norm_eps, ctx_.stream());
-    DeviceTensor logits = bf16(ctx_.stream(), rows, cfg.vocab_size);
+    DeviceTensor dynamic_logits;
+    DeviceTensor* logits = &dynamic_logits;
+    if (one_token) {
+      logits = &one_logits_;
+    } else {
+      dynamic_logits = bf16(ctx_.stream(), rows, cfg.vocab_size);
+    }
     void* ws = workspace_.allocate(kWorkspaceBytes);
-    decoder_cuda_project_bf16(ctx_.cublaslt(), ctx_.stream(), final.data(),
-                              lm_head_.data(), logits.data(), rows,
+    decoder_cuda_project_bf16(ctx_.cublaslt(), ctx_.stream(), final->data(),
+                              lm_head_.data(), logits->data(), rows,
                               cfg.hidden_size, cfg.vocab_size, ws,
                               kWorkspaceBytes);
     std::vector<float> all;
-    copy_bf16_to_host_f32(logits, &logits_f32_, &all, ctx_.stream());
+    copy_bf16_to_host_f32(*logits, &logits_f32_, &all, ctx_.stream());
     out->assign(all.end() - cfg.vocab_size, all.end());
     cache->next_position[0] = start_position + rows;
     DeviceAllocationStats after = device_allocation_stats();
@@ -116,6 +146,10 @@ struct DecoderCudaInferenceSession::Impl {
   DeviceTensor lm_head_;
   DeviceTensor token_device_;
   DeviceTensor logits_f32_;
+  DeviceTensor one_hidden_a_;
+  DeviceTensor one_hidden_b_;
+  DeviceTensor one_final_;
+  DeviceTensor one_logits_;
   std::vector<std::unique_ptr<DecoderCudaLayerForward>> layers_;
   uint64_t last_allocation_events_ = 0;
 };

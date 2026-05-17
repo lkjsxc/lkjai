@@ -26,20 +26,20 @@ Accepted decoder training covers embeddings, tied LM head, every decoder block
 tensor, and final norm. Reports must prove positive non-embedding and
 decoder-block deltas before using accepted backend names.
 
-The decoder path owns registry tensors, BF16 shadows, AdamW moments, and
-diagnostic CUDA buffers for every trainable decoder tensor. Smoke reports prove
-the contract shape; accepted evidence still requires the documented RTX 3070
-run and route checks.
+The decoder path owns registry tensors, BF16 shadows, AdamW moments, tape
+buffers, and diagnostic CUDA buffers for every trainable decoder tensor. Smoke
+reports prove the contract shape; accepted evidence still requires the
+documented RTX 3070 run and route checks.
+
 The current experimental training slice uses CUDA for the full decoder forward
-stack, FP32 logits, CE loss, grad-logits, and supervised-row logit capture. It
-then runs host-reference backward and registry-wide CUDA AdamW over device FP32
+stack, FP32 logits, CE loss, grad-logits, supervised-row logit capture,
+device-origin registry gradients, and registry-wide CUDA AdamW over device FP32
 masters, AdamW moments, gradients, and BF16 shadows. Its truthful report fields
-are `implementation_status=experimental`,
-`accepted_cuda_training=false`,
-`decoder_cuda_slice=cuda_full_forward_host_backward`,
-`forward_backend=cuda_full_decoder`, `backward_backend=host_reference`,
+are `implementation_status=experimental`, `accepted_cuda_training=false`,
+`decoder_cuda_slice=full_decoder`, `forward_backend=cuda_full_decoder`,
+`backward_backend=cuda_full_decoder`,
 `optimizer_backend=cuda_adamw_fp32_registry`,
-`decoder_backward_backend=host_reference`, and
+`decoder_gradient_source=cuda_device`, and
 `attention_backend=cuda_causal_gqa_bf16_reference`.
 The implementation must prefer correctness evidence over kernel cleverness:
 cuBLASLt remains the GEMM owner, while custom CUDA covers pointwise kernels,
@@ -141,10 +141,7 @@ state per-token device allocation is zero, and the documented benchmark gate
 passes. LM-head-only updates do not satisfy decoder block-training acceptance.
 
 No report may emit `implementation_status=accepted`,
-`decoder_cuda_slice=full_decoder`,
-`decoder_backward_backend=cuda_full_decoder`,
-`attention_backend=cudnn_sdpa_bf16_gqa`,
-`decode_backend=cuda_kv_cache`, or
+`attention_backend=cudnn_sdpa_bf16_gqa`, `decode_backend=cuda_kv_cache`, or
 `kv_cache_backend=cuda_contiguous_bf16` unless block backward, optimizer
 coverage for all trainable decoder tensors, accepted logits/export/server
 checks, and CUDA KV-cache decode execute. Sidecars such as
@@ -158,8 +155,8 @@ report solely because `target_seconds > 0`.
 
 The decoder lane is promoted only through this document's acceptance contract.
 Historical partial reports remain useful regression evidence. Any future
-partial report must keep `accepted_cuda_training=false`, avoid accepted backend
-names, and avoid accepted decode backend names.
+partial report must keep `accepted_cuda_training=false`, avoid accepted
+attention names, and avoid accepted decode backend names.
 
 The report contract rejects partial slices, missing logits evidence, missing
 served artifacts, missing block-weight deltas, untied product configs, and KV

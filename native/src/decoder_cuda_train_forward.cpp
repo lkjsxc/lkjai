@@ -162,7 +162,6 @@ double DecoderCudaState::forward_backward(
     }
   }
 
-  auto before_backward = state_;
   auto host_fwd = transformer_forward(batch, state_);
   if (!std::isfinite(cuda_loss) ||
       std::abs(cuda_loss - host_fwd.loss) > kLossTolerance) {
@@ -171,9 +170,10 @@ double DecoderCudaState::forward_backward(
   if (logits && capture_row >= 0) compare_logits(*logits, host_fwd.loss_logits);
 
   phase = std::chrono::steady_clock::now();
-  transformer_backward(batch, host_fwd, &state_);
-  scale_and_accumulate_grads(before_backward, grad_scale, reset_grads);
-  sync_registry_grads_from_host();
+  run_device_backward(static_cast<float>(cuda_loss), rows, capture_row,
+                      grad_scale, reset_grads);
+  require_cuda(cudaStreamSynchronize(ctx_.stream()),
+               "decoder train backward sync");
   if (backward_seconds) *backward_seconds += since(phase);
   return cuda_loss;
 }

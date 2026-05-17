@@ -61,6 +61,27 @@ target_link_libraries(lkjai-native-decoder-rope-backward-check
   PRIVATE lkjai_native_core
 )
 
+add_executable(lkjai-native-decoder-full-backward-check
+  tests/decoder_cuda_full_backward_check.cpp
+)
+target_link_libraries(lkjai-native-decoder-full-backward-check
+  PRIVATE lkjai_native_core
+)
+
+add_executable(lkjai-native-decoder-block-weight-change-check
+  tests/decoder_cuda_block_weight_change_check.cpp
+)
+target_link_libraries(lkjai-native-decoder-block-weight-change-check
+  PRIVATE lkjai_native_core
+)
+
+add_executable(lkjai-native-decoder-decode-alloc-check
+  tests/decoder_cuda_decode_alloc_check.cpp
+)
+target_link_libraries(lkjai-native-decoder-decode-alloc-check
+  PRIVATE lkjai_native_core
+)
+
 add_executable(lkjai-native-decoder-tokenizer-contract
   tests/decoder_tokenizer_contract.cpp
 )

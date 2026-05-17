@@ -98,6 +98,8 @@ class DecoderCudaState {
   void sync_registry_grads_from_host();
   void refresh_layer_forwards();
   void ensure_tape_capacity(int rows, int vocab, int hidden, int layers);
+  void run_device_backward(float loss, int rows, int capture_row,
+                           float grad_scale, bool reset_grads);
   void scale_and_accumulate_grads(const TransformerState& previous,
                                   float grad_scale, bool reset_grads);
 

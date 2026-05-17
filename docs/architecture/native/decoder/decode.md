@@ -5,10 +5,11 @@ State: accepted when `decode_backend=cuda_kv_cache`.
 
 ## API
 
-`POST /v1/chat/completions` may return OpenAI-compatible JSON for decoder
+The OpenAI-compatible inference route may return generation JSON for decoder
 artifacts. Accepted decoder artifacts disclose CUDA KV-cache decode only when
 the executed route used the native cache path and accepted sidecar fields are
-present:
+present. Exact external route names are owned by
+[product/api.md](../../../product/api.md).
 
 - `id`
 - `object`
