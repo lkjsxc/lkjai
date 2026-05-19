@@ -54,6 +54,36 @@ __global__ void constant_grad_kernel(float* grad, int elements, float scale) {
   if (i < elements) grad[i] += scale;
 }
 
+__global__ void f32_to_bf16_kernel(const float* src, __nv_bfloat16* dst,
+                                   int elements) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < elements) dst[i] = __float2bfloat16(src[i]);
+}
+
+__global__ void add_f32_kernel(const float* src, float* dst, int elements) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < elements) dst[i] += src[i];
+}
+
+__global__ void add_bf16_to_f32_kernel(const __nv_bfloat16* src, float* dst,
+                                       int elements) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < elements) dst[i] += __bfloat162float(src[i]);
+}
+
+__global__ void input_embedding_grad_kernel(
+    const uint16_t* tokens, const __nv_bfloat16* grad_hidden, float* grad,
+    int rows, int vocab, int hidden_size) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  int total = rows * hidden_size;
+  if (i >= total) return;
+  int h = i % hidden_size;
+  int row = i / hidden_size;
+  int token = static_cast<int>(tokens[row]) % vocab;
+  atomicAdd(grad + static_cast<size_t>(token) * hidden_size + h,
+            __bfloat162float(grad_hidden[i]));
+}
+
 int blocks(int elements) { return (elements + 255) / 256; }
 
 }  // namespace
@@ -104,6 +134,40 @@ void decoder_cuda_add_constant_grad(float* grad, int elements, float scale,
   constant_grad_kernel<<<blocks(elements), 256, 0, stream>>>(grad, elements,
                                                             scale);
   require_cuda(cudaGetLastError(), "decoder constant grad");
+}
+
+void decoder_cuda_f32_to_bf16(const float* src, void* dst_bf16, int elements,
+                              cudaStream_t stream) {
+  if (elements <= 0) return;
+  f32_to_bf16_kernel<<<blocks(elements), 256, 0, stream>>>(
+      src, static_cast<__nv_bfloat16*>(dst_bf16), elements);
+  require_cuda(cudaGetLastError(), "decoder f32 to bf16");
+}
+
+void decoder_cuda_add_f32(const float* src, float* dst, int elements,
+                          cudaStream_t stream) {
+  if (elements <= 0) return;
+  add_f32_kernel<<<blocks(elements), 256, 0, stream>>>(src, dst, elements);
+  require_cuda(cudaGetLastError(), "decoder add f32");
+}
+
+void decoder_cuda_add_bf16_to_f32(const void* src_bf16, float* dst,
+                                  int elements, cudaStream_t stream) {
+  if (elements <= 0) return;
+  add_bf16_to_f32_kernel<<<blocks(elements), 256, 0, stream>>>(
+      static_cast<const __nv_bfloat16*>(src_bf16), dst, elements);
+  require_cuda(cudaGetLastError(), "decoder add bf16 to f32");
+}
+
+void decoder_cuda_add_input_embedding_grad(const uint16_t* tokens,
+                                           const void* grad_hidden_bf16,
+                                           float* grad, int rows, int vocab,
+                                           int hidden, cudaStream_t stream) {
+  if (rows <= 0 || hidden <= 0) return;
+  input_embedding_grad_kernel<<<blocks(rows * hidden), 256, 0, stream>>>(
+      tokens, static_cast<const __nv_bfloat16*>(grad_hidden_bf16), grad, rows,
+      vocab, hidden);
+  require_cuda(cudaGetLastError(), "decoder input embedding grad");
 }
 
 }  // namespace lkjai

@@ -64,8 +64,13 @@ class DecoderCudaState {
   void sync_registry_grads_from_host();
   void refresh_layer_forwards();
   void ensure_tape_capacity(int rows, int vocab, int hidden, int layers);
-  void run_device_backward(float loss, int rows, int capture_row,
-                           float grad_scale, bool reset_grads);
+  void run_device_backward(float loss, int batch_size, int sequence_len,
+                           int capture_row, float grad_scale,
+                           bool reset_grads);
+  DeviceTensor* run_device_layer_backward(int layer_index, int batch_size,
+                                          int sequence_len,
+                                          DeviceTensor* upstream);
+  RegistryTensor* find_registry_tensor(const std::string& name);
   void scale_and_accumulate_grads(const TransformerState& previous,
                                   float grad_scale, bool reset_grads);
 

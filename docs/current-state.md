@@ -28,10 +28,10 @@ preparation work.
 
 The decoder lane is the first product acceptance target. Current truth is:
 
-- Full decoder forward, CE loss, logits capture, and grad-logits run on CUDA.
-- Decoder registry gradients are currently diagnostic CUDA helper gradients,
-  reported as `cuda_diagnostic_synthetic` and `cuda_device_diagnostic`; host
-  backward is parity-only evidence.
+- Full decoder forward, CE loss, logits capture, grad-logits, and chain-rule
+  backward run on CUDA from recorded decoder tape tensors.
+- Decoder registry gradients are reported as `cuda_decoder_chain_rule` with
+  `decoder_gradient_source=cuda_device`; host backward is parity-only evidence.
 - Registry CUDA AdamW updates device FP32 masters, Adam moments, gradients, and
   BF16 shadows for decoder tensors.
 - Attention uses `cuda_causal_gqa_bf16_reference` as fallback/oracle evidence.

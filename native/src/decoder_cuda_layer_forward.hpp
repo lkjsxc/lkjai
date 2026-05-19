@@ -37,6 +37,13 @@ class DecoderCudaLayerForward {
                  DecoderCudaLayerTape* tape,
                  DecoderCudaForwardSubstrateReport* report);
   uint64_t workspace_high_water_bytes() const;
+  const DeviceTensor& wq() const { return wq_; }
+  const DeviceTensor& wk() const { return wk_; }
+  const DeviceTensor& wv() const { return wv_; }
+  const DeviceTensor& wo() const { return wo_; }
+  const DeviceTensor& wg() const { return wg_; }
+  const DeviceTensor& wu() const { return wu_; }
+  const DeviceTensor& wd() const { return wd_; }
 
  private:
   void allocate_scratch(int rows);

@@ -43,9 +43,9 @@ task instead of reading the tree linearly.
 - `train` runs the two-hour decoder 40M packed-cache training profile from
   scratch; smoke checks are explicit native trainer invocations.
 - Dense BF16 CUDA training is the accepted substrate. The decoder CUDA slice is
-  experimental: full decoder forward runs on CUDA, gradients come from the
-  host reference, registry tensors update through CUDA AdamW, attention is the
-  custom CUDA reference path, and route disclosure remains partial.
+  experimental: full decoder forward and chain-rule backward run on CUDA,
+  registry tensors update through CUDA AdamW, attention is the custom CUDA
+  reference path, and route disclosure remains partial.
 - Dense 40M artifacts remain diagnostics only and are not chat artifacts.
 - The active implementation target is `decoder_2h_40m_3070` on RTX 3070
   with real block-weight updates and native KV-cache decode.

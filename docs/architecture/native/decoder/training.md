@@ -31,22 +31,22 @@ buffers, and diagnostic CUDA buffers for every trainable decoder tensor. Smoke
 reports prove the contract shape; accepted evidence still requires the
 documented RTX 3070 run and route checks.
 
-Training tape population is the next blocker before chain-rule block backward.
-The forward pass must persist the per-layer tensors that backward consumes:
+Training tape population is implemented for chain-rule block backward. The
+forward pass persists the per-layer tensors that backward consumes:
 `attn_norm_input` for the pre-attention RMSNorm input, `attn_norm` for its
 output, `q_rope` and `k_rope` after RoPE, `mlp_norm_input` for the pre-MLP
 RMSNorm input, and `mlp_norm` for its output.
 
 The current experimental training slice uses CUDA for the full decoder forward
 stack, FP32 logits, CE loss, grad-logits, supervised-row logit capture,
-registry-gradient diagnostics, and registry-wide CUDA AdamW over device FP32
-masters, AdamW moments, gradients, and BF16 shadows. Its truthful report fields
+chain-rule backward, and registry-wide CUDA AdamW over device FP32 masters,
+AdamW moments, gradients, and BF16 shadows. Its truthful report fields
 are `implementation_status=experimental`, `accepted_cuda_training=false`,
 `decoder_cuda_slice=full_decoder`, `forward_backend=cuda_full_decoder`,
-`backward_backend=cuda_diagnostic_synthetic`,
+`backward_backend=cuda_decoder_chain_rule`,
 `optimizer_backend=cuda_adamw_fp32_registry`,
-`decoder_backward_backend=cuda_diagnostic_synthetic`,
-`decoder_gradient_source=cuda_device_diagnostic`, and
+`decoder_backward_backend=cuda_decoder_chain_rule`,
+`decoder_gradient_source=cuda_device`, and
 `attention_backend=cuda_causal_gqa_bf16_reference`.
 The implementation must prefer correctness evidence over kernel cleverness:
 cuBLASLt remains the GEMM owner, while custom CUDA covers pointwise kernels,

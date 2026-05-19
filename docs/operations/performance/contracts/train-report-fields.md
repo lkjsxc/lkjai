@@ -83,13 +83,13 @@ reports must show real embedding and LM-head deltas while keeping
 accepted training status false.
 
 Decoder reports must not emit `implementation_status=accepted`,
-`decoder_backward_backend=cuda_full_decoder`,
-`decoder_gradient_source=cuda_device`,
-`decode_backend=cuda_kv_cache`, or
-`kv_cache_backend=cuda_contiguous_bf16` until real full decoder backward and
-real CUDA KV-cache decode are implemented and verified. Sidecars such as
-`decoder_acceptance.json` belong only to accepted evidence bundles.
+`decoder_backward_backend=cuda_full_decoder`, `decode_backend=cuda_kv_cache`,
+or `kv_cache_backend=cuda_contiguous_bf16` until real full decoder backward,
+cuDNN SDPA, and real CUDA KV-cache decode are implemented and verified.
+Sidecars such as `decoder_acceptance.json` belong only to accepted evidence
+bundles.
 
-Current diagnostic CUDA backward reports use
-`decoder_backward_backend=cuda_diagnostic_synthetic` and
-`decoder_gradient_source=cuda_device_diagnostic`.
+Current non-accepted chain-rule CUDA backward reports use
+`decoder_backward_backend=cuda_decoder_chain_rule` and
+`decoder_gradient_source=cuda_device`; they remain non-accepted while attention
+uses the custom reference backend or decode lacks accepted KV-cache evidence.

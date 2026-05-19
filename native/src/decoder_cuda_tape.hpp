@@ -23,6 +23,34 @@ struct DecoderCudaLayerTape {
   DeviceTensor swiglu;
   DeviceTensor down;
   DeviceTensor block_residual;
+  DeviceTensor grad_block_residual_bf16;
+  DeviceTensor grad_down_f32;
+  DeviceTensor grad_down_bf16;
+  DeviceTensor grad_swiglu_f32;
+  DeviceTensor grad_swiglu_bf16;
+  DeviceTensor grad_gate_bf16;
+  DeviceTensor grad_up_bf16;
+  DeviceTensor grad_mlp_norm_gate_f32;
+  DeviceTensor grad_mlp_norm_up_f32;
+  DeviceTensor grad_mlp_norm_f32;
+  DeviceTensor grad_mlp_norm_input_f32;
+  DeviceTensor grad_attention_residual_f32;
+  DeviceTensor grad_attention_residual_bf16;
+  DeviceTensor grad_o_proj_f32;
+  DeviceTensor grad_o_proj_bf16;
+  DeviceTensor grad_attention_state_f32;
+  DeviceTensor grad_attention_state_bf16;
+  DeviceTensor grad_q_rope_bf16;
+  DeviceTensor grad_k_rope_bf16;
+  DeviceTensor grad_v_bf16;
+  DeviceTensor grad_q_pre_rope_bf16;
+  DeviceTensor grad_k_pre_rope_bf16;
+  DeviceTensor grad_attn_norm_q_f32;
+  DeviceTensor grad_attn_norm_k_f32;
+  DeviceTensor grad_attn_norm_v_f32;
+  DeviceTensor grad_attn_norm_f32;
+  DeviceTensor grad_attn_norm_input_f32;
+  DeviceTensor grad_layer_input_f32;
 };
 
 struct DecoderCudaTape {
@@ -48,6 +76,8 @@ struct DecoderCudaTape {
   DeviceTensor final_norm;
   DeviceTensor grad_final_norm;
   DeviceTensor grad_final_norm_input;
+  DeviceTensor grad_embeddings_f32;
+  DeviceTensor grad_layer_upstream_bf16;
   DeviceTensor lm_head_f32;
   DeviceTensor logits_bf16;
   DeviceTensor logits;

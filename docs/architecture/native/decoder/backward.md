@@ -41,9 +41,10 @@ Per-layer tape names follow the forward dataflow precisely:
 - `mlp_norm`: post-MLP RMSNorm output.
 - `q_rope` and `k_rope`: Q/K after RoPE, not raw projection outputs.
 
-The next blocker is training tape population before chain-rule block backward.
-Backward kernels may only consume tensors written into `DecoderCudaTape` during
-the training forward pass.
+Backward kernels consume tensors written into `DecoderCudaTape` during the
+training forward pass. Additional scratch buffers store FP32 hidden gradients,
+BF16 projection gradients, and per-layer attention/MLP intermediates needed by
+the reverse pass.
 
 ## Implementation Order
 
@@ -78,13 +79,14 @@ SwiGLU, embedding scatter, reductions, and BF16/FP32 conversion glue.
 ## Current Status
 
 The current experimental path runs full decoder forward, CE loss, logits
-capture, grad-logits, and diagnostic registry-gradient population on CUDA. It
+capture, grad-logits, and CUDA chain-rule backward through final RMSNorm, MLP,
+attention projections, RoPE, attention, RMSNorm, and embedding scatter. It
 fills FP32 registry gradients for the LM head or tied embedding table, token
-embeddings, decoder block tensors, and final norm so registry CUDA AdamW can
-exercise update plumbing.
+embeddings, decoder block tensors, and final norm from CUDA-resident tape
+tensors.
 
-Reports must identify this as `decoder_backward_backend=cuda_diagnostic_synthetic`
-and `decoder_gradient_source=cuda_device_diagnostic`. They must keep
-`accepted_cuda_training=false` until real chain-rule backward, cuDNN SDPA,
-accepted decode evidence, the 40M RTX 3070 shape gate, logits/export/server
-checks, and report promotion gates all pass.
+Reports identify this as `decoder_backward_backend=cuda_decoder_chain_rule`
+and `decoder_gradient_source=cuda_device`. They keep
+`accepted_cuda_training=false` until cuDNN SDPA, accepted decode evidence, the
+40M RTX 3070 shape gate, logits/export/server checks, and report promotion
+gates all pass.

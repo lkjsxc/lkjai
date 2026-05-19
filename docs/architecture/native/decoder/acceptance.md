@@ -9,6 +9,7 @@ State: canonical decoder acceptance matrix.
 |---|---|---|
 | CUDA forward substrate | `accepted_cuda_training=false`, `forward_backend=cuda_full_decoder`, `attention_backend=cuda_causal_gqa_bf16_reference` | Full decoder forward, loss, logits capture, registry tensors, BF16 shadows, and CUDA AdamW substrate execute. |
 | Diagnostic backward | `decoder_backward_backend=cuda_diagnostic_synthetic`, `decoder_gradient_source=cuda_device_diagnostic` | CUDA-resident helper gradients exercise registry updates. This is not chain-rule decoder backward and is not promotable. |
+| Chain-rule backward | `decoder_backward_backend=cuda_decoder_chain_rule`, `decoder_gradient_source=cuda_device` | CUDA reverse-mode backward consumes decoder tape tensors and updates block gradients, but remains non-accepted while attention and decode use fallback backends. |
 | Accepted training | `implementation_status=accepted`, `accepted_cuda_training=true`, `attention_backend=cudnn_sdpa_bf16_gqa`, `decoder_backward_backend=cuda_full_decoder`, `decoder_gradient_source=cuda_device` | Full decoder forward and reverse-mode backward execute from CUDA tape using accepted cuDNN SDPA attention and device gradients. |
 | Accepted decode | `decode_backend=cuda_kv_cache`, `kv_cache_backend=cuda_contiguous_bf16` | The served artifact executes CUDA KV-cache prefill and allocation-free steady decode after accepted training evidence. |
 

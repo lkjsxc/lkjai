@@ -19,6 +19,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/decoder_kv_cache_cuda.cu
   src/decoder_kv_cache_lifetime.cpp
   src/decoder_cuda_block.cu
+  src/decoder_cuda_attention_backward.cu
   src/decoder_cuda_cached_attention.cu
   src/decoder_cuda_rope_backward.cu
   src/decoder_cuda_decode.cpp
@@ -31,6 +32,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/decoder_cuda_block_shape.cpp
   src/decoder_cuda_backward.cpp
   src/decoder_cuda_full_forward.cpp
+  src/decoder_cuda_layer_backward.cpp
   src/decoder_cuda_layer_forward.cpp
   src/decoder_cuda_layer_train.cpp
   src/decoder_cuda_norm.cu
@@ -42,6 +44,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/decoder_cuda_slice_util.cpp
   src/decoder_cuda_state.cpp
   src/decoder_cuda_tape.cpp
+  src/decoder_cuda_tape_debug.cpp
   src/decoder_cuda_train_forward.cpp
   src/decoder_weight_change.cpp
   src/dense_checkpoint.cpp

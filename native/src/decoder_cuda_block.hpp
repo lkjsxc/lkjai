@@ -96,6 +96,11 @@ void decoder_launch_causal_gqa_attention_bf16(
     const void* q_bf16, const void* k_bf16, const void* v_bf16, void* out_bf16,
     int batch, int seq, int heads, int kv_heads, int head_dim,
     cudaStream_t stream);
+void decoder_launch_causal_gqa_attention_backward_bf16(
+    const void* q_bf16, const void* k_bf16, const void* v_bf16,
+    const void* d_out_bf16, void* d_q_bf16, void* d_k_bf16, void* d_v_bf16,
+    int batch, int seq, int heads, int kv_heads, int head_dim,
+    cudaStream_t stream);
 void decoder_launch_cached_gqa_attention_bf16(
     const void* q_bf16, const void* key_cache_bf16,
     const void* value_cache_bf16, void* out_bf16, int layer,

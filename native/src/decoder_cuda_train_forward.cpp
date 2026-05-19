@@ -170,8 +170,9 @@ double DecoderCudaState::forward_backward(
   if (logits && capture_row >= 0) compare_logits(*logits, host_fwd.loss_logits);
 
   phase = std::chrono::steady_clock::now();
-  run_device_backward(static_cast<float>(cuda_loss), rows, capture_row,
-                      grad_scale, reset_grads);
+  run_device_backward(static_cast<float>(cuda_loss), batch.batch_size,
+                      batch.sequence_len, capture_row, grad_scale,
+                      reset_grads);
   require_cuda(cudaStreamSynchronize(ctx_.stream()),
                "decoder train backward sync");
   if (backward_seconds) *backward_seconds += since(phase);

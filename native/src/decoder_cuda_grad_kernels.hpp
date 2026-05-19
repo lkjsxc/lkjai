@@ -21,5 +21,15 @@ void decoder_cuda_add_signed_hidden_grad(const void* hidden_row_bf16,
                                          cudaStream_t stream);
 void decoder_cuda_add_constant_grad(float* grad, int elements, float scale,
                                     cudaStream_t stream);
+void decoder_cuda_f32_to_bf16(const float* src, void* dst_bf16, int elements,
+                              cudaStream_t stream);
+void decoder_cuda_add_f32(const float* src, float* dst, int elements,
+                          cudaStream_t stream);
+void decoder_cuda_add_bf16_to_f32(const void* src_bf16, float* dst,
+                                  int elements, cudaStream_t stream);
+void decoder_cuda_add_input_embedding_grad(const uint16_t* tokens,
+                                           const void* grad_hidden_bf16,
+                                           float* grad, int rows, int vocab,
+                                           int hidden, cudaStream_t stream);
 
 }  // namespace lkjai

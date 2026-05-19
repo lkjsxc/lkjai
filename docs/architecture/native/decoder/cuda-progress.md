@@ -37,15 +37,15 @@ First CUDA progress after foundation:
   compares final hidden/logits against the host reference on
   `decoder_debug_bf16`.
 - Current training hook: decoder training uses the full CUDA forward stack,
-  CUDA CE/loss-gradient helper, diagnostic CUDA registry gradients, and
-  registry-wide CUDA AdamW for every decoder tensor. Reports name
+  CUDA CE/loss-gradient helper, chain-rule CUDA backward, and registry-wide
+  CUDA AdamW for every decoder tensor. Reports name
   `decoder_cuda_slice=full_decoder`,
-  `decoder_backward_backend=cuda_diagnostic_synthetic`, and
-  `decoder_gradient_source=cuda_device_diagnostic`, and remain non-accepted
-  until real backward, SDPA, decode, route, and RTX 3070 evidence gates pass.
-- Current backward substrate hook: residual-add backward and SwiGLU backward
-  kernels have direct parity tests, but they are not wired into training
-  reports or optimizer evidence.
+  `decoder_backward_backend=cuda_decoder_chain_rule`, and
+  `decoder_gradient_source=cuda_device`, and remain non-accepted until SDPA,
+  decode, route, and RTX 3070 evidence gates pass.
+- Current backward substrate hook: final norm, projection, residual, SwiGLU,
+  attention, inverse RoPE, RMSNorm, and embedding scatter backward are wired
+  into training reports and optimizer evidence.
 - Current decode hook: decoder chat executes native CUDA prefill and
   incremental token steps, writes real BF16 K/V tensors into a contiguous device
   cache, and exposes partial non-accepted runtime disclosure fields.
