@@ -85,15 +85,6 @@ TransformerState DecoderCudaState::copy_to_host() {
   return state_;
 }
 
-void DecoderCudaState::fill_report(TransformerTrainReport* report) {
-  decoder_fill_full_cuda_report(dense_cuda_, registry_shadow_bytes_, report);
-  report->workspace_high_water_bytes =
-      std::max<uint64_t>(report->workspace_high_water_bytes,
-                         dense_cuda_.workspace_high_water_bytes() +
-                             workspace_.high_water_bytes() +
-                             registry_shadow_bytes_);
-}
-
 void DecoderCudaState::record_weight_change(const TransformerState& before,
                                             TransformerTrainReport* report) {
   auto after = copy_to_host();
@@ -137,11 +128,14 @@ void DecoderCudaState::build_registry() {
 }
 
 void DecoderCudaState::copy_registry_to_host() {
+  full_registry_d2h_bytes_ = 0;
   for (auto& t : registry_) {
     t.param->w = t.weight.copy_to_host_f32(ctx_.stream());
     t.param->m = t.moment_m.copy_to_host_f32(ctx_.stream());
     t.param->v = t.moment_v.copy_to_host_f32(ctx_.stream());
     t.param->g = t.grad.copy_to_host_f32(ctx_.stream());
+    full_registry_d2h_bytes_ += t.weight.bytes() + t.moment_m.bytes() +
+                                t.moment_v.bytes() + t.grad.bytes();
   }
 }
 

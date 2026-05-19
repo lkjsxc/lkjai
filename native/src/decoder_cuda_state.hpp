@@ -16,12 +16,6 @@ struct DecoderCudaStepResult {
   std::vector<float> logits;
 };
 
-class DecoderCudaLayerBackward {
- public:
-  bool available() const { return false; }
-  const char* backend_name() const { return "not_implemented"; }
-};
-
 class DecoderCudaState {
  public:
   struct RegistryTensor {
@@ -63,6 +57,10 @@ class DecoderCudaState {
   void sync_registry_from_host();
   void sync_registry_grads_from_host();
   void refresh_layer_forwards();
+  void refresh_layer_forwards_from_registry();
+  bool decoder_parity_sample_this_step();
+  void record_decoder_parity(double loss, const std::vector<float>* logits,
+                             const PackedBatch& batch, bool compare_logits);
   void ensure_tape_capacity(int rows, int vocab, int hidden, int layers);
   void run_device_backward(float loss, int batch_size, int sequence_len,
                            int capture_row, float grad_scale,
@@ -83,6 +81,15 @@ class DecoderCudaState {
   DecoderCudaTape tape_;
   std::vector<RegistryTensor> registry_;
   uint64_t registry_shadow_bytes_ = 0;
+  uint64_t optimizer_step_d2h_bytes_ = 0;
+  uint64_t full_registry_d2h_bytes_ = 0;
+  std::string parity_mode_ = "off";
+  int parity_interval_ = 128;
+  int parity_calls_ = 0;
+  std::string parity_sample_status_ = "not_sampled";
+  double parity_sample_loss_diff_ = 0.0;
+  double parity_sample_logits_max_diff_ = 0.0;
+  double parity_sample_logits_mean_diff_ = 0.0;
 };
 
 }  // namespace lkjai

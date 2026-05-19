@@ -1,7 +1,7 @@
 # Training
 
-Owner: `training/README.md`.
-State: canonical documentation.
+Owner: `docs/architecture/training/README.md`.
+State: navigation and local operator notes.
 
 
 ## Purpose

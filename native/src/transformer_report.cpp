@@ -6,6 +6,7 @@
 #include "json_min.hpp"
 #include "train_report_digest.hpp"
 #include "transformer_report_acceptance.hpp"
+#include "transformer_report_decoder_fields.hpp"
 #ifndef LKJAI_GIT_COMMIT
 #define LKJAI_GIT_COMMIT "unknown"
 #endif
@@ -195,6 +196,5 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
        << ",\"export\":" << report.export_seconds << "}"
        << ",\"capability\":{" << capability_json_fields(cuda) << "}";
 } }  // namespace
-std::string transformer_train_report_json(const TransformerTrainReport& report, const CudaStatus& cuda, const std::string& trainer_mode, const std::string& status, const std::string& failure_reason) {
-  std::ostringstream out; append_transformer(&out, report, cuda, trainer_mode, status, failure_reason); out << "}"; return out.str(); }
+std::string transformer_train_report_json(const TransformerTrainReport& report, const CudaStatus& cuda, const std::string& trainer_mode, const std::string& status, const std::string& failure_reason) { std::ostringstream out; append_transformer(&out, report, cuda, trainer_mode, status, failure_reason); out << transformer_decoder_runtime_report_json_fields(report) << "}"; return out.str(); }
 }  // namespace lkjai

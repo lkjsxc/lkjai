@@ -136,6 +136,14 @@ int main() {
   auto expected = cuda_state.copy_to_host();
   lkjai::transformer_adamw(&expected, 1.0e-3f, 1);
   cuda_state.optimizer_step(1.0e-3f, 1);
+  lkjai::TransformerTrainReport report;
+  cuda_state.fill_report(&report);
+  if (report.optimizer_step_d2h_bytes != 0 ||
+      report.decoder_parity_mode != "off" ||
+      report.decoder_parity_sample_status != "not_sampled") {
+    std::cerr << "decoder optimizer residency/parity defaults failed\n";
+    return 1;
+  }
   auto updated = cuda_state.copy_to_host();
   double optimizer_diff =
       std::max(max_abs_diff(expected.tok_embeddings.w,

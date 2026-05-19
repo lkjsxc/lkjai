@@ -17,12 +17,11 @@ State: canonical documentation.
 - Train and serve a commercial-safe scratch model through native C++/CUDA
   product binaries. The active default is about `40M` parameters for the
   current corpus; `60M` remains a later scale target.
-- Keep the dense 40M browser diagnostics as the accepted foundation surface:
-  dense local APIs expose logits, top-k, checksum, and provenance without
-  claiming decoder chat.
-- Accepted dense 40M training uses
-  `configs/training/dense_40m_accepted_3070.json` with
-  `configs/native/native_dense_40m_bf16_3070.json`.
+- Make `decoder-40m-3070` the accepted training and chat-serving target.
+  Dense diagnostics remain non-chat support tooling.
+- Accepted decoder 40M training uses
+  `configs/training/decoder_2h_40m_3070.json` with
+  `configs/native/decoder_40m_bf16_3070.json`.
 - Keep the runtime LLM-readable: paired XML-like prompt sections and one
   XML-like assistant action with child tags only.
 - Make canonical XML-like prompt and action tags single tokenizer tokens.

@@ -46,7 +46,7 @@ Run one measurable long training job for the 3070-first decoder 40M model.
   `--max-steps` overrides both.
 - `TRAIN_LEARNING_RATE`: AdamW learning rate; `--lr` overrides it.
 - `TRAIN_WARMUP_STEPS`: linear warmup optimizer steps.
-- `TRAIN_TARGET_SECONDS`: optional wall-clock deadline for dense long runs.
+- `TRAIN_TARGET_SECONDS`: optional wall-clock deadline for decoder long runs.
 - `TRAIN_SAVE_LATEST_EVERY_OPTIMIZER_STEPS`: checkpoint cadence;
   `--checkpoint-interval` overrides it.
 - `TRAIN_SEED`: overrides the native config seed.
@@ -73,11 +73,22 @@ unknown training-config keys instead of silently ignoring them.
 ## RTX 3070 Presets
 
 - `native_debug_bf16.json`: routine debug shape.
-- `native_dense_20m_bf16_3070.json`: explicit dense 20M-size seq1024 shape
-  for the two-hour BF16 runner.
-- `native_dense_40m_bf16_3070.json`: accepted dense 40M-size seq1024 shape for
-  browser-demo long runs.
+- `decoder_40m_bf16_3070.json`: accepted decoder 40M seq1024 target.
+- `native_dense_40m_bf16_3070.json`: dense 40M historical profile.
 - `native_40m_bf16.json`: legacy scratch 40M shape for bounded manual runs.
+
+## Decoder 40M Defaults
+
+`configs/training/decoder_2h_40m_3070.json` is the source of truth:
+
+- sequence length `1024`
+- batch size `1`
+- gradient accumulation `16`
+- learning rate `0.0003`
+- warmup `128` optimizer steps
+- optimizer-step cap `1000000`
+- wall-clock target `7200` seconds
+- latest-checkpoint cadence `512` optimizer steps
 
 ## Accounting
 
@@ -108,31 +119,36 @@ running the full long job:
 
 ```bash
 docker compose --profile train run --rm \
-  -e DATA_DIR=/app/data/train-start-check \
+  -e DATA_DIR=/app/data/train-start-check-decoder \
   -e TRAIN_MAX_OPTIMIZER_STEPS=1 \
-  -e TRAIN_NATIVE_CONFIG=/workspace/configs/native/native_dense_40m_bf16_3070.json \
-  train --train
+  -e TRAIN_CONFIG=/workspace/configs/training/decoder_2h_40m_3070.json \
+  -e TRAIN_NATIVE_CONFIG=/workspace/configs/native/decoder_40m_bf16_3070.json \
+  -e TRAIN_PACKED_CACHE_DIR=/app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
+  -e LKJAI_DECODER_ATTENTION_BACKEND=cudnn_sdpa \
+  train --train --mode decoder
 ```
 
 ## Deadline Run
 
-Wall-clock deadline stopping is implemented for dense and decoder native runs.
-The accepted dense config uses a two-hour deadline plus optimizer-step cap:
+Wall-clock deadline stopping is implemented for decoder native runs. The
+accepted config uses a two-hour deadline plus optimizer-step cap:
 
 ```bash
 docker compose --profile train run -d \
-  --name lkjai-dense-40m-accepted-20260512 \
-  -e DATA_DIR=/app/data/dense-40m-accepted-20260512 \
-  -e TRAIN_CONFIG=/workspace/configs/training/dense_40m_accepted_3070.json \
+  --name lkjai-decoder-40m-accepted-20260519 \
+  -e DATA_DIR=/app/data/decoder-40m-accepted-20260519 \
+  -e TRAIN_CONFIG=/workspace/configs/training/decoder_2h_40m_3070.json \
+  -e TRAIN_NATIVE_CONFIG=/workspace/configs/native/decoder_40m_bf16_3070.json \
+  -e LKJAI_DECODER_ATTENTION_BACKEND=cudnn_sdpa \
   train
 ```
 
-Monitor with `docker logs -f lkjai-dense-40m-accepted-20260512`.
+Monitor with `docker logs -f lkjai-decoder-40m-accepted-20260519`.
 
-## Two-Hour Dense BF16 Run
+## Two-Hour Decoder BF16 Run
 
 Use the train Compose profile for reproducible RTX 3070 two-hour jobs. Build
-and validate the seq1024 cache first, then start the default dense 40M command:
+and validate the seq1024 cache first, then start the default decoder command:
 
 ```bash
 docker compose --profile corpus run --build --rm corpus build-tokenizer
@@ -142,5 +158,5 @@ docker compose --profile train up --build train
 ```
 
 The runner stores raw outputs under
-`artifacts/benchmarks/<run-id>/dense_2h_bf16_cuda/repeat-01/` and training
-artifacts under `data/perf-runs/<run-id>/dense_2h_bf16_cuda/`.
+`artifacts/benchmarks/<run-id>/decoder_2h_bf16_cuda/repeat-01/` and training
+artifacts under `data/perf-runs/<run-id>/decoder_2h_bf16_cuda/`.

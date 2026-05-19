@@ -32,6 +32,7 @@ add_executable(lkjai-native-repo-check
   src/repo_check_main.cpp
   src/repo_check_common.cpp
   src/repo_check_docs.cpp
+  src/repo_check_decoder_docs.cpp
   src/repo_check_words.cpp
   src/repo_check_quality.cpp
   src/repo_check_contracts.cpp

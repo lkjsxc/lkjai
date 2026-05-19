@@ -8,6 +8,7 @@
 namespace lkjai {
 
 struct DecoderCudaForwardSubstrateReport;
+struct NativeTokenizer;
 
 DenseConfig decoder_dense_cfg(const TransformerConfig& cfg);
 DenseTrainState decoder_dense_state(const DenseConfig& cfg,
@@ -39,5 +40,10 @@ void decoder_record_full_weight_change(const TransformerState& before,
                                        TransformerTrainReport* report);
 bool decoder_write_acceptance_sidecars(const TransformerTrainReport& report,
                                        std::string* error);
+bool decoder_probe_generate_acceptance(const TransformerState& state,
+                                       const NativeTokenizer& tokenizer,
+                                       TransformerTrainReport* report,
+                                       std::string* error);
+void decoder_mark_accepted_decoder_if_ready(TransformerTrainReport* report);
 
 }  // namespace lkjai

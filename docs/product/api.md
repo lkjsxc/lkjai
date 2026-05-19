@@ -99,7 +99,8 @@ beside the artifact and a loaded 40M RTX 3070 decoder shape; a sidecar alone
 does not promote the response. Non-accepted decoder route responses report
 `lkjai_decode_backend=cuda_reference_kv_cache`,
 `lkjai_kv_cache_backend=cuda_contiguous_bf16_partial`,
-`lkjai_decode_supported=true`, and `lkjai_decode_accepted=false`.
+`lkjai_decode_supported=true`, `lkjai_sampler_backend`, and
+`lkjai_decode_accepted=false`.
 
 The exact `/v1/*` route names exist only for OpenAI-compatible clients. Local
 runtime routes stay under unnumbered `/api/*` names.

@@ -19,6 +19,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/decoder_kv_cache_cuda.cu
   src/decoder_kv_cache_lifetime.cpp
   src/decoder_cuda_block.cu
+  src/decoder_cuda_acceptance_probe.cpp
   src/decoder_cuda_attention_backward.cu
   src/decoder_cuda_cached_attention.cu
   src/decoder_cuda_rope_backward.cu
@@ -29,23 +30,28 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/decoder_cuda_block_probe.cpp
   src/decoder_cuda_block_project.cu
   src/decoder_cuda_project_backward.cu
+  src/decoder_cuda_registry_refresh.cpp
   src/decoder_cuda_block_shape.cpp
   src/decoder_cuda_backward.cpp
   src/decoder_cuda_full_forward.cpp
   src/decoder_cuda_layer_backward.cpp
   src/decoder_cuda_layer_forward.cpp
   src/decoder_cuda_layer_train.cpp
+  src/decoder_cuda_layer_weight_sync.cpp
   src/decoder_cuda_norm.cu
   src/decoder_cuda_optimizer.cpp
+  src/decoder_cuda_parity.cpp
   src/decoder_cuda_report.cpp
   src/decoder_cuda_residual.cu
   src/decoder_cuda_slice_block.cpp
   src/decoder_cuda_slice.cpp
   src/decoder_cuda_slice_util.cpp
   src/decoder_cuda_state.cpp
+  src/decoder_cuda_state_report.cpp
   src/decoder_cuda_tape.cpp
   src/decoder_cuda_tape_debug.cpp
   src/decoder_cuda_train_forward.cpp
+  src/decoder_cuda_weight_sync.cu
   src/decoder_weight_change.cpp
   src/dense_checkpoint.cpp
   src/dense_cuda.cu
@@ -104,6 +110,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/transformer_optim.cpp
   src/transformer_report.cpp
   src/transformer_report_acceptance.cpp
+  src/transformer_report_decoder_fields.cpp
   src/transformer_report_route_acceptance.cpp
   src/transformer_report_io.cpp
   src/transformer_train.cpp

@@ -157,9 +157,17 @@ struct TransformerTrainReport {
   int trainable_tensor_count = 0;
   uint64_t cublaslt_workspace_bytes = 0;
   uint64_t workspace_high_water_bytes = 0;
+  uint64_t optimizer_step_d2h_bytes = 0;
+  uint64_t full_registry_d2h_bytes = 0;
   int workspace_reallocations = 0;
   uint64_t kv_cache_prefill_allocated_bytes = 0;
   int kv_cache_steady_state_token_allocations = 0;
+  std::string decoder_parity_mode = "off";
+  int decoder_parity_interval = 128;
+  std::string decoder_parity_sample_status = "not_sampled";
+  double decoder_parity_sample_loss_diff = 0.0;
+  double decoder_parity_sample_logits_max_diff = 0.0;
+  double decoder_parity_sample_logits_mean_diff = 0.0;
 };
 
 bool load_transformer_config(const std::filesystem::path& path,

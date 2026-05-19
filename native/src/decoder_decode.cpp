@@ -156,6 +156,8 @@ bool decoder_chat_json(const std::filesystem::path& model_dir,
           std::to_string(generated.steady_state_token_allocations) +
           ",\"lkjai_decode_cuda_kv_cache_used\":" +
           std::string(generated.cuda_kv_cache_used ? "true" : "false") +
+          ",\"lkjai_sampler_backend\":\"" +
+          json_escape(generated.sampler_backend) + "\""
           ",\"lkjai_decode_workspace_bytes\":" +
           std::to_string(generated.workspace_bytes) + ","
           "\"lkjai_decode_supported\":true"

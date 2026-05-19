@@ -1,10 +1,11 @@
 # Native Product Runtime
 
-Owner: `native/README.md`.
-State: canonical documentation.
+Owner: `docs/architecture/native/README.md`.
+State: navigation and local operator notes.
 
 
-This directory owns the C++/CUDA product path.
+This directory contains the C++/CUDA product path. Behavior contracts live
+under `docs/`; keep this file limited to navigation and local build notes.
 
 ## Contents
 

@@ -1,5 +1,4 @@
 #include "repo_check.hpp"
-
 #include <algorithm>
 #include <cctype>
 #include <fstream>
@@ -11,6 +10,7 @@
 #include "transformer_train.hpp"
 
 namespace lkjai {
+void check_decoder_doc_defaults(const std::filesystem::path& repo, RepoCheckResult* result);
 namespace {
 std::string read(const std::filesystem::path& path) {
   std::ifstream file(path);
@@ -182,6 +182,7 @@ int check_config_contract(const std::filesystem::path& repo) {
   }
   check_decoder_acceptance_config(repo, &result);
   check_decoder_train_compose_contract(repo, &result);
+  check_decoder_doc_defaults(repo, &result);
   return result.errors == 0 ? 0 : 1;
 }
 int check_cuda_arch_contract(const std::filesystem::path& repo) {
@@ -192,9 +193,8 @@ int check_cuda_arch_contract(const std::filesystem::path& repo) {
                         "LKJAI_CUDA_ARCHS", "CMAKE_CUDA_ARCHITECTURES"}) {
     require_contains(cmake, required, &result);
   }
-  require_contains(repo / "compose.yaml", "LKJAI_CUDA_ARCHS", &result);
-  require_contains(repo / "ops/docker/Dockerfile.native", "LKJAI_CUDA_ARCHS", &result);
-  require_contains(repo / "ops/docker/Dockerfile.verify", "LKJAI_CUDA_ARCHS", &result);
+  for (auto p : {"compose.yaml", "ops/docker/Dockerfile.native", "ops/docker/Dockerfile.verify"})
+    require_contains(repo / p, "LKJAI_CUDA_ARCHS", &result);
   return result.errors == 0 ? 0 : 1;
 }
 }  // namespace lkjai

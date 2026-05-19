@@ -9,6 +9,7 @@ void DecoderCudaState::sync_registry_grads_from_host() {
 }
 
 void DecoderCudaState::optimizer_step(float lr, int step) {
+  optimizer_step_d2h_bytes_ = 0;
   for (auto& t : registry_) {
     dense_launch_adamw(static_cast<float*>(t.weight.data()),
                        static_cast<float*>(t.moment_m.data()),
@@ -17,10 +18,9 @@ void DecoderCudaState::optimizer_step(float lr, int step) {
                        static_cast<int>(t.weight.spec().elements()), lr, step,
                        ctx_.stream());
   }
-  copy_registry_to_host();
-  refresh_layer_forwards();
+  refresh_layer_forwards_from_registry();
   require_cuda(cudaStreamSynchronize(ctx_.stream()),
-               "decoder full-state adamw sync");
+               "decoder full-state adamw device sync");
 }
 
 }  // namespace lkjai

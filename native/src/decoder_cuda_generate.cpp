@@ -28,6 +28,9 @@ bool DecoderCudaInferenceSession::generate(
     DecoderCudaGenerateResult* result, std::string* error) {
   try {
     DecoderCudaGenerateResult local;
+    local.sampler_backend = sampler.temperature <= 0.0f
+                                ? "host_full_vocab"
+                                : "cuda_topk_host_topp";
     int prefill = std::min<int>(prompt_tokens.size(), context_size());
     std::vector<uint16_t> window(prompt_tokens.end() - prefill,
                                  prompt_tokens.end());

@@ -15,9 +15,6 @@ namespace lkjai {
 namespace {
 
 constexpr size_t kWorkspaceBytes = 4 * 1024 * 1024;
-constexpr double kLossTolerance = 0.15;
-constexpr double kLogitsMaxTolerance = 0.08;
-constexpr double kLogitsMeanTolerance = 0.025;
 
 double since(std::chrono::steady_clock::time_point start) {
   return std::chrono::duration<double>(std::chrono::steady_clock::now() - start)
@@ -35,27 +32,6 @@ int last_supervised_row(const PackedBatch& batch) {
     }
   }
   return last;
-}
-
-void compare_logits(const std::vector<float>& got,
-                    const std::vector<float>& want) {
-  if (got.size() != want.size()) {
-    throw std::runtime_error("decoder CUDA logits parity size mismatch");
-  }
-  double max_abs = 0.0;
-  double mean_abs = 0.0;
-  for (size_t i = 0; i < got.size(); ++i) {
-    if (!std::isfinite(got[i])) {
-      throw std::runtime_error("decoder CUDA logits contain non-finite value");
-    }
-    double diff = std::abs(static_cast<double>(got[i]) - want[i]);
-    max_abs = std::max(max_abs, diff);
-    mean_abs += diff;
-  }
-  if (!got.empty()) mean_abs /= static_cast<double>(got.size());
-  if (max_abs > kLogitsMaxTolerance || mean_abs > kLogitsMeanTolerance) {
-    throw std::runtime_error("decoder CUDA logits parity check failed");
-  }
 }
 
 }  // namespace
@@ -162,12 +138,12 @@ double DecoderCudaState::forward_backward(
     }
   }
 
-  auto host_fwd = transformer_forward(batch, state_);
-  if (!std::isfinite(cuda_loss) ||
-      std::abs(cuda_loss - host_fwd.loss) > kLossTolerance) {
-    throw std::runtime_error("decoder CUDA loss parity check failed");
+  if (!std::isfinite(cuda_loss)) {
+    throw std::runtime_error("decoder CUDA loss contains non-finite value");
   }
-  if (logits && capture_row >= 0) compare_logits(*logits, host_fwd.loss_logits);
+  if (decoder_parity_sample_this_step()) {
+    record_decoder_parity(cuda_loss, logits, batch, capture_row >= 0);
+  }
 
   phase = std::chrono::steady_clock::now();
   run_device_backward(static_cast<float>(cuda_loss), batch.batch_size,

@@ -13,6 +13,18 @@ namespace lkjai {
 
 struct DecoderCudaLayerTape;
 
+struct DecoderCudaLayerDeviceWeights {
+  const DeviceTensor* attn_norm = nullptr;
+  const DeviceTensor* q_proj = nullptr;
+  const DeviceTensor* k_proj = nullptr;
+  const DeviceTensor* v_proj = nullptr;
+  const DeviceTensor* o_proj = nullptr;
+  const DeviceTensor* mlp_norm = nullptr;
+  const DeviceTensor* gate_proj = nullptr;
+  const DeviceTensor* up_proj = nullptr;
+  const DeviceTensor* down_proj = nullptr;
+};
+
 struct DecoderCudaLayerCacheView {
   DecoderKvCache* cache = nullptr;
   int layer = 0;
@@ -36,6 +48,7 @@ class DecoderCudaLayerForward {
   void run_train(const DeviceTensor& x, int batch, int seq,
                  DecoderCudaLayerTape* tape,
                  DecoderCudaForwardSubstrateReport* report);
+  void refresh_from_device(const DecoderCudaLayerDeviceWeights& weights);
   uint64_t workspace_high_water_bytes() const;
   const DeviceTensor& wq() const { return wq_; }
   const DeviceTensor& wk() const { return wk_; }
