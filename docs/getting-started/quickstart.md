@@ -126,6 +126,9 @@ docker compose --profile train run --rm \
   -e DATA_DIR=/app/data/train-start-check \
   -e TRAIN_MAX_OPTIMIZER_STEPS=1 \
   -e TRAIN_MAX_STEPS=1 \
+  -e TRAIN_TOKENIZER=/app/data/train/tokenizer/tokenizer.json \
+  -e TRAIN_DECODER_PARITY_MODE=sampled \
+  -e TRAIN_DECODER_PARITY_FIRST_STEPS=1 \
   train --train
 ```
 

@@ -36,39 +36,22 @@ bool accepted_decode_support(const TransformerTrainReport& r) {
          r.kv_cache_steady_state_token_allocations == 0;
 }
 
+bool accepted_runtime_evidence(const TransformerTrainReport& r) {
+  const auto& e = r.decoder_runtime_evidence;
+  return e.cudnn_sdpa_forward_count > 0 && e.cudnn_sdpa_backward_count > 0 &&
+         e.attention_reference_forward_count == 0 &&
+         e.attention_reference_backward_count == 0 &&
+         e.cudnn_sdpa_workspace_bytes > 0 &&
+         r.decoder_parity_sample_count > 0 &&
+         r.decoder_parity_failure_count == 0;
+}
+
 bool accepted_40m_3070_shape(const TransformerTrainReport& r) {
   return r.config_path.filename() == "decoder_40m_bf16_3070.json" &&
          r.train_config_path.filename() == "decoder_2h_40m_3070.json" &&
          r.target_seconds >= 7200 && r.seq_len == 1024 && r.context == 1024 &&
          r.layers == 10 && r.hidden_size == 576 && r.heads == 8 &&
          r.kv_heads == 2 && r.head_dim == 72 && r.ffn_size == 1536;
-}
-
-bool route_report_shape_ok(std::string_view body) {
-  return json_int_value(body, "target_seconds", 0) >= 7200 && json_int_value(body, "seq_len", 0) == 1024 &&
-         json_int_value(body, "context", 0) == 1024 && json_int_value(body, "layers", 0) == 10 &&
-         json_int_value(body, "hidden_size", 0) == 576 && json_int_value(body, "heads", 0) == 8 &&
-         json_int_value(body, "kv_heads", 0) == 2 && json_int_value(body, "head_dim", 0) == 72 &&
-         json_int_value(body, "ffn_size", 0) == 1536;
-}
-
-double json_double_after(std::string_view text, std::string_view needle) {
-  auto pos = text.find(needle);
-  if (pos == std::string_view::npos) return 0.0;
-  pos += needle.size();
-  try {
-    return std::stod(std::string(text.substr(pos)));
-  } catch (...) {
-    return 0.0;
-  }
-}
-
-bool require_artifact(const std::filesystem::path& dir, std::string_view label,
-                      std::string* error) {
-  if (!std::filesystem::is_regular_file(dir / "manifest.json")) {
-    *error = std::string(label) + " artifact manifest missing"; return false;
-  }
-  return true;
 }
 
 }  // namespace
@@ -83,6 +66,7 @@ bool transformer_report_shape_accepted_decoder(const TransformerTrainReport& r) 
          r.decoder_backward_backend == "cuda_full_decoder" &&
          r.decoder_gradient_source == "cuda_device" &&
          !rejected_diagnostic_backend(r) &&
+         accepted_runtime_evidence(r) &&
          accepted_decode_support(r) && r.logits_check_passed &&
          std::isfinite(r.loss) && r.steps > 0 && r.loss_tokens > 0 &&
          r.trainable_weight_changed && r.non_embedding_weight_changed &&
@@ -92,82 +76,6 @@ bool transformer_report_shape_accepted_decoder(const TransformerTrainReport& r) 
 }
 
 bool transformer_report_accepted_decoder(const TransformerTrainReport& r) { return transformer_report_shape_accepted_decoder(r); }
-
-bool transformer_emitted_decoder_evidence_accepted(
-    const std::filesystem::path& train_report, std::string* error) {
-  auto body = read_text(train_report);
-  if (body.empty()) {
-    *error = "missing train-report.json";
-    return false;
-  }
-  if (!contains_json_string(body, "status", "success") ||
-      !contains_json_string(body, "model_kind", "decoder") ||
-      !contains_json_string(body, "implementation_status", "accepted")) {
-    *error = "train report is not successful accepted decoder evidence";
-    return false;
-  }
-  if (!json_bool_value(body, "accepted_cuda_training", false) || !json_bool_value(body, "logits_check_passed", false) ||
-      !json_bool_value(body, "decode_supported", false)) {
-    *error = "train report missing required accepted booleans";
-    return false;
-  }
-  if (json_int_value(body, "optimizer_steps", 0) <= 0 || json_int_value(body, "loss_tokens", 0) <= 0 ||
-      !json_bool_value(body, "loss_finite", false)) {
-    *error = "train report missing positive step/loss evidence";
-    return false;
-  }
-  if (!json_bool_value(body, "trainable_weight_changed", false) || !json_bool_value(body, "non_embedding_weight_changed", false) ||
-      !json_bool_value(body, "decoder_block_weight_changed", false)) {
-    *error = "train report missing decoder weight-change booleans";
-    return false;
-  }
-  if (json_double_after(body, "\"non_embedding\":{\"max_abs_delta\":") <= 0.0 ||
-      json_double_after(body, "\"decoder_block\":{\"max_abs_delta\":") <= 0.0) {
-    *error = "train report missing positive decoder quantitative deltas";
-    return false;
-  }
-  if (!contains_json_string(body, "attention_backend", kDecoderAcceptedAttentionBackend) ||
-      !contains_json_string(body, "decoder_cuda_slice", "full_decoder") || !contains_json_string(body, "forward_backend", "cuda_full_decoder") ||
-      !contains_json_string(body, "backward_backend", "cuda_full_decoder") || !contains_json_string(body, "decoder_backward_backend", "cuda_full_decoder") ||
-      !contains_json_string(body, "decoder_gradient_source", "cuda_device")) {
-    *error = "train report missing accepted CUDA decoder backends";
-    return false;
-  }
-  auto actual_backward = json_first_string(body, "decoder_backward_backend");
-  auto actual_gradient = json_first_string(body, "decoder_gradient_source");
-  auto actual_attention = json_first_string(body, "attention_backend");
-  auto actual_decode = json_first_string(body, "decode_backend");
-  if (actual_backward == "cuda_diagnostic_synthetic" || actual_gradient == "cuda_device_diagnostic" ||
-      actual_gradient == "host_reference" || actual_attention == kDecoderReferenceAttentionBackend ||
-      actual_decode == kDecoderPartialDecodeBackend || actual_decode == kDecoderRuntimePartialDecodeBackend) {
-    *error = "train report contains diagnostic or partial decoder evidence";
-    return false;
-  }
-  if (!contains_json_string(body, "decode_backend", kDecoderAcceptedDecodeBackend) || !contains_json_string(body, "kv_cache_backend", kDecoderAcceptedKvCacheBackend)) {
-    *error = "train report missing accepted decode backends";
-    return false;
-  }
-  if (json_int_value(body, "kv_cache_prefill_allocated_bytes", 0) <= 0 || json_int_value(body, "kv_cache_steady_state_token_allocations", -1) != 0) {
-    *error = "train report missing KV allocation accounting";
-    return false;
-  }
-  if (!contains_json_string(body, "status", "pass")) {
-    *error = "train report missing passing logits status";
-    return false;
-  }
-  if (!route_report_shape_ok(body)) {
-    *error = "train report is not the 40M RTX 3070 acceptance shape";
-    return false;
-  }
-  auto device = json_first_string(body, "cuda_device_name");
-  if (device.find("RTX 3070") == std::string::npos) {
-    *error = "train report is not RTX 3070 evidence";
-    return false;
-  }
-  return require_artifact(json_first_string(body, "checkpoint_path"), "checkpoint", error) &&
-         require_artifact(json_first_string(body, "export_path"), "export", error) &&
-         require_artifact(json_first_string(body, "served_path"), "served", error);
-}
 
 std::vector<std::string> transformer_report_limitations(
     const TransformerTrainReport& r, bool accepted_decoder) {

@@ -12,6 +12,7 @@ namespace lkjai {
 namespace {
 
 std::string read_file(const std::filesystem::path& path) {
+  if (!std::filesystem::is_regular_file(path)) return "";
   std::ifstream file(path);
   return {std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>()};
 }

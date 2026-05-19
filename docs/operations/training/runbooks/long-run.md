@@ -124,7 +124,9 @@ docker compose --profile train run --rm \
   -e TRAIN_CONFIG=/workspace/configs/training/decoder_2h_40m_3070.json \
   -e TRAIN_NATIVE_CONFIG=/workspace/configs/native/decoder_40m_bf16_3070.json \
   -e TRAIN_PACKED_CACHE_DIR=/app/data/train/datasets/packed/train-causal_lm_full-seq1024 \
-  -e LKJAI_DECODER_ATTENTION_BACKEND=cudnn_sdpa \
+  -e TRAIN_TOKENIZER=/app/data/train/tokenizer/tokenizer.json \
+  -e TRAIN_DECODER_PARITY_MODE=sampled \
+  -e TRAIN_DECODER_PARITY_FIRST_STEPS=1 \
   train --train --mode decoder
 ```
 
@@ -139,7 +141,10 @@ docker compose --profile train run -d \
   -e DATA_DIR=/app/data/decoder-40m-accepted-20260519 \
   -e TRAIN_CONFIG=/workspace/configs/training/decoder_2h_40m_3070.json \
   -e TRAIN_NATIVE_CONFIG=/workspace/configs/native/decoder_40m_bf16_3070.json \
-  -e LKJAI_DECODER_ATTENTION_BACKEND=cudnn_sdpa \
+  -e TRAIN_TOKENIZER=/app/data/train/tokenizer/tokenizer.json \
+  -e TRAIN_DECODER_PARITY_MODE=sampled \
+  -e TRAIN_DECODER_PARITY_INTERVAL=128 \
+  -e TRAIN_DECODER_PARITY_FIRST_STEPS=1 \
   train
 ```
 

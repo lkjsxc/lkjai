@@ -26,10 +26,8 @@ lkjai::TransformerTrainReport accepted_report() {
   r.decoder_gradient_source = "cuda_device";
   r.attention_backend = lkjai::kDecoderAcceptedAttentionBackend;
   r.non_embedding_weight_changed = true; r.decoder_block_weight_changed = true; r.trainable_weight_changed = true;
-  r.decoder_weight_change.embedding = {0.1, 2, 1};
-  r.decoder_weight_change.lm_head = {0.1, 2, 1};
-  r.decoder_weight_change.non_embedding = {0.2, 2, 1};
-  r.decoder_weight_change.decoder_block = {0.3, 2, 1};
+  r.decoder_weight_change.embedding = {0.1, 2, 1}; r.decoder_weight_change.lm_head = {0.1, 2, 1};
+  r.decoder_weight_change.non_embedding = {0.2, 2, 1}; r.decoder_weight_change.decoder_block = {0.3, 2, 1};
   r.decoder_weight_change.changed_tensors = 4;
   r.logits_check_passed = true;
   r.logits_check_json =
@@ -43,8 +41,9 @@ lkjai::TransformerTrainReport accepted_report() {
   r.train_config_path = "configs/training/decoder_2h_40m_3070.json";
   r.embedding_tying = "tok_embeddings:lm_head";
   r.kv_cache_backend = lkjai::kDecoderAcceptedKvCacheBackend; r.decode_backend = lkjai::kDecoderAcceptedDecodeBackend; r.decode_supported = true;
-  r.kv_cache_prefill_allocated_bytes = 4096;
-  r.kv_cache_steady_state_token_allocations = 0;
+  r.kv_cache_prefill_allocated_bytes = 4096; r.kv_cache_steady_state_token_allocations = 0;
+  r.decoder_runtime_evidence.cudnn_sdpa_forward_count = 10; r.decoder_runtime_evidence.cudnn_sdpa_backward_count = 10;
+  r.decoder_runtime_evidence.cudnn_sdpa_workspace_bytes = 8192; r.decoder_parity_sample_count = 1; r.decoder_parity_failure_count = 0;
   return r;
 }
 
@@ -60,14 +59,12 @@ bool acceptance_contract() {
   auto head_only = r;
   head_only.decoder_block_weight_changed = false;
   head_only.decoder_weight_change.decoder_block = {};
-  auto no_decode = r;
-  no_decode.decode_supported = false;
-  auto bad_logits = r;
-  bad_logits.logits_check_passed = false;
-  auto bad_kv_alloc = r;
-  bad_kv_alloc.kv_cache_prefill_allocated_bytes = 0;
-  auto bad_kv_steady = r;
-  bad_kv_steady.kv_cache_steady_state_token_allocations = 1;
+  auto no_decode = r; no_decode.decode_supported = false;
+  auto bad_logits = r; bad_logits.logits_check_passed = false;
+  auto bad_kv_alloc = r; bad_kv_alloc.kv_cache_prefill_allocated_bytes = 0;
+  auto bad_kv_steady = r; bad_kv_steady.kv_cache_steady_state_token_allocations = 1;
+  auto no_cudnn_runtime = r; no_cudnn_runtime.decoder_runtime_evidence = {};
+  auto no_parity = r; no_parity.decoder_parity_sample_count = 0;
   auto bad_partial_decode_claim = r;
   bad_partial_decode_claim.decode_backend = lkjai::kDecoderPartialDecodeBackend; bad_partial_decode_claim.kv_cache_backend = lkjai::kDecoderPartialKvCacheBackend; bad_partial_decode_claim.decode_supported = true;
   auto bad_loss = r;
@@ -91,6 +88,8 @@ bool acceptance_contract() {
            std::pair{&bad_logits, "failed logits check rejected"},
            std::pair{&bad_kv_alloc, "missing KV allocation rejected"},
            std::pair{&bad_kv_steady, "steady-state allocation rejected"},
+           std::pair{&no_cudnn_runtime, "missing cuDNN runtime rejected"},
+           std::pair{&no_parity, "missing parity sample rejected"},
            std::pair{&bad_partial_decode_claim, "partial decode support claim rejected"},
            std::pair{&bad_loss, "non-finite loss rejected"},
            std::pair{&no_steps, "zero steps rejected"},

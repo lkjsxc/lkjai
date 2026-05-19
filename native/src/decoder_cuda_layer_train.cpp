@@ -8,9 +8,11 @@
 #include <cuda_runtime.h>
 
 #include "decoder_cuda_block_internal.hpp"
+#include "decoder_cudnn_sdpa.hpp"
 #include "decoder_cuda_norm.hpp"
 #include "decoder_cuda_residual.hpp"
 #include "decoder_cuda_tape.hpp"
+#include "transformer_train.hpp"
 
 namespace lkjai {
 namespace {
@@ -34,7 +36,8 @@ void copy_bf16(const DeviceTensor& src, DeviceTensor* dst, int elements,
 
 void DecoderCudaLayerForward::run_train(
     const DeviceTensor& x, int batch, int seq, DecoderCudaLayerTape* tape,
-    DecoderCudaForwardSubstrateReport* report) {
+    DecoderCudaForwardSubstrateReport* report, bool use_cudnn_attention,
+    DecoderCudaRuntimeEvidence* evidence) {
   if (!tape) throw std::runtime_error("decoder CUDA training tape is null");
   DecoderCudaForwardSubstrateReport local_report;
   bool verify = report != nullptr;
@@ -73,10 +76,24 @@ void DecoderCudaLayerForward::run_train(
                               cfg_.head_dim, 0, cfg_.rope_theta,
                               ctx_->stream());
   report->rope_checked = checked(tape->q_rope) && checked(tape->k_rope);
-  decoder_launch_causal_gqa_attention_bf16(
-      tape->q_rope.data(), tape->k_rope.data(), tape->v.data(),
-      tape->attention_state.data(), batch, seq, cfg_.heads, cfg_.kv_heads,
-      cfg_.head_dim, ctx_->stream());
+  if (use_cudnn_attention) {
+    DecoderCudnnSdpaStats sdpa;
+    decoder_cudnn_sdpa_forward_bf16_gqa(
+        ctx_->cudnn(), workspace_, tape->q_rope.data(), tape->k_rope.data(),
+        tape->v.data(), tape->attention_state.data(), tape->sdpa_stats.data(),
+        {batch, seq, cfg_.heads, cfg_.kv_heads, cfg_.head_dim}, &sdpa);
+    if (evidence) {
+      evidence->cudnn_sdpa_forward_count += sdpa.executed ? 1 : 0;
+      evidence->cudnn_sdpa_workspace_bytes =
+          std::max(evidence->cudnn_sdpa_workspace_bytes, sdpa.workspace_bytes);
+    }
+  } else {
+    decoder_launch_causal_gqa_attention_bf16(
+        tape->q_rope.data(), tape->k_rope.data(), tape->v.data(),
+        tape->attention_state.data(), batch, seq, cfg_.heads, cfg_.kv_heads,
+        cfg_.head_dim, ctx_->stream());
+    if (evidence) ++evidence->attention_reference_forward_count;
+  }
   report->attention_checked = checked(tape->attention_state);
   decoder_cuda_project_bf16(ctx_->cublaslt(), ctx_->stream(),
                             tape->attention_state.data(), wo_.data(),

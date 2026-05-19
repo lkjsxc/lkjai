@@ -28,9 +28,13 @@ State: canonical training CUDA contract.
 
 ## Optional Acceleration
 
-- `TRAIN_COMPILE`, `TRAIN_AMP`, `TRAIN_ATTENTION_BACKEND`, activation
-  checkpointing, auto-batch, and CUDA Graph switches are backlog knobs until
-  the native trainer implements and reports them.
+- Decoder parity is controlled by `TRAIN_DECODER_PARITY_MODE` with `strict`,
+  `sampled`, or `final_only`, plus `TRAIN_DECODER_PARITY_INTERVAL` and
+  `TRAIN_DECODER_PARITY_FIRST_STEPS`. Accepted decoder training requires at
+  least one sampled parity pass and zero failures.
+- `TRAIN_COMPILE`, `TRAIN_AMP`, activation checkpointing, auto-batch, and CUDA
+  Graph switches are backlog knobs until the native trainer implements and
+  reports them.
 - cuBLASLt transformer projections, cuDNN SDPA, fused pointwise kernels, and
   CUDA Graphs are target optimization work after the dense CUDA foundation is
   stable. Dense LM-head GEMM may use cuBLASLt today.

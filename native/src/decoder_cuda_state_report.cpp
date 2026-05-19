@@ -5,6 +5,7 @@
 namespace lkjai {
 
 void DecoderCudaState::fill_report(TransformerTrainReport* report) {
+  report->decoder_runtime_evidence = runtime_evidence_;
   decoder_fill_full_cuda_report(dense_cuda_, registry_shadow_bytes_, report);
   report->workspace_high_water_bytes =
       std::max<uint64_t>(report->workspace_high_water_bytes,
@@ -21,6 +22,8 @@ void DecoderCudaState::fill_report(TransformerTrainReport* report) {
       parity_sample_logits_max_diff_;
   report->decoder_parity_sample_logits_mean_diff =
       parity_sample_logits_mean_diff_;
+  report->decoder_parity_sample_count = parity_sample_count_;
+  report->decoder_parity_failure_count = parity_failure_count_;
 }
 
 }  // namespace lkjai

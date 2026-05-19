@@ -23,7 +23,22 @@ std::string transformer_decoder_runtime_report_json_fields(
       << ",\"decoder_parity_sample_logits_max_diff\":"
       << report.decoder_parity_sample_logits_max_diff
       << ",\"decoder_parity_sample_logits_mean_diff\":"
-      << report.decoder_parity_sample_logits_mean_diff;
+      << report.decoder_parity_sample_logits_mean_diff
+      << ",\"decoder_parity_sample_count\":"
+      << report.decoder_parity_sample_count
+      << ",\"decoder_parity_failure_count\":"
+      << report.decoder_parity_failure_count
+      << ",\"cudnn_sdpa_forward_count\":"
+      << report.decoder_runtime_evidence.cudnn_sdpa_forward_count
+      << ",\"cudnn_sdpa_backward_count\":"
+      << report.decoder_runtime_evidence.cudnn_sdpa_backward_count
+      << ",\"attention_reference_forward_count\":"
+      << report.decoder_runtime_evidence.attention_reference_forward_count
+      << ",\"attention_reference_backward_count\":"
+      << report.decoder_runtime_evidence.attention_reference_backward_count
+      << ",\"cudnn_sdpa_workspace_bytes\":"
+      << static_cast<unsigned long long>(
+             report.decoder_runtime_evidence.cudnn_sdpa_workspace_bytes);
   return out.str();
 }
 

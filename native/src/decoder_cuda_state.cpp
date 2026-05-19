@@ -70,12 +70,14 @@ void each_param(TransformerState* state, Fn fn) {
 }  // namespace
 
 DecoderCudaState::DecoderCudaState(const TransformerConfig& cfg,
-                                   const TransformerState& initial)
+                                   const TransformerState& initial,
+                                   bool require_cudnn_attention)
     : state_(initial),
       ctx_(),
       dense_host_(decoder_dense_state(decoder_dense_cfg(cfg), initial)),
       dense_cuda_(dense_host_.cfg, dense_host_, &ctx_),
-      workspace_(ctx_.stream()) {
+      workspace_(ctx_.stream()),
+      require_cudnn_attention_(require_cudnn_attention) {
   build_registry();
   refresh_layer_forwards();
 }

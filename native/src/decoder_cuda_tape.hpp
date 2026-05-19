@@ -13,6 +13,7 @@ struct DecoderCudaLayerTape {
   DeviceTensor q_rope;
   DeviceTensor k_rope;
   DeviceTensor v;
+  DeviceTensor sdpa_stats;
   DeviceTensor attention_state;
   DeviceTensor o_proj;
   DeviceTensor attention_residual;

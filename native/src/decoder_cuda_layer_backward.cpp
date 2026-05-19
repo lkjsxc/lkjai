@@ -1,5 +1,6 @@
 #include "decoder_cuda_state.hpp"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <string>
@@ -7,6 +8,7 @@
 #include "decoder_cuda_block_internal.hpp"
 #include "decoder_cuda_grad_kernels.hpp"
 #include "decoder_cuda_norm.hpp"
+#include "decoder_cudnn_sdpa.hpp"
 #include "dense_cuda_internal.hpp"
 
 namespace lkjai {
@@ -109,11 +111,27 @@ DeviceTensor* DecoderCudaState::run_device_layer_backward(
       cfg.hidden_size, ws, kWorkspaceBytes, 1.0f);
   f32_to_bf16(l.grad_attention_state_f32, &l.grad_attention_state_bf16,
               hidden_elems, ctx_.stream());
-  decoder_launch_causal_gqa_attention_backward_bf16(
-      l.q_rope.data(), l.k_rope.data(), l.v.data(),
-      l.grad_attention_state_bf16.data(), l.grad_q_rope_bf16.data(),
-      l.grad_k_rope_bf16.data(), l.grad_v_bf16.data(), batch_size,
-      sequence_len, cfg.heads, cfg.kv_heads, cfg.head_dim, ctx_.stream());
+  if (require_cudnn_attention_) {
+    DecoderCudnnSdpaStats sdpa;
+    decoder_cudnn_sdpa_backward_bf16_gqa(
+        ctx_.cudnn(), &workspace_, l.q_rope.data(), l.k_rope.data(),
+        l.v.data(), l.attention_state.data(), l.grad_attention_state_bf16.data(),
+        l.sdpa_stats.data(), l.grad_q_rope_bf16.data(),
+        l.grad_k_rope_bf16.data(), l.grad_v_bf16.data(),
+        {batch_size, sequence_len, cfg.heads, cfg.kv_heads, cfg.head_dim},
+        &sdpa);
+    runtime_evidence_.cudnn_sdpa_backward_count += sdpa.executed ? 1 : 0;
+    runtime_evidence_.cudnn_sdpa_workspace_bytes =
+        std::max(runtime_evidence_.cudnn_sdpa_workspace_bytes,
+                 sdpa.workspace_bytes);
+  } else {
+    decoder_launch_causal_gqa_attention_backward_bf16(
+        l.q_rope.data(), l.k_rope.data(), l.v.data(),
+        l.grad_attention_state_bf16.data(), l.grad_q_rope_bf16.data(),
+        l.grad_k_rope_bf16.data(), l.grad_v_bf16.data(), batch_size,
+        sequence_len, cfg.heads, cfg.kv_heads, cfg.head_dim, ctx_.stream());
+    ++runtime_evidence_.attention_reference_backward_count;
+  }
   decoder_launch_rope_backward_bf16_at(
       l.grad_q_rope_bf16.data(), l.grad_q_pre_rope_bf16.data(), batch_size,
       sequence_len, cfg.heads, cfg.head_dim, 0, cfg.rope_theta, ctx_.stream());

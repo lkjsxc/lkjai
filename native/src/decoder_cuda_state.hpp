@@ -7,6 +7,7 @@
 #include "decoder_cuda_layer_forward.hpp"
 #include "decoder_cuda_tape.hpp"
 #include "dense_cuda_internal.hpp"
+#include "transformer_train.hpp"
 #include "transformer_state.hpp"
 
 namespace lkjai {
@@ -31,7 +32,8 @@ class DecoderCudaState {
   };
 
   DecoderCudaState(const TransformerConfig& cfg,
-                   const TransformerState& initial);
+                   const TransformerState& initial,
+                   bool require_cudnn_attention = false);
 
   double forward_backward(const PackedBatch& batch, std::vector<float>* logits,
                           double* h2d_seconds, double* forward_seconds,
@@ -83,9 +85,13 @@ class DecoderCudaState {
   uint64_t registry_shadow_bytes_ = 0;
   uint64_t optimizer_step_d2h_bytes_ = 0;
   uint64_t full_registry_d2h_bytes_ = 0;
+  bool require_cudnn_attention_ = false;
+  DecoderCudaRuntimeEvidence runtime_evidence_;
   std::string parity_mode_ = "off";
   int parity_interval_ = 128;
   int parity_calls_ = 0;
+  int parity_sample_count_ = 0;
+  int parity_failure_count_ = 0;
   std::string parity_sample_status_ = "not_sampled";
   double parity_sample_loss_diff_ = 0.0;
   double parity_sample_logits_max_diff_ = 0.0;

@@ -15,7 +15,6 @@
 
 namespace lkjai {
 namespace {
-
 double since(std::chrono::steady_clock::time_point start) {
   return std::chrono::duration<double>(std::chrono::steady_clock::now() - start)
       .count();
@@ -38,7 +37,6 @@ std::filesystem::path default_tokenizer_for_config(
   auto repo = configs_dir.parent_path();
   return repo / "data" / "train" / "tokenizer" / "tokenizer.json";
 }
-
 }  // namespace
 
 bool run_decoder_cuda_training(const TransformerTrainOptions& opt,
@@ -92,7 +90,9 @@ bool run_decoder_cuda_training(const TransformerTrainOptions& opt,
   TransformerState host_state;
   init_transformer_state(cfg, &host_state);
   auto before_state = host_state;
-  DecoderCudaState cuda(host_state.cfg, host_state);
+  bool require_cudnn_attention =
+      decoder_acceptance_path_required(opt, cfg, seq_len);
+  DecoderCudaState cuda(host_state.cfg, host_state, require_cudnn_attention);
   report->train_config_path = opt.train_config_path;
   report->run_purpose = opt.run_purpose;
   report->config_path = opt.config_path;

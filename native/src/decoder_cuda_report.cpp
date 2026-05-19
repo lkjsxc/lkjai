@@ -6,7 +6,6 @@
 #include <string>
 
 #include "decoder_decode.hpp"
-#include "env.hpp"
 #include "transformer_report_acceptance.hpp"
 
 namespace lkjai {
@@ -26,11 +25,13 @@ void decoder_fill_full_cuda_report(DenseCudaState& cuda,
   r->rmsnorm_backend = "cuda_bf16_fp32_reduce";
   r->rope_backend = "cuda_bf16";
   r->qkv_projection_backend = "cuda_bf16_cublaslt";
-  r->attention_backend =
-      env_string("LKJAI_DECODER_ATTENTION_BACKEND", "cuda_reference") ==
-              "cudnn_sdpa"
-          ? kDecoderAcceptedAttentionBackend
-          : kDecoderReferenceAttentionBackend;
+  const auto& evidence = r->decoder_runtime_evidence;
+  bool cudnn_attention = evidence.cudnn_sdpa_forward_count > 0 &&
+                         evidence.cudnn_sdpa_backward_count > 0 &&
+                         evidence.attention_reference_forward_count == 0 &&
+                         evidence.attention_reference_backward_count == 0;
+  r->attention_backend = cudnn_attention ? kDecoderAcceptedAttentionBackend
+                                         : kDecoderReferenceAttentionBackend;
   r->mlp_backend = "cuda_swiglu";
   r->decoder_backward_backend = "cuda_decoder_chain_rule";
   r->decoder_gradient_source = "cuda_device";

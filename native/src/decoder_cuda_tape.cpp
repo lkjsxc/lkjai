@@ -87,6 +87,7 @@ void DecoderCudaState::ensure_tape_capacity(int rows, int vocab, int hidden,
     layer.q_rope = bf16(ctx_.stream(), r, h);
     layer.k_rope = bf16(ctx_.stream(), r, kv);
     layer.v = bf16(ctx_.stream(), r, kv);
+    layer.sdpa_stats = f32(ctx_.stream(), r, state_.cfg.heads);
     layer.attention_state = bf16(ctx_.stream(), r, h);
     layer.o_proj = bf16(ctx_.stream(), r, h);
     layer.attention_residual = bf16(ctx_.stream(), r, h);

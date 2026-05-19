@@ -50,6 +50,7 @@ include(cmake/NativeSources.cmake)
 add_library(lkjai_cuda STATIC ${LKJAI_CUDA_SOURCES})
 target_link_libraries(lkjai_cuda PUBLIC
   CUDA::cudart
+  CUDA::nvrtc
   CUDA::cublas
   CUDA::cublasLt
   ${CUDNN_LIBRARY}
@@ -60,7 +61,10 @@ target_compile_options(lkjai_cuda PUBLIC
 target_compile_definitions(lkjai_cuda PUBLIC LKJAI_WITH_CUDA=1)
 
 add_library(lkjai_native_core STATIC ${LKJAI_NATIVE_CORE_SOURCES})
-target_include_directories(lkjai_native_core PUBLIC src)
+target_include_directories(lkjai_native_core PUBLIC
+  src
+  ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/cudnn_frontend/include
+)
 target_link_libraries(lkjai_native_core PUBLIC lkjai_cuda)
 target_compile_definitions(lkjai_native_core PUBLIC
   LKJAI_GIT_COMMIT="${LKJAI_GIT_COMMIT}"

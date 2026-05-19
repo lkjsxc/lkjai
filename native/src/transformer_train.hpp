@@ -82,6 +82,14 @@ struct DecoderWeightChangeReport {
   int changed_tensors = 0;
 };
 
+struct DecoderCudaRuntimeEvidence {
+  int cudnn_sdpa_forward_count = 0;
+  int cudnn_sdpa_backward_count = 0;
+  int attention_reference_forward_count = 0;
+  int attention_reference_backward_count = 0;
+  uint64_t cudnn_sdpa_workspace_bytes = 0;
+};
+
 struct TransformerTrainReport {
   int steps = 0;
   int start_step = 0;
@@ -168,6 +176,9 @@ struct TransformerTrainReport {
   double decoder_parity_sample_loss_diff = 0.0;
   double decoder_parity_sample_logits_max_diff = 0.0;
   double decoder_parity_sample_logits_mean_diff = 0.0;
+  int decoder_parity_sample_count = 0;
+  int decoder_parity_failure_count = 0;
+  DecoderCudaRuntimeEvidence decoder_runtime_evidence;
 };
 
 bool load_transformer_config(const std::filesystem::path& path,

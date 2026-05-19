@@ -17,13 +17,20 @@ constexpr double kLogitsMeanTolerance = 0.025;
 
 bool DecoderCudaState::decoder_parity_sample_this_step() {
   if (parity_calls_ == 0) {
-    parity_mode_ = env_string("LKJAI_DECODER_PARITY", "off");
-    parity_interval_ = std::max(1, env_int("LKJAI_DECODER_PARITY_INTERVAL",
+    parity_mode_ = env_string("TRAIN_DECODER_PARITY_MODE", "off");
+    parity_interval_ = std::max(1, env_int("TRAIN_DECODER_PARITY_INTERVAL",
                                            128));
+    if (env_int("TRAIN_DECODER_PARITY_FIRST_STEPS", 0) > 0 &&
+        parity_mode_ == "off") {
+      parity_mode_ = "sampled";
+    }
   }
   ++parity_calls_;
+  int first_steps = env_int("TRAIN_DECODER_PARITY_FIRST_STEPS", 0);
+  if (first_steps > 0 && parity_calls_ <= first_steps) return true;
   if (parity_mode_ == "strict") return true;
-  if (parity_mode_ == "periodic") return parity_calls_ % parity_interval_ == 0;
+  if (parity_mode_ == "sampled") return parity_calls_ % parity_interval_ == 0;
+  if (parity_mode_ == "final_only") return false;
   if (parity_mode_ != "off") parity_mode_ = "off";
   return false;
 }
@@ -58,6 +65,8 @@ void DecoderCudaState::record_decoder_parity(double loss,
   bool loss_ok = std::isfinite(loss) &&
                  parity_sample_loss_diff_ <= kLossTolerance;
   parity_sample_status_ = loss_ok && logits_ok ? "pass" : "fail";
+  ++parity_sample_count_;
+  if (parity_sample_status_ != "pass") ++parity_failure_count_;
   if (parity_sample_status_ != "pass" && parity_mode_ == "strict") {
     throw std::runtime_error("decoder CUDA strict parity check failed");
   }

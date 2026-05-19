@@ -20,6 +20,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/decoder_kv_cache_lifetime.cpp
   src/decoder_cuda_block.cu
   src/decoder_cuda_acceptance_probe.cpp
+  src/decoder_cuda_acceptance_path.cpp
   src/decoder_cuda_attention_backward.cu
   src/decoder_cuda_cached_attention.cu
   src/decoder_cuda_rope_backward.cu
@@ -52,6 +53,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/decoder_cuda_tape_debug.cpp
   src/decoder_cuda_train_forward.cpp
   src/decoder_cuda_weight_sync.cu
+  src/decoder_cudnn_sdpa.cpp
   src/decoder_weight_change.cpp
   src/dense_checkpoint.cpp
   src/dense_cuda.cu
@@ -111,6 +113,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/transformer_report.cpp
   src/transformer_report_acceptance.cpp
   src/transformer_report_decoder_fields.cpp
+  src/transformer_report_evidence_acceptance.cpp
   src/transformer_report_route_acceptance.cpp
   src/transformer_report_io.cpp
   src/transformer_train.cpp

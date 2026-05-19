@@ -17,6 +17,9 @@ void decoder_copy_dense_back(const DenseTrainState& dense,
                              TransformerState* state);
 bool decoder_validate_layer_shapes(const TransformerConfig& cfg,
                                    std::string* error);
+bool decoder_acceptance_path_required(const TransformerTrainOptions& opt,
+                                      const TransformerConfig& cfg,
+                                      int seq_len);
 std::string decoder_shape_report(const TransformerConfig& cfg);
 bool decoder_write_all(const TransformerTrainOptions& opt,
                        const TransformerState& state,

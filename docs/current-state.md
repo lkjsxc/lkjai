@@ -34,7 +34,10 @@ The decoder lane is the first product acceptance target. Current truth is:
   `decoder_gradient_source=cuda_device`; host backward is parity-only evidence.
 - Registry CUDA AdamW updates device FP32 masters, Adam moments, gradients, and
   BF16 shadows for decoder tensors.
-- Attention uses `cuda_causal_gqa_bf16_reference` as fallback/oracle evidence.
+- Attention uses `cuda_causal_gqa_bf16_reference` only for diagnostic smoke and
+  oracle evidence. Accepted decoder training requires runtime cuDNN SDPA
+  forward/backward counters, zero reference fallback counters, and at least one
+  passing decoder parity sample.
 - Decode owns a cached `DecoderCudaInferenceSession` per loaded artifact and
   reuses one-token buffers in the steady token loop. KV-cache route disclosure
   remains partial until accepted route evidence exists.

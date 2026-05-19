@@ -80,7 +80,7 @@ double DecoderCudaState::forward_backward(
     auto& layer_tape = tape_.layers[static_cast<size_t>(i)];
     layer_forwards_[static_cast<size_t>(i)].run_train(
         *hidden, batch.batch_size, batch.sequence_len, &layer_tape,
-        &layer_report);
+        &layer_report, require_cudnn_attention_, &runtime_evidence_);
     if (!layer_report.outputs_finite) {
       throw std::runtime_error("decoder CUDA training layer forward failed");
     }
