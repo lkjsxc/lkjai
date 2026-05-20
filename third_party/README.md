@@ -1,6 +1,7 @@
 # Third-Party Code
 
 Owner: `third_party/README.md`.
+State: canonical third-party source inventory.
 
 ## cuDNN Frontend
 
