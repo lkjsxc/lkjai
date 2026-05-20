@@ -40,12 +40,4 @@ bool decoder_probe_generate_acceptance(const TransformerState& state,
   return true;
 }
 
-void decoder_mark_accepted_decoder_if_ready(TransformerTrainReport* report) {
-  if (report->attention_backend != kDecoderAcceptedAttentionBackend) return;
-  report->implementation_status = "accepted";
-  report->decoder_status = "accepted";
-  report->backward_backend = "cuda_full_decoder";
-  report->decoder_backward_backend = "cuda_full_decoder";
-}
-
 }  // namespace lkjai

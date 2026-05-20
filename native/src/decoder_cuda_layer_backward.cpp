@@ -121,6 +121,9 @@ DeviceTensor* DecoderCudaState::run_device_layer_backward(
         {batch_size, sequence_len, cfg.heads, cfg.kv_heads, cfg.head_dim},
         &sdpa);
     runtime_evidence_.cudnn_sdpa_backward_count += sdpa.executed ? 1 : 0;
+    runtime_evidence_.cudnn_sdpa_plan_cache_hits += sdpa.plan_cache_hit ? 1 : 0;
+    runtime_evidence_.cudnn_sdpa_plan_cache_misses +=
+        sdpa.plan_cache_miss ? 1 : 0;
     runtime_evidence_.cudnn_sdpa_workspace_bytes =
         std::max(runtime_evidence_.cudnn_sdpa_workspace_bytes,
                  sdpa.workspace_bytes);

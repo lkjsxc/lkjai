@@ -7,6 +7,8 @@ State: canonical documentation.
 
 - `data/models/`: served model artifacts.
 - `data/train/`: tokenizer, packed cache, checkpoints, exports, and reports.
+- `data/corpus/quarantine/`: generated corpus candidates awaiting validation.
+- `data/corpus/generated/`: promoted generated corpora such as full Kimi SFT.
 - `data/agent/`: runtime transcripts and agent state.
 - `data/raw/` and `data/public-corpus/`: acquired public corpus material.
 - `data/verify/`: verification fixtures and generated outputs.

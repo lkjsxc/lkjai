@@ -2,8 +2,10 @@ target_tokens: 60000000
 mode: sft
 pretrain_ratio: 0.0
 sft_ratio: 1.0
-output_dir: corpus/generated/kimi-sft-60m
-pilot_output_dir: data/kimi_synthetic/pilot
+output_dir: data/corpus/generated/kimi-sft-60m
+quarantine_dir: data/corpus/quarantine/kimi-sft-60m
+seed_fixture_dir: corpus/generated/kimi-sft-60m
+pilot_output_dir: data/corpus/quarantine/kimi-sft-60m/pilot
 api_provider: kimi-api
 api_base_url: https://api.moonshot.ai/v1
 api_model: kimi-k2.6

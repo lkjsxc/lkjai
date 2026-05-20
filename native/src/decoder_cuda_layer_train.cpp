@@ -84,6 +84,8 @@ void DecoderCudaLayerForward::run_train(
         {batch, seq, cfg_.heads, cfg_.kv_heads, cfg_.head_dim}, &sdpa);
     if (evidence) {
       evidence->cudnn_sdpa_forward_count += sdpa.executed ? 1 : 0;
+      evidence->cudnn_sdpa_plan_cache_hits += sdpa.plan_cache_hit ? 1 : 0;
+      evidence->cudnn_sdpa_plan_cache_misses += sdpa.plan_cache_miss ? 1 : 0;
       evidence->cudnn_sdpa_workspace_bytes =
           std::max(evidence->cudnn_sdpa_workspace_bytes, sdpa.workspace_bytes);
     }

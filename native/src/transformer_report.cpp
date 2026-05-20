@@ -1,7 +1,6 @@
 #include "train_report.hpp"
 #include <cmath>
 #include <sstream>
-#include <vector>
 #include "capability_json.hpp"
 #include "json_min.hpp"
 #include "train_report_digest.hpp"
@@ -25,7 +24,6 @@ void append_weight_part(std::ostringstream* out,
        << static_cast<unsigned long long>(part.changed_elements)
        << ",\"changed_tensors\":" << part.changed_tensors << "}";
 }
-
 void append_transformer(std::ostringstream* out, const TransformerTrainReport& report,
                         const CudaStatus& cuda, const std::string& trainer_mode,
                         const std::string& status, const std::string& failure_reason) {
@@ -37,7 +35,9 @@ void append_transformer(std::ostringstream* out, const TransformerTrainReport& r
       ? std::string(kind == "decoder" ? "experimental" : "not_applicable")
       : report.decoder_status;
   bool accepted_decoder = transformer_report_accepted_decoder(report);
+  if (accepted_decoder) impl = "accepted";
   if (!accepted_decoder && impl == "accepted") impl = "experimental";
+  if (accepted_decoder) decoder_status = "accepted";
   double tokens_per_second = report.elapsed_seconds > 0.0
       ? static_cast<double>(report.input_tokens) / report.elapsed_seconds : 0.0;
   auto limitations = transformer_report_limitations(report, accepted_decoder);

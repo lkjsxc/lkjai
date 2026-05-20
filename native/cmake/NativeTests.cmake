@@ -119,6 +119,8 @@ add_test(NAME native_decoder_route_contract
   COMMAND lkjai-native-decoder-route-contract)
 add_test(NAME native_decoder_acceptance_report_contract
   COMMAND lkjai-native-decoder-acceptance-report-contract)
+add_test(NAME native_decoder_route_transcript_contract
+  COMMAND lkjai-native-decoder-route-transcript-contract)
 add_test(NAME native_static_web_contract
   COMMAND lkjai-native-static-web-contract)
 add_test(NAME native_decoder_cuda_attention_plan

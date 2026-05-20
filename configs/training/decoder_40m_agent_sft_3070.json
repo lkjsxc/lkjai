@@ -1,0 +1,21 @@
+{
+  "format": "lkjai-train-config",
+  "name": "decoder_40m_agent_sft_3070",
+  "description": "RTX 3070 decoder SFT target for assistant XML actions.",
+  "preset": "decoder-40m-3070-agent-sft",
+  "model_name": "decoder-40m-3070-agent-sft",
+  "model_kind": "decoder",
+  "native_config": "configs/native/decoder_40m_bf16_3070.json",
+  "packed_cache_dir": "data/train/datasets/packed/train-assistant_masked_sft-seq1024",
+  "tokenizer": "data/train/tokenizer/tokenizer.json",
+  "objective": "assistant_masked_sft",
+  "sequence_len": 1024,
+  "learning_rate": 0.0001,
+  "warmup_steps": 128,
+  "batch_size": 1,
+  "gradient_accumulation": 16,
+  "max_optimizer_steps": 270000,
+  "target_seconds": 7200,
+  "save_latest_every_optimizer_steps": 512,
+  "seed": 20260520
+}

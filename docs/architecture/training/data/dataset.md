@@ -12,7 +12,9 @@ Describe the on-disk dataset artifacts used by training and evaluation.
 - Editable source corpus: `corpus/sources/*.json`
 - Public pretraining corpus:
   `data/public-corpus/{train,val,holdout}/*.jsonl`
-- Accepted Kimi SFT corpus:
+- Accepted full Kimi SFT corpus:
+  `data/corpus/generated/kimi-sft-60m/{train,val,holdout}/*.jsonl`
+- Tracked Kimi seed fixture:
   `corpus/generated/kimi-sft-60m/{train,val,holdout}/*.jsonl`
 - Preference pairs:
   `corpus/generated/preference-pairs/pairs/*.jsonl`

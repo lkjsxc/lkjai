@@ -20,7 +20,7 @@ void decoder_fill_full_cuda_report(DenseCudaState& cuda,
   r->decoder_cuda_slice = "full_decoder";
   r->decoder_block_backend = "cuda_full_decoder";
   r->forward_backend = "cuda_full_decoder";
-  r->backward_backend = "cuda_decoder_chain_rule";
+  r->backward_backend = "cuda_full_decoder";
   r->optimizer_backend = "cuda_adamw_fp32_registry";
   r->rmsnorm_backend = "cuda_bf16_fp32_reduce";
   r->rope_backend = "cuda_bf16";
@@ -33,7 +33,7 @@ void decoder_fill_full_cuda_report(DenseCudaState& cuda,
   r->attention_backend = cudnn_attention ? kDecoderAcceptedAttentionBackend
                                          : kDecoderReferenceAttentionBackend;
   r->mlp_backend = "cuda_swiglu";
-  r->decoder_backward_backend = "cuda_decoder_chain_rule";
+  r->decoder_backward_backend = "cuda_full_decoder";
   r->decoder_gradient_source = "cuda_device";
   r->matmul_backend = "cublaslt";
   r->kv_cache_backend = kDecoderNoKvCacheBackend;

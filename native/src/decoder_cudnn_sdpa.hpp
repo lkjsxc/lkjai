@@ -14,10 +14,16 @@ struct DecoderCudnnSdpaPlanKey {
   int heads = 0;
   int kv_heads = 0;
   int head_dim = 0;
+  bool backward = false;
+  bool causal = true;
+  int device_id = 0;
+  long long cudnn_runtime_version = 0;
 };
 
 struct DecoderCudnnSdpaStats {
   bool executed = false;
+  bool plan_cache_hit = false;
+  bool plan_cache_miss = false;
   uint64_t workspace_bytes = 0;
 };
 

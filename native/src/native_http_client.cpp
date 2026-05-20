@@ -56,7 +56,8 @@ int connect_tcp(const UrlParts& url, std::string* error) {
 }
 
 NativeHttpResponse request(const std::string& method, const std::string& url,
-                           const std::string& body) {
+                           const std::string& body,
+                           const std::string& bearer_token = "") {
   NativeHttpResponse response;
   UrlParts parts;
   if (!parse_url(url, &parts)) {
@@ -69,6 +70,9 @@ NativeHttpResponse request(const std::string& method, const std::string& url,
   wire << method << " " << parts.path << " HTTP/1.1\r\n"
        << "host: " << parts.host << "\r\n"
        << "connection: close\r\n";
+  if (!bearer_token.empty()) {
+    wire << "authorization: Bearer " << bearer_token << "\r\n";
+  }
   if (!body.empty()) {
     wire << "content-type: application/json\r\n"
          << "content-length: " << body.size() << "\r\n";
@@ -108,6 +112,13 @@ NativeHttpResponse native_http_get(const std::string& url) {
 NativeHttpResponse native_http_post_json(const std::string& url,
                                          const std::string& body) {
   return request("POST", url, body);
+}
+
+NativeHttpResponse native_http_json(const std::string& method,
+                                    const std::string& url,
+                                    const std::string& body,
+                                    const std::string& bearer_token) {
+  return request(method, url, body, bearer_token);
 }
 
 std::string model_url_to_models_url(const std::string& chat_url) {

@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <fstream>
 #include <string>
+#include <utility>
 #include <vector>
 #include "json_min.hpp"
 #include "native_tokenizer.hpp"
@@ -9,7 +10,6 @@
 #include "packed_cache_digest.hpp"
 namespace lkjai {
 namespace {
-
 void write_u16(std::ofstream& out, uint16_t value) {
   out.write(reinterpret_cast<const char*>(&value), sizeof(value));
 }
@@ -21,7 +21,6 @@ struct SourceTokens {
   int max_token_id = 0;
   int windows = 0;
 };
-
 std::vector<std::filesystem::path> source_shards(const std::filesystem::path& source,
                                                  std::string* error) {
   std::vector<std::filesystem::path> shards;
@@ -42,13 +41,21 @@ std::vector<std::filesystem::path> source_shards(const std::filesystem::path& so
   if (shards.empty()) *error = "source directory contains no .jsonl shards";
   return shards;
 }
-
 std::string row_text(std::string_view row) {
   auto text = json_first_string(row, "text");
   if (!text.empty()) return text;
   return json_first_string(row, "content");
 }
-
+std::pair<std::string, std::string> assistant_target(std::string_view row) {
+  auto begin = row.find("<action>");
+  auto end = row.find("</action>", begin);
+  if (begin == std::string_view::npos || end == std::string_view::npos) {
+    return {"", ""};
+  }
+  end += std::string_view("</action>").size();
+  return {std::string(row.substr(0, begin)),
+          std::string(row.substr(begin, end - begin))};
+}
 bool write_streamed_source_tokens(const PackedCacheBuildOptions& opt,
                                   const NativeTokenizer& tokenizer,
                                   int vocab_size, std::ofstream& tok,
@@ -59,8 +66,25 @@ bool write_streamed_source_tokens(const PackedCacheBuildOptions& opt,
   auto shards = source_shards(opt.source, error);
   if (shards.empty()) return false;
   std::vector<uint16_t> window;
+  std::vector<char> loss_window;
   window.reserve(static_cast<size_t>(opt.seq_len));
+  loss_window.reserve(static_cast<size_t>(opt.seq_len));
   int64_t emitted_tokens = 0;
+  auto append_token = [&](uint16_t id, char loss) {
+    window.push_back(id);
+    loss_window.push_back(loss);
+    if (static_cast<int>(window.size()) != opt.seq_len) return false;
+    write_u64(starts, static_cast<uint64_t>(emitted_tokens));
+    emitted_tokens += opt.seq_len;
+    for (int i = 0; i < opt.seq_len; ++i) {
+      write_u16(tok, window[static_cast<size_t>(i)]);
+      mask.put(loss_window[static_cast<size_t>(i)]);
+    }
+    window.clear();
+    loss_window.clear();
+    out->windows += 1;
+    return opt.sequence_count > 0 && out->windows >= opt.sequence_count;
+  };
   for (const auto& shard : shards) {
     std::ifstream in(shard);
     if (!in) {
@@ -70,28 +94,25 @@ bool write_streamed_source_tokens(const PackedCacheBuildOptions& opt,
     std::string line;
     while (std::getline(in, line)) {
       auto value = row_text(line);
-      if (value.empty()) continue;
-      auto tokens = tokenizer_encode(tokenizer, value);
+      std::vector<std::pair<std::vector<uint16_t>, char>> parts;
+      if (opt.objective == "assistant_masked_sft") {
+        auto [prefix, target] = assistant_target(line);
+        if (target.empty()) continue;
+        parts.push_back({tokenizer_encode(tokenizer, prefix), '\0'});
+        parts.push_back({tokenizer_encode(tokenizer, target), '\1'});
+      } else {
+        if (value.empty()) continue;
+        parts.push_back({tokenizer_encode(tokenizer, value), '\1'});
+      }
       out->example_count += 1;
-      for (auto id : tokens) {
-        if (id >= vocab_size) {
-          *error = "tokenizer produced token id outside config vocab_size";
-          return false;
-        }
-        if (id > out->max_token_id) out->max_token_id = id;
-        window.push_back(id);
-        if (static_cast<int>(window.size()) == opt.seq_len) {
-          write_u64(starts, static_cast<uint64_t>(emitted_tokens));
-          emitted_tokens += opt.seq_len;
-          for (int i = 0; i < opt.seq_len; ++i) {
-            write_u16(tok, window[static_cast<size_t>(i)]);
-            mask.put(i + 1 == opt.seq_len ? '\0' : '\1');
+      for (const auto& part : parts) {
+        for (auto id : part.first) {
+          if (id >= vocab_size) {
+            *error = "tokenizer produced token id outside config vocab_size";
+            return false;
           }
-          window.clear();
-          out->windows += 1;
-          if (opt.sequence_count > 0 && out->windows >= opt.sequence_count) {
-            return true;
-          }
+          if (id > out->max_token_id) out->max_token_id = id;
+          if (append_token(id, part.second)) return true;
         }
       }
     }
@@ -99,9 +120,7 @@ bool write_streamed_source_tokens(const PackedCacheBuildOptions& opt,
   if (out->windows <= 0) *error = "not enough tokens for one fixed window";
   return out->windows > 0;
 }
-
 }  // namespace
-
 bool build_packed_cache(const PackedCacheBuildOptions& opt, std::string* error) {
   if (opt.seq_len <= 1 || opt.source.empty() || opt.tokenizer.empty() ||
       opt.config.empty() || opt.out.empty()) {
@@ -135,7 +154,6 @@ bool build_packed_cache(const PackedCacheBuildOptions& opt, std::string* error) 
   tok.close();
   mask.close();
   starts.close();
-
   std::ofstream meta(opt.out / "metadata.json");
   meta << "{\"format\":\"lkjai-packed-cache\",\"split\":\""
        << json_escape(opt.split) << "\",\"objective\":\""
@@ -158,42 +176,4 @@ bool build_packed_cache(const PackedCacheBuildOptions& opt, std::string* error) 
        << packed_payload_digest(opt.out) << "\"}\n";
   return true;
 }
-
-bool validate_packed_cache_command(const std::filesystem::path& cache,
-                                   const std::filesystem::path& source,
-                                   const std::filesystem::path& tokenizer,
-                                   const std::filesystem::path& config,
-                                   bool allow_smoke_fixture,
-                                   std::string* error) {
-  auto status = inspect_packed_cache(cache);
-  if (!status.ok) {
-    *error = status.error;
-    return false;
-  }
-  if (status.smoke_fixture && !allow_smoke_fixture) {
-    *error = "packed cache is an explicit smoke fixture";
-    return false;
-  }
-  auto meta = read_text(cache / "metadata.json");
-  if (!status.smoke_fixture) {
-    if (source.empty() || tokenizer.empty() || config.empty()) {
-      *error = "strict validation requires --source, --tokenizer, and --config";
-      return false;
-    }
-    if (json_first_string(meta, "source_digest") != packed_source_digest(source) ||
-        json_first_string(meta, "tokenizer_digest") != packed_file_digest(tokenizer) ||
-        json_first_string(meta, "config_digest") != packed_file_digest(config)) {
-      *error = "packed cache source/tokenizer/config digest mismatch";
-      return false;
-    }
-  }
-  int cfg_vocab = json_int_value(read_text(config), "vocab_size", status.vocab_size);
-  int cfg_context = json_int_value(read_text(config), "context", status.sequence_len);
-  if (status.vocab_size > cfg_vocab || status.sequence_len > cfg_context) {
-    *error = "packed cache exceeds native config vocab or context";
-    return false;
-  }
-  return true;
-}
-
 }  // namespace lkjai

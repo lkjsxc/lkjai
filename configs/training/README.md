@@ -18,6 +18,8 @@ Training configs pin long-running scratch model settings.
   run estimate. Do not use it as a Compose default.
 - [decoder_2h_40m_3070.json](decoder_2h_40m_3070.json): tied 40M same-model
   decoder two-hour target for RTX 3070 acceptance.
+- [decoder_40m_agent_sft_3070.json](decoder_40m_agent_sft_3070.json): 40M
+  decoder `assistant_masked_sft` target for XML-action traces.
 - [profile_20m_3070.json](profile_20m_3070.json): RTX 3070 transformer
   profile target for future native CUDA measurements, not accepted training.
 - [profile_120m_5090.json](profile_120m_5090.json): RTX 5090/Blackwell

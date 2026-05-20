@@ -193,8 +193,6 @@ bool run_decoder_cuda_training(const TransformerTrainOptions& opt,
   }
   if (!decoder_probe_generate_acceptance(trained_state, tokenizer, report, error))
     return false;
-  decoder_mark_accepted_decoder_if_ready(report);
-  if (!decoder_write_acceptance_sidecars(*report, error)) return false;
   return true;
 }
 }  // namespace lkjai

@@ -32,6 +32,10 @@ or pinned permissive public pretraining sources.
 - Existing tracked source packs authored by Codex/GPT are inactive.
 - Inactive packs must not be read by `prepare-corpus`.
 - Kimi source packs may be promoted only with `kimi-generated` metadata.
+- Kimi candidates stay under `data/corpus/quarantine/kimi-sft-60m`; only
+  passing shards are promoted to `data/corpus/generated/kimi-sft-60m`.
+- `corpus/generated/kimi-sft-60m` remains a tracked seed fixture, not the full
+  active SFT corpus.
 - Kimi API keys must never be committed or written unredacted to manifests.
 - Kimi rows are optional and active only after runtime-contract and fixture
   validation.

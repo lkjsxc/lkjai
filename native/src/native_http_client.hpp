@@ -13,6 +13,10 @@ struct NativeHttpResponse {
 NativeHttpResponse native_http_get(const std::string& url);
 NativeHttpResponse native_http_post_json(const std::string& url,
                                          const std::string& body);
+NativeHttpResponse native_http_json(const std::string& method,
+                                    const std::string& url,
+                                    const std::string& body,
+                                    const std::string& bearer_token);
 std::string model_url_to_models_url(const std::string& chat_url);
 std::string model_url_to_health_url(const std::string& chat_url);
 

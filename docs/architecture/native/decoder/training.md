@@ -43,9 +43,9 @@ chain-rule backward, and registry-wide CUDA AdamW over device FP32 masters,
 AdamW moments, gradients, and BF16 shadows. Its truthful report fields
 are `implementation_status=experimental`, `accepted_cuda_training=false`,
 `decoder_cuda_slice=full_decoder`, `forward_backend=cuda_full_decoder`,
-`backward_backend=cuda_decoder_chain_rule`,
+`backward_backend=cuda_full_decoder`,
 `optimizer_backend=cuda_adamw_fp32_registry`,
-`decoder_backward_backend=cuda_decoder_chain_rule`,
+`decoder_backward_backend=cuda_full_decoder`,
 `decoder_gradient_source=cuda_device`, and
 `attention_backend=cuda_causal_gqa_bf16_reference`.
 The implementation must prefer correctness evidence over kernel cleverness:

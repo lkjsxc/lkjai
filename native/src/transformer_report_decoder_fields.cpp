@@ -28,6 +28,10 @@ std::string transformer_decoder_runtime_report_json_fields(
       << report.decoder_parity_sample_count
       << ",\"decoder_parity_failure_count\":"
       << report.decoder_parity_failure_count
+      << ",\"cudnn_sdpa_plan_cache_hits\":"
+      << report.decoder_runtime_evidence.cudnn_sdpa_plan_cache_hits
+      << ",\"cudnn_sdpa_plan_cache_misses\":"
+      << report.decoder_runtime_evidence.cudnn_sdpa_plan_cache_misses
       << ",\"cudnn_sdpa_forward_count\":"
       << report.decoder_runtime_evidence.cudnn_sdpa_forward_count
       << ",\"cudnn_sdpa_backward_count\":"

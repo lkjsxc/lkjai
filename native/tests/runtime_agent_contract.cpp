@@ -136,12 +136,40 @@ bool tool_profile_contract() {
                 "disabled profile rejected before dispatch");
 }
 
+bool confirmation_contract() {
+  auto c = cfg("lkjai-agent-confirm");
+  auto ask = ok("<action><tool>agent.request_confirmation</tool>"
+                "<pending_tool>resource.update_resource</pending_tool>"
+                "<ref>note-1</ref><body>updated</body></action>");
+  auto requested = run(c, {ask}, "{\"message\":\"hello\",\"run_id\":\"r9\"}");
+  auto confirmed = lkjai::runtime_chat_with_model_callback(
+      c, {"POST", "/api/chat",
+          "{\"message\":\"yes\",\"run_id\":\"r9\",\"confirm_pending\":true}"},
+      [](const std::string&) {
+        return lkjai::NativeHttpResponse{500, "", "model should not run"};
+      });
+  auto cancelled = lkjai::runtime_chat_with_model_callback(
+      c, {"POST", "/api/chat",
+          "{\"message\":\"no\",\"run_id\":\"r9\",\"cancel_pending\":true}"},
+      [](const std::string&) {
+        return lkjai::NativeHttpResponse{500, "", "model should not run"};
+      });
+  return expect(has(requested.body, "\"stop_reason\":\"confirmation_required\""),
+                "confirmation required") &&
+         expect(has(requested.body, "\"kind\":\"pending_operation\""),
+                "pending persisted") &&
+         expect(has(confirmed.body, "KJXLKJ_BEARER_TOKEN not configured"),
+                "missing token degraded") &&
+         expect(has(cancelled.body, "\"stop_reason\":\"cancelled\""),
+                "cancel stop");
+}
+
 }  // namespace
 
 int main() {
   return finish_contract() && think_then_finish_contract() && repeat_contract() &&
                  error_contracts() && filesystem_tool_contract() &&
-                 tool_profile_contract()
+                 tool_profile_contract() && confirmation_contract()
              ? 0
              : 1;
 }

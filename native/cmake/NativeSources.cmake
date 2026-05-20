@@ -88,6 +88,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/native_http_client.cpp
   src/packed_cache.cpp
   src/packed_cache_build.cpp
+  src/packed_cache_validate_command.cpp
   src/packed_cache_digest.cpp
   src/packed_cache_reader.cpp
   src/packed_cache_validate.cpp
@@ -97,6 +98,7 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/runtime_config_status.cpp
   src/runtime_events.cpp
   src/runtime_tools.cpp
+  src/runtime_resource_tools.cpp
   src/train_data.cpp
   src/train_report_digest.cpp
   src/train_real.cpp

@@ -2,6 +2,7 @@
 
 #include "decoder_decode.hpp"
 #include "json_min.hpp"
+#include "train_report_digest.hpp"
 
 namespace lkjai {
 namespace {
@@ -63,6 +64,10 @@ bool route_report_shape_ok(std::string_view body) {
          json_int_value(body, "ffn_size", 0) == 1536;
 }
 
+bool transcript_has_request(std::string_view body) {
+  return body.find("\"request\"") != std::string_view::npos;
+}
+
 }  // namespace
 
 bool transformer_emitted_decoder_route_report_accepted(
@@ -80,6 +85,47 @@ bool transformer_emitted_decoder_route_report_accepted(
   auto device = json_first_string(body, "cuda_device_name");
   if (device.find("RTX 3070") == std::string::npos) {
     *error = "route report is not RTX 3070 evidence";
+    return false;
+  }
+  return true;
+}
+
+bool transformer_route_transcript_accepted(
+    const std::filesystem::path& route_transcript,
+    const std::filesystem::path& train_report, std::string* error) {
+  auto body = read_text(route_transcript);
+  if (body.empty()) {
+    *error = "missing decoder route transcript";
+    return false;
+  }
+  if (json_first_string(body, "route") != "/v1/chat/completions" ||
+      !transcript_has_request(body) ||
+      json_int_value(body, "response_status", 0) != 200 ||
+      !json_bool_value(body, "choices_present", false)) {
+    *error = "route transcript missing request/response evidence";
+    return false;
+  }
+  if (!contains_json_string(body, "decode_backend",
+                            kDecoderAcceptedDecodeBackend) ||
+      !contains_json_string(body, "kv_cache_backend",
+                            kDecoderAcceptedKvCacheBackend)) {
+    *error = "route transcript missing accepted decode backends";
+    return false;
+  }
+  if (json_int_value(body, "kv_cache_prefill_allocated_bytes", 0) <= 0 ||
+      json_int_value(body, "kv_cache_steady_state_token_allocations", -1) != 0) {
+    *error = "route transcript missing KV allocation accounting";
+    return false;
+  }
+  auto expected = train_report_file_digest(train_report);
+  if (expected.empty() ||
+      json_first_string(body, "train_report_digest") != expected) {
+    *error = "route transcript train-report digest mismatch";
+    return false;
+  }
+  if (json_first_string(body, "artifact_manifest_digest").empty() ||
+      json_first_string(body, "created_at").empty()) {
+    *error = "route transcript missing digest or timestamp";
     return false;
   }
   return true;

@@ -35,7 +35,7 @@ an active training pack. The active target is now:
 - `500000000` Cosmopedia `text`-only public pretraining tokens under
   `data/public-corpus/`.
 - `60000000` first-party XML-action SFT tokens.
-- `corpus/generated/kimi-sft-60m/` as the accepted SFT destination.
+- `data/corpus/generated/kimi-sft-60m/` as the accepted SFT destination.
 - At least `450000000` deduplicated tokenizer tokens across the release pack.
 
 ## Public Pretrain Materialization

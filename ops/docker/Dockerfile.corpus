@@ -13,6 +13,7 @@ RUN apt-get update \
 
 COPY native ./native
 COPY configs ./configs
+COPY third_party ./third_party
 
 RUN cmake -S native -B /build -G Ninja -DCMAKE_BUILD_TYPE=Release \
       -DLKJAI_GIT_COMMIT_OVERRIDE=${LKJAI_GIT_COMMIT} \
@@ -39,9 +40,12 @@ COPY --from=native-build /build/lkjai-native-packed-cache /usr/local/bin/
 COPY --from=native-build /build/lkjai-native-tokenizer-build /usr/local/bin/
 COPY ops/corpus/public_pretrain_tool /usr/local/bin/lkjai-public-pretrain
 COPY ops/corpus/public_pretrain /usr/local/lib/public_pretrain
+COPY ops/corpus/kimi_sft_tool /usr/local/bin/lkjai-kimi-sft
+COPY ops/corpus/kimi_sft /usr/local/lib/kimi_sft
 COPY ops/corpus/entrypoint.sh /usr/local/bin/lkjai-corpus-entrypoint
 
 RUN chmod +x /usr/local/bin/lkjai-public-pretrain \
+    /usr/local/bin/lkjai-kimi-sft \
     /usr/local/bin/lkjai-corpus-entrypoint
 
 ENTRYPOINT ["lkjai-corpus-entrypoint"]

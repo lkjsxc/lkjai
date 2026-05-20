@@ -85,7 +85,7 @@ fills FP32 registry gradients for the LM head or tied embedding table, token
 embeddings, decoder block tensors, and final norm from CUDA-resident tape
 tensors.
 
-Reports identify this as `decoder_backward_backend=cuda_decoder_chain_rule`
+Reports identify this as `decoder_backward_backend=cuda_full_decoder`
 and `decoder_gradient_source=cuda_device`. They keep
 `accepted_cuda_training=false` until cuDNN SDPA, accepted decode evidence, the
 40M RTX 3070 shape gate, logits/export/server checks, and report promotion

@@ -14,21 +14,17 @@ Implemented by default:
 - `agent.finish`
 - `fs.read`
 - `fs.list`
-
-Named but not implemented yet:
-
 - `memory.search`
 - `resource.search`
-- `resource.fetch`
+- `resource.get`
 - `resource.history`
-- `resource.preview_markdown`
 
 Disabled in the readonly profile:
 
 - `agent.request_confirmation`
-- `resource.create_note`
-- `resource.create_media`
+- `resource.create`
 - `resource.update_resource`
+- `resource.delete`
 
 Disabled in all active profiles until coverage gates pass:
 
@@ -51,15 +47,11 @@ Set `AGENT_TOOL_PROFILE=mutable` to expose confirmation and confirmed
 - `memory.search`: search durable agent memory.
 - `memory.write`: write durable agent memory; disabled by default.
 - `resource.search`: search `kjxlkj` resources.
-- `resource.fetch`: fetch a `kjxlkj` resource.
+- `resource.get`: fetch a `kjxlkj` resource.
 - `resource.history`: fetch `kjxlkj` resource history.
-- `resource.preview_markdown`: preview a `kjxlkj` markdown mutation.
-- `resource.create_note`: create a `kjxlkj` note after confirmation; mutable
-  profile only.
-- `resource.create_media`: create a `kjxlkj` media resource after confirmation;
-  mutable profile only.
-- `resource.update_resource`: update a `kjxlkj` resource after confirmation;
-  mutable profile only.
+- `resource.create`: create a `kjxlkj` note after confirmation.
+- `resource.update_resource`: update a `kjxlkj` resource after confirmation.
+- `resource.delete`: delete a `kjxlkj` resource after confirmation.
 - `agent.request_confirmation`: stop and ask before a `kjxlkj` mutation;
   mutable profile only.
 - `agent.think`: record a non-terminating visible plan.
@@ -79,8 +71,8 @@ Set `AGENT_TOOL_PROFILE=mutable` to expose confirmation and confirmed
 
 - Local read-only filesystem and read-only resource tools run without
   confirmation.
-- `kjxlkj` mutations require `AGENT_TOOL_PROFILE=mutable`,
-  `agent.request_confirmation`, and a later user confirmation before execution.
+- `kjxlkj` mutations require `agent.request_confirmation` and a later user
+  confirmation before execution.
 - Command execution is not enabled in the current sandbox.
 - File tools are bounded to `TOOL_WORKSPACE_DIR`.
 - The container must not mount host `/` for agent tools.
@@ -95,15 +87,11 @@ Set `AGENT_TOOL_PROFILE=mutable` to expose confirmation and confirmed
 
 - `resource.search` accepts `query` or `q`, plus optional `kind`, `sort`,
   `cursor`, `limit`, `direction`, and `scope`.
-- `resource.fetch` and `resource.history` accept `ref` or `id`.
-- `resource.preview_markdown` accepts `body` and optional
-  `current_resource_id`.
-- `resource.create_note` accepts `body`, optional `alias`, `is_favorite`, and
-  `is_private`.
-- `resource.create_media` accepts workspace-confined `path`, optional `alias`,
-  `is_favorite`, and `is_private`.
+- `resource.get` and `resource.history` accept `ref` or `id`.
+- `resource.create` accepts `body`, optional `alias`, and `is_favorite`.
 - `resource.update_resource` accepts `ref` or `id`, `body`, optional `alias`,
-  `is_favorite`, and `is_private`.
+  and `is_favorite`.
+- `resource.delete` accepts `ref` or `id`.
 
 ## Limits
 

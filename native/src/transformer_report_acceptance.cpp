@@ -57,7 +57,7 @@ bool accepted_40m_3070_shape(const TransformerTrainReport& r) {
 }  // namespace
 
 bool transformer_report_shape_accepted_decoder(const TransformerTrainReport& r) {
-  return r.model_kind == "decoder" && r.implementation_status == "accepted" &&
+  return r.model_kind == "decoder" &&
          accepted_attention_backend(r) && r.decoder_cuda_path &&
          r.decoder_cuda_slice == "full_decoder" &&
          r.decoder_block_backend == "cuda_full_decoder" &&

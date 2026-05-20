@@ -72,7 +72,7 @@ decode requires the native route evidence gate.
 
 - Datasets: `data/train/datasets`
 - Active full corpus: `data/public-corpus`
-- Active first-party SFT corpus: `corpus/generated/kimi-sft-60m` after it
+- Active first-party SFT corpus: `data/corpus/generated/kimi-sft-60m` after it
   reaches `60000000` validated tokens. A promoted 1M-token pilot is the
   required intermediate gate. No deleted Kimi corpus is active.
 - Tokenizer: `data/train/tokenizer`

@@ -47,6 +47,5 @@ bool decoder_probe_generate_acceptance(const TransformerState& state,
                                        const NativeTokenizer& tokenizer,
                                        TransformerTrainReport* report,
                                        std::string* error);
-void decoder_mark_accepted_decoder_if_ready(TransformerTrainReport* report);
 
 }  // namespace lkjai

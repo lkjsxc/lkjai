@@ -66,7 +66,8 @@ bool apply_training_config(const std::filesystem::path& path,
     return false;
   }
   auto objective = json_first_string(text, "objective");
-  if (!objective.empty() && objective != "causal_lm_full") {
+  if (!objective.empty() && objective != "causal_lm_full" &&
+      objective != "assistant_masked_sft") {
     *error = "unsupported TRAIN_CONFIG objective: " + objective;
     return false;
   }

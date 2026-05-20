@@ -21,5 +21,6 @@ State: canonical documentation.
 
 ## Current Branch Policy
 
-- Work lands on local `main`.
+- `main` is the integration target for verified work.
+- Feature branches are temporary and are deleted after merge and verification.
 - Preserve `tmp/kjxlkj` as untracked reference material.

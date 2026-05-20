@@ -1,34 +1,27 @@
 #include "runtime_agent.hpp"
-
 #include "json_min.hpp"
 #include "runtime_action.hpp"
 #include "runtime_events.hpp"
 #include "runtime_tools.hpp"
-
+#include <fstream>
 namespace lkjai {
 namespace {
-
 std::string error_json(std::string_view error) {
   return "{\"error\":\"" + json_escape(error) + "\"}";
 }
-
 int max_steps(std::string_view body, std::string* error) {
   int value = json_int_value(body, "max_steps", 6);
   if (value >= 1 && value <= 64) return value;
   *error = "max_steps must be in [1,64]";
   return 0;
 }
-
 std::string system_prompt(const RuntimeConfig& cfg) {
   return "Return exactly one XML action. Available tools: agent.finish, "
-         "agent.think, fs.list, fs.read. Use <tool>agent.finish</tool> for ordinary replies. "
-         "Use <tool>agent.think</tool> only for a short visible plan. "
-         "Use <tool>fs.list</tool><path>.</path> or "
-         "<tool>fs.read</tool><path>README.md</path> for read-only files. "
-         "Tool profile: " +
-         cfg.tool_profile + ".";
+         "agent.think, agent.request_confirmation, fs.list, fs.read, resource.search, "
+         "resource.get, resource.history, resource.create, resource.update_resource, "
+         "resource.delete. Use agent.request_confirmation before resource mutations. "
+         "Use fs.list/fs.read for read-only files. Tool profile: " + cfg.tool_profile + ".";
 }
-
 std::string chat_payload(const RuntimeConfig& cfg, const std::string& run_id) {
   return "{\"model\":\"" + json_escape(cfg.model) + "\",\"messages\":["
          "{\"role\":\"system\",\"content\":\"" +
@@ -36,7 +29,6 @@ std::string chat_payload(const RuntimeConfig& cfg, const std::string& run_id) {
          runtime_chat_messages_json(cfg, run_id, 12) +
          "],\"max_tokens\":512,\"temperature\":0.2}";
 }
-
 std::string choice_content(std::string_view body) {
   auto choices = body.find("\"choices\"");
   if (choices == std::string_view::npos) return "";
@@ -44,34 +36,78 @@ std::string choice_content(std::string_view body) {
   if (message == std::string_view::npos) return "";
   return json_first_string(body.substr(message), "content");
 }
-
 HttpResponse response(const RuntimeConfig& cfg, const std::string& run_id,
                       const std::vector<std::string>& visible,
-                      const std::string& assistant,
-                      const std::string& stop_reason) {
+                      const std::string& assistant, const std::string& stop_reason) {
   return {200, "{\"run_id\":\"" + json_escape(run_id) + "\",\"assistant\":\"" +
                    json_escape(assistant) + "\",\"events\":" +
                    runtime_events_json(cfg, run_id, visible) +
                    ",\"stop_reason\":\"" + stop_reason + "\"}"};
 }
-
 HttpResponse stop_error(const RuntimeConfig& cfg, const std::string& run_id,
                         const std::vector<std::string>& visible,
-                        const std::string& reason,
-                        const std::string& content) {
+                        const std::string& reason, const std::string& content) {
   runtime_append_event(cfg, run_id, "error", content);
   return response(cfg, run_id, visible, "", reason);
 }
-
 void append_reasoning(const RuntimeConfig& cfg, const std::string& run_id,
                       const AgentAction& action, int step) {
   if (!action.reasoning.empty()) {
     runtime_append_event(cfg, run_id, "reasoning", action.reasoning, step);
   }
 }
-
+AgentAction pending_action(const AgentAction& confirmation) {
+  AgentAction out = confirmation;
+  auto pending = agent_action_field(confirmation, "pending_tool");
+  if (pending.empty()) pending = agent_action_field(confirmation, "operation");
+  out.tool = pending;
+  out.fields["tool"] = pending;
+  return out;
+}
+bool last_pending(const RuntimeConfig& cfg, const std::string& run_id,
+                  AgentAction* out, std::string* error) {
+  std::ifstream file(runtime_run_path(cfg, run_id));
+  std::string line, raw;
+  while (std::getline(file, line)) {
+    if (json_first_string(line, "kind") == "pending_operation") {
+      raw = json_first_string(line, "content");
+    }
+  }
+  if (raw.empty()) {
+    *error = "no pending operation";
+    return false;
+  }
+  AgentAction parsed;
+  if (!parse_agent_action(raw, &parsed, error)) return false;
+  *out = parsed.tool == "agent.request_confirmation" ? pending_action(parsed)
+                                                      : parsed;
+  return true;
+}
+HttpResponse handle_confirmation(const RuntimeConfig& cfg,
+                                 const std::string& run_id,
+                                 const std::vector<std::string>& visible,
+                                 bool confirm) {
+  if (!confirm) {
+    runtime_append_event(cfg, run_id, "cancelled", "pending operation cancelled");
+    return response(cfg, run_id, visible, "", "cancelled");
+  }
+  std::string error;
+  AgentAction action;
+  if (!last_pending(cfg, run_id, &action, &error)) {
+    return stop_error(cfg, run_id, visible, "tool_error", error);
+  }
+  runtime_append_event(cfg, run_id, "confirmed_operation", action.raw, 0,
+                       action.tool);
+  auto result = runtime_run_tool(cfg, action);
+  if (!result.supported) {
+    return stop_error(cfg, run_id, visible, "tool_error",
+                      "unsupported tool: " + action.tool);
+  }
+  runtime_append_event(cfg, run_id, "tool_result", result.json, 0, action.tool);
+  runtime_append_event(cfg, run_id, "observation", result.json, 0, action.tool);
+  return response(cfg, run_id, visible, result.json, "finish");
+}
 }  // namespace
-
 HttpResponse runtime_chat_with_model_callback(const RuntimeConfig& cfg,
                                               const HttpRequest& request,
                                               RuntimeModelCall model_call) {
@@ -85,6 +121,12 @@ HttpResponse runtime_chat_with_model_callback(const RuntimeConfig& cfg,
   if (!runtime_run_id_ok(run_id)) return {400, error_json("invalid run_id")};
   runtime_append_event(cfg, run_id, "user", message);
   auto visible = runtime_visible_event_kinds(request.body);
+  if (json_bool_value(request.body, "confirm_pending", false)) {
+    return handle_confirmation(cfg, run_id, visible, true);
+  }
+  if (json_bool_value(request.body, "cancel_pending", false)) {
+    return handle_confirmation(cfg, run_id, visible, false);
+  }
   std::string previous_nonterminal;
   for (int step = 1; step <= steps; ++step) {
     auto model = model_call(chat_payload(cfg, run_id));
@@ -122,6 +164,12 @@ HttpResponse runtime_chat_with_model_callback(const RuntimeConfig& cfg,
                            action.tool);
       continue;
     }
+    if (action.tool == "agent.request_confirmation" ||
+        runtime_tool_requires_confirmation(action.tool)) {
+      runtime_append_event(cfg, run_id, "pending_operation", action.raw, step,
+                           action.tool);
+      return response(cfg, run_id, visible, "", "confirmation_required");
+    }
     runtime_append_event(cfg, run_id, "tool_call", action.raw, step,
                          action.tool);
     auto tool = runtime_run_tool(cfg, action);
@@ -137,7 +185,6 @@ HttpResponse runtime_chat_with_model_callback(const RuntimeConfig& cfg,
   return stop_error(cfg, run_id, visible, "max_steps",
                     "agent loop reached max_steps");
 }
-
 HttpResponse runtime_chat_with_model_response(const RuntimeConfig& cfg,
                                               const HttpRequest& request,
                                               const NativeHttpResponse& model) {
@@ -149,5 +196,4 @@ HttpResponse runtime_chat_with_model_response(const RuntimeConfig& cfg,
         return model;
       });
 }
-
 }  // namespace lkjai

@@ -68,8 +68,9 @@ Public pretraining rows use standalone English `text` with metadata:
   policy, and `public-pretrain` provenance.
 - Public pretraining rows must not include `prompt` or `seed_data` values.
 - Quarantined source packs must not be consumed by `prepare-corpus`.
-- Kimi-generated rows must be written to quarantined shard directories first.
-- Promotion into `corpus/generated/kimi-sft-60m` requires XML action schema,
+- Kimi-generated rows must be written to
+  `data/corpus/quarantine/kimi-sft-60m` first.
+- Promotion into `data/corpus/generated/kimi-sft-60m` requires XML action schema,
   tool allowlist, metadata, provenance, de-duplication, and fixture-replay
   validation.
 
@@ -162,9 +163,10 @@ estimates, selected fields, source budgets, checksums, and source/license
 distribution.
 
 Kimi SFT generation uses `configs/corpus/kimi_sft_60m.yaml` as the canonical
-lane. It must generate into quarantine, validate each shard, and promote only
-passing rows into `corpus/generated/kimi-sft-60m`; failed shards stay outside
-the active training corpus.
+lane. It must generate into `data/corpus/quarantine/kimi-sft-60m`, validate
+each shard, and promote only passing rows into ignored
+`data/corpus/generated/kimi-sft-60m`. The tracked
+`corpus/generated/kimi-sft-60m` path is a tiny seed fixture only.
 
 ## Rejection Patterns
 

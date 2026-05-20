@@ -174,6 +174,8 @@ RuntimeToolResult runtime_run_tool(const RuntimeConfig& cfg,
   }
   if (action.tool == "fs.read") return fs_read(cfg, action);
   if (action.tool == "fs.list") return fs_list(cfg, action);
+  auto resource = runtime_run_resource_tool(cfg, action);
+  if (resource.supported) return resource;
   return {false, action.tool, ""};
 }
 

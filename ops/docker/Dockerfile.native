@@ -13,6 +13,7 @@ RUN apt-get update \
 
 COPY native ./native
 COPY configs ./configs
+COPY third_party ./third_party
 
 RUN cmake -S native -B /build -G Ninja -DCMAKE_BUILD_TYPE=Release \
       -DLKJAI_GIT_COMMIT_OVERRIDE=${LKJAI_GIT_COMMIT} \

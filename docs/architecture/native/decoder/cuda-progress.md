@@ -40,7 +40,7 @@ First CUDA progress after foundation:
   CUDA CE/loss-gradient helper, chain-rule CUDA backward, and registry-wide
   CUDA AdamW for every decoder tensor. Reports name
   `decoder_cuda_slice=full_decoder`,
-  `decoder_backward_backend=cuda_decoder_chain_rule`, and
+  `decoder_backward_backend=cuda_full_decoder`, and
   `decoder_gradient_source=cuda_device`, and remain non-accepted until SDPA,
   decode, route, and RTX 3070 evidence gates pass.
 - Current backward substrate hook: final norm, projection, residual, SwiGLU,

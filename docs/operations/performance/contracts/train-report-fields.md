@@ -90,6 +90,6 @@ Sidecars such as `decoder_acceptance.json` belong only to accepted evidence
 bundles.
 
 Current non-accepted chain-rule CUDA backward reports use
-`decoder_backward_backend=cuda_decoder_chain_rule` and
+`decoder_backward_backend=cuda_full_decoder` and
 `decoder_gradient_source=cuda_device`; they remain non-accepted while attention
 uses the custom reference backend or decode lacks accepted KV-cache evidence.

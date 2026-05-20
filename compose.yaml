@@ -86,6 +86,7 @@ services:
       - ./native:/app/data/workspace/native:ro
       - ./web:/app/data/workspace/web:ro
       - ./ops:/app/data/workspace/ops:ro
+      - ./tools:/app/data/workspace/tools:ro
       - ./scripts:/app/data/workspace/scripts:ro
       - ./training:/app/data/workspace/training:ro
       - ./corpus:/app/data/workspace/corpus:ro

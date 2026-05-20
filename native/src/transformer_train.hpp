@@ -83,6 +83,8 @@ struct DecoderWeightChangeReport {
 };
 
 struct DecoderCudaRuntimeEvidence {
+  int cudnn_sdpa_plan_cache_hits = 0;
+  int cudnn_sdpa_plan_cache_misses = 0;
   int cudnn_sdpa_forward_count = 0;
   int cudnn_sdpa_backward_count = 0;
   int attention_reference_forward_count = 0;

@@ -21,7 +21,7 @@ preparation work.
 |---|---|---|---|
 | `dense` | accepted foundation and browser diagnostics | BF16 CUDA train, checkpoint/export, logits checks, packed-cache IO, local top-k demo | decoder blocks and KV-cache decode |
 | `decoder` | product acceptance target | tied artifacts, tokenizer copy, full-decoder train report fields, CUDA KV-cache route disclosure contract | accepted two-hour evidence on the RTX 3070 lane |
-| `runtime` | split web, sandbox, and inference services | XML actions, transcript persistence, `agent.finish`, `agent.think`, `fs.list`, and `fs.read` | memory, resource, shell, and confirmation execution |
+| `runtime` | split web, sandbox, and inference services | XML actions, transcript persistence, confirmation events, read-only filesystem tools, and kjxlkj resource tools | shell tools and workspace mutation policies |
 | `transformer` | diagnostic lane | host/reference checks and probe reports | not an accepted training or serving target |
 
 ## Decoder Map
@@ -30,7 +30,7 @@ The decoder lane is the first product acceptance target. Current truth is:
 
 - Full decoder forward, CE loss, logits capture, grad-logits, and chain-rule
   backward run on CUDA from recorded decoder tape tensors.
-- Decoder registry gradients are reported as `cuda_decoder_chain_rule` with
+- Decoder registry gradients are reported as `cuda_full_decoder` with
   `decoder_gradient_source=cuda_device`; host backward is parity-only evidence.
 - Registry CUDA AdamW updates device FP32 masters, Adam moments, gradients, and
   BF16 shadows for decoder tensors.
@@ -52,7 +52,13 @@ Detailed decoder acceptance blockers are owned by
 Partial reports must keep `accepted_cuda_training=false` and avoid accepted
 attention or decode names. Accepted route disclosure requires accepted train
 report evidence, an accepted sidecar, the loaded 40M RTX 3070 decoder shape,
-and an executed CUDA KV-cache path.
+  an executed CUDA KV-cache path, and
+  `data/train/runs/decoder-40m-3070-route-transcript.json`.
+
+The public pretrain cache remains local under `data/` after strict validation.
+The tracked `corpus/generated/kimi-sft-60m` tree is only a tiny seed fixture.
+Full Kimi SFT output is quarantined under `data/corpus/quarantine/kimi-sft-60m`
+and promoted only to ignored `data/corpus/generated/kimi-sft-60m`.
 
 ## Data Map
 

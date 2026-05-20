@@ -102,7 +102,7 @@ void check_training_config(const std::filesystem::path& repo,
     result->fail(path.string() + " native_config must be repo-local");
   }
   auto objective = json_first_string(body, "objective");
-  if (objective != "causal_lm_full")
+  if (objective != "causal_lm_full" && objective != "assistant_masked_sft")
     result->fail(path.string() + " unsupported objective " + objective);
   auto model_kind = json_first_string(body, "model_kind");
   auto schedule = json_first_string(body, "lr_schedule");
