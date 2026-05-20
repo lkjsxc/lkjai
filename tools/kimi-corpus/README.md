@@ -7,3 +7,7 @@ State: prompt assets.
 
 This directory stores prompt and template assets used by
 `ops/corpus/kimi_sft`. Generated rows are quarantined under `data/`.
+
+## Contents
+
+- [prompts/](prompts/): SFT generation templates.

@@ -12,6 +12,9 @@ entrypoints used only by the `corpus` Compose profile.
 ## Contents
 
 - [entrypoint.sh](entrypoint.sh): profile command dispatcher.
+- [kimi_sft/README.md](kimi_sft/README.md): Kimi SFT validation and promotion
+  command package.
+- [kimi_sft_tool](kimi_sft_tool): Kimi SFT command wrapper.
 - [public_pretrain_tool](public_pretrain_tool): corpus-only acquisition,
   preparation, packed-cache, and validation helper.
 - [public_pretrain/README.md](public_pretrain/README.md): helper module map.
