@@ -145,6 +145,16 @@ Then run the four-hour non-acceptance training lane:
 TRAIN_CONFIG=/workspace/configs/training/decoder_4h_chat_attempt_3070.json \
 TRAIN_MODEL_NAME=decoder-40m-3070 \
 TRAIN_RUN_PURPOSE=chat_attempt \
+TRAIN_DATA_DIR=/app/data/chat-attempt-start-check/train \
+TRAIN_MAX_OPTIMIZER_STEPS=1 \
+TRAIN_TARGET_SECONDS=0 \
+docker compose --profile train run --build --rm train --train --mode decoder
+```
+
+```bash
+TRAIN_CONFIG=/workspace/configs/training/decoder_4h_chat_attempt_3070.json \
+TRAIN_MODEL_NAME=decoder-40m-3070 \
+TRAIN_RUN_PURPOSE=chat_attempt \
 docker compose --profile train up --build train
 ```
 
