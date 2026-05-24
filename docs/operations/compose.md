@@ -16,6 +16,8 @@ State: canonical Compose profile, mount, port, and verification contract.
 ## Data Mount
 
 - `sandbox`, `inference`, and `train` mount `./data:/app/data`.
+- `verify` uses `/tmp/lkjai-verify-data` inside the container and must not
+  write through to host `./data`.
 - `web` mounts no model, data, workspace, or GPU paths.
 - Inference mounts `./data/models` to `/models`.
 - Inference loads `/models/${MODEL_NAME}`.

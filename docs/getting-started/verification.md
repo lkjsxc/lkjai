@@ -64,6 +64,8 @@ VERIFY_TAIL_LINES=80 docker compose --progress quiet --profile verify run --buil
 
 - Verify requires NVIDIA GPU access, but remains bounded compared with long
   training runs.
+- Verify uses container-local `/tmp/lkjai-verify-data` and must not mutate host
+  `data/models` or `data/train` artifacts.
 - Verify does not prove final model quality by itself.
 - Decoder acceptance is governed by the native decoder
   [acceptance matrix](../architecture/native/decoder/acceptance.md) plus the

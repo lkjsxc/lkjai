@@ -176,11 +176,10 @@ services:
         LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
     working_dir: /workspace
     environment:
-      DATA_DIR: /workspace/data/verify
+      DATA_DIR: /tmp/lkjai-verify-data
       LKJAI_CUDA_ARCHS: ${LKJAI_CUDA_ARCHS:-}
     volumes:
       - .:/workspace:ro
-      - ./data:/workspace/data
     deploy:
       resources:
         reservations:
