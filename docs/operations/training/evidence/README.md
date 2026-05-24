@@ -20,3 +20,5 @@ Use this subtree for dated training proof records.
   controlled dense BF16 CUDA learning proof run.
 - [dense-40m-long-run-blocker-20260512.md](dense-40m-long-run-blocker-20260512.md):
   accepted dense 40M long-run prerequisite blocker.
+- [decoder-chat-attempt-20260524.md](decoder-chat-attempt-20260524.md):
+  four-hour non-acceptance decoder chat-attempt proof run.
