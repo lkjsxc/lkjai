@@ -8,6 +8,7 @@
 namespace lkjai {
 
 struct DecoderCudaForwardSubstrateReport;
+class DecoderCudaState;
 struct NativeTokenizer;
 
 DenseConfig decoder_dense_cfg(const TransformerConfig& cfg);
@@ -25,7 +26,7 @@ bool decoder_write_all(const TransformerTrainOptions& opt,
                        const TransformerState& state,
                        TransformerTrainReport* report, int seq_len);
 bool decoder_maybe_write_latest(const TransformerTrainOptions& opt,
-                                DenseCudaState& cuda,
+                                DecoderCudaState& cuda,
                                 TransformerTrainReport* report, int seq_len,
                                 std::string* error);
 bool decoder_cuda_slice_run_block_forward(

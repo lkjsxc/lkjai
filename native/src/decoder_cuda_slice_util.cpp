@@ -4,8 +4,8 @@
 #include <sstream>
 
 #include "decoder_cuda_block.hpp"
+#include "decoder_cuda_state.hpp"
 #include "decoder_decode.hpp"
-
 namespace lkjai {
 
 bool decoder_validate_layer_shapes(const TransformerConfig& cfg,
@@ -131,7 +131,7 @@ bool decoder_write_all(const TransformerTrainOptions& opt,
                                            opt.tokenizer_path));
 }
 
-bool decoder_maybe_write_latest(const TransformerTrainOptions& opt, DenseCudaState& cuda,
+bool decoder_maybe_write_latest(const TransformerTrainOptions& opt, DecoderCudaState& cuda,
                                 TransformerTrainReport* report, int seq_len,
                                 std::string* error) {
   if (opt.checkpoint_interval <= 0 ||
