@@ -11,6 +11,7 @@ let health = {};
 let model = {};
 let config = {};
 let directModels = {};
+let lastChat = {};
 
 async function json(url, options) {
   const response = await fetch(url, options);
@@ -53,13 +54,21 @@ function applyState() {
   $('message').disabled = pending;
   $('send').disabled = pending;
   $('chatState').textContent = pending ? 'sending' : chatReason();
+  $('chatOutcome').textContent = lastChat.stop_reason
+    ? `last ${lastChat.http_status || 'n/a'} / ${lastChat.stop_reason}`
+    : 'no attempt';
+  $('chatOutcome').className =
+    lastChat.stop_reason === 'finish' ? 'outcome-ok' :
+    lastChat.stop_reason ? 'outcome-bad' : 'muted';
   $('modelLine').textContent =
     `${model.model || 'model'} / ${model.artifact_kind || 'unknown'} / ${config.tool_profile || 'tools pending'}`;
   $('status').textContent =
     `${health.status || 'unknown'} / ${model.reachable ? 'reachable' : 'not reachable'}`;
+  $('modelFacts').replaceChildren(...webState.modelFacts(model));
   $('modelJson').textContent = JSON.stringify({
     sandbox: { health, model, config },
-    inference: { models: directModels }
+    inference: { models: directModels },
+    last_chat: lastChat
   }, null, 2);
 }
 
@@ -67,6 +76,7 @@ function startDraft() {
   viewToken += 1;
   runId = '';
   events = [];
+  lastChat = {};
   $('message').value = '';
   $('title').textContent = 'Draft run';
   renderEvents();
@@ -129,13 +139,23 @@ async function sendMessage(event) {
   applyState();
   const body = { message };
   if (runId) body.run_id = runId;
+  const previousEvents = events;
   const data = await json(`${SANDBOX_API_BASE}/chat`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body)
-  }).catch((error) => ({ error: String(error), events }));
+  }).catch((error) => ({ error: String(error), events: previousEvents, http_status: 0 }));
   runId = data.run_id || runId;
-  events = data.events || events;
+  events = data.events || previousEvents;
+  lastChat = {
+    http_status: data.http_status || 0,
+    stop_reason: data.stop_reason || (data.error ? 'request_error' : ''),
+    error: data.error || ''
+  };
+  if (lastChat.stop_reason && lastChat.stop_reason !== 'finish' &&
+      !webState.hasAssistant(events) && !webState.hasError(events)) {
+    events = [...events, { kind: 'error', content: webState.failureMessage(data, model) }];
+  }
   $('message').value = '';
   $('title').textContent = runId || 'Draft run';
   renderEvents();

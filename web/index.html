@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>lkjai operator</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="state.css">
 </head>
 <body>
   <div class="shell">
@@ -26,8 +27,12 @@
           <div>
             <strong id="title">Draft run</strong>
             <div id="modelLine" class="muted">model pending</div>
+            <div id="modelFacts" class="facts"></div>
           </div>
-          <div id="chatState" class="muted">chat pending</div>
+          <div class="statebox">
+            <div id="chatState" class="muted">chat pending</div>
+            <div id="chatOutcome" class="muted">no attempt</div>
+          </div>
         </div>
         <div id="events" class="events"></div>
         <form id="composer" class="composer">
@@ -41,6 +46,7 @@
       </aside>
     </main>
   </div>
+  <script src="state.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
