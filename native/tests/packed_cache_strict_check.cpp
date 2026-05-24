@@ -101,11 +101,48 @@ bool missing_tokenizer_rejected() {
                 "missing tokenizer rejected");
 }
 
+bool assistant_masked_sft_masks_multiple_actions() {
+  auto dir = root();
+  auto source = dir / "source.jsonl";
+  auto tokenizer = dir / "tokenizer.json";
+  auto config = dir / "config.json";
+  auto cache = dir / "cache";
+  write_file(source,
+             "{\"messages\":[{\"role\":\"user\",\"content\":\"aa\"},"
+             "{\"role\":\"assistant\",\"content\":\"<action>aaaa</action>\"},"
+             "{\"role\":\"tool\",\"content\":\"aa\"},"
+             "{\"role\":\"assistant\",\"content\":\"<action>aaaa</action>\"}]}\n");
+  write_file(tokenizer, tokenizer_json());
+  write_file(config, "{\"vocab_size\":16,\"context\":4}\n");
+  lkjai::PackedCacheBuildOptions opt;
+  opt.source = source;
+  opt.tokenizer = tokenizer;
+  opt.config = config;
+  opt.out = cache;
+  opt.seq_len = 4;
+  opt.sequence_count = 120;
+  opt.objective = "assistant_masked_sft";
+  std::string error;
+  if (!expect(lkjai::build_packed_cache(opt, &error), error)) return false;
+  std::ifstream mask(cache / "loss_mask.bin", std::ios::binary);
+  std::string bytes((std::istreambuf_iterator<char>(mask)),
+                    std::istreambuf_iterator<char>());
+  int supervised_runs = 0;
+  char previous = '\0';
+  for (char byte : bytes) {
+    if (byte == '\1' && previous != '\1') supervised_runs += 1;
+    previous = byte;
+  }
+  return expect(supervised_runs >= 2,
+                "assistant_masked_sft masks every assistant action span");
+}
+
 }  // namespace
 
 int main() {
   return strict_build_validate() && directory_source_is_sorted_and_streamed() &&
-                 missing_tokenizer_rejected()
+                 missing_tokenizer_rejected() &&
+                 assistant_masked_sft_masks_multiple_actions()
              ? 0
              : 1;
 }

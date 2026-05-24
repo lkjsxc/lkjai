@@ -34,6 +34,20 @@ add_test(NAME native_cuda_arch_contract
   COMMAND lkjai-native-repo-check cuda-arch-contract --repo ${LKJAI_REPO_ROOT})
 add_test(NAME native_secret_defaults
   COMMAND lkjai-native-repo-check secret-defaults --repo ${LKJAI_REPO_ROOT})
+add_test(
+  NAME native_kimi_cli_runner_command_contract
+  COMMAND sh -c [=[
+set -e
+out="$($<TARGET_FILE:lkjai-native-kimi-cli-runner> --self-test-command)"
+printf '%s\n' "$out" | grep -q -- '--input-format'
+printf '%s\n' "$out" | grep -q -- '--output-format'
+printf '%s\n' "$out" | grep -q -- '--max-ralph-iterations'
+printf '%s\n' "$out" | grep -q -- '--no-thinking'
+if printf '%s\n' "$out" | grep -E 'sk-[A-Za-z0-9_-]+'; then
+  exit 1
+fi
+]=]
+)
 
 add_test(
   NAME native_corpus_actions

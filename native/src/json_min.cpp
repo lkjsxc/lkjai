@@ -1,6 +1,7 @@
 #include "json_min.hpp"
 
 #include <cctype>
+#include <cstdio>
 #include <fstream>
 #include <sstream>
 
@@ -38,9 +39,20 @@ std::string json_escape(std::string_view value) {
         out += "\\n";
         break;
       case '\r':
+        out += "\\r";
+        break;
+      case '\t':
+        out += "\\t";
         break;
       default:
-        out += ch;
+        if (static_cast<unsigned char>(ch) < 0x20) {
+          char escaped[7];
+          std::snprintf(escaped, sizeof(escaped), "\\u%04x",
+                        static_cast<unsigned char>(ch));
+          out += escaped;
+        } else {
+          out += ch;
+        }
     }
   }
   return out;

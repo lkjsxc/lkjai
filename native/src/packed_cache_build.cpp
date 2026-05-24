@@ -17,8 +17,7 @@ void write_u64(std::ofstream& out, uint64_t value) {
   out.write(reinterpret_cast<const char*>(&value), sizeof(value));
 }
 struct SourceTokens {
-  int example_count = 0;
-  int max_token_id = 0;
+  int example_count = 0, max_token_id = 0;
   int windows = 0;
 };
 std::vector<std::filesystem::path> source_shards(const std::filesystem::path& source,
@@ -46,15 +45,34 @@ std::string row_text(std::string_view row) {
   if (!text.empty()) return text;
   return json_first_string(row, "content");
 }
-std::pair<std::string, std::string> assistant_target(std::string_view row) {
-  auto begin = row.find("<action>");
-  auto end = row.find("</action>", begin);
-  if (begin == std::string_view::npos || end == std::string_view::npos) {
-    return {"", ""};
+std::vector<std::pair<std::string, char>> assistant_action_parts(
+    std::string_view row) {
+  std::vector<std::pair<std::string, char>> parts;
+  size_t cursor = 0;
+  bool found = false;
+  while (cursor < row.size()) {
+    auto begin = row.find("<action>", cursor);
+    if (begin == std::string_view::npos) {
+      if (cursor < row.size()) {
+        parts.push_back({std::string(row.substr(cursor)), '\0'});
+      }
+      break;
+    }
+    auto end = row.find("</action>", begin);
+    if (end == std::string_view::npos) {
+      parts.clear();
+      return parts;
+    }
+    if (begin > cursor) {
+      parts.push_back({std::string(row.substr(cursor, begin - cursor)), '\0'});
+    }
+    end += std::string_view("</action>").size();
+    parts.push_back({std::string(row.substr(begin, end - begin)), '\1'});
+    found = true;
+    cursor = end;
   }
-  end += std::string_view("</action>").size();
-  return {std::string(row.substr(0, begin)),
-          std::string(row.substr(begin, end - begin))};
+  if (!found) parts.clear();
+  return parts;
 }
 bool write_streamed_source_tokens(const PackedCacheBuildOptions& opt,
                                   const NativeTokenizer& tokenizer,
@@ -96,10 +114,13 @@ bool write_streamed_source_tokens(const PackedCacheBuildOptions& opt,
       auto value = row_text(line);
       std::vector<std::pair<std::vector<uint16_t>, char>> parts;
       if (opt.objective == "assistant_masked_sft") {
-        auto [prefix, target] = assistant_target(line);
-        if (target.empty()) continue;
-        parts.push_back({tokenizer_encode(tokenizer, prefix), '\0'});
-        parts.push_back({tokenizer_encode(tokenizer, target), '\1'});
+        auto spans = assistant_action_parts(line);
+        if (spans.empty()) continue;
+        for (const auto& span : spans) {
+          if (!span.first.empty()) {
+            parts.push_back({tokenizer_encode(tokenizer, span.first), span.second});
+          }
+        }
       } else {
         if (value.empty()) continue;
         parts.push_back({tokenizer_encode(tokenizer, value), '\1'});

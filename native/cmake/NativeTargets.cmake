@@ -28,6 +28,14 @@ target_link_libraries(lkjai-native-packed-cache PRIVATE lkjai_native_core)
 add_executable(lkjai-native-tokenizer-build src/tokenizer_build_main.cpp)
 target_link_libraries(lkjai-native-tokenizer-build PRIVATE lkjai_native_core)
 
+add_executable(lkjai-native-kimi-cli-bridge src/kimi_cli_bridge_main.cpp)
+
+add_executable(lkjai-native-kimi-cli-runner
+  src/kimi_cli_runner_main.cpp
+  src/kimi_cli_runner.cpp
+)
+target_link_libraries(lkjai-native-kimi-cli-runner PRIVATE lkjai_native_core)
+
 add_executable(lkjai-native-repo-check
   src/repo_check_main.cpp
   src/repo_check_common.cpp

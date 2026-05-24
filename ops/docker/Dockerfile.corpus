@@ -17,7 +17,7 @@ COPY third_party ./third_party
 
 RUN cmake -S native -B /build -G Ninja -DCMAKE_BUILD_TYPE=Release \
       -DLKJAI_GIT_COMMIT_OVERRIDE=${LKJAI_GIT_COMMIT} \
-    && cmake --build /build --target lkjai-native-packed-cache lkjai-native-tokenizer-build --parallel
+    && cmake --build /build --target lkjai-native-packed-cache lkjai-native-tokenizer-build lkjai-native-kimi-cli-runner --parallel
 
 FROM nvidia/cuda:12.8.1-base-ubuntu24.04
 
@@ -38,6 +38,7 @@ RUN apt-get update \
 
 COPY --from=native-build /build/lkjai-native-packed-cache /usr/local/bin/
 COPY --from=native-build /build/lkjai-native-tokenizer-build /usr/local/bin/
+COPY --from=native-build /build/lkjai-native-kimi-cli-runner /usr/local/bin/
 COPY ops/corpus/public_pretrain_tool /usr/local/bin/lkjai-public-pretrain
 COPY ops/corpus/public_pretrain /usr/local/lib/public_pretrain
 COPY ops/corpus/kimi_sft_tool /usr/local/bin/lkjai-kimi-sft

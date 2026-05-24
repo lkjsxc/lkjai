@@ -16,6 +16,18 @@ case "$cmd" in
   validate-public-pretrain)
     exec /usr/local/bin/lkjai-public-pretrain validate "$@"
     ;;
+  generate-kimi-sft)
+    exec /usr/local/bin/lkjai-kimi-sft generate "$@"
+    ;;
+  validate-kimi-sft-quarantine)
+    exec /usr/local/bin/lkjai-kimi-sft validate "$@"
+    ;;
+  promote-kimi-sft)
+    exec /usr/local/bin/lkjai-kimi-sft promote "$@"
+    ;;
+  report-kimi-sft)
+    exec /usr/local/bin/lkjai-kimi-sft report "$@"
+    ;;
   build-tokenizer)
     tokenizer="${TRAIN_TOKENIZER_JSON:-/app/data/train/tokenizer/tokenizer.json}"
     max_vocab_size="${TRAIN_TOKENIZER_MAX_VOCAB_SIZE:-8192}"
@@ -56,6 +68,9 @@ case "$cmd" in
   lkjai-native-tokenizer-build)
     exec lkjai-native-tokenizer-build "$@"
     ;;
+  lkjai-native-kimi-cli-runner)
+    exec lkjai-native-kimi-cli-runner "$@"
+    ;;
   help|--help|-h)
     cat <<'USAGE'
 usage: corpus COMMAND
@@ -64,6 +79,10 @@ commands:
   download-public-pretrain       fetch pinned public-pretrain Parquet files
   prepare-public-pretrain        write text-only JSONL train/val/holdout shards
   validate-public-pretrain       validate manifests and generated JSONL rows
+  generate-kimi-sft              generate quarantined Kimi SFT shards
+  validate-kimi-sft-quarantine   validate quarantined Kimi SFT shards
+  promote-kimi-sft               promote validated Kimi SFT shards
+  report-kimi-sft                report on promoted Kimi SFT shards
   build-tokenizer                write native byte-level BPE tokenizer.json
   build-public-pretrain-cache    run native lkjai-packed-cache on JSONL source
 USAGE
