@@ -24,6 +24,10 @@ std::string decoder_shape_report(const TransformerConfig& cfg);
 bool decoder_write_all(const TransformerTrainOptions& opt,
                        const TransformerState& state,
                        TransformerTrainReport* report, int seq_len);
+bool decoder_maybe_write_latest(const TransformerTrainOptions& opt,
+                                DenseCudaState& cuda,
+                                TransformerTrainReport* report, int seq_len,
+                                std::string* error);
 bool decoder_cuda_slice_run_block_forward(
     const TransformerState& state, const PackedBatch& batch,
     DecoderCudaForwardSubstrateReport* report, std::string* error);

@@ -167,6 +167,8 @@ bool run_decoder_cuda_training(const TransformerTrainOptions& opt,
     cuda.optimizer_step(lr_at(opt, local), local);
     report->optimizer_seconds += since(phase);
     if (!logits.empty()) report->logits_checksum = dense_checksum_floats(logits);
+    if (!decoder_maybe_write_latest(effective, cuda, report, seq_len, error))
+      return false;
   }
   if (!report->deadline_hit) report->stop_reason = "max_steps";
   auto trained_state = cuda.copy_to_host();

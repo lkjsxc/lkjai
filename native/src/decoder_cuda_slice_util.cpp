@@ -131,6 +131,21 @@ bool decoder_write_all(const TransformerTrainOptions& opt,
                                            opt.tokenizer_path));
 }
 
+bool decoder_maybe_write_latest(const TransformerTrainOptions& opt, DenseCudaState& cuda,
+                                TransformerTrainReport* report, int seq_len,
+                                std::string* error) {
+  if (opt.checkpoint_interval <= 0 ||
+      report->steps % opt.checkpoint_interval != 0) return true;
+  auto state = cuda.copy_to_host();
+  if (write_transformer_artifact(report->checkpoint_dir, state, report->steps,
+                                 report->microsteps, opt.batch_size, seq_len,
+                                 opt.grad_accum, report->loss, true,
+                                 &report->logits_checksum, opt.tokenizer_path))
+    return true;
+  *error = "failed to write latest decoder checkpoint";
+  return false;
+}
+
 void decoder_set_forward_probe(const DecoderCudaForwardSubstrateReport& p,
                                TransformerTrainReport* r) {
   auto& o = r->decoder_forward_probe;
