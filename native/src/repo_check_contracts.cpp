@@ -86,7 +86,7 @@ void check_training_config(const std::filesystem::path& repo,
   static const std::vector<std::string_view> allowed = {
       "format", "name", "description", "preset", "model_name", "model_kind",
       "native_config", "packed_cache_dir", "tokenizer", "objective",
-      "sequence_len", "learning_rate", "lr_schedule",
+      "run_purpose", "sequence_len", "learning_rate", "lr_schedule",
       "min_learning_rate_fraction", "warmup_steps", "batch_size",
       "gradient_accumulation", "max_optimizer_steps",
       "save_latest_every_optimizer_steps", "target_seconds", "seed"};

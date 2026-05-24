@@ -15,7 +15,7 @@ bool known_key(std::string_view key) {
   static const std::vector<std::string_view> known = {
       "format", "name", "description", "preset", "model_name",
       "model_kind", "native_config", "packed_cache_dir", "tokenizer",
-      "objective", "sequence_len",
+      "objective", "run_purpose", "sequence_len",
       "learning_rate", "lr_schedule", "min_learning_rate_fraction",
       "warmup_steps", "batch_size",
       "gradient_accumulation", "max_optimizer_steps",
@@ -82,6 +82,8 @@ bool apply_training_config(const std::filesystem::path& path,
   if (!packed_cache.empty()) opt->packed_cache = packed_cache;
   auto tokenizer = json_first_string(text, "tokenizer");
   if (!tokenizer.empty()) opt->tokenizer_path = tokenizer;
+  auto run_purpose = json_first_string(text, "run_purpose");
+  if (!run_purpose.empty()) opt->run_purpose = run_purpose;
   opt->seq_len = json_int_value(text, "sequence_len", opt->seq_len);
   opt->batch_size = json_int_value(text, "batch_size", opt->batch_size);
   opt->grad_accum =

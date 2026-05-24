@@ -115,6 +115,9 @@ services:
       TRAIN_MODEL_KIND: ${TRAIN_MODEL_KIND:-decoder}
       TRAIN_CONFIG: ${TRAIN_CONFIG:-/workspace/configs/training/decoder_2h_40m_3070.json}
       TRAIN_NATIVE_CONFIG: ${TRAIN_NATIVE_CONFIG:-/workspace/configs/native/decoder_40m_bf16_3070.json}
+      TRAIN_RUN_PURPOSE: ${TRAIN_RUN_PURPOSE:-}
+      TRAIN_MAX_OPTIMIZER_STEPS: ${TRAIN_MAX_OPTIMIZER_STEPS:-}
+      TRAIN_TARGET_SECONDS: ${TRAIN_TARGET_SECONDS:-}
       TRAIN_BEHAVIORAL_CHECKPOINT: ${TRAIN_BEHAVIORAL_CHECKPOINT:-export}
       TRAIN_COMMITTED_CORPUS_DIR: ${TRAIN_COMMITTED_CORPUS_DIR:-/workspace/corpus/generated/kimi-sft-60m}
       TRAIN_CORPUS_DIR: ${TRAIN_CORPUS_DIR:-/app/data/public-corpus}

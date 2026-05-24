@@ -113,8 +113,9 @@ __global__ void adamw_kernel(float* weight, float* m, float* v, const float* gra
                              float bc2) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i >= n) return;
-  float mi = kB1 * m[i] + (1.0f - kB1) * grad[i];
-  float vi = kB2 * v[i] + (1.0f - kB2) * grad[i] * grad[i];
+  float gi = isfinite(grad[i]) ? grad[i] : 0.0f;
+  float mi = kB1 * m[i] + (1.0f - kB1) * gi;
+  float vi = kB2 * v[i] + (1.0f - kB2) * gi * gi;
   m[i] = mi;
   v[i] = vi;
   float update = (mi / bc1) / (sqrtf(vi / bc2) + kEps);
