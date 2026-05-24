@@ -94,7 +94,8 @@ serving name, `decoder-40m-3070`, with a non-acceptance
 - training config:
   `configs/training/decoder_4h_chat_attempt_3070.json`
 - packed cache:
-  `data/train/datasets/packed/train-assistant_masked_sft-seq1024`
+  `data/train/datasets/packed/train-assistant_masked_sft-seq128`
+- sequence length: `128`
 - run purpose: `chat_attempt`
 - wall-clock target: `14400` seconds
 - expected serving disclosure: `lkjai_decode_accepted=false`

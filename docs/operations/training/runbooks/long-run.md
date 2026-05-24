@@ -181,10 +181,10 @@ docker compose --profile corpus run --build --rm corpus lkjai-native-packed-cach
   --source /app/data/corpus/generated/kimi-sft-60m/train \
   --tokenizer /app/data/train/tokenizer/tokenizer.json \
   --config /workspace/configs/native/decoder_40m_bf16_3070.json \
-  --out /app/data/train/datasets/packed/train-assistant_masked_sft-seq1024 \
+  --out /app/data/train/datasets/packed/train-assistant_masked_sft-seq128 \
   --split train \
   --objective assistant_masked_sft \
-  --seq-len 1024 \
+  --seq-len 128 \
   --run-id decoder-40m-chat-attempt-4h
 ```
 
