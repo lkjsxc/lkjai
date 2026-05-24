@@ -23,7 +23,8 @@ Training configs pin long-running scratch model settings.
 - [decoder_4h_chat_attempt_3070.json](decoder_4h_chat_attempt_3070.json):
   four-hour non-acceptance `assistant_masked_sft` chat-attempt run that exports
   over the default `decoder-40m-3070` serving name. It uses `128` token
-  sequences to keep the attempt lane runnable on RTX 3070.
+  sequences and frequent checkpoints to keep the attempt lane runnable on
+  RTX 3070.
 - [profile_20m_3070.json](profile_20m_3070.json): RTX 3070 transformer
   profile target for future native CUDA measurements, not accepted training.
 - [profile_120m_5090.json](profile_120m_5090.json): RTX 5090/Blackwell

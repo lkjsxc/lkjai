@@ -96,6 +96,7 @@ serving name, `decoder-40m-3070`, with a non-acceptance
 - packed cache:
   `data/train/datasets/packed/train-assistant_masked_sft-seq128`
 - sequence length: `128`
+- latest-checkpoint cadence: `64` optimizer steps
 - run purpose: `chat_attempt`
 - wall-clock target: `14400` seconds
 - expected serving disclosure: `lkjai_decode_accepted=false`

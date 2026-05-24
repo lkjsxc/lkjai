@@ -123,7 +123,8 @@ Expected chat result depends on the artifact kind: decoder artifacts return
 If `data/models/${MODEL_NAME}` is missing, `GET /v1/models` returns HTTP `503`.
 
 For a browser chat-attempt run that overwrites `decoder-40m-3070` without
-claiming acceptance, first build the tokenizer and SFT packed cache:
+claiming acceptance, first build the tokenizer and short-window SFT packed
+cache:
 
 ```bash
 docker compose --profile corpus run --build --rm corpus build-tokenizer

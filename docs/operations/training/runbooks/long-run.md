@@ -170,7 +170,9 @@ artifacts under `data/perf-runs/<run-id>/decoder_2h_bf16_cuda/`.
 
 This lane is not acceptance. It intentionally exports over
 `data/models/decoder-40m-3070` so the browser can attempt chat through the same
-serving name after SFT-style training.
+serving name after SFT-style training. It uses `128` token windows and saves a
+latest checkpoint every `64` optimizer steps so progress is visible during the
+four-hour run.
 
 Build the tokenizer and assistant-masked SFT cache:
 
