@@ -49,6 +49,13 @@ State: canonical product chat surface contract.
   They return HTTP `422` unsupported decode with no `choices` field.
 - Native decoder artifacts are the same-model product target for accepted chat
   responses.
+- The web UI must display `/api/chat` attempts even when the model does not
+  produce a successful assistant answer. `invalid_action`, `model_error`,
+  `invalid_model_response`, and other non-`finish` stop reasons are visible
+  chat-attempt outcomes, not blank responses.
+- The page shows model kind and decode status from `/api/model` alongside the
+  chat stop reason so non-acceptance attempts remain distinguishable from
+  accepted chat.
 - Decoder choices use native CUDA prefill and contiguous BF16 KV-cache state.
   Accepted artifacts report `lkjai_decode_backend=cuda_kv_cache` and
   `lkjai_kv_cache_backend=cuda_contiguous_bf16`. Artifacts without accepted

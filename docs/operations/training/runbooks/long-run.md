@@ -165,3 +165,60 @@ docker compose --profile train up --build train
 The runner stores raw outputs under
 `artifacts/benchmarks/<run-id>/decoder_2h_bf16_cuda/repeat-01/` and training
 artifacts under `data/perf-runs/<run-id>/decoder_2h_bf16_cuda/`.
+
+## Four-Hour Chat Attempt
+
+This lane is not acceptance. It intentionally exports over
+`data/models/decoder-40m-3070` so the browser can attempt chat through the same
+serving name after SFT-style training.
+
+Build the tokenizer and assistant-masked SFT cache:
+
+```bash
+docker compose --profile corpus run --build --rm corpus build-tokenizer
+
+docker compose --profile corpus run --build --rm corpus lkjai-native-packed-cache build \
+  --source /app/data/corpus/generated/kimi-sft-60m/train \
+  --tokenizer /app/data/train/tokenizer/tokenizer.json \
+  --config /workspace/configs/native/decoder_40m_bf16_3070.json \
+  --out /app/data/train/datasets/packed/train-assistant_masked_sft-seq1024 \
+  --split train \
+  --objective assistant_masked_sft \
+  --seq-len 1024 \
+  --run-id decoder-40m-chat-attempt-4h
+```
+
+Run a one-step start check before spending the full four hours:
+
+```bash
+TRAIN_CONFIG=/workspace/configs/training/decoder_4h_chat_attempt_3070.json \
+TRAIN_MODEL_NAME=decoder-40m-3070 \
+TRAIN_RUN_PURPOSE=chat_attempt \
+TRAIN_MAX_OPTIMIZER_STEPS=1 \
+TRAIN_TARGET_SECONDS=0 \
+docker compose --profile train up --build train
+```
+
+Then run the deadline-bounded training job:
+
+```bash
+TRAIN_CONFIG=/workspace/configs/training/decoder_4h_chat_attempt_3070.json \
+TRAIN_MODEL_NAME=decoder-40m-3070 \
+TRAIN_RUN_PURPOSE=chat_attempt \
+docker compose --profile train up --build train
+```
+
+After training, start the chat path and open the browser:
+
+```bash
+MODEL_NAME=decoder-40m-3070 docker compose --profile sandbox up --build -d
+docker compose --profile web up --build -d web
+curl --fail http://127.0.0.1:8081/v1/models
+curl --fail http://127.0.0.1:8082/healthz
+curl --fail http://127.0.0.1:8082/api/model
+```
+
+Use `http://127.0.0.1:8080`. The expected result is not quality acceptance; it
+is that `/api/chat` reaches the real model and the page shows assistant content
+or a concrete failure `stop_reason`. Expected disclosure remains
+`lkjai_decode_accepted=false`.

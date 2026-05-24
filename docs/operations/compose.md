@@ -122,6 +122,51 @@ Expected chat result depends on the artifact kind: decoder artifacts return
 `choices`; dense and transformer artifacts return HTTP `422` without `choices`.
 If `data/models/${MODEL_NAME}` is missing, `GET /v1/models` returns HTTP `503`.
 
+For a browser chat-attempt run that overwrites `decoder-40m-3070` without
+claiming acceptance, first build the tokenizer and SFT packed cache:
+
+```bash
+docker compose --profile corpus run --build --rm corpus build-tokenizer
+
+docker compose --profile corpus run --build --rm corpus lkjai-native-packed-cache build \
+  --source /app/data/corpus/generated/kimi-sft-60m/train \
+  --tokenizer /app/data/train/tokenizer/tokenizer.json \
+  --config /workspace/configs/native/decoder_40m_bf16_3070.json \
+  --out /app/data/train/datasets/packed/train-assistant_masked_sft-seq1024 \
+  --split train \
+  --objective assistant_masked_sft \
+  --seq-len 1024 \
+  --run-id decoder-40m-chat-attempt-4h
+```
+
+Then run the four-hour non-acceptance training lane:
+
+```bash
+TRAIN_CONFIG=/workspace/configs/training/decoder_4h_chat_attempt_3070.json \
+TRAIN_MODEL_NAME=decoder-40m-3070 \
+TRAIN_RUN_PURPOSE=chat_attempt \
+docker compose --profile train up --build train
+```
+
+Start the model, sandbox, and web UI:
+
+```bash
+MODEL_NAME=decoder-40m-3070 docker compose --profile sandbox up --build -d
+docker compose --profile web up --build -d web
+```
+
+Before opening the browser, probe:
+
+```bash
+curl --fail http://127.0.0.1:8081/v1/models
+curl --fail http://127.0.0.1:8082/healthz
+curl --fail http://127.0.0.1:8082/api/model
+```
+
+Open `http://127.0.0.1:8080`. A valid chat attempt shows either assistant
+content or a visible failure stop reason from `/api/chat`; this lane remains
+non-accepted and should continue to disclose `lkjai_decode_accepted=false`.
+
 ## Compact Output
 
 - Prefer `--progress quiet` for Compose builds when an LLM agent is reading the

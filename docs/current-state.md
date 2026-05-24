@@ -87,6 +87,22 @@ The active implementation target is the tied 40M decoder on RTX 3070:
 The two-hour RTX 3070 target is the acceptance lane. Code should validate truth
 fields and config shape, not treat `target_seconds > 0` as a promotion shortcut.
 
+The separate four-hour chat-attempt lane intentionally overwrites the same
+serving name, `decoder-40m-3070`, with a non-acceptance
+`assistant_masked_sft` artifact:
+
+- training config:
+  `configs/training/decoder_4h_chat_attempt_3070.json`
+- packed cache:
+  `data/train/datasets/packed/train-assistant_masked_sft-seq1024`
+- run purpose: `chat_attempt`
+- wall-clock target: `14400` seconds
+- expected serving disclosure: `lkjai_decode_accepted=false`
+
+Its success criterion is browser reachability to the real model path, not
+answer quality or acceptance promotion. The web page may show assistant content
+or a concrete failure `stop_reason` such as `invalid_action` or `model_error`.
+
 Research synthesis is owned by
 [native-decoder-plan.md](research/native-decoder-plan.md). Reports under
 `tmp/` are source inputs only, not tracked contract owners.

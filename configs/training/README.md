@@ -20,6 +20,9 @@ Training configs pin long-running scratch model settings.
   decoder two-hour target for RTX 3070 acceptance.
 - [decoder_40m_agent_sft_3070.json](decoder_40m_agent_sft_3070.json): 40M
   decoder `assistant_masked_sft` target for XML-action traces.
+- [decoder_4h_chat_attempt_3070.json](decoder_4h_chat_attempt_3070.json):
+  four-hour non-acceptance `assistant_masked_sft` chat-attempt run that exports
+  over the default `decoder-40m-3070` serving name.
 - [profile_20m_3070.json](profile_20m_3070.json): RTX 3070 transformer
   profile target for future native CUDA measurements, not accepted training.
 - [profile_120m_5090.json](profile_120m_5090.json): RTX 5090/Blackwell
@@ -33,6 +36,7 @@ Training configs pin long-running scratch model settings.
 - Dense training configs must set `model_kind` to `dense` and point at explicit
   dense-size native configs when parameter count matters.
 - Decoder training configs must set `model_kind` to `decoder` and include
-  `target_seconds` for wall-clock-bounded acceptance runs.
+  `target_seconds` for wall-clock-bounded runs. Only the committed
+  `decoder_2h_40m_3070.json` config is the acceptance lane.
 - Profile training configs must use only `lkjai-train-config` keys and must
   not claim accepted transformer CUDA training.

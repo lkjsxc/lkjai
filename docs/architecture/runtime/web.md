@@ -33,6 +33,12 @@ State: canonical web runtime contract.
 - CPU fallback is visible as degraded, not hidden behind a healthy label.
 - Model and CUDA status are read from sandbox `/api/model`, which probes the
   inference service.
+- Chat attempts show the sandbox `/api/chat` HTTP status and `stop_reason`.
+  Non-success stop reasons such as `invalid_action`, `model_error`, and
+  `invalid_model_response` remain visible in the transcript/status area.
+- Model status includes `artifact_kind`, `decode_supported`, and
+  `degraded_reason` so the browser can distinguish a real decoder attempt from
+  dense/transformer diagnostics or degraded serving.
 
 ## No Node Rule
 
