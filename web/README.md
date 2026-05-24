@@ -10,6 +10,8 @@ profile on port `8080`.
 
 - [app.js](app.js): browser runtime for status probes, model status display,
   and sandbox `/api/chat` calls.
+- [direct.js](direct.js): fallback browser call to inference
+  `/v1/chat/completions` when the sandbox agent rejects a non-action reply.
 - [index.html](index.html): static chat-first page loaded by nginx.
 - [styles.css](styles.css): page layout and visual styling.
 - [state.css](state.css): compact status chips and chat-attempt outcome styles.
@@ -23,7 +25,8 @@ It talks to the sandbox on `127.0.0.1:8082` and inference on
 
 Open the UI at `http://127.0.0.1:8080` after the sandbox and inference services
 are up. A non-acceptance decoder chat attempt is valid when the page shows
-either assistant text or a visible `/api/chat` failure stop reason such as
-`invalid_action` or `model_error`. The model panel should still disclose
-artifact kind, decode support, degraded reason, and the expected
-`lkjai_decode_accepted=false` route detail when it is present in diagnostics.
+assistant text from either the sandbox agent or the direct model fallback. It
+also preserves visible `/api/chat` failure stop reasons such as `invalid_action`
+or `model_error`. The model panel should still disclose artifact kind, decode
+support, degraded reason, and the expected `lkjai_decode_accepted=false` route
+detail when it is present in diagnostics.

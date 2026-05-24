@@ -50,6 +50,10 @@ function chatReason() {
   return model.reachable ? 'decoder required' : 'model unavailable';
 }
 
+function directModelName() {
+  return model.model || (((directModels.data || [])[0] || {}).id) || 'decoder-40m-3070';
+}
+
 function applyState() {
   $('message').disabled = pending;
   $('send').disabled = pending;
@@ -152,6 +156,21 @@ async function sendMessage(event) {
     stop_reason: data.stop_reason || (data.error ? 'request_error' : ''),
     error: data.error || ''
   };
+  if (lastChat.stop_reason && lastChat.stop_reason !== 'finish' &&
+      !webState.hasAssistant(events)) {
+    const direct = await webDirect.chat(INFERENCE_V1_BASE, directModelName(), message)
+      .catch((error) => ({ error: String(error), http_status: 0 }));
+    if (direct.content) {
+      events = [...events, {
+        kind: 'assistant',
+        content: `[direct model] ${direct.content}`
+      }];
+      lastChat.direct = {
+        http_status: direct.http_status || 0,
+        stop_reason: direct.stop_reason || 'direct_response'
+      };
+    }
+  }
   if (lastChat.stop_reason && lastChat.stop_reason !== 'finish' &&
       !webState.hasAssistant(events) && !webState.hasError(events)) {
     events = [...events, { kind: 'error', content: webState.failureMessage(data, model) }];

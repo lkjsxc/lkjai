@@ -14,6 +14,8 @@ State: canonical product chat surface contract.
 - Visibility settings are client-side preferences sent with chat requests.
 - The app is local-only by default.
 - Browser calls use direct loopback CORS to the sandbox and inference ports.
+- Browser chat falls back to direct `/v1/chat/completions` when the sandbox
+  agent rejects raw decoder text as an invalid action.
 - There is no login in the current product.
 
 ## Current And Target Matrix
@@ -53,6 +55,9 @@ State: canonical product chat surface contract.
   produce a successful assistant answer. `invalid_action`, `model_error`,
   `invalid_model_response`, and other non-`finish` stop reasons are visible
   chat-attempt outcomes, not blank responses.
+- If a non-accepted decoder emits plain text instead of a valid action block,
+  the browser may append a `[direct model]` assistant message from
+  `/v1/chat/completions` while retaining the sandbox stop reason.
 - The page shows model kind and decode status from `/api/model` alongside the
   chat stop reason so non-acceptance attempts remain distinguishable from
   accepted chat.
