@@ -29,3 +29,8 @@ dataset. Commands never write directly to active training data.
 Generation stops with a report instead of discarding valid quarantine rows when
 quota is exhausted. Authentication and access-termination failures remain hard
 failures because no trusted Kimi output can be produced.
+
+## Directories
+
+- [tests/](tests/): unit tests for validation, promotion, generation gates, and
+  Kimi CLI runner integration.
