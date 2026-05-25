@@ -63,7 +63,8 @@ State: canonical Compose profile, mount, port, and verification contract.
 - The sandbox uses `KJXLKJ_USER` and `KJXLKJ_BEARER_TOKEN` for typed
   `/api/users/{user}/resources/...` calls.
 - `GET /api/config` reports those settings and keeps mutable resource tools
-  disabled until confirmation-gated tool execution is implemented.
+  disabled unless `AGENT_TOOL_PROFILE=mutable`, a bearer token is configured,
+  and a pending confirmation is being executed.
 
 ## GPU
 

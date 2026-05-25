@@ -1,7 +1,7 @@
 # Memory Retrieval
 
 Owner: `docs/architecture/memory/retrieval.md`.
-State: target architecture.
+State: partial implementation contract.
 
 ## Goal
 
@@ -10,12 +10,15 @@ State: target architecture.
 
 ## Current Status
 
-- The active runtime persists transcripts but does not implement memory search.
-- `memory.search` remains a tool contract target until a durable store exists.
+- The active runtime persists transcripts under `data/agent/runs/`.
+- `memory.search` reads deterministic JSONL records under
+  `data/agent/memory/`.
+- Missing memory directories return an empty successful result.
 
 ## Target Retrieval
 
-- Use SQLite FTS lexical search.
+- The first implementation uses bounded lexical JSONL search.
+- SQLite FTS is a later scaling target.
 - Query with the latest user message and compact run summary.
 - Return at most `MEMORY_TOP_K=5` records by default.
 - Include memory text in a dedicated prompt section.

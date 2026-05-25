@@ -54,6 +54,8 @@ State: canonical documentation.
 - [architecture/README.md](architecture/README.md): agent, runtime, model, training.
 - [operations/README.md](operations/README.md): Compose, deployment, performance,
   quality gates.
+- [status/README.md](status/README.md): current implementation gaps and
+  acceptance blockers.
 - [repository/README.md](repository/README.md): layout, workflow, and file rules.
 - [research/README.md](research/README.md): external references that inform the canon.
 - [decisions/README.md](decisions/README.md): accepted and rejected choices.
@@ -61,6 +63,7 @@ State: canonical documentation.
 ## Task Routes
 
 - Decoder training: [current-state.md](current-state.md),
+  [status/decoder-acceptance-blockers.md](status/decoder-acceptance-blockers.md),
   [architecture/native/decoder/README.md](architecture/native/decoder/README.md),
   [architecture/native/decoder/training.md](architecture/native/decoder/training.md),
   [architecture/native/decoder/config.md](architecture/native/decoder/config.md),
@@ -69,6 +72,7 @@ State: canonical documentation.
   [product/api.md](product/api.md),
   [architecture/runtime/web.md](architecture/runtime/web.md).
 - Runtime and API: [architecture/native/contracts/runtime.md](architecture/native/contracts/runtime.md),
+  [status/runtime-tools.md](status/runtime-tools.md),
   [architecture/runtime/inference.md](architecture/runtime/inference.md),
   [product/api.md](product/api.md), [product/chat.md](product/chat.md),
   [product/kjxlkj-integration.md](product/kjxlkj-integration.md).
@@ -81,6 +85,7 @@ State: canonical documentation.
   [operations/performance/profiles/hardware-profiles.md](operations/performance/profiles/hardware-profiles.md),
   [operations/performance/contracts/benchmark-output.md](operations/performance/contracts/benchmark-output.md).
 - Verification: [getting-started/verification.md](getting-started/verification.md),
+  [status/implementation-gaps.md](status/implementation-gaps.md),
   [operations/quality.md](operations/quality.md),
   [operations/compose.md](operations/compose.md),
   [repository/workflow.md](repository/workflow.md).
@@ -110,3 +115,5 @@ State: canonical documentation.
   [operations/performance/contracts/promotion-criteria.md](operations/performance/contracts/promotion-criteria.md).
 - Compose and verification: [operations/compose.md](operations/compose.md),
   [operations/quality.md](operations/quality.md).
+- Current blockers and route evidence: [status/README.md](status/README.md),
+  [status/route-evidence.md](status/route-evidence.md).

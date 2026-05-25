@@ -7,8 +7,8 @@ State: target architecture.
 
 - Run transcripts stay as JSONL under `data/agent/runs/`.
 - Runtime code creates missing transcript directories.
-- Durable memory search and summary storage are target work, not implemented
-  runtime state.
+- Durable memory search reads JSONL files under `data/agent/memory/`.
+- Summary storage remains target work.
 
 ## Current Record
 
@@ -26,6 +26,9 @@ State: target architecture.
 - `content`: memory text.
 - `created_at`: RFC 3339 timestamp.
 - `updated_at`: RFC 3339 timestamp.
+
+Current `memory.search` also accepts records with `text` or `summary` fields
+and returns the first available text field as result content.
 
 ## Write Policy
 

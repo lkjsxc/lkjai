@@ -178,8 +178,8 @@ The optional `limit` query defaults to `20` and is clamped to `100`.
 }
 ```
 
-This route is informational. It exposes the API-only `kjxlkj` boundary without
-executing resource mutations.
+This route is informational. It exposes the API-only `kjxlkj` boundary and the
+active tool registry metadata without executing resource mutations.
 
 ## Event Shape
 

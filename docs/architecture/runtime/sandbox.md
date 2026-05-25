@@ -36,12 +36,17 @@ loopback CORS from `http://127.0.0.1:8080` to `http://127.0.0.1:8082`.
 - `./data` mounts read-write at `/app/data`.
 - `TOOL_WORKSPACE_DIR` defaults to `/app/data/workspace`.
 - Compose mounts only these read-only workspace inputs under that directory:
-  `docs`, `training`, `corpus`, `configs`, `README.md`, and `compose.yaml`.
+  `docs`, `native`, `web`, `ops`, `tools`, `scripts`, `training`, `corpus`,
+  `configs`, `README.md`, `Dockerfile.web`, and `compose.yaml`.
 - The sandbox must not mount model weights, host `/`, or unrelated host paths.
 
 ## Tool API
 
-- Implemented tools: `agent.finish`, `agent.think`, `fs.read`, and `fs.list`.
+- Implemented read-only tools: `agent.finish`, `agent.think`, `fs.read`,
+  `fs.list`, `memory.search`, `resource.search`, `resource.get`, and
+  `resource.history`.
+- Mutable resource tools require `AGENT_TOOL_PROFILE=mutable`, bearer-token
+  configuration, and a pending confirmation.
 - `fs.read` and `fs.list` resolve only under `TOOL_WORKSPACE_DIR`.
 - Existing read and listing limits remain in force.
 - Absolute paths and path traversal that escapes the workspace return tool

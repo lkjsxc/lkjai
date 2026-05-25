@@ -23,7 +23,7 @@ State: canonical product chat surface contract.
 | Layer | Current accepted behavior | Target behavior |
 |---|---|---|
 | Dense artifact | Browser diagnostics, status, logits, top-k, checksum | Stay non-chat and support demo evidence |
-| Chat route | Bounded XML-action loop for `agent.finish`, `agent.think`, `fs.list`, and `fs.read` | Memory, summaries, and confirmations |
+| Chat route | Bounded XML-action loop with read-only file, memory, and resource tools | Summaries and broader confirmations |
 | Decoder route | CUDA decoder choices with truthful accepted/non-accepted disclosure | Broader streaming and batching metrics |
 | Tools | Native read-only filesystem tools | `kjxlkj` resource tools |
 
@@ -31,8 +31,7 @@ State: canonical product chat surface contract.
 
 - User prompts are sent to sandbox `POST /api/chat`.
 - The implemented foundation runs a bounded XML-action loop.
-- The first loop executes `agent.finish`, `agent.think`, `fs.list`, and
-  `fs.read`.
+- The loop executes active-profile tools from the native registry.
 - Unsupported tools stop as `tool_error` until their contracts land.
 - Non-tool prompts use the same HTTP path as later tool prompts.
 - Model-status strings are not valid assistant replies.
@@ -42,8 +41,8 @@ State: canonical product chat surface contract.
 - Repeated identical non-terminal model actions stop as `repeat_action`.
 - Visible `<reasoning>`, `plan`, `finish`, and `assistant` events are persisted
   when produced by the implemented core agent tools.
-- Resource, memory, confirmation, and shell tools remain target work until
-  their profile gates pass.
+- Memory search and read-only resource tools are active; memory writes, shell,
+  web fetch, and file writes remain disabled.
 - Every run is persisted as JSONL under `data/agent/runs/`.
 - The sandbox must use a real inference endpoint; policy-file dummy responses
   are not an accepted default.

@@ -17,8 +17,7 @@ State: canonical runtime storage contract.
 - `train/exports/`: serving manifests copied from training outputs.
 - `train/runs/`: training and eval logs.
 - `agent/runs/`: chat and tool transcripts.
-- future `agent/memory/`: durable memory and summaries after memory store
-  implementation.
+- `agent/memory/`: durable JSONL memory searched by `memory.search`.
 - `workspace/`: only filesystem root visible to agent file and shell tools.
 
 ## Persistence

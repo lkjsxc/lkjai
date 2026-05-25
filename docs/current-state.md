@@ -43,6 +43,7 @@ The decoder lane is the first product acceptance target. Current truth is:
   remains partial until accepted route evidence exists.
 
 Detailed decoder acceptance blockers are owned by
+[status/decoder-acceptance-blockers.md](status/decoder-acceptance-blockers.md),
 [training.md](architecture/native/decoder/training.md),
 [acceptance.md](architecture/native/decoder/acceptance.md),
 [backward.md](architecture/native/decoder/backward.md),
@@ -54,6 +55,8 @@ attention or decode names. Accepted route disclosure requires accepted train
 report evidence, an accepted sidecar, the loaded 40M RTX 3070 decoder shape,
   an executed CUDA KV-cache path, and
   `data/train/runs/decoder-40m-3070-route-transcript.json`.
+Agent run transcripts under `data/agent/runs/` are sandbox evidence only and
+do not replace the training route transcript.
 
 The public pretrain cache remains local under `data/` after strict validation.
 The tracked `corpus/generated/kimi-sft-60m` tree is only a tiny seed fixture.
