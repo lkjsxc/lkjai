@@ -87,7 +87,7 @@ bool error_contracts() {
                      "{\"message\":\"hello\",\"run_id\":\"r4\"}");
   auto unsupported =
       run(cfg("lkjai-agent-tool"),
-          {ok("<action><tool>memory.search</tool><query>x</query></action>")},
+          {ok("<action><tool>memory.write</tool><content>x</content></action>")},
           "{\"message\":\"hello\",\"run_id\":\"r5\"}");
   return expect(has(invalid.body, "\"stop_reason\":\"invalid_action\""),
                 "invalid action") &&
@@ -130,14 +130,15 @@ bool tool_profile_contract() {
       c, {ok("<action><tool>fs.read</tool><path>note.txt</path></action>"),
           ok("<action><tool>agent.finish</tool><content>blocked</content></action>")},
       "{\"message\":\"hello\",\"run_id\":\"r8\",\"max_steps\":2}");
-  return expect(has(resp.body, "\\\"status\\\":\\\"error\\\""),
-                "disabled profile error result") &&
-         expect(has(resp.body, "tool profile is disabled"),
+  return expect(has(resp.body, "\"stop_reason\":\"tool_error\""),
+                "disabled profile tool error") &&
+         expect(has(resp.body, "tool not available in profile"),
                 "disabled profile rejected before dispatch");
 }
 
 bool confirmation_contract() {
   auto c = cfg("lkjai-agent-confirm");
+  c.tool_profile = "mutable";
   auto ask = ok("<action><tool>agent.request_confirmation</tool>"
                 "<pending_tool>resource.update_resource</pending_tool>"
                 "<ref>note-1</ref><body>updated</body></action>");

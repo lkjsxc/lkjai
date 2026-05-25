@@ -44,6 +44,30 @@ bool fs_read_contract() {
                 "absolute blocked");
 }
 
+bool memory_search_contract() {
+  auto root = std::filesystem::temp_directory_path() / "lkjai-runtime-memory";
+  std::filesystem::remove_all(root);
+  std::filesystem::create_directories(root / "agent" / "memory");
+  std::ofstream(root / "agent" / "memory" / "core.jsonl")
+      << "{\"content\":\"alpha decoder memory\"}\n"
+      << "{\"summary\":\"beta unrelated\"}\n";
+  lkjai::RuntimeConfig cfg{"127.0.0.1", 8082, root.string(),
+                           "http://inference:8081/v1/chat/completions",
+                           "decoder-40m-3070", "readonly",
+                           (root / "workspace").string()};
+  auto query = action("memory.search", "");
+  query.fields["query"] = "decoder";
+  auto found = lkjai::runtime_run_tool(cfg, query);
+  auto disabled_cfg = cfg;
+  disabled_cfg.tool_profile = "disabled";
+  auto blocked = lkjai::runtime_run_tool(disabled_cfg, query);
+  return expect(found.supported, "memory.search supported") &&
+         expect(has(found.json, "\"status\":\"ok\""), "memory search ok") &&
+         expect(has(found.json, "alpha decoder memory"), "memory content") &&
+         expect(has(blocked.json, "tool not available in profile"),
+                "memory blocked when disabled");
+}
+
 }  // namespace
 
-int main() { return fs_read_contract() ? 0 : 1; }
+int main() { return fs_read_contract() && memory_search_contract() ? 0 : 1; }

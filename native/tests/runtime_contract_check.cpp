@@ -118,7 +118,9 @@ bool config_status_contract() {
   return expect(has(body, "\"status\":\"degraded\""), "degraded status") &&
          expect(has(body, "\"local_only\":true"), "local bind") &&
 	         expect(has(body, "/api/users/default/resources"), "resource base") &&
-	         expect(has(body, "\"mutable_tools_enabled\":false"), "mutable tools");
+	         expect(has(body, "\"mutable_tools_enabled\":false"), "mutable tools") &&
+         expect(has(body, "\"available\":[\"agent.finish\",\"agent.think\""),
+                "tool registry");
 }
 
 bool health_contract() {

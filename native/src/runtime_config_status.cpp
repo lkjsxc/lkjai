@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "json_min.hpp"
+#include "runtime_tool_registry.hpp"
 
 namespace lkjai {
 
@@ -28,7 +29,9 @@ std::string runtime_config_status_json(const RuntimeConfig& cfg) {
       << "\",\"bearer_token_configured\":"
       << (has_token ? "true" : "false")
       << ",\"resource_base\":\"" << json_escape(resource_base)
-      << "\",\"mutable_tools_enabled\":false}}";
+      << "\",\"mutable_tools_enabled\":"
+      << (runtime_mutable_tools_enabled(cfg) ? "true" : "false") << "}"
+      << ",\"tools\":" << runtime_tool_config_json(cfg) << "}";
   return out.str();
 }
 

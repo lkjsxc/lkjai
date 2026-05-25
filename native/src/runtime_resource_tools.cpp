@@ -61,8 +61,7 @@ std::string resource_body(const AgentAction& action) {
 }  // namespace
 
 bool runtime_tool_requires_confirmation(const std::string& tool) {
-  return tool == "resource.create" || tool == "resource.create_note" ||
-         tool == "resource.create_media" || tool == "resource.update_resource" ||
+  return tool == "resource.create" || tool == "resource.update_resource" ||
          tool == "resource.delete";
 }
 
@@ -91,20 +90,33 @@ RuntimeToolResult runtime_run_resource_tool(const RuntimeConfig& cfg,
                                         cfg.kjxlkj_bearer_token));
   }
   if (runtime_tool_requires_confirmation(tool)) {
+    if (cfg.tool_profile != "mutable") {
+      return degraded(action, "mutable profile required");
+    }
     if (cfg.kjxlkj_bearer_token.empty()) {
       return degraded(action, "KJXLKJ_BEARER_TOKEN not configured");
     }
-    if (tool == "resource.create" || tool == "resource.create_note") {
+    if (agent_action_field(action, "confirmed") != "true") {
+      return degraded(action, "pending confirmation required");
+    }
+    if (tool == "resource.create") {
+      if (agent_action_field(action, "body").empty()) {
+        return degraded(action, "body is required");
+      }
       return wrap(action, native_http_json("POST", base(cfg) + "/notes",
                                           resource_body(action),
                                           cfg.kjxlkj_bearer_token));
     }
     auto ref = agent_action_field(action, "ref");
     if (ref.empty()) ref = agent_action_field(action, "id");
+    if (ref.empty()) return degraded(action, "ref is required");
     if (tool == "resource.delete") {
       return wrap(action, native_http_json("DELETE", base(cfg) + "/" +
                                           encode(ref), "",
                                           cfg.kjxlkj_bearer_token));
+    }
+    if (agent_action_field(action, "body").empty()) {
+      return degraded(action, "body is required");
     }
     return wrap(action, native_http_json("PUT", base(cfg) + "/" + encode(ref),
                                         resource_body(action),

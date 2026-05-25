@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "json_min.hpp"
+#include "runtime_tool_registry.hpp"
 
 namespace lkjai {
 namespace {
@@ -168,12 +169,15 @@ RuntimeToolResult fs_list(const RuntimeConfig& cfg, const AgentAction& action) {
 
 RuntimeToolResult runtime_run_tool(const RuntimeConfig& cfg,
                                    const AgentAction& action) {
-  if (cfg.tool_profile != "readonly" && cfg.tool_profile != "default") {
+  if (!runtime_tool_available(cfg, action.tool)) {
+    if (!runtime_tool_known(action.tool)) return {false, action.tool, ""};
     return {true, action.tool,
-            error_json(action.tool, "", "tool profile is disabled")};
+            error_json(action.tool, "", "tool not available in profile")};
   }
   if (action.tool == "fs.read") return fs_read(cfg, action);
   if (action.tool == "fs.list") return fs_list(cfg, action);
+  auto memory = runtime_run_memory_tool(cfg, action);
+  if (memory.supported) return memory;
   auto resource = runtime_run_resource_tool(cfg, action);
   if (resource.supported) return resource;
   return {false, action.tool, ""};

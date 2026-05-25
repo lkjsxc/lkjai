@@ -2,6 +2,7 @@
 #include "json_min.hpp"
 #include "runtime_action.hpp"
 #include "runtime_events.hpp"
+#include "runtime_tool_registry.hpp"
 #include "runtime_tools.hpp"
 #include <fstream>
 namespace lkjai {
@@ -15,17 +16,10 @@ int max_steps(std::string_view body, std::string* error) {
   *error = "max_steps must be in [1,64]";
   return 0;
 }
-std::string system_prompt(const RuntimeConfig& cfg) {
-  return "Return exactly one XML action. Available tools: agent.finish, "
-         "agent.think, agent.request_confirmation, fs.list, fs.read, resource.search, "
-         "resource.get, resource.history, resource.create, resource.update_resource, "
-         "resource.delete. Use agent.request_confirmation before resource mutations. "
-         "Use fs.list/fs.read for read-only files. Tool profile: " + cfg.tool_profile + ".";
-}
 std::string chat_payload(const RuntimeConfig& cfg, const std::string& run_id) {
   return "{\"model\":\"" + json_escape(cfg.model) + "\",\"messages\":["
          "{\"role\":\"system\",\"content\":\"" +
-         json_escape(system_prompt(cfg)) + "\"}" +
+         json_escape(runtime_tool_system_prompt(cfg)) + "\"}" +
          runtime_chat_messages_json(cfg, run_id, 12) +
          "],\"max_tokens\":512,\"temperature\":0.2}";
 }
@@ -98,6 +92,7 @@ HttpResponse handle_confirmation(const RuntimeConfig& cfg,
   }
   runtime_append_event(cfg, run_id, "confirmed_operation", action.raw, 0,
                        action.tool);
+  action.fields["confirmed"] = "true";
   auto result = runtime_run_tool(cfg, action);
   if (!result.supported) {
     return stop_error(cfg, run_id, visible, "tool_error",
@@ -144,6 +139,10 @@ HttpResponse runtime_chat_with_model_callback(const RuntimeConfig& cfg,
       return stop_error(cfg, run_id, visible, "invalid_action", error);
     }
     append_reasoning(cfg, run_id, action, step);
+    if (!runtime_tool_available(cfg, action.tool)) {
+      return stop_error(cfg, run_id, visible, "tool_error",
+                        "tool not available in profile: " + action.tool);
+    }
     if (action.tool != "agent.finish") {
       auto sig = agent_action_signature(action);
       if (!previous_nonterminal.empty() && previous_nonterminal == sig) {

@@ -97,6 +97,8 @@ set(LKJAI_NATIVE_CORE_SOURCES
   src/runtime_api.cpp
   src/runtime_config_status.cpp
   src/runtime_events.cpp
+  src/runtime_memory_tools.cpp
+  src/runtime_tool_registry.cpp
   src/runtime_tools.cpp
   src/runtime_resource_tools.cpp
   src/train_data.cpp
