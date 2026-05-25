@@ -101,3 +101,20 @@ sandbox path reaches the trained decoder artifact and exposes a concrete
 failure stop reason. The web UI also loads `direct.js`, which appends a direct
 model fallback response when the sandbox agent rejects plain decoder text as an
 invalid action.
+
+## Quality Assessment
+
+The post-training run did not demonstrate chat-quality improvement. The
+observable decoder output collapsed to repeated `n` tokens with greedy decode,
+and the sandbox agent path stopped as `invalid_action` because the raw decoder
+text was not the required action block. This is a successful end-to-end
+pipeline attempt, not a successful behavioral tuning result.
+
+Do not use this run as evidence that SFT quality is working. It should instead
+be used as the baseline failure for the next investigation:
+
+- tokenizer coverage and generated text distribution;
+- prompt template alignment between SFT data and inference requests;
+- assistant loss-mask alignment;
+- repetition controls in decode;
+- whether a short `seq_len=128` run is truncating the supervised pattern.

@@ -105,6 +105,20 @@ Its success criterion is browser reachability to the real model path, not
 answer quality or acceptance promotion. The web page may show assistant content
 or a concrete failure `stop_reason` such as `invalid_action` or `model_error`.
 
+The completed four-hour chat attempt is infrastructure evidence only. It did
+not produce usable conversational behavior: direct decode returned repeated
+`n` tokens under greedy sampling, while the sandbox agent rejected the raw text
+as `invalid_action` because it was not a valid action block. Treat the current
+artifact as proof that training, export, serving, and browser challenge paths
+run end to end, not as proof that post-training improved chat quality.
+
+Current quality blockers are likely in the data and decode interface rather
+than a single missing runtime switch: the promoted SFT set is small, the run
+used `seq_len=128`, the model is trained almost from scratch, and the sandbox
+expects structured action XML while the decoder emits raw token text. Future
+work should isolate tokenizer coverage, prompt formatting, loss-mask alignment,
+and repetition control before treating longer SFT runs as quality evidence.
+
 Research synthesis is owned by
 [native-decoder-plan.md](research/native-decoder-plan.md). Reports under
 `tmp/` are source inputs only, not tracked contract owners.
